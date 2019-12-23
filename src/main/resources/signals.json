@@ -1,0 +1,86 @@
+{
+  "signals": [
+    {
+      "name": "AM Broadcast Radio",
+      "score": 0,
+      "active": false,
+      "description": "Local AM Radio",
+      "governingBody": "US-FCC",
+      "floorFrequencyHz": 535000,
+      "ceilingFrequencyHz": 1605000,
+      "currentFrequencyHz": 535000,
+      "type": "io.onemfive.radio.signals.AMVoiceSignal"
+    },
+    {
+      "name": "CB Radio",
+      "score": 0,
+      "active": false,
+      "description": "Radio usually used by truckers",
+      "governingBody": "US-FCC",
+      "floorFrequencyHz": 29965000,
+      "ceilingFrequencyHz": 27405000,
+      "currentFrequencyHz": 29965000,
+      "type": "io.onemfive.radio.signals.AMVoiceSignal"
+    }
+  ],
+  "hardware": [
+    {
+      "name": "RTL-SDR",
+      "floorFrequencyHz": 24000000,
+      "ceilingFrequencyHz": 1766000000,
+      "maxSamplesPerSecond": 2560000,
+      "radio": "GNURadio",
+      "transmit": false
+    },
+    {
+      "name": "HackRF One",
+      "floorFrequencyHz": 1000000,
+      "ceilingFrequencyHz": 6000000000,
+      "maxSamplesPerSecond": 20000000,
+      "radio": "GNURadio",
+      "configurableRxGain": true,
+      "configurableTxGain": true,
+      "configurableBasebandFilter": true,
+      "configurableAntennaPortPower": true,
+      "maxAntennaPortPowerMA": 50,
+      "antennaPortVoltage": 3.3,
+      "transmit": true,
+      "duplex": false
+    },
+    {
+      "name": "LimeSDR",
+      "floorFrequencyHz": 100000,
+      "ceilingFrequencyHz": 3800000000,
+      "maxSamplesPerSecond": 61440000
+    },
+    {
+      "name": "BladeRF-x40",
+      "floorFrequencyHz": 300000000,
+      "ceilingFrequencyHz": 3800000000,
+      "maxSamplesPerSecond": 28000000,
+      "transmit": true,
+      "duplex": true,
+      "mimo": false
+    },
+    {
+      "name": "USRP-B200",
+      "floorFrequencyHz": 70000000,
+      "ceilingFrequencyHz": 6000000000,
+      "maxSamplesPerSecond": 56000000,
+      "radio": "GNURadio",
+      "transmit": true,
+      "duplex": true,
+      "mimo": false
+    },
+    {
+      "name": "USRP-B210",
+      "floorFrequencyHz": 70000000,
+      "ceilingFrequencyHz": 6000000000,
+      "maxSamplesPerSecond": 56000000,
+      "radio": "GNURadio",
+      "transmit": true,
+      "duplex": true,
+      "mimo": true
+    }
+  ]
+}
