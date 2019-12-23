@@ -34,10 +34,10 @@ public class APIService extends BaseService {
     }
 
     private void sendMessage(Envelope e) {
-
+        LOG.warning("sendMessage not yet implemented.");
     }
 
     private void registerListener(Envelope e) {
-
+        LOG.warning("registerListener not yet implemented.");
     }
 }
