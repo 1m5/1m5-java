@@ -200,15 +200,6 @@ source for news and to ensure that information is also not censored nor stolen y
 the journalist to release portions of the information as they desire to whom they desire
 to share it with to include no one or everyone (global public).
 
-### [Purism](https://puri.sm)
-
-#### Chatty
-Messaging over a censorship-resistant anonymous peer-to-peer network.
-
-#### PureBrowser
-Upon integrating with Chatty, we will be looking at integration in the Purism PureBrowser to ensure
-anyone world-wide can access any web page anywhere in the world anonymously.
-
 ## Support
 Support can be purchased with Bitcoin when availability exists. Please request support
 at: info@1m5.io
