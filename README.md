@@ -28,7 +28,7 @@ Paid in Bitcoin
 ## Donations
 
 ### Bitcoin
-Please contact us at 1m5@protonmail.com for a BTC address.
+Please contact us at objectorange@1m5.io for a BTC address.
 
 ## Opportunities
 [**Freedom of Speech**](https://en.wikipedia.org/wiki/Freedom_of_speech) - a principle that supports the freedom of 
