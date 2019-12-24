@@ -1,6 +1,8 @@
 package io.onemfive.network;
 
 import io.onemfive.data.Envelope;
+import io.onemfive.data.Packet;
+import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.peers.PeerReport;
 
@@ -70,8 +72,13 @@ public abstract class SensorManagerBase implements SensorManager {
     }
 
     @Override
-   public File getSensorDirectory(String sensorName) {
+    public File getSensorDirectory(String sensorName) {
         return new File(networkService.getSensorsDirectory(), sensorName);
+    }
+
+    @Override
+    public boolean handleNetworkOpPacket(Packet packet, NetworkOp op) {
+        return networkService.handlePacket(packet, op);
     }
 
     @Override
