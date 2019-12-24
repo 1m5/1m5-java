@@ -5,6 +5,7 @@ import io.onemfive.data.Envelope;
 import io.onemfive.data.Packet;
 import io.onemfive.data.Sensitivity;
 import io.onemfive.data.route.Route;
+import io.onemfive.network.ops.NetworkOp;
 
 import java.net.URL;
 import java.util.*;
