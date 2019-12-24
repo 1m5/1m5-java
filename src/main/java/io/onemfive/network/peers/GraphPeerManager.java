@@ -5,7 +5,6 @@ import io.onemfive.core.util.tasks.TaskRunner;
 import io.onemfive.data.*;
 import io.onemfive.neo4j.GraphUtil;
 import io.onemfive.neo4j.Neo4jDB;
-import io.onemfive.network.Sensor;
 import io.onemfive.network.SensorsConfig;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.IndexDefinition;
@@ -146,7 +145,7 @@ public class GraphPeerManager extends BasePeerManager {
             return true;
         else if(autocreate) {
             LOG.info("Creating NetworkPeer in graph...");
-            long numberPeers = totalPeers(getLocalPeer(), P2PRelationship.RelType.Known);
+            long numberPeers = totalPeersByRelationship(getLocalPeer(), P2PRelationship.RelType.Known);
             if(numberPeers <= SensorsConfig.MaxPT) {
                 try (Transaction tx = db.getGraphDb().beginTx()) {
                     Node n = db.getGraphDb().createNode(PEER_LABEL);
@@ -208,6 +207,11 @@ public class GraphPeerManager extends BasePeerManager {
         return loaded;
     }
 
+    @Override
+    public Boolean isKnown(NetworkPeer peer) {
+        return loadPeer(peer)!=null;
+    }
+
     private boolean updatePeer(NetworkPeer p) throws Exception {
         LOG.info("Find and Update Peer Node...");
         boolean updated = false;
@@ -256,7 +260,7 @@ public class GraphPeerManager extends BasePeerManager {
     public NetworkPeer getRandomPeer(NetworkPeer p) {
         LOG.info("Get Random Peer...");
         NetworkPeer peer = null;
-        long numberPeers = totalPeers(p, P2PRelationship.RelType.Known);
+        long numberPeers = totalPeersByRelationship(p, P2PRelationship.RelType.Known);
         if(numberPeers > 0) {
             long randomIndex = (long)(Math.random() * numberPeers);
             List<NetworkPeer> peers = getPeersByIndexRange(p, randomIndex, 1);
@@ -266,9 +270,29 @@ public class GraphPeerManager extends BasePeerManager {
         return peer;
     }
 
+    @Override
+    public NetworkPeer getRandomReachablePeer(NetworkPeer p, Sensitivity sensitivity) {
+        LOG.info("Get Random Peer by sensitivity...");
+        NetworkPeer peer = null;
+        long numberPeers = totalPeersByRelationshipAndSensitivity(p, P2PRelationship.RelType.Known, sensitivity);
+        if(numberPeers > 0) {
+            long randomIndex = (long)(Math.random() * numberPeers);
+            List<NetworkPeer> peers = getPeersByIndexRange(p, randomIndex, 1);
+            peer = peers.get(0);
+            LOG.info("Random peer selected: "+peer+" of peer: "+p);
+        }
+        return peer;
+    }
+
+    @Override
+    public Boolean isReachable(NetworkPeer fromPeer, NetworkPeer toPeer, Sensitivity sensitivity) {
+
+        return null;
+    }
+
     // TODO: Move this to file system to speed up
     @Override
-    public Long totalPeers(NetworkPeer p, P2PRelationship.RelType relType) {
+    public Long totalPeersByRelationship(NetworkPeer p, P2PRelationship.RelType relType) {
         long count = -1;
         try (Transaction tx = db.getGraphDb().beginTx()) {
             String cql = "MATCH (n {address: '"+p.getAddress()+"'})-[:" + relType.name() + "]->()" +
@@ -287,6 +311,12 @@ public class GraphPeerManager extends BasePeerManager {
             LOG.warning(e.getLocalizedMessage());
         }
         return count;
+    }
+
+    @Override
+    public Long totalPeersByRelationshipAndSensitivity(NetworkPeer fromPeer, P2PRelationship.RelType relType, Sensitivity sensitivity) {
+
+        return null;
     }
 
     public boolean isLocalReady() {
@@ -499,7 +529,7 @@ public class GraphPeerManager extends BasePeerManager {
             LOG.info("Remote Peer saved.");
             relatePeers(getLocalPeer(), remotePeer, P2PRelationship.RelType.Known);
             LOG.info("Remote Peer related as known to local peer.");
-            long numberKnown = totalPeers(getLocalPeer(), P2PRelationship.RelType.Known);
+            long numberKnown = totalPeersByRelationship(getLocalPeer(), P2PRelationship.RelType.Known);
             NetworkPeer remoteRelP;
             for (NetworkPeer known : remoteKnown) {
                 if (numberKnown + saved > SensorsConfig.MaxPT)
@@ -625,7 +655,7 @@ public class GraphPeerManager extends BasePeerManager {
                     "\ttotal acks: "+totalAcks+"\n"+
                     "\tavg round trip latency: "+avgAckLatency+"ms\n} of remote peer "+endPeer+" with start peer "+startPeer);
 
-        } else if(totalPeers(startPeer, P2PRelationship.RelType.Known) <= SensorsConfig.MaxPT) {
+        } else if(totalPeersByRelationship(startPeer, P2PRelationship.RelType.Known) <= SensorsConfig.MaxPT) {
             relatePeers(startPeer, endPeer, P2PRelationship.RelType.Known);
             LOG.info("New known peer: "+endPeer);
         } else {
