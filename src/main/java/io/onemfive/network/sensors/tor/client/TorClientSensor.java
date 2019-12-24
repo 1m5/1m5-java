@@ -1,5 +1,7 @@
 package io.onemfive.network.sensors.tor.client;
 
+import io.onemfive.data.Packet;
+import io.onemfive.data.Sensitivity;
 import io.onemfive.network.sensors.clearnet.client.ClearnetClientSensor;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Message;
@@ -44,13 +46,14 @@ public final class TorClientSensor extends ClearnetClientSensor {
     }
 
     @Override
-    public boolean send(Envelope e) {
+    public boolean sendOut(Packet packet) {
         LOG.info("Tor Sensor sending request...");
-        boolean successful = super.send(e);
+        Envelope e = packet.getEnvelope();
+        boolean successful = super.sendOut(packet);
         if(successful) {
             LOG.info("Tor Sensor successful response received.");
             // Change flag to None so Client Server Sensor will pick it back up
-            e.setSensitivity(Envelope.Sensitivity.NONE);
+            e.setSensitivity(Sensitivity.NONE);
             DLC.addRoute(NetworkService.class, NetworkService.OPERATION_REPLY, e);
             if(!getStatus().equals(SensorStatus.NETWORK_CONNECTED)) {
                 LOG.info("Tor Network status changed back to CONNECTED.");
@@ -115,8 +118,8 @@ public final class TorClientSensor extends ClearnetClientSensor {
     }
 
     @Override
-    public boolean reply(Envelope e) {
-        return super.reply(e);
+    public boolean replyOut(Packet packet) {
+        return false;
     }
 
     @Override
