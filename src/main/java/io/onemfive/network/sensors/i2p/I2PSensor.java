@@ -1,13 +1,18 @@
 package io.onemfive.network.sensors.i2p;
 
 import io.onemfive.core.Config;
+import io.onemfive.core.Operation;
 import io.onemfive.data.ServiceMessage;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.util.tasks.TaskRunner;
 import io.onemfive.data.*;
+import io.onemfive.data.route.Route;
 import io.onemfive.data.util.DLC;
 import io.onemfive.data.DID;
+import io.onemfive.data.util.JSONParser;
+import io.onemfive.data.util.JSONPretty;
 import io.onemfive.network.*;
+import io.onemfive.network.ops.NetworkOp;
 import net.i2p.I2PException;
 import net.i2p.client.*;
 import net.i2p.client.datagram.I2PDatagramDissector;
@@ -118,52 +123,46 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
 
     /**
      * Sends UTF-8 content to a Destination using I2P.
-     * @param packet Packet containing SensorRequest as data.
+     * @param request Packet containing SensorRequest as data.
      *                 To DID must contain base64 encoded I2P destination key.
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(Packet packet) {
+    public boolean sendOut(Packet request) {
         LOG.info("Sending I2P Message...");
-        Envelope envelope = packet.getEnvelope();
-        NetworkRequest request = (NetworkRequest)DLC.getData(NetworkRequest.class,envelope);
         if(request == null){
             LOG.warning("No SensorRequest in Envelope.");
             request.statusCode = ServiceMessage.REQUEST_REQUIRED;
             return false;
         }
-        NetworkPeer toPeer = request.destination.getPeer(Network.I2P.name());
+        NetworkPeer toPeer = request.getToPeer();
         if(toPeer == null) {
             LOG.warning("No Peer for I2P found in toDID while sending to I2P.");
             request.statusCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
             return false;
         }
-        if(!Network.I2P.name().equals((toPeer.getNetwork()))) {
-            LOG.warning("I2P requires an I2P Peer.");
+        if(toPeer.getI2PAddress()==null) {
+            LOG.warning("I2P requires an I2P Address.");
             request.statusCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
             return false;
         }
-        LOG.info("Content to send: "+request.content);
-        if(request.content == null) {
-            LOG.warning("No content found in Envelope while sending to I2P.");
-            request.statusCode = NetworkRequest.NO_CONTENT;
-            return false;
-        }
-        if(request.content.length() > 31500) {
+        String content = JSONPretty.toPretty(JSONParser.toString(request.toMap()), 4);
+        LOG.info("Content to send: "+content);
+        if(content.length() > 31500) {
             // Just warn for now
             // TODO: Split into multiple serialized datagrams
             LOG.warning("Content longer than 31.5kb. May have issues.");
         }
 
         try {
-            Destination toDestination = i2pSession.lookupDest(toPeer.getAddress());
+            Destination toDestination = i2pSession.lookupDest(toPeer.getI2PAddress());
             if(toDestination == null) {
                 LOG.warning("I2P Peer To Destination not found.");
                 request.statusCode = NetworkRequest.DESTINATION_PEER_NOT_FOUND;
                 return false;
             }
             I2PDatagramMaker m = new I2PDatagramMaker(i2pSession);
-            byte[] payload = m.makeI2PDatagram(request.content.getBytes());
+            byte[] payload = m.makeI2PDatagram(content.getBytes());
             if(i2pSession.sendMessage(toDestination, payload, I2PSession.PROTO_UNSPECIFIED, I2PSession.PORT_ANY, I2PSession.PORT_ANY)) {
                 LOG.info("I2P Message sent.");
                 return true;
@@ -187,52 +186,46 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
 
     /**
      * Incoming
-     * @param packet
+     * @param response
      * @return
      */
     @Override
-    public boolean replyOut(Packet packet) {
+    public boolean replyOut(Packet response) {
         LOG.info("Sending I2P Message reply...");
-        Envelope envelope = packet.getEnvelope();
-        Response response = (Response)DLC.getData(Response.class,envelope);
         if(response == null){
             LOG.warning("No Response in Envelope.");
             response = new Response(null);
             response.statusCode = ServiceMessage.REQUEST_REQUIRED;
             return false;
         }
-        NetworkPeer toPeer = response.to.getPeer(Network.I2P.name());
+        NetworkPeer toPeer = response.getToPeer();
         if(toPeer == null) {
             LOG.warning("No Peer for I2P found in toDID while sending to I2P.");
             response.statusCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
             return false;
         }
-        if(!Network.I2P.name().equals((toPeer.getNetwork()))) {
-            LOG.warning("I2P requires an I2P Peer.");
+        if(toPeer.getI2PAddress()==null) {
+            LOG.warning("I2P requires an I2P Address.");
             response.statusCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
             return false;
         }
-        LOG.info("Content to send: "+response.content);
-        if(response.content == null) {
-            LOG.warning("No content found in Envelope while sending to I2P.");
-            response.statusCode = NetworkRequest.NO_CONTENT;
-            return false;
-        }
-        if(response.content.length() > 31500) {
+        String content = JSONPretty.toPretty(JSONParser.toString(response.toMap()), 4);
+        LOG.info("Content to send: "+content);
+        if(content.length() > 31500) {
             // Just warn for now
             // TODO: Split into multiple serialized datagrams
             LOG.warning("Content longer than 31.5kb. May have issues.");
         }
 
         try {
-            Destination toDestination = i2pSession.lookupDest(toPeer.getAddress());
+            Destination toDestination = i2pSession.lookupDest(toPeer.getI2PAddress());
             if(toDestination == null) {
-                LOG.warning("I2P Peer To Destination not found.");
+                LOG.warning("I2P Peer To Destination not found by I2P Router.");
                 response.statusCode = NetworkRequest.DESTINATION_PEER_NOT_FOUND;
                 return false;
             }
             I2PDatagramMaker m = new I2PDatagramMaker(i2pSession);
-            byte[] payload = m.makeI2PDatagram(response.content.getBytes());
+            byte[] payload = m.makeI2PDatagram(content.getBytes());
             if(i2pSession.sendMessage(toDestination, payload, I2PSession.PROTO_UNSPECIFIED, I2PSession.PORT_ANY, I2PSession.PORT_ANY)) {
                 LOG.info("I2P Message sent.");
                 return true;
@@ -298,23 +291,35 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
             Destination sender = d.getSender();
             String address = sender.toBase64();
             String fingerprint = sender.getHash().toBase64();
-            LOG.info("Received I2P Message:\n    From: " + address +"\n    Content: " + strPayload);
-//            taskRunner.verify(strPayload);
-//            if(!isTest) {
-                Envelope e = Envelope.eventFactory(EventMessage.Type.TEXT);
-                NetworkPeer from = new NetworkPeer(Network.I2P.name());
-                from.setAddress(address);
-                from.setFingerprint(fingerprint);
-                DID did = new DID();
-                did.addPeer(from);
-                e.setDID(did);
-                EventMessage m = (EventMessage) e.getMessage();
-                m.setName(fingerprint);
-                m.setMessage(strPayload);
-                DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
-                LOG.info("Sending Event Message to Notification Service...");
-                sendIn(e);
-//            }
+            LOG.info("Received I2P Message:\n\tFrom: " + address +"\n\tContent:\n\t" + strPayload);
+            Map<String,Object> pm = (Map<String,Object>)JSONParser.parse(strPayload);
+            Packet packet;
+            if(pm.get("type")!=null) {
+                packet = (Packet)Class.forName((String)pm.get("type")).getConstructor().newInstance();
+                Envelope e = packet.getEnvelope();
+                Route route = e.getRoute();
+                if(route.getOperation()!=null) {
+                    Operation op = (Operation)Class.forName(route.getOperation()).getConstructor().newInstance();
+                    if(op instanceof NetworkOp) {
+                        sensorManager.handleNetworkOpPacket(packet, (NetworkOp)op);
+                    }
+                }
+            }
+            Envelope e = Envelope.eventFactory(EventMessage.Type.TEXT);
+            NetworkPeer from = new NetworkPeer(Network.I2P.name());
+            from.setAddress(address);
+            from.setFingerprint(fingerprint);
+            DID did = new DID();
+            did.addPeer(from);
+            e.setDID(did);
+            EventMessage m = (EventMessage) e.getMessage();
+            m.setName(fingerprint);
+            m.setMessage(strPayload);
+            DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
+            LOG.info("Sending Event Message to Notification Service...");
+            if(!sendIn(e)) {
+                LOG.warning("Unsuccessful sending of envelope to Notification Service via bus.");
+            }
         } catch (DataFormatException e) {
             e.printStackTrace();
             LOG.warning("Invalid datagram received: " + e.getLocalizedMessage());
