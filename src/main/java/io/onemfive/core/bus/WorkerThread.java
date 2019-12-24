@@ -6,7 +6,7 @@ import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.orchestration.OrchestrationService;
 import io.onemfive.core.util.AppThread;
 import io.onemfive.data.Envelope;
-import io.onemfive.data.Route;
+import io.onemfive.data.route.Route;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -43,7 +43,7 @@ final class WorkerThread extends AppThread {
         } else {
             MessageConsumer consumer = null;
             Route route = e.getRoute();
-            if(route == null || route.routed()) {
+            if(route == null || route.getRouted()) {
                 consumer = services.get(OrchestrationService.class.getName());
             } else {
                 consumer = services.get(route.getService());
