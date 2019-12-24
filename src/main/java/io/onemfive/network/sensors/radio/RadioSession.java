@@ -1,6 +1,6 @@
 package io.onemfive.network.sensors.radio;
 
-import io.onemfive.network.NetworkRequest;
+import io.onemfive.data.Request;
 
 /**
  * Define the means of sending and receiving messages using the radio electromagnetic spectrum
@@ -16,7 +16,7 @@ public interface RadioSession {
     boolean disconnect();
     boolean isConnected();
     boolean close();
-    RadioDatagram toRadioDatagram(NetworkRequest request);
+    RadioDatagram toRadioDatagram(Request request);
     Boolean sendDatagram(RadioDatagram datagram);
     RadioDatagram receiveDatagram(Integer port);
     void addSessionListener(RadioSessionListener listener);
