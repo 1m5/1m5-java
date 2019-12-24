@@ -2,6 +2,7 @@ package io.onemfive.network;
 
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Packet;
+import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.peers.PeerReport;
 
@@ -24,8 +25,9 @@ public interface SensorManager {
     PeerReport getPeerReport();
     void updateSensorStatus(final String sensorID, SensorStatus sensorStatus);
     Sensor getRegisteredSensor(String sensorName);
-    boolean shutdown();
+    boolean handleNetworkOpPacket(Packet packet, NetworkOp op);
     boolean sendToBus(Envelope envelope);
+    boolean shutdown();
     void suspend(Envelope envelope);
     File getSensorDirectory(String sensorName);
     boolean registerSensorStatusListener(String sensorId, SensorStatusListener listener);
