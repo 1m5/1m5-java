@@ -12,4 +12,5 @@ public interface Service {
     void handleEvent(Envelope envelope);
     void handleCommand(Envelope envelope);
     void handleHeaders(Envelope envelope);
+    ServiceReport report();
 }
