@@ -22,8 +22,10 @@ public abstract class BaseService implements MessageConsumer, Service, LifeCycle
     protected MessageProducer producer;
     protected InfoVaultDB infoVaultDB;
     private File serviceDirectory;
+    private String version;
 
     private ServiceStatus serviceStatus;
+    private Boolean registered;
     private List<ServiceStatusListener> serviceStatusListeners = new ArrayList<>();
     private List<ServiceStatusObserver> serviceStatusObservers = new ArrayList<>();
 
@@ -57,6 +59,10 @@ public abstract class BaseService implements MessageConsumer, Service, LifeCycle
         serviceStatusObservers.remove(observer);
     }
 
+    public void setRegistered(boolean registered) {
+        this.registered = registered;
+    }
+
     protected void updateStatus(ServiceStatus serviceStatus) {
         this.serviceStatus = serviceStatus;
         if(serviceStatusListeners != null) {
@@ -78,6 +84,17 @@ public abstract class BaseService implements MessageConsumer, Service, LifeCycle
 
     public void setProducer(MessageProducer producer) {
         this.producer = producer;
+    }
+
+    @Override
+    public ServiceReport report() {
+        ServiceReport report = new ServiceReport();
+        report.version = version;
+        report.running = serviceStatus == ServiceStatus.RUNNING;
+        report.registered = registered;
+        report.serviceClassName = this.getClass().getName();
+        report.serviceStatus = serviceStatus;
+        return report;
     }
 
     @Override
@@ -166,6 +183,7 @@ public abstract class BaseService implements MessageConsumer, Service, LifeCycle
             LOG.severe("Properties for start are required.");
             return false;
         }
+        version = p.getProperty("1m5.version");
         infoVaultDB = OneMFiveAppContext.getInstance().getInfoVaultDB();
         String baseStr = p.getProperty("1m5.dir.base");
         File servicesFolder = new File(baseStr + "/services");
