@@ -1,5 +1,6 @@
 package io.onemfive.network;
 
+import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class SensorsConfig {
 //                    np = new NetworkPeer(na[0]);
 //                    np.setAddress(na[1]);
                     // For now just assume I2P
-                    np = new NetworkPeer(NetworkPeer.Network.I2P.name());
+                    np = new NetworkPeer(Network.I2P.name());
                     np.setAddress(s);
                     seeds.add(np);
                 }
