@@ -1,7 +1,5 @@
 package io.onemfive.core.client;
 
-import io.onemfive.core.bus.BusStatusListener;
-import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.EventMessage;
 import io.onemfive.data.ServiceCallback;
