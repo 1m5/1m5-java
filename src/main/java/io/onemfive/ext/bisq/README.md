@@ -1,2 +1,2 @@
 # 1m5-bisq
-Integration of Bisq for automated fiat to btc exchange.
+Integration of Bisq for automated fiat to/from btc exchange.
