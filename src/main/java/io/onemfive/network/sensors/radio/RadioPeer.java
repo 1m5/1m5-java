@@ -1,9 +1,6 @@
 package io.onemfive.network.sensors.radio;
 
-import io.onemfive.data.Addressable;
-import io.onemfive.data.DID;
-import io.onemfive.data.JSONSerializable;
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.data.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +17,7 @@ public class RadioPeer extends NetworkPeer implements Addressable, JSONSerializa
     }
 
     public RadioPeer(String username, String passphrase) {
-        super(NetworkPeer.Network.SDR.name(), username, passphrase);
+        super(Network.SDR.name(), username, passphrase);
     }
 
     public RadioPeer(NetworkPeer peer) {
