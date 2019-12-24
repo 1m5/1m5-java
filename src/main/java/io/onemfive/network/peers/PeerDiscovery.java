@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public  class PeerDiscovery extends SensorTask {
+public class PeerDiscovery extends SensorTask {
 
     private Logger LOG = Logger.getLogger(PeerDiscovery.class.getName());
     private boolean firstRun = true;
@@ -44,14 +44,14 @@ public  class PeerDiscovery extends SensorTask {
             LOG.warning("Sensors Service doesn't have local Peer yet. Can't run Peer Updater.");
             return false;
         }
-        long totalKnown = service.getPeerManager().totalPeers(localPeer, P2PRelationship.RelType.Known);
+        long totalKnown = service.getPeerManager().totalPeersByRelationship(localPeer, P2PRelationship.RelType.Known);
         if(totalKnown < 1) {
             LOG.info("No peers known.");
             if(SensorsConfig.seeds!=null && SensorsConfig.seeds.size() > 0) {
                 // Launch Seeds
                 for (NetworkPeer seed : SensorsConfig.seeds) {
                     LOG.info("Sending Peer Status Request to Seed Peer:\n\tNetwork: " + seed.getNetwork() + "\n\tFingerprint: "+seed.getFingerprint()+"\n\tAddress: "+seed.getAddress());
-                    service.pingOut(seed);
+//                    service.pingOut(seed);
                     LOG.info("Sent Peer Status Request to Seed Peer.");
                 }
             } else {
@@ -63,7 +63,7 @@ public  class PeerDiscovery extends SensorTask {
             NetworkPeer p = service.getPeerManager().getRandomPeer(localPeer);
             if(p != null) {
                 LOG.info("Sending Peer Status Request to Known Peer...");
-                service.pingOut(p);
+//                service.pingOut(p);
                 LOG.info("Sent Peer Status Request to Known Peer.");
             }
         } else {
