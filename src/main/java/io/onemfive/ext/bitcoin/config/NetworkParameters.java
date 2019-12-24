@@ -2,10 +2,13 @@ package io.onemfive.ext.bitcoin.config;
 
 import io.onemfive.ext.bitcoin.blockchain.Block;
 import io.onemfive.ext.bitcoin.blockchain.StoredBlock;
+import io.onemfive.ext.bitcoin.blockchain.Transaction;
+import io.onemfive.ext.bitcoin.blockchain.TransactionOutput;
 import io.onemfive.ext.bitcoin.blockstore.BlockStore;
 import io.onemfive.data.Hash;
 import io.onemfive.data.currency.Coin;
 import io.onemfive.data.util.HashUtil;
+import jdk.internal.jline.internal.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
@@ -18,7 +21,7 @@ import java.util.Objects;
  * <p>NetworkParameters contains the data needed for working with an instantiation of a Bitcoin chain.</p>
  *
  * <p>This is an abstract class, concrete instantiations can be found in the params package. There are four:
- * one for the main network ({@link MainNetParams}), one for the public test network, and two others that are
+ * one for the main network ({@link MainNetConfig}), one for the public test network, and two others that are
  * intended for unit testing and local app development purposes. Although this class contains some aliases for
  * them, you are encouraged to call the static get() methods on each specific params class directly.</p>
  */
@@ -82,9 +85,9 @@ public abstract class NetworkParameters {
     
     protected String[] dnsSeeds;
     protected int[] addrSeeds;
-    protected HttpDiscovery.Details[] httpSeeds = {};
+//    protected HttpDiscovery.Details[] httpSeeds = {};
     protected Map<Integer, Hash> checkpoints = new HashMap<>();
-    protected volatile transient MessageSerializer defaultSerializer = null;
+//    protected volatile transient MessageSerializer defaultSerializer = null;
 
     protected NetworkParameters() {
         alertSigningKey = SATOSHI_KEY;
@@ -92,26 +95,27 @@ public abstract class NetworkParameters {
     }
 
     private static Block createGenesis(NetworkParameters n) {
-        Block genesisBlock = new Block(n, Block.BLOCK_VERSION_GENESIS);
-        Transaction t = new Transaction(n);
-        try {
-            // A script containing the difficulty bits and the following message:
-            //
-            //   "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
-            byte[] bytes = Utils.HEX.decode
-                    ("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73");
-            t.addInput(new TransactionInput(n, t, bytes));
-            ByteArrayOutputStream scriptPubKeyBytes = new ByteArrayOutputStream();
-            Script.writeBytes(scriptPubKeyBytes, Utils.HEX.decode
-                    ("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"));
-            scriptPubKeyBytes.write(ScriptOpCodes.OP_CHECKSIG);
-            t.addOutput(new TransactionOutput(n, t, FIFTY_COINS, scriptPubKeyBytes.toByteArray()));
-        } catch (Exception e) {
-            // Cannot happen.
-            throw new RuntimeException(e);
-        }
-        genesisBlock.addTransaction(t);
-        return genesisBlock;
+//        Block genesisBlock = new Block(n, Block.BLOCK_VERSION_GENESIS);
+//        Transaction t = new Transaction(n);
+//        try {
+//            // A script containing the difficulty bits and the following message:
+//            //
+//            //   "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
+//            byte[] bytes = Utils.HEX.decode
+//                    ("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73");
+//            t.addInput(new TransactionInput(n, t, bytes));
+//            ByteArrayOutputStream scriptPubKeyBytes = new ByteArrayOutputStream();
+//            Script.writeBytes(scriptPubKeyBytes, Utils.HEX.decode
+//                    ("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"));
+//            scriptPubKeyBytes.write(ScriptOpCodes.OP_CHECKSIG);
+//            t.addOutput(new TransactionOutput(n, t, FIFTY_COINS, scriptPubKeyBytes.toByteArray()));
+//        } catch (Exception e) {
+//            // Cannot happen.
+//            throw new RuntimeException(e);
+//        }
+//        genesisBlock.addTransaction(t);
+//        return genesisBlock;
+        return null;
     }
 
     public static final int TARGET_TIMESPAN = 14 * 24 * 60 * 60;  // 2 weeks per difficulty cycle, on average.
@@ -133,7 +137,7 @@ public abstract class NetworkParameters {
     /**
      * The maximum money to be generated
      */
-    public static final Coin MAX_MONEY = COIN.multiply(MAX_COINS);
+//    public static final Coin MAX_MONEY = COIN.multiply(MAX_COINS);
 
     /**
      * A Java package style string acting as unique ID for these parameters
@@ -159,33 +163,33 @@ public abstract class NetworkParameters {
     /** Returns the network parameters for the given string ID or NULL if not recognized. */
     @Nullable
     public static NetworkParameters fromID(String id) {
-        if (id.equals(ID_MAINNET)) {
-            return MainNetParams.get();
-        } else if (id.equals(ID_TESTNET)) {
-            return TestNet3Params.get();
-        } else if (id.equals(ID_UNITTESTNET)) {
-            return UnitTestParams.get();
-        } else if (id.equals(ID_REGTEST)) {
-            return RegTestParams.get();
-        } else {
+//        if (id.equals(ID_MAINNET)) {
+//            return MainNetConfig.get();
+//        } else if (id.equals(ID_TESTNET)) {
+//            return TestNetConfig.get();
+//        } else if (id.equals(ID_UNITTESTNET)) {
+//            return UnitTestConfig.get();
+//        } else if (id.equals(ID_REGTEST)) {
+//            return RegTestParams.get();
+//        } else {
             return null;
-        }
+//        }
     }
 
     /** Returns the network parameters for the given string paymentProtocolID or NULL if not recognized. */
     @Nullable
     public static NetworkParameters fromPmtProtocolID(String pmtProtocolId) {
-        if (pmtProtocolId.equals(PAYMENT_PROTOCOL_ID_MAINNET)) {
-            return MainNetParams.get();
-        } else if (pmtProtocolId.equals(PAYMENT_PROTOCOL_ID_TESTNET)) {
-            return TestNet3Params.get();
-        } else if (pmtProtocolId.equals(PAYMENT_PROTOCOL_ID_UNIT_TESTS)) {
-            return UnitTestParams.get();
-        } else if (pmtProtocolId.equals(PAYMENT_PROTOCOL_ID_REGTEST)) {
-            return RegTestParams.get();
-        } else {
+//        if (pmtProtocolId.equals(PAYMENT_PROTOCOL_ID_MAINNET)) {
+//            return MainNetConfig.get();
+//        } else if (pmtProtocolId.equals(PAYMENT_PROTOCOL_ID_TESTNET)) {
+//            return TestNet3Params.get();
+//        } else if (pmtProtocolId.equals(PAYMENT_PROTOCOL_ID_UNIT_TESTS)) {
+//            return UnitTestParams.get();
+//        } else if (pmtProtocolId.equals(PAYMENT_PROTOCOL_ID_REGTEST)) {
+//            return RegTestParams.get();
+//        } else {
             return null;
-        }
+//        }
     }
 
     public int getSpendableCoinbaseDepth() {
@@ -197,7 +201,7 @@ public abstract class NetworkParameters {
      *
      * @throws VerificationException if the block's difficulty is not correct.
      */
-    public abstract void checkDifficultyTransitions(StoredBlock storedPrev, Block next, final BlockStore blockStore) throws VerificationException;
+//    public abstract void checkDifficultyTransitions(StoredBlock storedPrev, Block next, final BlockStore blockStore) throws VerificationException;
 
     /**
      * Returns true if the block height is either not a checkpoint, or is a checkpoint and the hash matches.
@@ -230,9 +234,9 @@ public abstract class NetworkParameters {
     }
 
     /** Returns discovery objects for seeds implementing the Cartographer protocol. See {@link HttpDiscovery} for more info. */
-    public HttpDiscovery.Details[] getHttpSeeds() {
-        return httpSeeds;
-    }
+//    public HttpDiscovery.Details[] getHttpSeeds() {
+//        return httpSeeds;
+//    }
 
     /**
      * <p>Genesis block for this chain.</p>
@@ -352,7 +356,7 @@ public abstract class NetworkParameters {
     /**
      * The monetary object for this currency.
      */
-    public abstract MonetaryFormat getMonetaryFormat();
+//    public abstract MonetaryFormat getMonetaryFormat();
 
     /**
      * Scheme part for URIs, for example "bitcoin".
@@ -370,28 +374,28 @@ public abstract class NetworkParameters {
      * Return the default serializer for this network. This is a shared serializer.
      * @return the default serializer for this network.
      */
-    public final MessageSerializer getDefaultSerializer() {
-        // Construct a default serializer if we don't have one
-        if (null == this.defaultSerializer) {
-            // Don't grab a lock unless we absolutely need it
-            synchronized(this) {
-                // Now we have a lock, double check there's still no serializer
-                // and create one if so.
-                if (null == this.defaultSerializer) {
-                    // As the serializers are intended to be immutable, creating
-                    // two due to a race condition should not be a problem, however
-                    // to be safe we ensure only one exists for each network.
-                    this.defaultSerializer = getSerializer(false);
-                }
-            }
-        }
-        return defaultSerializer;
-    }
+//    public final MessageSerializer getDefaultSerializer() {
+//        // Construct a default serializer if we don't have one
+//        if (null == this.defaultSerializer) {
+//            // Don't grab a lock unless we absolutely need it
+//            synchronized(this) {
+//                // Now we have a lock, double check there's still no serializer
+//                // and create one if so.
+//                if (null == this.defaultSerializer) {
+//                    // As the serializers are intended to be immutable, creating
+//                    // two due to a race condition should not be a problem, however
+//                    // to be safe we ensure only one exists for each network.
+//                    this.defaultSerializer = getSerializer(false);
+//                }
+//            }
+//        }
+//        return defaultSerializer;
+//    }
 
     /**
      * Construct and return a custom serializer.
      */
-    public abstract BitcoinSerializer getSerializer(boolean parseRetain);
+//    public abstract BitcoinSerializer getSerializer(boolean parseRetain);
 
     /**
      * The number of blocks in the last {@link #getMajorityWindow()} blocks
@@ -428,18 +432,18 @@ public abstract class NetworkParameters {
      * @param height height of the block, if known, null otherwise. Returned
      * tests should be a safe subset if block height is unknown.
      */
-    public EnumSet<Block.VerifyFlag> getBlockVerificationFlags(final Block block,
-            final VersionTally tally, final Integer height) {
-        final EnumSet<Block.VerifyFlag> flags = EnumSet.noneOf(Block.VerifyFlag.class);
-
-        if (block.isBIP34()) {
-            final Integer count = tally.getCountAtOrAbove(Block.BLOCK_VERSION_BIP34);
-            if (null != count && count >= getMajorityEnforceBlockUpgrade()) {
-                flags.add(Block.VerifyFlag.HEIGHT_IN_COINBASE);
-            }
-        }
-        return flags;
-    }
+//    public EnumSet<Block.VerifyFlag> getBlockVerificationFlags(final Block block,
+//            final VersionTally tally, final Integer height) {
+//        final EnumSet<Block.VerifyFlag> flags = EnumSet.noneOf(Block.VerifyFlag.class);
+//
+//        if (block.isBIP34()) {
+//            final Integer count = tally.getCountAtOrAbove(Block.BLOCK_VERSION_BIP34);
+//            if (null != count && count >= getMajorityEnforceBlockUpgrade()) {
+//                flags.add(Block.VerifyFlag.HEIGHT_IN_COINBASE);
+//            }
+//        }
+//        return flags;
+//    }
 
     /**
      * The flags indicating which script validation tests should be applied to
@@ -451,21 +455,21 @@ public abstract class NetworkParameters {
      * @param height height of the block, if known, null otherwise. Returned
      * tests should be a safe subset if block height is unknown.
      */
-    public EnumSet<Script.VerifyFlag> getTransactionVerificationFlags(final Block block,
-            final Transaction transaction, final VersionTally tally, final Integer height) {
-        final EnumSet<Script.VerifyFlag> verifyFlags = EnumSet.noneOf(Script.VerifyFlag.class);
-        if (block.getTimeSeconds() >= NetworkParameters.BIP16_ENFORCE_TIME)
-            verifyFlags.add(Script.VerifyFlag.P2SH);
-
-        // Start enforcing CHECKLOCKTIMEVERIFY, (BIP65) for block.nVersion=4
-        // blocks, when 75% of the network has upgraded:
-        if (block.getVersion() >= Block.BLOCK_VERSION_BIP65 &&
-            tally.getCountAtOrAbove(Block.BLOCK_VERSION_BIP65) > this.getMajorityEnforceBlockUpgrade()) {
-            verifyFlags.add(Script.VerifyFlag.CHECKLOCKTIMEVERIFY);
-        }
-
-        return verifyFlags;
-    }
+//    public EnumSet<Script.VerifyFlag> getTransactionVerificationFlags(final Block block,
+//            final Transaction transaction, final VersionTally tally, final Integer height) {
+//        final EnumSet<Script.VerifyFlag> verifyFlags = EnumSet.noneOf(Script.VerifyFlag.class);
+//        if (block.getTimeSeconds() >= NetworkParameters.BIP16_ENFORCE_TIME)
+//            verifyFlags.add(Script.VerifyFlag.P2SH);
+//
+//        // Start enforcing CHECKLOCKTIMEVERIFY, (BIP65) for block.nVersion=4
+//        // blocks, when 75% of the network has upgraded:
+//        if (block.getVersion() >= Block.BLOCK_VERSION_BIP65 &&
+//            tally.getCountAtOrAbove(Block.BLOCK_VERSION_BIP65) > this.getMajorityEnforceBlockUpgrade()) {
+//            verifyFlags.add(Script.VerifyFlag.CHECKLOCKTIMEVERIFY);
+//        }
+//
+//        return verifyFlags;
+//    }
 
     public abstract int getProtocolVersionNum(final ProtocolVersion version);
 
