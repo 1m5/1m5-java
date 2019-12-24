@@ -3,7 +3,7 @@ package io.onemfive.ext.bisq;
 import io.onemfive.core.BaseService;
 import io.onemfive.core.ServiceStatus;
 import io.onemfive.data.Envelope;
-import io.onemfive.data.Route;
+import io.onemfive.data.route.Route;
 
 import java.util.Properties;
 import java.util.logging.Logger;
