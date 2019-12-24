@@ -5,7 +5,7 @@ import io.onemfive.core.util.SystemVersion;
 import io.onemfive.data.EncryptionAlgorithm;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.PublicKey;
-import io.onemfive.data.Route;
+import io.onemfive.data.route.Route;
 import io.onemfive.data.util.Base64;
 import io.onemfive.data.util.DLC;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
