@@ -16,6 +16,7 @@ import io.onemfive.data.util.JSONParser;
 import io.onemfive.did.AuthenticateDIDRequest;
 import io.onemfive.data.DID;
 import io.onemfive.did.DIDService;
+import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.peers.BasePeerManager;
 import io.onemfive.network.peers.PeerManager;
 
@@ -148,7 +149,16 @@ public class NetworkService extends BaseService {
             }
             case OPERATION_REPLY : {
                 LOG.info("Replying with Envelope to requester...");
-                Packet packet = peerManager.buildPacket(e.getSensitivity());
+                NetworkRequest request = (NetworkRequest)DLC.getData(NetworkRequest.class,e);
+                if(request == null){
+                    LOG.warning("NetworkRequest required in envelope.");
+                    return;
+                }
+                if (request.destination == null) {
+                    LOG.warning("Must provide a destination address when using a NetworkRequest.");
+                    return;
+                }
+                Packet packet = peerManager.buildPacket(request.destination, request.origination, e.getSensitivity());
                 Sensor sensor = sensorManager.selectSensor(packet);
                 sensor.replyOut(packet);
                 break;
@@ -168,8 +178,15 @@ public class NetworkService extends BaseService {
         }
     }
 
+    public boolean handlePacket(Packet packet, NetworkOp op) {
+        // Incoming sensor request/response
+        boolean successful = false;
+
+        return successful;
+    }
+
     public boolean sendToBus(Envelope envelope) {
-        LOG.info("Sending Envelope to service bus from Sensors Service...");
+        LOG.info("Sending Envelope to service bus from Network Service...");
         return producer.send(envelope);
     }
 
@@ -226,29 +243,23 @@ public class NetworkService extends BaseService {
                 Packet packet = (Packet) obj;
                 packet.fromMap(mp);
                 if(peerManager.isRemoteLocal(packet.getDestinationPeer())) {
+                    // Packet meant for this local node
                     if(packet instanceof Request) {
 
                     } else if(packet instanceof Response) {
 
+                    } else {
+                        LOG.warning("Packet " + packet.getClass().getName() + " not handled; ignoring.");
                     }
-                    switch (type) {
-                        case "io.onemfive.network.packet.PeerStatus": {
-                            pingIn((PeerStatusRequest) packet);
-                            break;
-                        }
-                        case "io.onemfive.sensors.packet.ResponsePacket": {
-                            response((ResponsePacket) packet);
-                            break;
-                        }
-                        default:
-                            deadLetter(envelope);
-                    }
+                } else if(peerManager.isReachable(peerManager.getLocalPeer(), packet.getDestinationPeer(), envelope.getSensitivity())) {
+                    // Destination is known and reachable therefore forward
+                    packet.setToPeer(packet.getDestinationPeer());
                 } else {
-
+                    // Forward to a random reachable peer
+                    packet.setToPeer(peerManager.getRandomReachablePeer(peerManager.getLocalPeer(), envelope.getSensitivity()));
                 }
             } else {
-                LOG.warning("Object " + obj.getClass().getName() + " not handled.");
-                deadLetter(envelope);
+                LOG.warning("Object " + obj.getClass().getName() + " not handled; ignoring.");
             }
         } else if(msg instanceof DID) {
             LOG.info("Route in DID with I2P Address...");
@@ -273,101 +284,101 @@ public class NetworkService extends BaseService {
      * Request from an external NetworkPeer to see if this NetworkPeer is online.
      * Reply with known reliable peer addresses.
      */
-    public void pingIn(PeerStatusRequest request) {
-        LOG.info("Received PeerStatus request...");
-        peerManager.reliablesFromRemotePeer(request.getFromPeer(), request.getReliablePeers());
-        request.setResponding(true);
-        request.setReliablePeers(peerManager.getReliablesToShare(peerManager.getLocalPeer()));
-        LOG.info("Sending response to PeerStatus request...");
-        routeOut(new ResponsePacket(request, peerManager.getLocalPeer(), request.getFromPeer(), StatusCode.OK, request.getId()));
-    }
+//    public void pingIn(PeerStatusRequest request) {
+//        LOG.info("Received PeerStatus request...");
+//        peerManager.reliablesFromRemotePeer(request.getFromPeer(), request.getReliablePeers());
+//        request.setResponding(true);
+//        request.setReliablePeers(peerManager.getReliablesToShare(peerManager.getLocalPeer()));
+//        LOG.info("Sending response to PeerStatus request...");
+//        routeOut(new ResponsePacket(request, peerManager.getLocalPeer(), request.getFromPeer(), StatusCode.OK, request.getId()));
+//    }
 
     /**
      * Response handling of ResponsePacket from earlier request.
      * @param res
      */
-    public void response(ResponsePacket res) {
-        res.setTimeReceived(System.currentTimeMillis());
-        CommunicationPacket req = res.getRequest();
-        switch (res.getStatusCode()) {
-            case OK: {
-                req.setTimeAcknowledged(System.currentTimeMillis());
-                LOG.info("Ok response received from request.");
-                if (req instanceof PeerStatusRequest) {
-                    LOG.info("PeerStatus response received from PeerStatus request.");
-                    LOG.info("Saving peer status times in graph...");
-                    if(peerManager.savePeerStatusTimes(req.getFromPeer(), req.getToPeer(), req.getTimeSent(), req.getTimeAcknowledged())) {
-                        LOG.info("Updating reliables in graph...");
-                        peerManager.reliablesFromRemotePeer(req.getToPeer(), ((PeerStatusRequest)req).getReliablePeers());
-                    }
-                } else {
-                    LOG.warning("Unsupported request type received in ResponsePacket: "+req.getClass().getName());
-                }
-                break;
-            }
-            case GENERAL_ERROR: {
-                LOG.warning("General error.");
-                break;
-            }
-            case INSUFFICIENT_HASHCASH: {
-                LOG.warning("Insufficient hashcash.");
-                break;
-            }
-            case INVALID_HASHCASH: {
-                LOG.warning("Invalid hashcash.");
-                break;
-            }
-            case INVALID_PACKET: {
-                LOG.warning("Invalid packed received by peer.");
-                break;
-            }
-            case NO_AVAILABLE_STORAGE: {
-                LOG.warning("No available storage on peer.");
-                break;
-            }
-            case NO_DATA_FOUND: {
-                LOG.warning("No data found by peer.");
-                break;
-            }
-            default:
-                LOG.warning("Unhandled ResponsePacket due to unhandled Status Code: " + res.getStatusCode().name());
-        }
-    }
+//    public void response(ResponsePacket res) {
+//        res.setTimeReceived(System.currentTimeMillis());
+//        CommunicationPacket req = res.getRequest();
+//        switch (res.getStatusCode()) {
+//            case OK: {
+//                req.setTimeAcknowledged(System.currentTimeMillis());
+//                LOG.info("Ok response received from request.");
+//                if (req instanceof PeerStatusRequest) {
+//                    LOG.info("PeerStatus response received from PeerStatus request.");
+//                    LOG.info("Saving peer status times in graph...");
+//                    if(peerManager.savePeerStatusTimes(req.getFromPeer(), req.getToPeer(), req.getTimeSent(), req.getTimeAcknowledged())) {
+//                        LOG.info("Updating reliables in graph...");
+//                        peerManager.reliablesFromRemotePeer(req.getToPeer(), ((PeerStatusRequest)req).getReliablePeers());
+//                    }
+//                } else {
+//                    LOG.warning("Unsupported request type received in ResponsePacket: "+req.getClass().getName());
+//                }
+//                break;
+//            }
+//            case GENERAL_ERROR: {
+//                LOG.warning("General error.");
+//                break;
+//            }
+//            case INSUFFICIENT_HASHCASH: {
+//                LOG.warning("Insufficient hashcash.");
+//                break;
+//            }
+//            case INVALID_HASHCASH: {
+//                LOG.warning("Invalid hashcash.");
+//                break;
+//            }
+//            case INVALID_PACKET: {
+//                LOG.warning("Invalid packed received by peer.");
+//                break;
+//            }
+//            case NO_AVAILABLE_STORAGE: {
+//                LOG.warning("No available storage on peer.");
+//                break;
+//            }
+//            case NO_DATA_FOUND: {
+//                LOG.warning("No data found by peer.");
+//                break;
+//            }
+//            default:
+//                LOG.warning("Unhandled ResponsePacket due to unhandled Status Code: " + res.getStatusCode().name());
+//        }
+//    }
 
     /**
      * Probe an external NetworkPeer to see if it is online sending it current reliable peers expecting to receive OK with their reliable peers (response).
      */
-    public void pingOut(NetworkPeer peerToProbe) {
-        LOG.info("Sending PeerStatus request out to peer...");
-        PeerStatusRequest ps = new PeerStatusRequest(peerManager.getLocalPeer(), peerToProbe);
-        ps.setReliablePeers(peerManager.getReliablesToShare(peerManager.getLocalPeer()));
-        routeOut(ps);
-    }
+//    public void pingOut(NetworkPeer peerToProbe) {
+//        LOG.info("Sending PeerStatus request out to peer...");
+//        PeerStatusRequest ps = new PeerStatusRequest(peerManager.getLocalPeer(), peerToProbe);
+//        ps.setReliablePeers(peerManager.getReliablesToShare(peerManager.getLocalPeer()));
+//        routeOut(ps);
+//    }
 
     /**
      * Send request out to peer
      * @param packet
      */
-    public void routeOut(CommunicationPacket packet) {
-        LOG.info("Routing out comm packet to Sensors Service...");
-        if(packet.getTimeSent() <= 0) {
-            // initial route out
-            packet.setTimeSent(System.currentTimeMillis());
-        }
-        String json = JSONParser.toString(packet.toMap());
-        LOG.info("Content to send: "+json);
-        Envelope e = Envelope.documentFactory();
-        // Setting Sensitivity to HIGH requests it to be routed through I2P
-        e.setSensitivity(Envelope.Sensitivity.HIGH);
-        NetworkRequest r = new NetworkRequest();
-        r.origination = packet.getFromPeer().getDid();
-        r.destination = packet.getToPeer().getDid();
-        r.content = json;
-        DLC.addData(NetworkRequest.class, r, e);
-        DLC.addRoute(NetworkService.class, NetworkService.OPERATION_SEND, e);
-        producer.send(e);
-        LOG.info("Comm packet sent.");
-    }
+//    public void routeOut(CommunicationPacket packet) {
+//        LOG.info("Routing out comm packet to Sensors Service...");
+//        if(packet.getTimeSent() <= 0) {
+//            // initial route out
+//            packet.setTimeSent(System.currentTimeMillis());
+//        }
+//        String json = JSONParser.toString(packet.toMap());
+//        LOG.info("Content to send: "+json);
+//        Envelope e = Envelope.documentFactory();
+//        // Setting Sensitivity to HIGH requests it to be routed through I2P
+//        e.setSensitivity(Envelope.Sensitivity.HIGH);
+//        NetworkRequest r = new NetworkRequest();
+//        r.origination = packet.getFromPeer().getDid();
+//        r.destination = packet.getToPeer().getDid();
+//        r.content = json;
+//        DLC.addData(NetworkRequest.class, r, e);
+//        DLC.addRoute(NetworkService.class, NetworkService.OPERATION_SEND, e);
+//        producer.send(e);
+//        LOG.info("Comm packet sent.");
+//    }
 
     /**
      * Based on supplied SensorStatus, set the SensorsService status.
@@ -621,11 +632,11 @@ public class NetworkService extends BaseService {
             Subscription subscription = this::routeIn;
 
             // Subscribe to Text notifications
-            SubscriptionRequest r = new SubscriptionRequest(EventMessage.Type.TEXT, subscription);
-            Envelope e = Envelope.documentFactory();
-            DLC.addData(SubscriptionRequest.class, r, e);
-            DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
-            producer.send(e);
+//            SubscriptionRequest r = new SubscriptionRequest(EventMessage.Type.TEXT, subscription);
+//            Envelope e = Envelope.documentFactory();
+//            DLC.addData(SubscriptionRequest.class, r, e);
+//            DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
+//            producer.send(e);
 
             // Subscribe to DID status notifications
             SubscriptionRequest r2 = new SubscriptionRequest(EventMessage.Type.STATUS_DID, subscription);
