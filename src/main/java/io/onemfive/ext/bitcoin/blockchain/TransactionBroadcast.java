@@ -1,7 +1,7 @@
 package io.onemfive.ext.bitcoin.blockchain;
 
 import io.onemfive.ext.bitcoin.packet.RejectPacket;
-import io.onemfive.ext.bitcoin.network.Peer;
+import io.onemfive.ext.bitcoin.network.BitcoinPeer;
 import io.onemfive.ext.bitcoin.network.PeerDiscovery;
 
 import java.util.HashMap;
@@ -23,6 +23,6 @@ public class TransactionBroadcast {
     private PeerDiscovery peerDiscovery;
     private Transaction tx;
     // Peers that returned a rejection message regarding this broadcast.
-    private Map<Peer, RejectPacket> rejections = new HashMap<>();
+    private Map<BitcoinPeer, RejectPacket> rejections = new HashMap<>();
 
 }
