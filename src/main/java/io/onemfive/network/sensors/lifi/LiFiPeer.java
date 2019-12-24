@@ -1,9 +1,6 @@
 package io.onemfive.network.sensors.lifi;
 
-import io.onemfive.data.Addressable;
-import io.onemfive.data.DID;
-import io.onemfive.data.JSONSerializable;
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.data.*;
 
 /**
  * A peer on the LiFi network.
@@ -15,7 +12,7 @@ public class LiFiPeer extends NetworkPeer implements Addressable, JSONSerializab
     }
 
     public LiFiPeer(String username, String passphrase) {
-        super(NetworkPeer.Network.LIFI.name(), username, passphrase);
+        super(Network.LIFI.name(), username, passphrase);
     }
 
     @Override
