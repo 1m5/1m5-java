@@ -8,21 +8,25 @@ import io.onemfive.core.admin.AdminService;
 import io.onemfive.core.client.Client;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.client.ClientStatusListener;
+import io.onemfive.core.client.SimpleClient;
 import io.onemfive.core.util.SystemSettings;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.util.DLC;
 import io.onemfive.network.NetworkService;
 import io.onemfive.network.sensors.clearnet.server.ClearnetServerUtil;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-public class Dapp {
-
+public class Dapp extends Application {
 
     private static final Logger LOG = Logger.getLogger(Dapp.class.getName());
 
@@ -50,6 +54,9 @@ public class Dapp {
     public static File userAppConfigDir;
     public static File userAppCacheDir;
 
+    private static Consumer<Application> appLaunchedHandler;
+    private Stage stage;
+
     public static void main(String[] args) {
         try {
             init(args);
@@ -57,6 +64,13 @@ public class Dapp {
             System.out.print(e.getLocalizedMessage());
             System.exit(-1);
         }
+    }
+
+    @Override
+    public void start(Stage stage) {
+        this.stage = stage;
+
+        appLaunchedHandler.accept(this);
     }
 
     public static void init(String[] args) throws Exception {
@@ -182,6 +196,23 @@ public class Dapp {
         }
     }
 
+    @Override
+    public void stop() {
+//        if (!shutDownRequested) {
+//            new Popup<>().headLine(Res.get("popup.shutDownInProgress.headline"))
+//                    .backgroundInfo(Res.get("popup.shutDownInProgress.msg"))
+//                    .hideCloseButton()
+//                    .useAnimation(false)
+//                    .show();
+//            UserThread.runAfter(() -> {
+//                gracefulShutDownHandler.gracefulShutDown(() -> {
+//                    log.debug("App shutdown complete");
+//                });
+//            }, 200, TimeUnit.MILLISECONDS);
+//            shutDownRequested = true;
+//        }
+    }
+
     public void shutdown() {
         status = Status.ShuttingDown;
         System.out.println("Inkrypt DCDN Dapp Shutting Down...");
@@ -265,13 +296,6 @@ public class Dapp {
                 if(serviceStatus == ServiceStatus.RUNNING) {
                     if(useTray) {
                         tray.updateStatus(DAppTray.CONNECTING);
-                    }
-                    if(!peerDiscoveryStarted) {
-                        LOG.info("Sending Start Peer Discovery request to Network Service...");
-                        Envelope e = Envelope.documentFactory();
-                        DLC.addRoute(NetworkService.class, NetworkService.OPERATION_START_PEERDISCOVERY, e);
-                        client.request(e);
-                        peerDiscoveryStarted = true;
                     }
                 } else if(serviceStatus == ServiceStatus.PARTIALLY_RUNNING) {
                     LOG.info("1M5 Sensor Service reporting Partially Running. Updating status to Reconnecting...");
