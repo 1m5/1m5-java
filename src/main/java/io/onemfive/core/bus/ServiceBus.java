@@ -99,6 +99,7 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
             // register service
             registeredServices.put(serviceClass.getName(), service);
             service.registerServiceStatusListener(this);
+            service.setRegistered(true);
             if(observers != null) {
                 LOG.info("Registering ServiceStatusObservers with service: "+service.getClass().getName());
                 service.registerServiceStatusObservers(observers);
@@ -133,6 +134,7 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
                     if(service.shutdown()) {
                         runningServices.remove(serviceName);
                         registeredServices.remove(serviceName);
+                        service.setRegistered(false);
                         LOG.finer("Service unregistered successfully: "+serviceName);
                     }
                 }
