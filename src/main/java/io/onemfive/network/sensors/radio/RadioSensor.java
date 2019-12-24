@@ -1,15 +1,10 @@
 package io.onemfive.network.sensors.radio;
 
 import io.onemfive.core.Config;
-import io.onemfive.data.ServiceMessage;
-import io.onemfive.core.notification.NotificationService;
-import io.onemfive.data.DID;
-import io.onemfive.data.Envelope;
-import io.onemfive.data.EventMessage;
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.data.*;
 import io.onemfive.data.util.*;
 import io.onemfive.network.sensors.radio.tasks.TaskRunner;
-import io.onemfive.network.sensors.radio.technologies.TechnologyDetection;
+import io.onemfive.network.sensors.radio.technologies.RadioDetection;
 import io.onemfive.network.*;
 
 import java.io.*;
@@ -17,7 +12,6 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import static io.onemfive.network.SensorStatus.NETWORK_CONNECTED;
-import static io.onemfive.network.SensorStatus.NETWORK_STOPPED;
 
 /**
  * Manages communications across the full radio electromagnetic spectrum
@@ -35,7 +29,7 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
     private File localNodeFile;
     private Map<String, Radio> radios = new HashMap<>();
 
-    public RadioSensor(SensorManager sensorManager, Envelope.Sensitivity sensitivity, Integer priority) {
+    public RadioSensor(SensorManager sensorManager, Sensitivity sensitivity, Integer priority) {
         super(sensorManager, sensitivity, priority);
     }
 
@@ -58,70 +52,66 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
 
     /**
      * Sends UTF-8 content to a Radio Peer using Software Defined Radio (SDR).
-     * @param envelope Envelope containing SensorRequest as data.
+     * @param packet Envelope containing SensorRequest as data.
      *                 To DID must contain base64 encoded Radio destination key.
      * @return boolean was successful
      */
     @Override
-    public boolean send(Envelope envelope) {
+    public boolean sendOut(Packet packet) {
         LOG.info("Sending Radio Message...");
+        Envelope envelope = packet.getEnvelope();
         NetworkRequest request = (NetworkRequest) DLC.getData(NetworkRequest.class,envelope);
         if(request == null){
             LOG.warning("No SensorRequest in Envelope.");
-            request.errorCode = ServiceMessage.REQUEST_REQUIRED;
+            request.statusCode = ServiceMessage.REQUEST_REQUIRED;
             return false;
         }
-        NetworkPeer toPeer = request.destination.getPeer(NetworkPeer.Network.SDR.name());
+        NetworkPeer toPeer = request.destination.getPeer(Network.SDR.name());
         if(toPeer == null) {
             LOG.warning("No Peer for Radio found in toDID while sending to Radio.");
-            request.errorCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
+            request.statusCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
             return false;
         }
-        if(!NetworkPeer.Network.SDR.name().equals((toPeer.getNetwork()))) {
+        if(!Network.SDR.name().equals((toPeer.getNetwork()))) {
             LOG.warning("Radio requires an SDR Peer.");
-            request.errorCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
+            request.statusCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
             return false;
         }
-        NetworkPeer fromPeer = request.origination.getPeer(NetworkPeer.Network.SDR.name());
+        NetworkPeer fromPeer = request.origination.getPeer(Network.SDR.name());
         LOG.info("Content to send: "+request.content);
         if(request.content == null) {
             LOG.warning("No content found in Envelope while sending to Radio.");
-            request.errorCode = NetworkRequest.NO_CONTENT;
+            request.statusCode = NetworkRequest.NO_CONTENT;
             return false;
         }
 
         RadioPeer toRPeer = (RadioPeer)toPeer;
-        Radio radio = RadioSelector.determineBestRadio(toRPeer);
-        if(radio==null) {
-            LOG.warning("Unhandled issue #1 here.");
-            return false;
-        }
-        RadioSession session = radio.establishSession(toRPeer, true);
-        if(session==null) {
-            LOG.warning("Unhandled issue #2 here.");
-            return false;
-        }
-        RadioDatagram datagram = session.toRadioDatagram(request);
+//        Radio radio = RadioSelector.determineBestRadio(toRPeer);
+//        if(radio==null) {
+//            LOG.warning("Unhandled issue #1 here.");
+//            return false;
+//        }
+//        RadioSession session = radio.establishSession(toRPeer, true);
+//        if(session==null) {
+//            LOG.warning("Unhandled issue #2 here.");
+//            return false;
+//        }
+//        RadioDatagram datagram = session.toRadioDatagram(request);
 //        Properties options = new Properties();
-        if(session.sendDatagram(datagram)) {
-            LOG.info("Radio Message sent.");
-            return true;
-        } else {
-            LOG.warning("Radio Message sending failed.");
-            request.errorCode = NetworkRequest.SENDING_FAILED;
-            return false;
-        }
+//        if(session.sendDatagram(datagram)) {
+//            LOG.info("Radio Message sent.");
+//            return true;
+//        } else {
+//            LOG.warning("Radio Message sending failed.");
+//            request.statusCode = NetworkRequest.SENDING_FAILED;
+//            return false;
+//        }
+        return true;
     }
 
-    /**
-     * Incoming reply from a previous request to service if on local bus
-     * @param envelope
-     * @return
-     */
     @Override
-    public boolean reply(Envelope envelope) {
-        sensorManager.sendToBus(envelope);
-        return true;
+    public boolean replyOut(Packet packet) {
+        return false;
     }
 
     /**
@@ -138,18 +128,18 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
      */
     @Override
     public void messageAvailable(RadioSession session, Integer port) {
-        RadioDatagram d = session.receiveDatagram(port);
-        LOG.info("Received Radio Message:\n\tFrom: " + d.from.getSDRAddress());
-        Envelope e = Envelope.eventFactory(EventMessage.Type.TEXT);
-        DID did = new DID();
-        did.addPeer(d.from);
-        e.setDID(did);
-        EventMessage m = (EventMessage) e.getMessage();
-        m.setName(d.from.getSDRFingerprint());
-        m.setMessage(d);
-        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
-        LOG.info("Sending Event Message to Notification Service...");
-        sensorManager.sendToBus(e);
+//        RadioDatagram d = session.receiveDatagram(port);
+//        LOG.info("Received Radio Message:\n\tFrom: " + d.from.getSDRAddress());
+//        Envelope e = Envelope.eventFactory(EventMessage.Type.TEXT);
+//        DID did = new DID();
+//        did.addPeer(d.from);
+//        e.setDID(did);
+//        EventMessage m = (EventMessage) e.getMessage();
+//        m.setName(d.from.getSDRFingerprint());
+//        m.setMessage(d);
+//        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
+//        LOG.info("Sending Event Message to Notification Service...");
+//        sendIn(e);
     }
 
     @Override
@@ -168,10 +158,10 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
     @Override
     public void disconnected(RadioSession session) {
         LOG.info("Radio Session reporting disconnection.");
-        if(session.getRadio().disconnected()){
-            updateStatus(NETWORK_STOPPED);
-        }
-        routerStatusChanged();
+//        if(session.getRadio().disconnected())){
+//            updateStatus(NETWORK_STOPPED);
+//        }
+//        routerStatusChanged();
     }
 
     /**
@@ -257,7 +247,7 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
             LOG.warning(e.getLocalizedMessage());
         }
 
-        radios = TechnologyDetection.radiosAvailable(sensorManager.getPeerReport());
+        radios = RadioDetection.radiosAvailable(sensorManager.getPeerReport());
         Collection<Radio> rl = radios.values();
         for(Radio r : rl) {
             if(!r.start(p)) {
