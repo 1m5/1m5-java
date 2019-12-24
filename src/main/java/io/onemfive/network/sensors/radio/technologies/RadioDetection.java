@@ -11,12 +11,12 @@ import java.util.logging.Logger;
 /**
  * Detects what technologies are available on the local node and their status.
  */
-public class TechnologyDetection {
+public class RadioDetection {
 
-    private static final Logger LOG = Logger.getLogger(TechnologyDetection.class.getName());
+    private static final Logger LOG = Logger.getLogger(RadioDetection.class.getName());
 
-    public static Map<String,Radio> radiosAvailable(PeerReport peerReport) {
-        Map<String,Radio> radios = new HashMap<>();
+    public static Map<String, Radio> radiosAvailable(PeerReport peerReport) {
+        Map<String, Radio> radios = new HashMap<>();
         LOG.warning("TechnologyDetection.radiosAvailable() not yet implemented. Using Bluetooth to test.");
         Bluetooth btRadio = new Bluetooth();
         btRadio.setPeerReport(peerReport);
