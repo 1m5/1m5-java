@@ -7,7 +7,7 @@ import io.onemfive.ext.bitcoin.config.BitcoinConfig;
  *
  * @author objectorange
  */
-public class Context {
+public class BitcoinContext {
 
     private BitcoinConfig config;
     private Satoshi feePerKb;

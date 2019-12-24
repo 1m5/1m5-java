@@ -1,6 +1,6 @@
 package io.onemfive.ext.bitcoin.network;
 
-import io.onemfive.ext.bitcoin.Context;
+import io.onemfive.ext.bitcoin.BitcoinContext;
 import io.onemfive.ext.bitcoin.blockchain.BlockChain;
 import io.onemfive.ext.bitcoin.wallet.Wallet;
 
@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class PeerDiscovery {
 
-    private Context context;
+    private BitcoinContext context;
     private BlockChain chain;
     private List<Wallet> wallets;
 
@@ -23,11 +23,11 @@ public class PeerDiscovery {
      * Good for exploring the network without downloading blocks.
      * @param context
      */
-    public PeerDiscovery(Context context) {
+    public PeerDiscovery(BitcoinContext context) {
         this(context, null);
     }
 
-    public PeerDiscovery(Context context, BlockChain chain) {
+    public PeerDiscovery(BitcoinContext context, BlockChain chain) {
         this.context = context;
         this.chain = chain;
         this.wallets = new ArrayList<>();
