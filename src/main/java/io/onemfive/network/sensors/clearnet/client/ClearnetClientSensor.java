@@ -1,13 +1,13 @@
 package io.onemfive.network.sensors.clearnet.client;
 
+import io.onemfive.data.*;
 import io.onemfive.network.BaseSensor;
 import io.onemfive.network.SensorManager;
-import io.onemfive.data.Message;
 import io.onemfive.data.util.DLC;
-import io.onemfive.data.DocumentMessage;
-import io.onemfive.data.Envelope;
 import io.onemfive.data.util.Multipart;
 import okhttp3.*;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import javax.net.ssl.*;
 import java.io.File;
@@ -80,7 +80,7 @@ public class ClearnetClientSensor extends BaseSensor {
 
     public ClearnetClientSensor() {super();}
 
-    public ClearnetClientSensor(SensorManager sensorManager, Envelope.Sensitivity sensitivity, Integer priority) {
+    public ClearnetClientSensor(SensorManager sensorManager, Sensitivity sensitivity, Integer priority) {
         super(sensorManager, sensitivity, priority);
     }
 
@@ -100,7 +100,8 @@ public class ClearnetClientSensor extends BaseSensor {
     }
 
     @Override
-    public boolean send(Envelope e) {
+    public boolean sendOut(Packet packet) {
+        Envelope e = packet.getEnvelope();
         URL url = e.getURL();
         if(url != null) {
             LOG.info("URL="+url.toString());
@@ -322,9 +323,9 @@ public class ClearnetClientSensor extends BaseSensor {
     }
 
     @Override
-    public boolean reply(Envelope e) {
-        sensorManager.sendToBus(e);
-        return true;
+    public boolean replyOut(Packet packet) {
+
+        return false;
     }
 
     @Override
