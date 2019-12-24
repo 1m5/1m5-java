@@ -4,12 +4,10 @@ import io.onemfive.data.content.Content;
 
 /**
  * Request:
- * @see Content#body
- * @see Content#encryptionPassphrase
+ * @see Content
  *
  * Response
- * @see Content#body
- * @see Content#base64EncodedIV
+ * @see Content
  *
  * @since 0.6.1
  * @author objectorange

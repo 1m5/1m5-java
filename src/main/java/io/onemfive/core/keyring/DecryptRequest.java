@@ -7,10 +7,10 @@ import io.onemfive.data.content.Content;
  * String Key Ring Username
  * String Key Ring Passphrase for access to Public Key Ring
  * String Public Key Alias for encryption
- * @see Content#body
+ * @see Content
  *
  * Response:
- * @see Content#body
+ * @see Content
  *
  * @since 0.6.1
  * @author objectorange

@@ -3,9 +3,7 @@ package io.onemfive.core.keyring;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
-import org.bouncycastle.openpgp.PGPSecretKeyRingCollection;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
