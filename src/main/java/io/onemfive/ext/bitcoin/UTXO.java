@@ -5,11 +5,6 @@ import io.onemfive.data.JSONSerializable;
 
 import java.util.Map;
 
-/**
- * TODO: Add Description
- *
- * @author objectorange
- */
 public class UTXO implements JSONSerializable {
 
     private boolean coinbase;
