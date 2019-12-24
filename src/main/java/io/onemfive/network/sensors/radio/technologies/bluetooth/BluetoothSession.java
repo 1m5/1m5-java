@@ -1,9 +1,18 @@
 package io.onemfive.network.sensors.radio.technologies.bluetooth;
 
+import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.data.Request;
+import io.onemfive.data.content.JSON;
 import io.onemfive.data.content.Text;
+import io.onemfive.data.util.JSONParser;
+import io.onemfive.data.util.JSONPretty;
 import io.onemfive.data.util.RandomUtil;
 import io.onemfive.network.NetworkRequest;
+import io.onemfive.network.sensors.radio.BaseRadioSession;
+import io.onemfive.network.sensors.radio.Radio;
+import io.onemfive.network.sensors.radio.RadioDatagram;
+import io.onemfive.network.sensors.radio.RadioPeer;
 
 import javax.microedition.io.Connector;
 import javax.obex.ClientSession;
@@ -27,20 +36,11 @@ public class BluetoothSession extends BaseRadioSession {
     }
 
     @Override
-    public RadioDatagram toRadioDatagram(NetworkRequest request) {
+    public RadioDatagram toRadioDatagram(Request request) {
         RadioDatagram datagram = new RadioDatagram();
-        datagram.content = new Text(request.content.getBytes());
-        if(request.content!=null) {
-            datagram.to = (RadioPeer)request.destination.getPeer(NetworkPeer.Network.SDR.name());
-            datagram.from = (RadioPeer)request.origination.getPeer(NetworkPeer.Network.SDR.name());
-        } else if(request.requestContent!=null) {
-            datagram.to = (RadioPeer)request.toPeer;
-            datagram.from = (RadioPeer)request.fromPeer;
-            datagram.destination = (RadioPeer)request.destinationPeer;
-        } else {
-            LOG.warning("Must set SensorRequest.content or SensorRequest.requestContent");
-            return null;
-        }
+        datagram.content = new JSON(JSONPretty.toPretty(JSONParser.toString(request.toMap()), 4).getBytes());
+        datagram.to = (RadioPeer)request.getToPeer();
+        datagram.from = (RadioPeer)request.getFromPeer();
         return datagram;
     }
 
