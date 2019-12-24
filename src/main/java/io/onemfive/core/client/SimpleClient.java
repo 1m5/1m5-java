@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-final class SimpleClient implements Client {
+public class SimpleClient implements Client {
 
     private static final Logger LOG = Logger.getLogger(SimpleClient.class.getName());
 
@@ -29,13 +29,13 @@ final class SimpleClient implements Client {
     private MessageProducer producer;
     private List<ClientStatusListener> clientStatusListeners = new ArrayList<>();
 
-    SimpleClient(Long id, MessageProducer producer) {
+    public SimpleClient(Long id, MessageProducer producer) {
         this.id = id;
         this.producer = producer;
         this.claimCheck = new HashMap<>();
     }
 
-    void updateClientStatus(ClientAppManager.Status status) {
+    public void updateClientStatus(ClientAppManager.Status status) {
         LOG.info("Updating client status to: "+status.name()+"; number of listeners to update too: "+clientStatusListeners.size());
         for(ClientStatusListener l : clientStatusListeners) {
             l.clientStatusChanged(status);
