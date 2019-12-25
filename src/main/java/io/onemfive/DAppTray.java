@@ -1,4 +1,4 @@
-package io.onemfive.desktop;
+package io.onemfive;
 
 
 import dorkbox.systemTray.MenuItem;
@@ -17,6 +17,7 @@ public class DAppTray {
     public static final String STARTING = "Starting...";
     public static final String CONNECTING = "Connecting...";
     public static final String CONNECTED = "Connected";
+    public static final String DEGRADED = "Degraded";
     public static final String BLOCKED = "Blocked";
     public static final String RECONNECTING = "Reconnecting...";
     public static final String SHUTTINGDOWN = "Shutting Down...";
@@ -27,28 +28,32 @@ public class DAppTray {
     private String status = INITIALIZING;
 
     private SystemTray systemTray;
+
     private MenuItem launchMenuItem;
     private MenuItem quitMenuItem;
-    private URL icon;
-    private URL iconBlue;
-    private URL iconGreen;
-    private URL iconOrange;
-    private URL iconYellow;
-    private URL iconRed;
+
+    private URL sysTrayWhite;
+    private URL sysTrayBlue;
+    private URL sysTrayGreen;
+    private URL sysTrayOrange;
+    private URL sysTrayYellow;
+    private URL sysTrayRed;
+    private URL sysTrayGray;
 
     public void start(Dapp dApp) {
         SystemTray.SWING_UI = new DAppUI();
-
+        updateStatus(INITIALIZING);
         systemTray = SystemTray.get();
         if (systemTray == null) {
             throw new RuntimeException("Unable to load SystemTray!");
         }
-        icon = this.getClass().getClassLoader().getResource("Original-Crop.png");
-        iconBlue = this.getClass().getClassLoader().getResource("Blue-Crop.png");
-        iconGreen = this.getClass().getClassLoader().getResource("Green-Crop.png");
-        iconOrange = this.getClass().getClassLoader().getResource("Orange-Crop.png");
-        iconYellow = this.getClass().getClassLoader().getResource("Yellow-Crop.png");
-        iconRed = this.getClass().getClassLoader().getResource("Red-Crop.png");
+        sysTrayWhite = this.getClass().getClassLoader().getResource("images/sys_tray_icon_white.png");
+        sysTrayBlue = this.getClass().getClassLoader().getResource("images/sys_tray_icon_blue.png");
+        sysTrayGreen = this.getClass().getClassLoader().getResource("images/sys_tray_icon_green.png");
+        sysTrayOrange = this.getClass().getClassLoader().getResource("images/sys_tray_icon_orange.png");
+        sysTrayYellow = this.getClass().getClassLoader().getResource("images/sys_tray_icon_yellow.png");
+        sysTrayRed = this.getClass().getClassLoader().getResource("images/sys_tray_icon_red.png");
+        sysTrayGray = this.getClass().getClassLoader().getResource("images/sys_tray_icon_gray.png");
 
         // Setup Menus
         // Launch
@@ -73,7 +78,7 @@ public class DAppTray {
                 new Thread() {
                     @Override
                     public void run() {
-                        systemTray.setImage(iconYellow);
+                        systemTray.setImage(sysTrayYellow);
                         updateStatus("Quitting");
                         dApp.shutdown();
                         systemTray.shutdown();
@@ -88,47 +93,51 @@ public class DAppTray {
     public void updateStatus(String status) {
         switch(status) {
             case INITIALIZING: {
-                systemTray.setImage(icon);
+                systemTray.setImage(sysTrayGray);
                 break;
             }
             case STARTING: {
-                systemTray.setImage(iconYellow);
+                systemTray.setImage(sysTrayYellow);
                 break;
             }
             case CONNECTING: {
-                systemTray.setImage(iconOrange);
+                systemTray.setImage(sysTrayOrange);
                 break;
             }
             case CONNECTED: {
                 launchMenuItem.setEnabled(true);
-                systemTray.setImage(iconGreen);
+                systemTray.setImage(sysTrayGreen);
                 break;
             }
             case RECONNECTING: {
-                systemTray.setImage(iconYellow);
+                systemTray.setImage(sysTrayOrange);
+                break;
+            }
+            case DEGRADED: {
+                systemTray.setImage(sysTrayYellow);
                 break;
             }
             case BLOCKED: {
-                systemTray.setImage(iconBlue);
+                systemTray.setImage(sysTrayBlue);
                 break;
             }
             case ERRORED: {
-                systemTray.setImage(iconRed);
+                systemTray.setImage(sysTrayRed);
                 break;
             }
             case SHUTTINGDOWN: {
-                systemTray.setImage(iconYellow);
+                systemTray.setImage(sysTrayYellow);
                 launchMenuItem.setEnabled(false);
                 break;
             }
             case STOPPED: {
-                systemTray.setImage(icon);
+                systemTray.setImage(sysTrayGray);
                 break;
             }
             case QUITTING: {
                 launchMenuItem.setEnabled(false);
                 quitMenuItem.setEnabled(false);
-                systemTray.setImage(icon);
+                systemTray.setImage(sysTrayWhite);
                 break;
             }
             default: {
