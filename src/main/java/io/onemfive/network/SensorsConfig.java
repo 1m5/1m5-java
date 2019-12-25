@@ -2,14 +2,28 @@ package io.onemfive.network;
 
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.data.Sensitivity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class SensorsConfig {
 
+    private static final Logger LOG = Logger.getLogger(SensorsConfig.class.getName());
+
     public static void update(Properties properties) {
+        if(properties.getProperty("io.onemfive.network.sensitivity") != null) {
+            try {
+                currentSensitivity = Sensitivity.valueOf(properties.getProperty("io.onemfive.network.sensitivity"));
+            } catch (IllegalArgumentException e) {
+                LOG.warning(e.getLocalizedMessage()+"\n\tSetting default sensitivity to: "+Sensitivity.HIGH.name());
+                if(currentSensitivity==null) {
+                    currentSensitivity = Sensitivity.HIGH;
+                }
+            }
+        }
         if(properties.getProperty("onemfive.sensors.seeds") != null) {
             String i2pSeedsStr = properties.getProperty("onemfive.sensors.seeds");
             if(i2pSeedsStr!=null && !"".equals(i2pSeedsStr)) {
@@ -64,6 +78,7 @@ public class SensorsConfig {
         }
     }
 
+    public static Sensitivity currentSensitivity = Sensitivity.HIGH; // Default
     // ------------ Discovery ---------------
     // Seeds
     public static List<NetworkPeer> seeds = new ArrayList<>();
