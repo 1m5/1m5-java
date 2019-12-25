@@ -440,8 +440,12 @@ public class NetworkService extends BaseService {
             }
             case NETWORK_BLOCKED: {
                 if(currentServiceStatus == ServiceStatus.RUNNING
-                        || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING)
+                        || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING
+                        || currentServiceStatus == ServiceStatus.DEGRADED_RUNNING
+                        && sensorAvailable(SensorsConfig.currentSensitivity))
                     updateStatus(ServiceStatus.DEGRADED_RUNNING);
+                else
+                    updateStatus(ServiceStatus.BLOCKED);
                 break;
             }
             case NETWORK_ERROR: {
@@ -526,6 +530,29 @@ public class NetworkService extends BaseService {
             }
         }
         return true;
+    }
+
+    /**
+     * Is there at least one sensor not at the supplied sensor status (e.g. not BLOCKED)
+     * at least at the provided sensitivity level (based on ordinal value)?
+     * @param minSensitivity
+     * @return
+     */
+    private Boolean sensorAvailable(Sensitivity minSensitivity) {
+        LOG.info("Verifying at least one sensor is not blocked with a minimal sensitivity of: "+minSensitivity.name());
+        Collection<Sensor> sensors = ((SensorManagerBase)sensorManager).getRegisteredSensors().values();
+        if(sensors.size() == 0) {
+            return false;
+        }
+        for(Sensor s : sensors) {
+            LOG.info(s.getClass().getName()+": status="+s.getStatus().name()+", sensitivity="+s.getSensitivity().name());
+            if(s.getStatus() != SensorStatus.NETWORK_BLOCKED
+                    && s.getStatus() != SensorStatus.ERROR
+                    && s.getSensitivity().ordinal() >= minSensitivity.ordinal()){
+                return true;
+            }
+        }
+        return false;
     }
 
     public SensorManager getSensorManager() {
