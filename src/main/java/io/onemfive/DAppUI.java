@@ -1,4 +1,4 @@
-package io.onemfive.desktop;
+package io.onemfive;
 
 import dorkbox.systemTray.Entry;
 import dorkbox.systemTray.Menu;
