@@ -1,4 +1,4 @@
-package io.onemfive.desktop;
+package io.onemfive;
 
 import io.onemfive.core.Config;
 import io.onemfive.core.OneMFiveAppContext;
@@ -8,12 +8,10 @@ import io.onemfive.core.admin.AdminService;
 import io.onemfive.core.client.Client;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.client.ClientStatusListener;
-import io.onemfive.core.client.SimpleClient;
 import io.onemfive.core.util.SystemSettings;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.util.DLC;
 import io.onemfive.network.NetworkService;
-import io.onemfive.network.sensors.clearnet.server.ClearnetServerUtil;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -21,7 +19,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -100,7 +97,6 @@ public class Dapp extends Application {
         if(useTray) {
             tray = new DAppTray();
             tray.start(instance);
-            tray.updateStatus(DAppTray.INITIALIZING);
         }
 
         // UI port
@@ -228,7 +224,8 @@ public class Dapp extends Application {
     }
 
     public void launchUI() {
-        ClearnetServerUtil.launchBrowser("http://127.0.0.1:"+uiPort+"/");
+//        ClearnetServerUtil.launchBrowser("http://127.0.0.1:"+uiPort+"/");
+        // TODO: Launch OpenJFX UI
     }
 
     private void launch() throws Exception {
@@ -303,6 +300,11 @@ public class Dapp extends Application {
                         tray.updateStatus(DAppTray.RECONNECTING);
                     }
                 } else if(serviceStatus == ServiceStatus.DEGRADED_RUNNING) {
+                    LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Reconnecting...");
+                    if(useTray) {
+                        tray.updateStatus(DAppTray.DEGRADED);
+                    }
+                } else if(serviceStatus == ServiceStatus.BLOCKED) {
                     LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Blocked.");
                     if(useTray) {
                         tray.updateStatus(DAppTray.BLOCKED);
