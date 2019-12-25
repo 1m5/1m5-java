@@ -15,6 +15,7 @@ public enum ServiceStatus {
     VERIFIED, // Service has been verified operating normally by receiving a message from it
     PARTIALLY_RUNNING, // Service is running normally although not everything is running but it's expected to be normal
     DEGRADED_RUNNING, // Service is running but in a degraded manner; likely no need for action, will hopefully come back to Running
+    BLOCKED, // Service is being blocked from usage
     UNSTABLE, // Service is running but there could be issues; likely need to restart
     // Service Pausing (Not Yet Supported In Any Service)
     PAUSING, // Service will begin queueing all new requests while in-process requests will be completed
