@@ -8,7 +8,6 @@ import io.onemfive.ext.bitcoin.blockstore.BlockStore;
 import io.onemfive.data.Hash;
 import io.onemfive.data.currency.Coin;
 import io.onemfive.data.util.HashUtil;
-import jdk.internal.jline.internal.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
@@ -161,7 +160,6 @@ public abstract class NetworkParameters {
     }
 
     /** Returns the network parameters for the given string ID or NULL if not recognized. */
-    @Nullable
     public static NetworkParameters fromID(String id) {
 //        if (id.equals(ID_MAINNET)) {
 //            return MainNetConfig.get();
@@ -177,7 +175,6 @@ public abstract class NetworkParameters {
     }
 
     /** Returns the network parameters for the given string paymentProtocolID or NULL if not recognized. */
-    @Nullable
     public static NetworkParameters fromPmtProtocolID(String pmtProtocolId) {
 //        if (pmtProtocolId.equals(PAYMENT_PROTOCOL_ID_MAINNET)) {
 //            return MainNetConfig.get();
