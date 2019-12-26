@@ -6,7 +6,6 @@ import dorkbox.systemTray.SystemTray;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
 import java.util.logging.Logger;
 
 public class DAppTray {
@@ -27,37 +26,22 @@ public class DAppTray {
 
     private String status = INITIALIZING;
 
-    private SystemTray systemTray;
+    public SystemTray systemTray;
 
-    private MenuItem launchMenuItem;
+    private MenuItem launchDesktopMenuItem;
     private MenuItem quitMenuItem;
-
-    private URL sysTrayWhite;
-    private URL sysTrayBlue;
-    private URL sysTrayGreen;
-    private URL sysTrayOrange;
-    private URL sysTrayYellow;
-    private URL sysTrayRed;
-    private URL sysTrayGray;
 
     public void start(Dapp dApp) {
         SystemTray.SWING_UI = new DAppUI();
-        updateStatus(INITIALIZING);
+//        updateStatus(INITIALIZING);
         systemTray = SystemTray.get();
         if (systemTray == null) {
             throw new RuntimeException("Unable to load SystemTray!");
         }
-        sysTrayWhite = this.getClass().getClassLoader().getResource("images/sys_tray_icon_white.png");
-        sysTrayBlue = this.getClass().getClassLoader().getResource("images/sys_tray_icon_blue.png");
-        sysTrayGreen = this.getClass().getClassLoader().getResource("images/sys_tray_icon_green.png");
-        sysTrayOrange = this.getClass().getClassLoader().getResource("images/sys_tray_icon_orange.png");
-        sysTrayYellow = this.getClass().getClassLoader().getResource("images/sys_tray_icon_yellow.png");
-        sysTrayRed = this.getClass().getClassLoader().getResource("images/sys_tray_icon_red.png");
-        sysTrayGray = this.getClass().getClassLoader().getResource("images/sys_tray_icon_gray.png");
 
         // Setup Menus
         // Launch
-        launchMenuItem = new MenuItem("Launch", new ActionListener() {
+        launchDesktopMenuItem = new MenuItem("Desktop", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 new Thread() {
@@ -68,8 +52,8 @@ public class DAppTray {
                 }.start();
             }
         });
-        launchMenuItem.setEnabled(false);
-        systemTray.getMenu().add(launchMenuItem).setShortcut('s');
+        launchDesktopMenuItem.setEnabled(false);
+        systemTray.getMenu().add(launchDesktopMenuItem).setShortcut('s');
 
         // Quit
         quitMenuItem = new MenuItem("Quit", new ActionListener() {
@@ -78,7 +62,7 @@ public class DAppTray {
                 new Thread() {
                     @Override
                     public void run() {
-                        systemTray.setImage(sysTrayYellow);
+                        systemTray.setImage(Resources.SYS_TRAY_ICON_YELLOW);
                         updateStatus("Quitting");
                         dApp.shutdown();
                         systemTray.shutdown();
@@ -93,51 +77,51 @@ public class DAppTray {
     public void updateStatus(String status) {
         switch(status) {
             case INITIALIZING: {
-                systemTray.setImage(sysTrayGray);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_GRAY);
                 break;
             }
             case STARTING: {
-                systemTray.setImage(sysTrayYellow);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_YELLOW);
                 break;
             }
             case CONNECTING: {
-                systemTray.setImage(sysTrayOrange);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_ORANGE);
                 break;
             }
             case CONNECTED: {
-                launchMenuItem.setEnabled(true);
-                systemTray.setImage(sysTrayGreen);
+                launchDesktopMenuItem.setEnabled(true);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_GREEN);
                 break;
             }
             case RECONNECTING: {
-                systemTray.setImage(sysTrayOrange);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_ORANGE);
                 break;
             }
             case DEGRADED: {
-                systemTray.setImage(sysTrayYellow);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_YELLOW);
                 break;
             }
             case BLOCKED: {
-                systemTray.setImage(sysTrayBlue);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_BLUE);
                 break;
             }
             case ERRORED: {
-                systemTray.setImage(sysTrayRed);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_RED);
                 break;
             }
             case SHUTTINGDOWN: {
-                systemTray.setImage(sysTrayYellow);
-                launchMenuItem.setEnabled(false);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_YELLOW);
+                launchDesktopMenuItem.setEnabled(false);
                 break;
             }
             case STOPPED: {
-                systemTray.setImage(sysTrayGray);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_GRAY);
                 break;
             }
             case QUITTING: {
-                launchMenuItem.setEnabled(false);
+                launchDesktopMenuItem.setEnabled(false);
                 quitMenuItem.setEnabled(false);
-                systemTray.setImage(sysTrayWhite);
+                systemTray.setImage(Resources.SYS_TRAY_ICON_WHITE);
                 break;
             }
             default: {
