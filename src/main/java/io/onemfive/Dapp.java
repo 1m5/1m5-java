@@ -1,5 +1,6 @@
 package io.onemfive;
 
+import dorkbox.util.OS;
 import io.onemfive.core.Config;
 import io.onemfive.core.OneMFiveAppContext;
 import io.onemfive.core.ServiceStatus;
@@ -11,6 +12,7 @@ import io.onemfive.core.client.ClientStatusListener;
 import io.onemfive.core.util.SystemSettings;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.util.DLC;
+import io.onemfive.desktop.DesktopApp;
 import io.onemfive.network.NetworkService;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -35,6 +37,7 @@ public class Dapp extends Application {
     private static ClientAppManager manager;
     private static ClientAppManager.Status clientAppManagerStatus;
     private static Client client;
+    private static DesktopApp desktopApp;
     private static Properties config;
     private static boolean waiting = true;
     private static boolean running = false;
@@ -71,7 +74,7 @@ public class Dapp extends Application {
     }
 
     public static void init(String[] args) throws Exception {
-        System.out.println("Welcome to Inkrypt DCDN Dapp. Initializing DCDN Service...");
+        System.out.println("Welcome to 1M5. Initializing...");
         status = Status.Initializing;
         Properties p = new Properties();
         String[] parts;
@@ -84,77 +87,17 @@ public class Dapp extends Application {
         loadLoggingProperties(p);
 
         try {
-            config = Config.loadFromClasspath("inkrypt-dcdn-dapp.config", p, false);
+            config = Config.loadFromClasspath("1m5.config", p, false);
         } catch (Exception e) {
             System.out.println(e.getLocalizedMessage());
             System.exit(-1);
         }
 
-        LOG.info("Inkrypt DCDN Version: "+config.getProperty("inkrypt.version")+ " build "+config.getProperty("inkrypt.version.build"));
+        LOG.info("1M5 Version: "+config.getProperty("1m5.version")+ " build "+config.getProperty("1m5.version.build"));
 
         // Launch Tray
-        useTray = Boolean.parseBoolean(config.getProperty("tray"));
-        if(useTray) {
-            tray = new DAppTray();
-            tray.start(instance);
-        }
-
-        // UI port
-        String clConfig = config.getProperty("1m5.sensors.clearnet.server.config");
-        if(clConfig!=null) {
-            String[] clConfigParams = clConfig.split(",");
-            String uiPortStr = clConfigParams[2];
-            uiPort = Integer.parseInt(uiPortStr);
-            LOG.info("UI Port: " + uiPortStr);
-        }
-
-        // Directories
-        String rootDirStr = config.getProperty("inkrypt.dcdn.dir.base");
-        if(rootDirStr!=null) {
-            rootDir = new File(rootDirStr);
-            if (!rootDir.exists() && !rootDir.mkdir()) {
-                throw new Exception("Unable to create supplied inkrypt.dcdn.dir.base directory: " + rootDirStr);
-            }
-        } else {
-            try {
-                rootDir = SystemSettings.getUserAppHomeDir("inkrypt", "dcdn-dapp", true);
-            } catch (IOException e) {
-                throw new Exception("Unable to get user app home directory. Exception thrown: \n\t"+e.getLocalizedMessage());
-            }
-            if (rootDir == null) {
-                rootDir = SystemSettings.getSystemApplicationDir("inkrypt", "dcdn-dapp", true);
-                if(rootDir==null) {
-                    throw new Exception("Unable to get or create system app home directory for inkrypt dcdn-dapp.");
-                }
-            }
-        }
-
-        userAppDataDir = new File(rootDir, "data");
-        if(!userAppDataDir.exists() && !userAppDataDir.mkdir()) {
-            throw new Exception("Unable to create user app data directory: "+rootDir.getAbsolutePath() + "/data");
-        } else {
-            config.setProperty("inkrypt.dcdn.dir.userAppData", userAppDataDir.getAbsolutePath());
-        }
-
-        userAppConfigDir = new File(rootDir, "config");
-        if(!userAppConfigDir.exists() && !userAppConfigDir.mkdir()) {
-            throw new Exception("Unable to create user app config directory: "+rootDir.getAbsolutePath() + "/config");
-        } else {
-            config.setProperty("inkrypt.dcdn.dir.userAppConfig", userAppConfigDir.getAbsolutePath());
-        }
-
-        userAppCacheDir = new File(rootDir, "cache");
-        if(!userAppCacheDir.exists() && !userAppCacheDir.mkdir()) {
-            throw new Exception("Unable to create user app cache directory: "+rootDir.getAbsolutePath() + "/cache");
-        } else {
-            config.setProperty("inkrypt.dcdn.dir.userAppCache", userAppCacheDir.getAbsolutePath());
-        }
-        LOG.info("Inkrypt DCDN Dapp Directories: " +
-                "\n\tBase: " + rootDir.getAbsolutePath() +
-                "\n\tData: " + userAppDataDir.getAbsolutePath() +
-                "\n\tConfig: " + userAppConfigDir.getAbsolutePath() +
-                "\n\tCache: " + userAppCacheDir.getAbsolutePath());
-
+        tray = new DAppTray();
+        tray.start(instance);
         status = Status.Initialized;
         instance.start();
     }
@@ -162,9 +105,7 @@ public class Dapp extends Application {
     public void start() {
         try {
             status = Status.Starting;
-            if(useTray) {
-                tray.updateStatus(DAppTray.STARTING);
-            }
+//            tray.updateStatus(DAppTray.STARTING);
             instance.launch();
             running = true;
             status = Status.Running;
@@ -174,16 +115,12 @@ public class Dapp extends Application {
             }
             if(oneMFiveAppContext.getServiceBus().gracefulShutdown()) {
                 status = Status.Shutdown;
-                if(useTray) {
-                    tray.updateStatus(DAppTray.STOPPED);
-                }
-                System.out.println("Inkrypt DCDN Dapp Stopped.");
+                tray.updateStatus(DAppTray.STOPPED);
+                System.out.println("1M5 Dapp Stopped.");
             } else {
                 status = Status.Errored;
-                if(useTray) {
-                    tray.updateStatus(DAppTray.ERRORED);
-                }
-                System.out.println("Inkrypt DCDN Dapp Errored on Shutdown.");
+                tray.updateStatus(DAppTray.ERRORED);
+                System.out.println("1M5 Dapp Errored on Shutdown.");
             }
             OneMFiveAppContext.clearGlobalContext(); // Make sure we don't use the old context when restarting
         } catch (Exception e) {
@@ -211,12 +148,12 @@ public class Dapp extends Application {
 
     public void shutdown() {
         status = Status.ShuttingDown;
-        System.out.println("Inkrypt DCDN Dapp Shutting Down...");
+        System.out.println("1M5 Dapp Shutting Down...");
         running = false;
     }
 
     public void exit() {
-        System.out.println("Inkrypt DCDN Dapp Exiting...");
+        System.out.println("1M5 Dapp Exiting...");
         status = Status.Exiting;
         running = false;
         waiting = false;
@@ -225,100 +162,105 @@ public class Dapp extends Application {
 
     public void launchUI() {
 //        ClearnetServerUtil.launchBrowser("http://127.0.0.1:"+uiPort+"/");
-        // TODO: Launch OpenJFX UI
+        if (OS.isMacOsX() && OS.javaVersion <= 7) {
+            System.setProperty("javafx.macosx.embedded", "true");
+            java.awt.Toolkit.getDefaultToolkit();
+        }
+        DesktopApp.init(client, tray);
+        DesktopApp.launch(DesktopApp.class);
     }
 
     private void launch() throws Exception {
         // Getting ClientAppManager starts 1M5 Bus
-        oneMFiveAppContext = OneMFiveAppContext.getInstance(config);
-        manager = oneMFiveAppContext.getClientAppManager(config);
-        manager.setShutdownOnLastUnregister(true);
-        client = manager.getClient(true);
-
-        ClientStatusListener clientStatusListener = new ClientStatusListener() {
-            @Override
-            public void clientStatusChanged(ClientAppManager.Status clientStatus) {
-                clientAppManagerStatus = clientStatus;
-                LOG.info("Client Status changed: "+clientStatus.name());
-                switch(clientAppManagerStatus) {
-                    case INITIALIZING: {
-                        LOG.info("Client initializing...");
-                        break;
-                    }
-                    case READY: {
-                        LOG.info("Client ready.");
-                        break;
-                    }
-                    case STOPPING: {
-                        LOG.info("Client stopping...");
-                        break;
-                    }
-                    case STOPPED: {
-                        LOG.info("Client stopped.");
-                        break;
-                    }
-                }
-            }
-        };
-        client.registerClientStatusListener(clientStatusListener);
-        final Thread mainThread = Thread.currentThread();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                manager.unregister(client);
-                try {
-                    mainThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+//        oneMFiveAppContext = OneMFiveAppContext.getInstance(config);
+//        manager = oneMFiveAppContext.getClientAppManager(config);
+//        manager.setShutdownOnLastUnregister(true);
+//        client = manager.getClient(true);
+//
+//        ClientStatusListener clientStatusListener = new ClientStatusListener() {
+//            @Override
+//            public void clientStatusChanged(ClientAppManager.Status clientStatus) {
+//                clientAppManagerStatus = clientStatus;
+//                LOG.info("Client Status changed: "+clientStatus.name());
+//                switch(clientAppManagerStatus) {
+//                    case INITIALIZING: {
+//                        LOG.info("Client initializing...");
+//                        break;
+//                    }
+//                    case READY: {
+//                        LOG.info("Client ready.");
+//                        break;
+//                    }
+//                    case STOPPING: {
+//                        LOG.info("Client stopping...");
+//                        break;
+//                    }
+//                    case STOPPED: {
+//                        LOG.info("Client stopped.");
+//                        break;
+//                    }
+//                }
+//            }
+//        };
+//        client.registerClientStatusListener(clientStatusListener);
+//        final Thread mainThread = Thread.currentThread();
+//        Runtime.getRuntime().addShutdownHook(new Thread() {
+//            public void run() {
+//                manager.unregister(client);
+//                try {
+//                    mainThread.join();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
 
         // wait a second to let the bus and internal services start
-        waitABit(1000);
+//        waitABit(1000);
 
         // Initialize and configure 1M5
-        Envelope e = Envelope.documentFactory();
+//        Envelope e = Envelope.documentFactory();
 
         // Setup Service Status Observer
-        Map<String, List<ServiceStatusObserver>> serviceStatusObservers = new HashMap<>();
-        List<ServiceStatusObserver> networkServiceStatusObservers = new ArrayList<>();
-        serviceStatusObservers.put(NetworkService.class.getName(), networkServiceStatusObservers);
-        ServiceStatusObserver networkServiceStatusObserver = new ServiceStatusObserver() {
-            @Override
-            public void statusUpdated(ServiceStatus serviceStatus) {
-                if(networkServiceStatus != ServiceStatus.RUNNING && serviceStatus == ServiceStatus.RUNNING) {
-                    LOG.info("1M5 Network Service reporting Running. Connecting to 1M5 Network...");
-                }
-                networkServiceStatus = serviceStatus;
-                if(serviceStatus == ServiceStatus.RUNNING) {
-                    if(useTray) {
-                        tray.updateStatus(DAppTray.CONNECTING);
-                    }
-                } else if(serviceStatus == ServiceStatus.PARTIALLY_RUNNING) {
-                    LOG.info("1M5 Sensor Service reporting Partially Running. Updating status to Reconnecting...");
-                    if(useTray) {
-                        tray.updateStatus(DAppTray.RECONNECTING);
-                    }
-                } else if(serviceStatus == ServiceStatus.DEGRADED_RUNNING) {
-                    LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Reconnecting...");
-                    if(useTray) {
-                        tray.updateStatus(DAppTray.DEGRADED);
-                    }
-                } else if(serviceStatus == ServiceStatus.BLOCKED) {
-                    LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Blocked.");
-                    if(useTray) {
-                        tray.updateStatus(DAppTray.BLOCKED);
-                    }
-                }
-            }
-        };
-        networkServiceStatusObservers.add(networkServiceStatusObserver);
-
-        DLC.addData(ServiceStatusObserver.class, serviceStatusObservers, e);
+//        Map<String, List<ServiceStatusObserver>> serviceStatusObservers = new HashMap<>();
+//        List<ServiceStatusObserver> networkServiceStatusObservers = new ArrayList<>();
+//        serviceStatusObservers.put(NetworkService.class.getName(), networkServiceStatusObservers);
+//        ServiceStatusObserver networkServiceStatusObserver = new ServiceStatusObserver() {
+//            @Override
+//            public void statusUpdated(ServiceStatus serviceStatus) {
+//                if(networkServiceStatus != ServiceStatus.RUNNING && serviceStatus == ServiceStatus.RUNNING) {
+//                    LOG.info("1M5 Network Service reporting Running. Connecting to 1M5 Network...");
+//                }
+//                networkServiceStatus = serviceStatus;
+//                if(serviceStatus == ServiceStatus.RUNNING) {
+//                    if(useTray) {
+//                        tray.updateStatus(DAppTray.CONNECTING);
+//                    }
+//                } else if(serviceStatus == ServiceStatus.PARTIALLY_RUNNING) {
+//                    LOG.info("1M5 Sensor Service reporting Partially Running. Updating status to Reconnecting...");
+//                    if(useTray) {
+//                        tray.updateStatus(DAppTray.RECONNECTING);
+//                    }
+//                } else if(serviceStatus == ServiceStatus.DEGRADED_RUNNING) {
+//                    LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Reconnecting...");
+//                    if(useTray) {
+//                        tray.updateStatus(DAppTray.DEGRADED);
+//                    }
+//                } else if(serviceStatus == ServiceStatus.BLOCKED) {
+//                    LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Blocked.");
+//                    if(useTray) {
+//                        tray.updateStatus(DAppTray.BLOCKED);
+//                    }
+//                }
+//            }
+//        };
+//        networkServiceStatusObservers.add(networkServiceStatusObserver);
+//
+//        DLC.addData(ServiceStatusObserver.class, serviceStatusObservers, e);
 
         // Register Services
-        DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES,e);
-        client.request(e);
+//        DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES,e);
+//        client.request(e);
     }
 
     private static void waitABit(long waitTime) {
