@@ -21,6 +21,10 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
     private LiFiSession session;
     private LiFiPeer localNode;
 
+    public LiFiSensor() {
+        super();
+    }
+
     public LiFiSensor(SensorManager sensorManager, Sensitivity sensitivity, Integer priority) {
         super(sensorManager, sensitivity, priority);
     }
