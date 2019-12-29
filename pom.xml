@@ -49,7 +49,7 @@
 				<!-- Banned in format network|address comma-delimited -->
 				<onemfive.sensors.banned></onemfive.sensors.banned>
 				<!-- Clean out Graph DB on restart -->
-				<onemfive.sensors.db.cleanOnRestart>true</onemfive.sensors.db.cleanOnRestart>
+				<onemfive.sensors.db.cleanOnRestart>false</onemfive.sensors.db.cleanOnRestart>
 				<!-- Min Peers Tracked - the point at which Discovery process goes into 'hyper' mode. -->
 				<onemfive.sensors.MinPT>5</onemfive.sensors.MinPT>
 				<!-- Max Peers Tracked - the total number of Peers to attempt to maintain knowledge of -->
