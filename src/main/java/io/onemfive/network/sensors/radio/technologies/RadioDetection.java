@@ -17,7 +17,7 @@ public class RadioDetection {
 
     public static Map<String, Radio> radiosAvailable(PeerReport peerReport) {
         Map<String, Radio> radios = new HashMap<>();
-        LOG.warning("TechnologyDetection.radiosAvailable() not yet implemented. Using Bluetooth to test.");
+        LOG.info("Currently only Bluetooth supported.");
         Bluetooth btRadio = new Bluetooth();
         btRadio.setPeerReport(peerReport);
         radios.put(Bluetooth.class.getName(), btRadio);
