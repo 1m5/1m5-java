@@ -14,7 +14,7 @@ import java.util.Properties;
  */
 public interface ServiceRegistrar {
 
-    void register(Class serviceClass, Properties properties, List<ServiceStatusObserver> observers) throws ServiceNotAccessibleException, ServiceNotSupportedException, ServiceRegisteredException;
+    void registerService(Class serviceClass, Properties properties, List<ServiceStatusObserver> observers) throws ServiceNotAccessibleException, ServiceNotSupportedException, ServiceRegisteredException;
 
-    void unregister(Class serviceClass);
+    void unregisterService(Class serviceClass);
 }
