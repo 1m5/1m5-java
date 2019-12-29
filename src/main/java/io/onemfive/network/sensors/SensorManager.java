@@ -12,7 +12,7 @@ import java.util.Properties;
 public interface SensorManager {
 
     String HTTP_SENSOR_NAME = "io.onemfive.network.sensors.clearnet.client.ClearnetClientSensor";
-    String TOR_SENSOR_NAME = "io.onemfive.network.sensors.tor.client.TorClientSensor";
+    String TOR_SENSOR_NAME = "io.onemfive.network.sensors.tor.TorClientSensor";
     String I2P_SENSOR_NAME = "io.onemfive.network.sensors.i2p.I2PSensor";
     String RADIO_SENSOR_NAME = "io.onemfive.network.sensors.radio.RadioSensor";
     String LIFI_SENSOR_NAME ="io.onemfive.network.sensors.lifi.LiFiSensor";
