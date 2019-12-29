@@ -5,6 +5,8 @@ import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.*;
 import io.onemfive.data.util.DLC;
 import io.onemfive.data.util.DataFormatException;
+import io.onemfive.data.util.JSONParser;
+import io.onemfive.data.util.JSONPretty;
 import io.onemfive.network.*;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
@@ -48,20 +50,14 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
 
     /**
      * Sends UTF-8 content to a Destination using LiFi.
-     * @param packet Packet containing SensorRequest as data.
+     * @param request Packet of data for request.
      *                 To DID must contain base64 encoded LiFi destination key.
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(Packet packet) {
+    public boolean sendOut(Packet request) {
         LOG.info("Sending LiFi Message...");
-        NetworkRequest request = (NetworkRequest) DLC.getData(NetworkRequest.class,packet.getEnvelope());
-        if(request == null){
-            LOG.warning("No SensorRequest in Envelope.");
-            request.statusCode = ServiceMessage.REQUEST_REQUIRED;
-            return false;
-        }
-        NetworkPeer toPeer = request.destination.getPeer(Network.LIFI.name());
+        NetworkPeer toPeer = request.getToPeer();
         if(toPeer == null) {
             LOG.warning("No Peer for LiFi found in toDID while sending to LiFi.");
             request.statusCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
@@ -72,16 +68,11 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
             request.statusCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
             return false;
         }
-        LOG.info("Content to send: "+request.content);
-        if(request.content == null) {
-            LOG.warning("No content found in Envelope while sending to LiFi.");
+        LOG.info("Envelope to send: "+request.getEnvelope());
+        if(request.getEnvelope() == null) {
+            LOG.warning("No Envelope while sending to LiFi.");
             request.statusCode = NetworkRequest.NO_CONTENT;
             return false;
-        }
-        if(request.content.length() > LiFiDatagramBuilder.DATAGRAM_MAX_SIZE) {
-            // Just warn for now
-            // TODO: Split into multiple serialized datagrams
-            LOG.warning("Content longer than "+ LiFiDatagramBuilder.DATAGRAM_MAX_SIZE+". May have issues.");
         }
 
         Destination toDestination = session.lookupDestination(toPeer.getAddress());
@@ -91,7 +82,7 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
             return false;
         }
         LiFiDatagramBuilder builder = new LiFiDatagramBuilder(session);
-        LiFiDatagram datagram = builder.makeLiFIDatagram(request.content.getBytes());
+        LiFiDatagram datagram = builder.makeLiFIDatagram(JSONPretty.toPretty(JSONParser.toString(request),4).getBytes());
         Properties options = new Properties();
         if(session.sendMessage(toDestination, datagram, options)) {
             LOG.info("LiFi Message sent.");
