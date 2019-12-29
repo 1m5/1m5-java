@@ -578,16 +578,21 @@ public class NetworkService extends BaseService {
             LOG.warning(SensorManager.class.getName()+" property required to start SensorsService.");
             return false;
         }
+        LOG.info("SensorManager: "+sensorManagerClass);
+
         String peerManagerClass = properties.getProperty(PeerManager.class.getName());
         if(peerManagerClass == null) {
             LOG.warning(PeerManager.class.getName()+" property required to start SensorsService.");
             return false;
         }
+        LOG.info("PeerManager: "+peerManagerClass);
+
         String sensorsConfig = properties.getProperty(Sensor.class.getName());
         if(sensorsConfig == null) {
             LOG.warning(Sensor.class.getName()+" property required to start SensorsService.");
             return false;
         }
+        LOG.info("sensorsConfig: "+sensorsConfig);
 
         // Directories
         try {
