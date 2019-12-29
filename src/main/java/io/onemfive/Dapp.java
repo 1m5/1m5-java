@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -55,6 +54,7 @@ public class Dapp {
     public static File userAppCacheDir;
 
     public static void main(String[] args) {
+        Thread.currentThread().setContextClassLoader(Dapp.class.getClassLoader());
         try {
             init(args);
         } catch (Exception e) {
