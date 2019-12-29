@@ -26,17 +26,29 @@ public class DesktopApp extends Application {
     private static Client client;
     private static DAppTray dAppTray;
     private static SystemTray systemTray;
+    private static Runnable shutDownHandler;
+
     private ActionListener callbackGray;
+    private Stage stage;
+    private boolean popupOpened;
+    private Scene scene;
 
    public static void init(Client c, DAppTray tray) {
        client = c;
        dAppTray = tray;
        systemTray = dAppTray.systemTray;
+       shutDownHandler = new Runnable() {
+           @Override
+           public void run() {
+
+           }
+       };
    }
 
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setTitle("1M5");
+       this.stage = stage;
+       stage.setTitle("1M5");
         Button btn = new Button();
         btn.setText("Say 'Hello World'");
         btn.setOnAction(new EventHandler<ActionEvent>() {
