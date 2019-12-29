@@ -6,6 +6,9 @@ import io.onemfive.data.*;
 import io.onemfive.data.util.DLC;
 import io.onemfive.data.util.DataFormatException;
 import io.onemfive.network.*;
+import io.onemfive.network.sensors.BaseSensor;
+import io.onemfive.network.sensors.SensorManager;
+import io.onemfive.network.sensors.SensorStatus;
 
 import java.io.*;
 import java.util.Properties;

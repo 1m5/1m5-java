@@ -3,6 +3,9 @@ package io.onemfive.network.sensors.radio;
 import io.onemfive.core.Config;
 import io.onemfive.data.*;
 import io.onemfive.data.util.*;
+import io.onemfive.network.sensors.BaseSensor;
+import io.onemfive.network.sensors.SensorManager;
+import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.radio.tasks.TaskRunner;
 import io.onemfive.network.sensors.radio.technologies.RadioDetection;
 import io.onemfive.network.*;
@@ -11,7 +14,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static io.onemfive.network.SensorStatus.NETWORK_CONNECTED;
+import static io.onemfive.network.sensors.SensorStatus.NETWORK_CONNECTED;
 
 /**
  * Manages communications across the full radio electromagnetic spectrum

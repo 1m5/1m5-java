@@ -1,7 +1,8 @@
-package io.onemfive.network;
+package io.onemfive.network.sensors;
 
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Packet;
+import io.onemfive.network.NetworkService;
 import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.peers.PeerReport;
@@ -23,7 +24,7 @@ public abstract class SensorManagerBase implements SensorManager {
 
     protected NetworkService networkService;
 
-    void setNetworkService(NetworkService networkService) {
+    public void setNetworkService(NetworkService networkService) {
         this.networkService = networkService;
     }
 
@@ -42,15 +43,15 @@ public abstract class SensorManagerBase implements SensorManager {
         registeredSensors.put(sensor.getClass().getName(), sensor);
     }
 
-    Map<String, Sensor> getRegisteredSensors() {
+    public Map<String, Sensor> getRegisteredSensors() {
         return registeredSensors;
     }
 
-    Map<String, Sensor> getActiveSensors() {
+    public Map<String, Sensor> getActiveSensors() {
         return activeSensors;
     }
 
-    Map<String, Sensor> getBlockedSensors(){
+    public Map<String, Sensor> getBlockedSensors(){
         return blockedSensors;
     }
 

@@ -5,7 +5,6 @@ import io.onemfive.core.keyring.AuthNRequest;
 import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
-import io.onemfive.core.util.AppThread;
 import io.onemfive.core.util.tasks.TaskRunner;
 import io.onemfive.data.*;
 import io.onemfive.data.route.Route;
@@ -19,6 +18,7 @@ import io.onemfive.did.DIDService;
 import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.peers.BasePeerManager;
 import io.onemfive.network.peers.PeerManager;
+import io.onemfive.network.sensors.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class NetworkService extends BaseService {
         return peerManager;
     }
 
-    Properties getProperties() {
+    public Properties getProperties() {
         return properties;
     }
 
@@ -190,7 +190,7 @@ public class NetworkService extends BaseService {
         return producer.send(envelope);
     }
 
-    void suspend(Envelope envelope) {
+    public void suspend(Envelope envelope) {
         deadLetter(envelope);
     }
 
@@ -261,16 +261,14 @@ public class NetworkService extends BaseService {
             } else {
                 LOG.warning("Object " + obj.getClass().getName() + " not handled; ignoring.");
             }
-        } else if(msg instanceof DID) {
+        } else if(msg instanceof NetworkPeer) {
             LOG.info("Route in DID with I2P Address...");
-            DID d = (DID)msg;
-            NetworkPeer updatedPeer = new NetworkPeer();
+            NetworkPeer np = (NetworkPeer)msg;
             NetworkPeer localPeer = peerManager.getLocalPeer();
-            updatedPeer.setDid(d);
-            if(updatedPeer.getI2PFingerprint()!=null)
-                localPeer.setI2PFingerprint(updatedPeer.getI2PFingerprint());
-            if(updatedPeer.getI2PAddress()!=null)
-                localPeer.setI2PAddress(updatedPeer.getI2PAddress());
+            if(np.getI2PFingerprint()!=null)
+                localPeer.setI2PFingerprint(np.getI2PFingerprint());
+            if(np.getI2PAddress()!=null)
+                localPeer.setI2PAddress(np.getI2PAddress());
             LOG.info("Saving local peer's DID updated with I2P addresses: "+localPeer);
             peerManager.savePeer(localPeer, false);
             LOG.info("DID with I2P Addresses saved; Sensors Service ready for requests.");
@@ -384,7 +382,7 @@ public class NetworkService extends BaseService {
      * Based on supplied SensorStatus, set the SensorsService status.
      * @param sensorStatus
      */
-    void determineStatus(SensorStatus sensorStatus) {
+    public void determineStatus(SensorStatus sensorStatus) {
         ServiceStatus currentServiceStatus = getServiceStatus();
         LOG.info("Current Sensors Service Status: "+currentServiceStatus+"; Inbound sensor status: "+sensorStatus.name());
         switch (sensorStatus) {
@@ -684,6 +682,7 @@ public class NetworkService extends BaseService {
 
                 properties.setProperty("onemfive.node.local.username",username);
                 passphrase = FileUtil.readTextFile(credFileStr,1, true);
+
                 if("".equals(passphrase) ||
                         (properties.getProperty("onemfive.node.local.rebuild")!=null && "true".equals(properties.getProperty("onemfive.node.local.rebuild")))) {
                     passphrase = HashUtil.generateHash(String.valueOf(System.currentTimeMillis()), Hash.Algorithm.SHA1).getHash();
@@ -723,7 +722,6 @@ public class NetworkService extends BaseService {
             DLC.addRoute(KeyRingService.class, KeyRingService.OPERATION_AUTHN, e3);
             // Comment out for now
             producer.send(e3);
-            new AppThread(peerManager).start();
 
             updateStatus(ServiceStatus.WAITING);
             LOG.info("Sensors Service Started.");

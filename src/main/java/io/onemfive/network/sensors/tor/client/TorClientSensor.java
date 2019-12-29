@@ -6,7 +6,7 @@ import io.onemfive.network.sensors.clearnet.client.ClearnetClientSensor;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Message;
 import io.onemfive.data.util.DLC;
-import io.onemfive.network.SensorStatus;
+import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.NetworkService;
 
 import java.io.File;

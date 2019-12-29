@@ -1,4 +1,4 @@
-package io.onemfive.network;
+package io.onemfive.network.sensors;
 
 import io.onemfive.core.LifeCycle;
 import io.onemfive.core.util.tasks.TaskRunner;

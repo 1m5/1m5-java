@@ -5,7 +5,7 @@ import io.onemfive.core.util.tasks.TaskRunner;
 import io.onemfive.data.*;
 import io.onemfive.neo4j.GraphUtil;
 import io.onemfive.neo4j.Neo4jDB;
-import io.onemfive.network.SensorsConfig;
+import io.onemfive.network.sensors.SensorsConfig;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.IndexDefinition;
 
@@ -43,7 +43,7 @@ public class GraphPeerManager extends BasePeerManager {
         try {
             baseDir = service.getServiceDirectory().getCanonicalPath();
         } catch (IOException e) {
-            LOG.warning("IOException caught retrieving SensorsService's service directory.");
+            LOG.warning("IOException caught retrieving NetworkService's service directory.");
             return false;
         }
         db.setLocation(baseDir + "/" + DBNAME);

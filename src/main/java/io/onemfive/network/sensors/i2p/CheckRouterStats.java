@@ -1,9 +1,9 @@
 package io.onemfive.network.sensors.i2p;
 
 import io.onemfive.core.util.tasks.TaskRunner;
-import io.onemfive.network.SensorTask;
+import io.onemfive.network.NetworkTask;
 
-public class CheckRouterStats extends SensorTask {
+public class CheckRouterStats extends NetworkTask {
 
     private I2PSensor sensor;
 

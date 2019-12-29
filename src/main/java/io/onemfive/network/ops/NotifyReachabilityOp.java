@@ -2,7 +2,7 @@ package io.onemfive.network.ops;
 
 import io.onemfive.core.Notification;
 import io.onemfive.data.Packet;
-import io.onemfive.network.SensorManager;
+import io.onemfive.network.sensors.SensorManager;
 
 import java.util.logging.Logger;
 

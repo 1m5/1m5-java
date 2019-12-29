@@ -10,7 +10,7 @@ import java.util.Properties;
  *
  * @author objectorange
  */
-public abstract class SensorTask extends BaseTask {
+public abstract class NetworkTask extends BaseTask {
 
     protected Properties properties;
     protected long periodicity = 60 * 60 * 1000; // 1 hour as default
@@ -19,18 +19,18 @@ public abstract class SensorTask extends BaseTask {
     protected boolean completed = false;
     protected boolean longRunning = false;
 
-    public SensorTask(String taskName, TaskRunner taskRunner) {
+    public NetworkTask(String taskName, TaskRunner taskRunner) {
         super(taskName, taskRunner);
         this.lastCompletionTime = System.currentTimeMillis();
     }
 
-    public SensorTask(String taskName, TaskRunner taskRunner, Properties properties) {
+    public NetworkTask(String taskName, TaskRunner taskRunner, Properties properties) {
         super(taskName, taskRunner);
         this.properties = properties;
         this.lastCompletionTime = System.currentTimeMillis();
     }
 
-    public SensorTask(String taskName, TaskRunner taskRunner, Properties properties, long periodicity) {
+    public NetworkTask(String taskName, TaskRunner taskRunner, Properties properties, long periodicity) {
        super(taskName, taskRunner);
         this.properties = properties;
         this.periodicity = periodicity;

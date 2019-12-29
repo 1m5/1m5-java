@@ -1,4 +1,4 @@
-package io.onemfive.network;
+package io.onemfive.network.sensors;
 
 /**
  * Status States of a Sensor.

@@ -1,6 +1,6 @@
 package io.onemfive.network.ops;
 
-import io.onemfive.network.SensorManager;
+import io.onemfive.network.sensors.SensorManager;
 
 public abstract class NetworkOpBase implements NetworkOp {
 

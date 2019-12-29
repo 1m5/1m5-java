@@ -2,8 +2,8 @@ package io.onemfive.network.peers;
 
 import io.onemfive.core.util.tasks.TaskRunner;
 import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.SensorsConfig;
-import io.onemfive.network.SensorTask;
+import io.onemfive.network.sensors.SensorsConfig;
+import io.onemfive.network.NetworkTask;
 import io.onemfive.network.NetworkService;
 
 import java.util.Properties;
@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public class PeerDiscovery extends SensorTask {
+public class PeerDiscovery extends NetworkTask {
 
     private Logger LOG = Logger.getLogger(PeerDiscovery.class.getName());
     private boolean firstRun = true;

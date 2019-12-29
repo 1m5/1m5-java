@@ -1,4 +1,4 @@
-package io.onemfive.network;
+package io.onemfive.network.sensors;
 
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Packet;

@@ -1,7 +1,7 @@
 package io.onemfive.network.peers;
 
 import io.onemfive.data.JSONSerializable;
-import io.onemfive.network.SensorsConfig;
+import io.onemfive.network.sensors.SensorsConfig;
 import org.neo4j.graphdb.RelationshipType;
 
 import java.util.HashMap;

@@ -1,8 +1,8 @@
 package io.onemfive.network.sensors.clearnet.client;
 
 import io.onemfive.data.*;
-import io.onemfive.network.BaseSensor;
-import io.onemfive.network.SensorManager;
+import io.onemfive.network.sensors.BaseSensor;
+import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.data.util.DLC;
 import io.onemfive.data.util.Multipart;
 import okhttp3.*;
