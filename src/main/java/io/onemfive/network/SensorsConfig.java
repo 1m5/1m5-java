@@ -1,5 +1,6 @@
 package io.onemfive.network;
 
+import io.onemfive.core.Config;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.data.Sensitivity;
@@ -14,6 +15,11 @@ public class SensorsConfig {
     private static final Logger LOG = Logger.getLogger(SensorsConfig.class.getName());
 
     public static void update(Properties properties) {
+        try {
+            properties.putAll(Config.loadFromClasspath("sensors.config", properties, false));
+        } catch (Exception e) {
+            LOG.warning(e.getLocalizedMessage());
+        }
         if(properties.getProperty("io.onemfive.network.sensitivity") != null) {
             try {
                 currentSensitivity = Sensitivity.valueOf(properties.getProperty("io.onemfive.network.sensitivity"));

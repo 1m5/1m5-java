@@ -171,95 +171,95 @@ public class Dapp extends Application {
 
     private void launch() throws Exception {
         // Getting ClientAppManager starts 1M5 Bus
-//        oneMFiveAppContext = OneMFiveAppContext.getInstance(config);
-//        manager = oneMFiveAppContext.getClientAppManager(config);
-//        manager.setShutdownOnLastUnregister(true);
-//        client = manager.getClient(true);
-//
-//        ClientStatusListener clientStatusListener = new ClientStatusListener() {
-//            @Override
-//            public void clientStatusChanged(ClientAppManager.Status clientStatus) {
-//                clientAppManagerStatus = clientStatus;
-//                LOG.info("Client Status changed: "+clientStatus.name());
-//                switch(clientAppManagerStatus) {
-//                    case INITIALIZING: {
-//                        LOG.info("Client initializing...");
-//                        break;
-//                    }
-//                    case READY: {
-//                        LOG.info("Client ready.");
-//                        break;
-//                    }
-//                    case STOPPING: {
-//                        LOG.info("Client stopping...");
-//                        break;
-//                    }
-//                    case STOPPED: {
-//                        LOG.info("Client stopped.");
-//                        break;
-//                    }
-//                }
-//            }
-//        };
-//        client.registerClientStatusListener(clientStatusListener);
-//        final Thread mainThread = Thread.currentThread();
-//        Runtime.getRuntime().addShutdownHook(new Thread() {
-//            public void run() {
-//                manager.unregister(client);
-//                try {
-//                    mainThread.join();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
+        oneMFiveAppContext = OneMFiveAppContext.getInstance(config);
+        manager = oneMFiveAppContext.getClientAppManager(config);
+        manager.setShutdownOnLastUnregister(true);
+        client = manager.getClient(true);
+
+        ClientStatusListener clientStatusListener = new ClientStatusListener() {
+            @Override
+            public void clientStatusChanged(ClientAppManager.Status clientStatus) {
+                clientAppManagerStatus = clientStatus;
+                LOG.info("Client Status changed: "+clientStatus.name());
+                switch(clientAppManagerStatus) {
+                    case INITIALIZING: {
+                        LOG.info("Client initializing...");
+                        break;
+                    }
+                    case READY: {
+                        LOG.info("Client ready.");
+                        break;
+                    }
+                    case STOPPING: {
+                        LOG.info("Client stopping...");
+                        break;
+                    }
+                    case STOPPED: {
+                        LOG.info("Client stopped.");
+                        break;
+                    }
+                }
+            }
+        };
+        client.registerClientStatusListener(clientStatusListener);
+        final Thread mainThread = Thread.currentThread();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                manager.unregister(client);
+                try {
+                    mainThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         // wait a second to let the bus and internal services start
-//        waitABit(1000);
+        waitABit(1000);
 
         // Initialize and configure 1M5
-//        Envelope e = Envelope.documentFactory();
+        Envelope e = Envelope.documentFactory();
 
         // Setup Service Status Observer
-//        Map<String, List<ServiceStatusObserver>> serviceStatusObservers = new HashMap<>();
-//        List<ServiceStatusObserver> networkServiceStatusObservers = new ArrayList<>();
-//        serviceStatusObservers.put(NetworkService.class.getName(), networkServiceStatusObservers);
-//        ServiceStatusObserver networkServiceStatusObserver = new ServiceStatusObserver() {
-//            @Override
-//            public void statusUpdated(ServiceStatus serviceStatus) {
-//                if(networkServiceStatus != ServiceStatus.RUNNING && serviceStatus == ServiceStatus.RUNNING) {
-//                    LOG.info("1M5 Network Service reporting Running. Connecting to 1M5 Network...");
-//                }
-//                networkServiceStatus = serviceStatus;
-//                if(serviceStatus == ServiceStatus.RUNNING) {
-//                    if(useTray) {
-//                        tray.updateStatus(DAppTray.CONNECTING);
-//                    }
-//                } else if(serviceStatus == ServiceStatus.PARTIALLY_RUNNING) {
-//                    LOG.info("1M5 Sensor Service reporting Partially Running. Updating status to Reconnecting...");
-//                    if(useTray) {
-//                        tray.updateStatus(DAppTray.RECONNECTING);
-//                    }
-//                } else if(serviceStatus == ServiceStatus.DEGRADED_RUNNING) {
-//                    LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Reconnecting...");
-//                    if(useTray) {
-//                        tray.updateStatus(DAppTray.DEGRADED);
-//                    }
-//                } else if(serviceStatus == ServiceStatus.BLOCKED) {
-//                    LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Blocked.");
-//                    if(useTray) {
-//                        tray.updateStatus(DAppTray.BLOCKED);
-//                    }
-//                }
-//            }
-//        };
-//        networkServiceStatusObservers.add(networkServiceStatusObserver);
-//
-//        DLC.addData(ServiceStatusObserver.class, serviceStatusObservers, e);
+        Map<String, List<ServiceStatusObserver>> serviceStatusObservers = new HashMap<>();
+        List<ServiceStatusObserver> networkServiceStatusObservers = new ArrayList<>();
+        serviceStatusObservers.put(NetworkService.class.getName(), networkServiceStatusObservers);
+        ServiceStatusObserver networkServiceStatusObserver = new ServiceStatusObserver() {
+            @Override
+            public void statusUpdated(ServiceStatus serviceStatus) {
+                if(networkServiceStatus != ServiceStatus.RUNNING && serviceStatus == ServiceStatus.RUNNING) {
+                    LOG.info("1M5 Network Service reporting Running. Connecting to 1M5 Network...");
+                }
+                networkServiceStatus = serviceStatus;
+                if(serviceStatus == ServiceStatus.RUNNING) {
+                    if(useTray) {
+                        tray.updateStatus(DAppTray.CONNECTING);
+                    }
+                } else if(serviceStatus == ServiceStatus.PARTIALLY_RUNNING) {
+                    LOG.info("1M5 Sensor Service reporting Partially Running. Updating status to Reconnecting...");
+                    if(useTray) {
+                        tray.updateStatus(DAppTray.RECONNECTING);
+                    }
+                } else if(serviceStatus == ServiceStatus.DEGRADED_RUNNING) {
+                    LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Reconnecting...");
+                    if(useTray) {
+                        tray.updateStatus(DAppTray.DEGRADED);
+                    }
+                } else if(serviceStatus == ServiceStatus.BLOCKED) {
+                    LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Blocked.");
+                    if(useTray) {
+                        tray.updateStatus(DAppTray.BLOCKED);
+                    }
+                }
+            }
+        };
+        networkServiceStatusObservers.add(networkServiceStatusObserver);
+
+        DLC.addData(ServiceStatusObserver.class, serviceStatusObservers, e);
 
         // Register Services
-//        DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES,e);
-//        client.request(e);
+        DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES,e);
+        client.request(e);
     }
 
     private static void waitABit(long waitTime) {
