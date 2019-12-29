@@ -85,7 +85,7 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
         busStatusListeners.remove(busStatusListener);
     }
 
-    public void register(Class serviceClass, Properties p, List<ServiceStatusObserver> observers) throws ServiceNotAccessibleException, ServiceNotSupportedException, ServiceRegisteredException {
+    public void registerService(Class serviceClass, Properties p, List<ServiceStatusObserver> observers) throws ServiceNotAccessibleException, ServiceNotSupportedException, ServiceRegisteredException {
         LOG.info("Registering service class: "+serviceClass.getName());
         if(registeredServices.containsKey(serviceClass.getName())) {
             throw new ServiceRegisteredException();
@@ -102,7 +102,7 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
             service.setRegistered(true);
             if(observers != null) {
                 LOG.info("Registering ServiceStatusObservers with service: "+service.getClass().getName());
-                service.registerServiceStatusObservers(observers);
+                registerServiceStatusObservers(serviceClass, observers);
             }
             LOG.info("Service registered successfully: "+serviceName);
             // init registered service
@@ -124,7 +124,7 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
         }
     }
 
-    public void unregister(Class serviceClass) {
+    public void unregisterService(Class serviceClass) {
         if(runningServices.containsKey(serviceClass.getName())) {
             final String serviceName = serviceClass.getName();
             final BaseService service = runningServices.get(serviceName);
@@ -139,6 +139,22 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
                     }
                 }
             }, serviceName+"-ShutdownThread").start();
+        }
+    }
+
+    public void registerServiceStatusObservers(Class serviceClass, List<ServiceStatusObserver> observers) {
+        if(registeredServices.containsKey(serviceClass.getName())) {
+            BaseService service = registeredServices.get(serviceClass.getName());
+            LOG.info("Registering ServiceStatusObservers with service: "+service.getClass().getName());
+            service.registerServiceStatusObservers(observers);
+        }
+    }
+
+    public void unregisterServiceStatusObservers(Class serviceClass, ServiceStatusObserver observer) {
+        if(registeredServices.containsKey(serviceClass.getName())) {
+            BaseService service = registeredServices.get(serviceClass.getName());
+            LOG.info("Unregistering ServiceStatusObserver with service: "+service.getClass().getName());
+            service.unregisterServiceStatusObserver(observer);
         }
     }
 
