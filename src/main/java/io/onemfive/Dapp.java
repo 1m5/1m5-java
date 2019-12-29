@@ -54,7 +54,6 @@ public class Dapp {
     public static File userAppCacheDir;
 
     public static void main(String[] args) {
-        Thread.currentThread().setContextClassLoader(Dapp.class.getClassLoader());
         try {
             init(args);
         } catch (Exception e) {
@@ -96,6 +95,7 @@ public class Dapp {
         try {
             status = Status.Starting;
             tray.updateStatus(DAppTray.STARTING);
+            // launch router
             instance.launch();
             running = true;
             status = Status.Running;
@@ -230,6 +230,10 @@ public class Dapp {
         // Register Services
         DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES,e);
         client.request(e);
+
+        // launch desktop
+        DesktopApp.init(client, tray);
+        Application.launch(DesktopApp.class);
     }
 
     private static void waitABit(long waitTime) {
