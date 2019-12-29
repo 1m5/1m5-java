@@ -1072,17 +1072,17 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
         return true;
     }
 
-    public static void main(String[] args) {
-        File f = new File(args[0]);
-        if(!f.exists() && !f.mkdir()) {
-            System.out.println("Unable to create directory "+args[0]);
-            System.exit(-1);
-        }
-        Properties p = new Properties();
-        p.setProperty("1m5.dir.base",args[0]);
-        p.setProperty("1m5.sensors.i2p.isTest","true");
-        I2PSensor s = new I2PSensor(null, Sensitivity.HIGH, 100);
-        s.start(p);
-    }
+//    public static void main(String[] args) {
+//        File f = new File(args[0]);
+//        if(!f.exists() && !f.mkdir()) {
+//            System.out.println("Unable to create directory "+args[0]);
+//            System.exit(-1);
+//        }
+//        Properties p = new Properties();
+//        p.setProperty("1m5.dir.base",args[0]);
+//        p.setProperty("1m5.sensors.i2p.isTest","true");
+//        I2PSensor s = new I2PSensor(null, Sensitivity.HIGH, 100);
+//        s.start(p);
+//    }
 
 }
