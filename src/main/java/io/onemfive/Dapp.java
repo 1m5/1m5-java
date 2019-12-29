@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-public class Dapp extends Application {
+public class Dapp {
 
     private static final Logger LOG = Logger.getLogger(Dapp.class.getName());
 
@@ -54,9 +54,6 @@ public class Dapp extends Application {
     public static File userAppConfigDir;
     public static File userAppCacheDir;
 
-    private static Consumer<Application> appLaunchedHandler;
-    private Stage stage;
-
     public static void main(String[] args) {
         try {
             init(args);
@@ -64,12 +61,6 @@ public class Dapp extends Application {
             System.out.print(e.getLocalizedMessage());
             System.exit(-1);
         }
-    }
-
-    @Override
-    public void start(Stage stage) {
-        this.stage = stage;
-        appLaunchedHandler.accept(this);
     }
 
     public static void init(String[] args) throws Exception {
@@ -126,23 +117,6 @@ public class Dapp extends Application {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
         }
-    }
-
-    @Override
-    public void stop() {
-//        if (!shutDownRequested) {
-//            new Popup<>().headLine(Res.get("popup.shutDownInProgress.headline"))
-//                    .backgroundInfo(Res.get("popup.shutDownInProgress.msg"))
-//                    .hideCloseButton()
-//                    .useAnimation(false)
-//                    .show();
-//            UserThread.runAfter(() -> {
-//                gracefulShutDownHandler.gracefulShutDown(() -> {
-//                    log.debug("App shutdown complete");
-//                });
-//            }, 200, TimeUnit.MILLISECONDS);
-//            shutDownRequested = true;
-//        }
     }
 
     public void shutdown() {
