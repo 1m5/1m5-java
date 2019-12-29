@@ -117,6 +117,16 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
         return false;
     }
 
+    @Override
+    public boolean sendIn(Envelope envelope) {
+        return super.sendIn(envelope);
+    }
+
+    @Override
+    public boolean replyIn(Envelope envelope) {
+        return super.replyIn(envelope);
+    }
+
     /**
      * Will be called only if you register via addSessionListener().
      *
