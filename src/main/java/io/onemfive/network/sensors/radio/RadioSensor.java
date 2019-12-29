@@ -32,6 +32,10 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
     private File localNodeFile;
     private Map<String, Radio> radios = new HashMap<>();
 
+    public RadioSensor() {
+        super();
+    }
+
     public RadioSensor(SensorManager sensorManager, Sensitivity sensitivity, Integer priority) {
         super(sensorManager, sensitivity, priority);
     }
