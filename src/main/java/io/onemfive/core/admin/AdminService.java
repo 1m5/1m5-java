@@ -9,9 +9,7 @@ import io.onemfive.data.route.Route;
 import io.onemfive.data.util.DLC;
 import io.onemfive.data.Envelope;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -47,27 +45,48 @@ public class AdminService extends BaseService {
     }
 
     private void registerServices(Envelope e) {
-        List<Class> servicesToRegister = (List<Class>)DLC.getEntity(e);
-        LOG.info("Services to register: "+servicesToRegister);
         Properties p = (Properties)DLC.getData(Properties.class, e);
+
         Map<String,List<ServiceStatusObserver>> serviceStatusObservers = (Map<String,List<ServiceStatusObserver>>)DLC.getData(ServiceStatusObserver.class, e);
-        List<ServiceStatusObserver> observers;
-        for(Class c : servicesToRegister) {
-            try {
-                // Look for observers
-                if(serviceStatusObservers!=null && serviceStatusObservers.get(c.getName())!=null) {
-                    observers = serviceStatusObservers.get(c.getName());
-                } else {
-                    observers = null;
+
+        List<Class> servicesToRegister = (List<Class>)DLC.getEntity(e);
+        if(servicesToRegister==null) {
+            LOG.info("No external services to register.");
+            if(serviceStatusObservers!=null) {
+                Iterator<String> services = serviceStatusObservers.keySet().iterator();
+                while(services.hasNext()) {
+                    String service = services.next();
+                    if(serviceStatusObservers.get(service)!=null) {
+                        try {
+                            serviceBus.registerServiceStatusObservers(Class.forName(service), serviceStatusObservers.get(service));
+                        } catch (ClassNotFoundException ex) {
+                            LOG.warning(ex.getLocalizedMessage());
+                        }
+                    }
                 }
-                // Register the Service
-                serviceBus.register(c, p, observers);
-            } catch (ServiceNotAccessibleException e1) {
-                DLC.addException(e1, e);
-            } catch (ServiceNotSupportedException e1) {
-                DLC.addException(e1, e);
-            } catch (ServiceRegisteredException e1) {
-                DLC.addException(e1, e);
+            } else {
+                LOG.info("No Service Status Observers to register.");
+            }
+        } else {
+            LOG.info("Services to register: " + servicesToRegister);
+            List<ServiceStatusObserver> observers;
+            for(Class c : servicesToRegister) {
+                try {
+                    // Look for observers
+                    if(serviceStatusObservers!=null && serviceStatusObservers.get(c.getName())!=null) {
+                        observers = serviceStatusObservers.get(c.getName());
+                    } else {
+                        observers = null;
+                    }
+                    // Register the Service
+                    serviceBus.registerService(c, p, observers);
+                } catch (ServiceNotAccessibleException e1) {
+                    DLC.addException(e1, e);
+                } catch (ServiceNotSupportedException e1) {
+                    DLC.addException(e1, e);
+                } catch (ServiceRegisteredException e1) {
+                    DLC.addException(e1, e);
+                }
             }
         }
     }
