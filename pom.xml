@@ -181,6 +181,7 @@
 					<include>**/*.config</include>
 					<include>**/*.txt</include>
 					<include>**/*.crt</include>
+					<include>**/*.png</include>
 				</includes>
 			</resource>
 		</resources>
