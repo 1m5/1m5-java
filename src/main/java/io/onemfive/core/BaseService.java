@@ -64,16 +64,19 @@ public abstract class BaseService implements MessageConsumer, Service, LifeCycle
     }
 
     protected void updateStatus(ServiceStatus serviceStatus) {
-        this.serviceStatus = serviceStatus;
-        if(serviceStatusListeners != null) {
-            for(ServiceStatusListener l : serviceStatusListeners) {
-                l.serviceStatusChanged(this.getClass().getName(), serviceStatus);
+        if(this.serviceStatus != serviceStatus) {
+            // status has changed
+            this.serviceStatus = serviceStatus;
+            if (serviceStatusListeners != null) {
+                for (ServiceStatusListener l : serviceStatusListeners) {
+                    l.serviceStatusChanged(this.getClass().getName(), serviceStatus);
+                }
             }
-        }
-        if(serviceStatusObservers != null) {
-            for(ServiceStatusObserver o : serviceStatusObservers) {
-                LOG.info("ServiceStatusObserver updating service: "+this.getClass().getName()+" with status: "+serviceStatus.name());
-                o.statusUpdated(serviceStatus);
+            if (serviceStatusObservers != null) {
+                for (ServiceStatusObserver o : serviceStatusObservers) {
+                    LOG.info("ServiceStatusObserver updating service: " + this.getClass().getName() + " with status: " + serviceStatus.name());
+                    o.statusUpdated(serviceStatus);
+                }
             }
         }
     }
