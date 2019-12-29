@@ -125,6 +125,18 @@ public final class TorSensor extends ClearnetClientSensor {
     }
 
     @Override
+    public boolean sendIn(Envelope envelope) {
+        // TODO: Implement as Tor Hidden Service
+        return super.sendIn(envelope);
+    }
+
+    @Override
+    public boolean replyIn(Envelope envelope) {
+        // TODO: Implement as Tor Hidden Service
+        return super.replyIn(envelope);
+    }
+
+    @Override
     public boolean start(Properties properties) {
         if(super.start(properties)) {
             LOG.info("Starting Tor Client Sensor...");
