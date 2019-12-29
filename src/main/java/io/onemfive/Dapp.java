@@ -157,8 +157,8 @@ public class Dapp {
                 LOG.info("Client Status changed: "+clientStatus.name());
                 switch(clientAppManagerStatus) {
                     case INITIALIZING: {
-                        LOG.info("Dapp connecting...");
-                        tray.updateStatus(DAppTray.CONNECTING);
+                        LOG.info("Dapp starting...");
+                        tray.updateStatus(DAppTray.STARTING);
                         break;
                     }
                     case READY: {
@@ -210,24 +210,16 @@ public class Dapp {
                 }
                 networkServiceStatus = serviceStatus;
                 if(serviceStatus == ServiceStatus.RUNNING) {
-                    if(useTray) {
-                        tray.updateStatus(DAppTray.CONNECTING);
-                    }
+                    tray.updateStatus(DAppTray.CONNECTED);
                 } else if(serviceStatus == ServiceStatus.PARTIALLY_RUNNING) {
                     LOG.info("1M5 Sensor Service reporting Partially Running. Updating status to Reconnecting...");
-                    if(useTray) {
-                        tray.updateStatus(DAppTray.RECONNECTING);
-                    }
+                    tray.updateStatus(DAppTray.RECONNECTING);
                 } else if(serviceStatus == ServiceStatus.DEGRADED_RUNNING) {
                     LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Reconnecting...");
-                    if(useTray) {
-                        tray.updateStatus(DAppTray.DEGRADED);
-                    }
+                    tray.updateStatus(DAppTray.DEGRADED);
                 } else if(serviceStatus == ServiceStatus.BLOCKED) {
                     LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Blocked.");
-                    if(useTray) {
-                        tray.updateStatus(DAppTray.BLOCKED);
-                    }
+                    tray.updateStatus(DAppTray.BLOCKED);
                 }
             }
         };
