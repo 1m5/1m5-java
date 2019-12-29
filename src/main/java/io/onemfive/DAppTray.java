@@ -33,12 +33,11 @@ public class DAppTray {
 
     public void start(Dapp dApp) {
         SystemTray.SWING_UI = new DAppUI();
-//        updateStatus(INITIALIZING);
         systemTray = SystemTray.get();
         if (systemTray == null) {
             throw new RuntimeException("Unable to load SystemTray!");
         }
-
+        updateStatus(INITIALIZING);
         // Setup Menus
         // Launch
         launchDesktopMenuItem = new MenuItem("Desktop", new ActionListener() {
@@ -71,7 +70,9 @@ public class DAppTray {
                 }.start();
             }
         });
+        quitMenuItem.setEnabled(true);
         systemTray.getMenu().add(quitMenuItem).setShortcut('q'); // case does not matter
+        systemTray.setEnabled(true);
     }
 
     public void updateStatus(String status) {
