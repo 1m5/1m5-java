@@ -69,7 +69,6 @@ public class Dapp extends Application {
     @Override
     public void start(Stage stage) {
         this.stage = stage;
-
         appLaunchedHandler.accept(this);
     }
 
@@ -93,7 +92,7 @@ public class Dapp extends Application {
             System.exit(-1);
         }
 
-        LOG.info("1M5 Version: "+config.getProperty("1m5.version")+ " build "+config.getProperty("1m5.version.build"));
+        LOG.info("1M5 Version: "+config.getProperty("1m5.version")+"."+config.getProperty("1m5.version.build"));
 
         // Launch Tray
         tray = new DAppTray();
@@ -105,7 +104,7 @@ public class Dapp extends Application {
     public void start() {
         try {
             status = Status.Starting;
-//            tray.updateStatus(DAppTray.STARTING);
+            tray.updateStatus(DAppTray.STARTING);
             instance.launch();
             running = true;
             status = Status.Running;
