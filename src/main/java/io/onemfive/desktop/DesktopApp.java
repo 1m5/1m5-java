@@ -225,4 +225,22 @@ public class DesktopApp extends Application {
             }
         })).setShortcut('q'); // case does not matter
     }
+
+    @Override
+    public void stop() {
+//        if (!shutDownRequested) {
+//            new Popup<>().headLine(Res.get("popup.shutDownInProgress.headline"))
+//                    .backgroundInfo(Res.get("popup.shutDownInProgress.msg"))
+//                    .hideCloseButton()
+//                    .useAnimation(false)
+//                    .show();
+//            UserThread.runAfter(() -> {
+//                gracefulShutDownHandler.gracefulShutDown(() -> {
+//                    log.debug("App shutdown complete");
+//                });
+//            }, 200, TimeUnit.MILLISECONDS);
+//            shutDownRequested = true;
+//        }
+    }
+
 }
