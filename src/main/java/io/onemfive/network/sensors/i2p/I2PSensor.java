@@ -664,7 +664,7 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
                 LOG.warning("This peer is in a 'strict' country defined by I2P.");
             }
             if(routerContext.router().isHidden()) {
-                LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("hidden"));
+                LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
             }
             doneSignal.countDown();
         } catch (InterruptedException e) {
