@@ -108,6 +108,16 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
         return true;
     }
 
+    @Override
+    public boolean sendIn(Envelope envelope) {
+        return super.sendIn(envelope);
+    }
+
+    @Override
+    public boolean replyIn(Envelope envelope) {
+        return super.replyIn(envelope);
+    }
+
     /**
      * Will be called only if you register via
      * setSessionListener() or addSessionListener().
@@ -153,7 +163,7 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
         m.setMessage(strPayload);
         DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
         LOG.info("Sending Event Message to Notification Service...");
-//        sensorManager.sendToBus(e);
+        sendIn(e);
     }
 
     /**
