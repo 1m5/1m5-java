@@ -273,6 +273,8 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
                 radios.put(r.getClass().getName(), r);
             }
         }
+        // TODO: for now just set as connected; we need to implement this within discovery
+        updateStatus(NETWORK_CONNECTED);
         return radios.size() > 0;
     }
 

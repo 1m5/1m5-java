@@ -157,6 +157,8 @@ public final class TorSensor extends ClearnetClientSensor {
                 LOG.warning("IOException caught while building Tor sensor directory: \n"+e.getLocalizedMessage());
                 return false;
             }
+            // TODO: verify connected to local Tor instance; if not installed, install and then verify connected
+            updateStatus(SensorStatus.NETWORK_CONNECTED);
             return true;
         } else {
             LOG.warning("Clearnet Client Sensor failed to start. Unable to start Tor Client Sensor.");

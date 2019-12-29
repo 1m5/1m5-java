@@ -14,6 +14,8 @@ import java.io.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import static io.onemfive.network.sensors.SensorStatus.NETWORK_CONNECTED;
+
 public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
 
     private static final Logger LOG = Logger.getLogger(LiFiSensor.class.getName());
@@ -264,8 +266,10 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
     }
 
     @Override
-    public boolean start(java.util.Properties properties) {
-        return false;
+    public boolean start(Properties properties) {
+        // TODO: for now just set as connected; we need to implement this within discovery
+        updateStatus(NETWORK_CONNECTED);
+        return true;
     }
 
     @Override
