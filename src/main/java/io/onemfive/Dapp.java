@@ -157,19 +157,23 @@ public class Dapp {
                 LOG.info("Client Status changed: "+clientStatus.name());
                 switch(clientAppManagerStatus) {
                     case INITIALIZING: {
-                        LOG.info("Client initializing...");
+                        LOG.info("Dapp connecting...");
+                        tray.updateStatus(DAppTray.CONNECTING);
                         break;
                     }
                     case READY: {
-                        LOG.info("Client ready.");
+                        LOG.info("Dapp connected.");
+                        tray.updateStatus(DAppTray.CONNECTED);
                         break;
                     }
                     case STOPPING: {
-                        LOG.info("Client stopping...");
+                        LOG.info("Dapp stopping...");
+                        tray.updateStatus(DAppTray.SHUTTINGDOWN);
                         break;
                     }
                     case STOPPED: {
-                        LOG.info("Client stopped.");
+                        LOG.info("Dapp stopped.");
+                        tray.updateStatus(DAppTray.STOPPED);
                         break;
                     }
                 }
