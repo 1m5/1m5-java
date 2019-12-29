@@ -178,10 +178,25 @@ public class NetworkService extends BaseService {
         }
     }
 
-    public boolean handlePacket(Packet packet, NetworkOp op) {
+    public boolean handlePacket(Packet request, NetworkOp op) {
         // Incoming sensor request/response
         boolean successful = false;
-
+        op.setSensorManager(sensorManager);
+        if(op instanceof RequestReply) {
+            // Return a result
+            RequestReply rr = (RequestReply)op;
+            Response response = rr.operate((Request)request);
+            LOG.warning("RequstReply not yet handled by NetworkService");
+        } else if(op instanceof Response) {
+            // The result of an ealier request
+            Response response = (Response)op;
+            LOG.warning("Response not yet handled by NetworkService");
+        } else if(op instanceof Notification) {
+            // One way inbound packet with no response needed
+            Notification notification = (Notification)op;
+            notification.notify(request);
+            LOG.warning("Notification not yet handled by NetworkService");
+        }
         return successful;
     }
 

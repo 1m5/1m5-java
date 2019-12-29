@@ -1,14 +1,10 @@
 package io.onemfive.network.sensors.radio.technologies.bluetooth;
 
-import io.onemfive.data.Network;
-import io.onemfive.data.NetworkPeer;
 import io.onemfive.data.Request;
 import io.onemfive.data.content.JSON;
-import io.onemfive.data.content.Text;
 import io.onemfive.data.util.JSONParser;
 import io.onemfive.data.util.JSONPretty;
 import io.onemfive.data.util.RandomUtil;
-import io.onemfive.network.NetworkRequest;
 import io.onemfive.network.sensors.radio.BaseRadioSession;
 import io.onemfive.network.sensors.radio.Radio;
 import io.onemfive.network.sensors.radio.RadioDatagram;

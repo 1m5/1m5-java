@@ -141,12 +141,12 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
         NetworkPeer toPeer = request.getToPeer();
         if(toPeer == null) {
             LOG.warning("No Peer for I2P found in toDID while sending to I2P.");
-            request.statusCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
+            request.statusCode = Packet.DESTINATION_PEER_REQUIRED;
             return false;
         }
         if(toPeer.getI2PAddress()==null) {
             LOG.warning("I2P requires an I2P Address.");
-            request.statusCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
+            request.statusCode = Packet.DESTINATION_PEER_WRONG_NETWORK;
             return false;
         }
         String content = JSONPretty.toPretty(JSONParser.toString(request.toMap()), 4);
@@ -161,7 +161,7 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
             Destination toDestination = i2pSession.lookupDest(toPeer.getI2PAddress());
             if(toDestination == null) {
                 LOG.warning("I2P Peer To Destination not found.");
-                request.statusCode = NetworkRequest.DESTINATION_PEER_NOT_FOUND;
+                request.statusCode = Packet.DESTINATION_PEER_NOT_FOUND;
                 return false;
             }
             I2PDatagramMaker m = new I2PDatagramMaker(i2pSession);
@@ -171,7 +171,7 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
                 return true;
             } else {
                 LOG.warning("I2P Message sending failed.");
-                request.statusCode = NetworkRequest.SENDING_FAILED;
+                request.statusCode = Packet.SENDING_FAILED;
                 return false;
             }
         } catch (I2PSessionException e) {
@@ -204,12 +204,12 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
         NetworkPeer toPeer = response.getToPeer();
         if(toPeer == null) {
             LOG.warning("No Peer for I2P found in toDID while sending to I2P.");
-            response.statusCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
+            response.statusCode = Packet.DESTINATION_PEER_REQUIRED;
             return false;
         }
         if(toPeer.getI2PAddress()==null) {
             LOG.warning("I2P requires an I2P Address.");
-            response.statusCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
+            response.statusCode = Packet.DESTINATION_PEER_WRONG_NETWORK;
             return false;
         }
         String content = JSONPretty.toPretty(JSONParser.toString(response.toMap()), 4);
@@ -224,7 +224,7 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
             Destination toDestination = i2pSession.lookupDest(toPeer.getI2PAddress());
             if(toDestination == null) {
                 LOG.warning("I2P Peer To Destination not found by I2P Router.");
-                response.statusCode = NetworkRequest.DESTINATION_PEER_NOT_FOUND;
+                response.statusCode = Packet.DESTINATION_PEER_NOT_FOUND;
                 return false;
             }
             I2PDatagramMaker m = new I2PDatagramMaker(i2pSession);
@@ -234,7 +234,7 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
                 return true;
             } else {
                 LOG.warning("I2P Message sending failed.");
-                response.statusCode = NetworkRequest.SENDING_FAILED;
+                response.statusCode = Packet.SENDING_FAILED;
                 return false;
             }
         } catch (I2PSessionException e) {
