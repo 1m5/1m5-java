@@ -77,6 +77,7 @@ public class OneMFiveAppContext {
     private final static Object lockA = new Object();
     private boolean initialize = false;
     private boolean configured = false;
+    private static Locale locale;
     // split up big lock on this to avoid deadlocks
     private final Object lock1 = new Object(), lock2 = new Object(), lock3 = new Object(), lock4 = new Object();
 
@@ -121,6 +122,14 @@ public class OneMFiveAppContext {
     private OneMFiveAppContext(boolean doInit, Properties envProps) {
         this.initialize = doInit;
         this.envProps = envProps;
+    }
+
+    public static void setLocale(Locale l) {
+        locale = l;
+    }
+
+    public static Locale getLocale() {
+        return locale;
     }
 
     private void configure() {
