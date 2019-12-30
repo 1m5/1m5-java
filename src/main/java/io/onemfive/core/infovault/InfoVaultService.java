@@ -5,6 +5,7 @@ import io.onemfive.data.*;
 import io.onemfive.data.route.Route;
 import io.onemfive.data.util.DLC;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -64,11 +65,12 @@ public class InfoVaultService extends BaseService {
         dao.execute();
     }
 
-    public static InfoVaultDB getInfoVaultDBInstance(String infoVaultDBClass) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public static InfoVaultDB getInfoVaultDBInstance(String infoVaultDBClass)
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
         InfoVaultDB instance = instances.get(infoVaultDBClass);
         if(instance == null) {
             synchronized (lock) {
-                instance = (InfoVaultDB)Class.forName(infoVaultDBClass).newInstance();
+                instance = (InfoVaultDB)Class.forName(infoVaultDBClass).getConstructor().newInstance();
                 instances.put(infoVaultDBClass,instance);
             }
         }
