@@ -129,6 +129,9 @@ public class OneMFiveAppContext {
     }
 
     public static Locale getLocale() {
+        if(locale==null) {
+            locale = Locale.US;
+        }
         return locale;
     }
 
