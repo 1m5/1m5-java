@@ -13,16 +13,16 @@ public class Resources {
         return resourceBundle;
     }
 
-    public static String getWithCol(String key, Object... arguments) throws Exception {
+    public static String getWithCol(String key, Object... arguments) {
         return get(key, arguments) + ":";
     }
 
-    public static String get(String key, Object... arguments) throws Exception {
+    public static String get(String key, Object... arguments) {
         return MessageFormat.format(Resources.get(key), arguments);
     }
 
-    public static String get(String key) throws Exception {
-        if(resourceBundle==null) throw new Exception(key+" key not found in resource bundle.");
+    public static String get(String key) {
+        if(resourceBundle==null) return null;
         return resourceBundle.getString(key);
     }
 }
