@@ -9,13 +9,16 @@ import io.onemfive.core.admin.AdminService;
 import io.onemfive.core.client.Client;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.client.ClientStatusListener;
+import io.onemfive.core.util.AppThread;
 import io.onemfive.core.util.SystemSettings;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.util.DLC;
 import io.onemfive.desktop.DesktopApp;
 import io.onemfive.network.NetworkService;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
+import scala.App;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,13 +56,22 @@ public class Dapp {
     public static File userAppConfigDir;
     public static File userAppCacheDir;
 
+    private static AppThread routerThread;
+
     public static void main(String[] args) {
-        try {
-            init(args);
-        } catch (Exception e) {
-            System.out.print(e.getLocalizedMessage());
-            System.exit(-1);
-        }
+        Application.launch(DesktopApp.class);
+        routerThread = new AppThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    init(args);
+                } catch (Exception e) {
+                    System.out.print(e.getLocalizedMessage());
+                    System.exit(-1);
+                }
+            }
+        }, "1M5-Router");
+        routerThread.start();
     }
 
     public static void init(String[] args) throws Exception {
@@ -87,6 +99,7 @@ public class Dapp {
         // Launch Tray
         tray = new DAppTray();
         tray.start(instance);
+        DesktopApp.setDappTray(tray);
         status = Status.Initialized;
         instance.start();
     }
@@ -134,13 +147,7 @@ public class Dapp {
     }
 
     public void launchUI() {
-//        ClearnetServerUtil.launchBrowser("http://127.0.0.1:"+uiPort+"/");
-        if (OS.isMacOsX() && OS.javaVersion <= 7) {
-            System.setProperty("javafx.macosx.embedded", "true");
-            java.awt.Toolkit.getDefaultToolkit();
-        }
-        DesktopApp.init(client, tray);
-        DesktopApp.launch(DesktopApp.class);
+       // TODO: set show on HomeView
     }
 
     private void launch() throws Exception {
@@ -149,6 +156,7 @@ public class Dapp {
         manager = oneMFiveAppContext.getClientAppManager(config);
         manager.setShutdownOnLastUnregister(true);
         client = manager.getClient(true);
+        DesktopApp.setClient(client);
 
         ClientStatusListener clientStatusListener = new ClientStatusListener() {
             @Override
@@ -230,10 +238,6 @@ public class Dapp {
         // Register Services
         DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES,e);
         client.request(e);
-
-        // launch desktop
-        DesktopApp.init(client, tray);
-        Application.launch(DesktopApp.class);
     }
 
     private static void waitABit(long waitTime) {
