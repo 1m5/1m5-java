@@ -1,7 +1,17 @@
 package io.onemfive.desktop.views.identities;
 
 import io.onemfive.desktop.views.InitializableView;
-import javafx.scene.control.TabPane;
 
-public class IdentitiesView extends InitializableView<TabPane, IdentitiesViewModel> {
+public class IdentitiesView extends InitializableView {
+
+    public IdentitiesView() {
+        model = new IdentitiesViewModel();
+    }
+
+    @Override
+    protected void initialize() {
+        LOG.info("Initializing...");
+
+        LOG.info("Initialized.");
+    }
 }

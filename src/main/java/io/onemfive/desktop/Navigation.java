@@ -6,10 +6,7 @@ import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.messenger.MessengerView;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Collectors;
 
 public final class Navigation {
 

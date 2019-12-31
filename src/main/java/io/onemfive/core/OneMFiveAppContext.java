@@ -49,7 +49,7 @@ public class OneMFiveAppContext {
 //    protected final OneMFiveConfig config;
 
     protected final Properties overrideProps = new Properties();
-    private Properties envProps;
+    private static Properties envProps;
 
     private StatManager statManager;
     private LogManager logManager;
@@ -78,6 +78,7 @@ public class OneMFiveAppContext {
     private boolean initialize = false;
     private boolean configured = false;
     private static Locale locale;
+    private static String version = null;
     // split up big lock on this to avoid deadlocks
     private final Object lock1 = new Object(), lock2 = new Object(), lock3 = new Object(), lock4 = new Object();
 
@@ -119,9 +120,9 @@ public class OneMFiveAppContext {
      * @param doInit should this context be used as the global one (if necessary)?
      *               Will only apply if there is no global context now.
      */
-    private OneMFiveAppContext(boolean doInit, Properties envProps) {
+    private OneMFiveAppContext(boolean doInit, Properties properties) {
         this.initialize = doInit;
-        this.envProps = envProps;
+        envProps = properties;
     }
 
     public static void setLocale(Locale l) {
@@ -133,6 +134,17 @@ public class OneMFiveAppContext {
             locale = Locale.US;
         }
         return locale;
+    }
+
+    public static String getVersion() {
+        if(version==null) {
+            if (envProps != null && envProps.get("1m5.version") != null) {
+                version = envProps.getProperty("1m5.version");
+            } else {
+                version = "notset";
+            }
+        }
+        return version;
     }
 
     private void configure() {

@@ -1,7 +1,17 @@
 package io.onemfive.desktop.views.settings;
 
 import io.onemfive.desktop.views.InitializableView;
-import javafx.scene.control.TabPane;
 
-public class SettingsView extends InitializableView<TabPane, SettingsViewModel> {
+public class SettingsView extends InitializableView {
+
+    public SettingsView() {
+        model = new SettingsViewModel();
+    }
+
+    @Override
+    protected void initialize() {
+        LOG.info("Initializing...");
+
+        LOG.info("Initialized.");
+    }
 }

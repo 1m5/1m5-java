@@ -1,8 +1,18 @@
 package io.onemfive.desktop.views.dashboard;
 
 import io.onemfive.desktop.views.InitializableView;
-import javafx.scene.layout.StackPane;
 
-public class DashboardView extends InitializableView<StackPane, DashboardViewModel> {
+public class DashboardView extends InitializableView {
+
+    public DashboardView() {
+        model = new DashboardViewModel();
+    }
+
+    @Override
+    protected void initialize() {
+        LOG.info("Initializing...");
+
+        LOG.info("Initialized.");
+    }
 }
 

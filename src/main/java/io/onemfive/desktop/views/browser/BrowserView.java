@@ -12,22 +12,25 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 
-public class BrowserView extends InitializableView<HBox, BrowserViewModel> {
+public class BrowserView extends InitializableView {
 
     private final WebView browser = new WebView();
     private final WebEngine engine = browser.getEngine();
     private final WebHistory history = engine.getHistory();
 
-    private Navigation navigation;
+    private HBox rootContainer;
 
-    public BrowserView(BrowserViewModel model, Navigation navigation) {
-        super(model);
-        this.navigation = navigation;
+    public BrowserView() {
+        model = new BrowserViewModel();
     }
 
     @Override
     protected void initialize() {
+        LOG.info("Initializing...");
         super.initialize();
+
+        rootContainer = (HBox)root;
+
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(browser);
 
@@ -57,7 +60,9 @@ public class BrowserView extends InitializableView<HBox, BrowserViewModel> {
         );
         history.go(0);
 
-        root.getChildren().add(scrollPane);
+        rootContainer.getChildren().add(scrollPane);
+
+        LOG.info("Initialized.");
     }
 
 

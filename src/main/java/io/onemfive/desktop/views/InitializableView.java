@@ -1,20 +1,13 @@
 package io.onemfive.desktop.views;
 
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public abstract class InitializableView<R extends Node, M> extends BaseView<R, M> implements Initializable {
+public abstract class InitializableView extends BaseView implements Initializable {
 
-    public InitializableView(M model) {
-        super(model);
-    }
-
-    public InitializableView() {
-        this(null);
-    }
+    public InitializableView() {}
 
     @Override
     public final void initialize(URL location, ResourceBundle resources) {

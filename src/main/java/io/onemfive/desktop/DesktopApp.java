@@ -5,7 +5,6 @@ import io.onemfive.DAppTray;
 import io.onemfive.core.client.Client;
 import io.onemfive.core.util.AppThread;
 import io.onemfive.core.util.UncaughtExceptionHandler;
-import io.onemfive.desktop.util.CssTheme;
 import io.onemfive.desktop.util.ImageUtil;
 import io.onemfive.desktop.views.ViewLoader;
 import io.onemfive.desktop.views.home.HomeView;
@@ -63,7 +62,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
         LOG.info("DesktopApp starting...\n\tThread name: " + Thread.currentThread().getName());
         this.stage = stage;
         stage.setTitle("1M5");
-        HomeView homeView = (HomeView) ViewLoader.load(HomeView.class);
+        HomeView homeView = (HomeView) ViewLoader.load(HomeView.class, true);
         Rectangle maxWindowBounds = new Rectangle();
         try {
             maxWindowBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
@@ -72,7 +71,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
             // Just ignore the exception and continue, which means the window will use the minimum window size below
             // since we are unable to determine if we can use a larger size
         }
-        scene = new Scene(homeView.getRoot(),
+        scene = new Scene((StackPane)homeView.getRoot(),
                 maxWindowBounds.width < INITIAL_WINDOW_WIDTH ?
                         Math.max(maxWindowBounds.width, MIN_WINDOW_WIDTH) :
                         INITIAL_WINDOW_WIDTH,
@@ -80,7 +79,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
                         Math.max(maxWindowBounds.height, MIN_WINDOW_HEIGHT) :
                         INITIAL_WINDOW_HEIGHT);
 
-        CssTheme.loadSceneStyles(scene, 1);
+        CssTheme.loadSceneStyles(scene, 0);
 
         // configure the system tray
 //        SystemTray.create(stage, shutDownHandler);
@@ -95,7 +94,8 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
         stage.getIcons().add(ImageUtil.getApplicationIconImage());
 
         // make the UI visible
-        stage.show();
+//        stage.show();
+        show();
     }
 
     @Override
@@ -136,8 +136,8 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
         }
     }
 
-//    public static void main(String[] args) {
-//        launch(DesktopApp.class);
-//    }
+    public void show() {
+        stage.show();
+    }
 
 }

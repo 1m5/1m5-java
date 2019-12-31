@@ -1,45 +1,44 @@
 package io.onemfive.desktop.views;
 
+import io.onemfive.desktop.Navigation;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 
 import java.util.logging.Logger;
 
-public abstract class BaseView<R extends Node, Model> implements View {
+public abstract class BaseView implements View {
 
     protected final Logger LOG = Logger.getLogger(this.getClass().getName());
 
     @FXML
-    protected R root;
+    protected Node root;
     protected Model model;
+    protected Navigation navigation;
 
-    public BaseView() {
-        this(null);
-    }
-
-    public BaseView(Model model) {
-        this.model = model;
-    }
-
-    public BaseView(R root, Model model) {
-        this.root = root;
-        this.model = model;
-    }
+    public BaseView() {}
 
     @Override
-    public R getRoot() {
+    public Node getRoot() {
         return root;
     }
 
-    public void setRoote(R root) {
+    @Override
+    public void setRoot(Node root) {
         this.root = root;
     }
 
-    public void setModel(Model model) {
-        this.model = model;
-    }
-
+    @Override
     public Model getModel() {
         return model;
+    }
+
+    @Override
+    public void setNavigation(Navigation navigation) {
+        this.navigation = navigation;
+    }
+
+    @Override
+    public Navigation getNavigation() {
+        return navigation;
     }
 }

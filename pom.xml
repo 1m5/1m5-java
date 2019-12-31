@@ -303,6 +303,7 @@
 					<include>**/*.png</include>
 					<include>**/*.fxml</include>
 					<include>**/*.css</include>
+					<include>**/*.ttf</include>
 				</includes>
 			</resource>
 		</resources>

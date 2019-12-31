@@ -59,7 +59,9 @@ public class Dapp {
     private static AppThread routerThread;
 
     public static void main(String[] args) {
+        // Start GUI in current thread
         Application.launch(DesktopApp.class);
+        // Start bus in separate thread
         routerThread = new AppThread(new Runnable() {
             @Override
             public void run() {

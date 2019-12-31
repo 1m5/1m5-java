@@ -1,16 +1,8 @@
 package io.onemfive.desktop.views;
 
-import javafx.scene.Node;
+public abstract class ActivatableView extends InitializableView {
 
-public abstract class ActivatableView<R extends Node, M> extends InitializableView<R, M> {
-
-    public ActivatableView(M model) {
-        super(model);
-    }
-
-    public ActivatableView() {
-        this(null);
-    }
+    public ActivatableView() {}
 
     @Override
     protected void prepareInitialize() {

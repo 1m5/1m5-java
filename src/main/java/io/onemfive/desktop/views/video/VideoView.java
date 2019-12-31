@@ -1,7 +1,17 @@
 package io.onemfive.desktop.views.video;
 
 import io.onemfive.desktop.views.InitializableView;
-import javafx.scene.layout.StackPane;
 
-public class VideoView extends InitializableView<StackPane, VideoViewModel> {
+public class VideoView extends InitializableView {
+
+    public VideoView() {
+        model = new VideoViewModel();
+    }
+
+    @Override
+    protected void initialize() {
+        LOG.info("Initializing...");
+
+        LOG.info("Initialized.");
+    }
 }

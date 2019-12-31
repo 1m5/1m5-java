@@ -40,21 +40,17 @@ import java.util.Locale;
 
 import static javafx.scene.layout.AnchorPane.*;
 
-public class HomeView extends InitializableView<StackPane, HomeViewModel> {
+public class HomeView extends InitializableView {
 
-    private static StackPane rootContainer;
+    private StackPane rootContainer;
     private TransitionUtil transitionUtil;
-    private Navigation navigation;
+    private Navigation navigation = new Navigation();
     private Label versionLabel;
     private Runnable onUiReadyHandler;
     private final ToggleGroup navButtons = new ToggleGroup();
 
-    public HomeView() {}
-
-    public HomeView(HomeViewModel model, TransitionUtil transitionUtil, Navigation navigation) {
-        super(model);
-        this.transitionUtil = transitionUtil;
-        this.navigation = navigation;
+    public HomeView() {
+        model = new HomeViewModel();
     }
 
     public void setTransitionUtil(TransitionUtil transitionUtil) {
@@ -65,31 +61,32 @@ public class HomeView extends InitializableView<StackPane, HomeViewModel> {
         this.onUiReadyHandler = onUiReadyHandler;
     }
 
-    public static StackPane getRootContainer() {
-        return HomeView.rootContainer;
+    public StackPane getRootContainer() {
+        return rootContainer;
     }
 
     public void blurLight() {
-        transitionUtil.blur(HomeView.rootContainer, TransitionUtil.DEFAULT_DURATION, -0.6, false, 5);
+        transitionUtil.blur(rootContainer, TransitionUtil.DEFAULT_DURATION, -0.6, false, 5);
     }
 
     public void blurUltraLight() {
-        transitionUtil.blur(HomeView.rootContainer, TransitionUtil.DEFAULT_DURATION, -0.6, false, 2);
+        transitionUtil.blur(rootContainer, TransitionUtil.DEFAULT_DURATION, -0.6, false, 2);
     }
 
     public void darken() {
-        transitionUtil.darken(HomeView.rootContainer, TransitionUtil.DEFAULT_DURATION, false);
+        transitionUtil.darken(rootContainer, TransitionUtil.DEFAULT_DURATION, false);
     }
 
     public void removeEffect() {
-        transitionUtil.removeEffect(HomeView.rootContainer);
+        transitionUtil.removeEffect(rootContainer);
     }
 
     @Override
     protected void initialize() {
-        HomeView.rootContainer = root;
+        LOG.info("Initializing...");
+        rootContainer = (StackPane)root;
         if (LanguageUtil.isDefaultLanguageRTL())
-            HomeView.rootContainer.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+            rootContainer.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
         final ToggleButton dashboardButton = new NavButton(DashboardView.class, Resources.get("homeView.menu.dashboard").toUpperCase());
         final ToggleButton browserButton = new NavButton(BrowserView.class, Resources.get("homeView.menu.browser").toUpperCase());
@@ -286,29 +283,30 @@ public class HomeView extends InitializableView<StackPane, HomeViewModel> {
 //        setupBadge(supportButtonWithBadge, model.getNumSupportResponses(), model.getShowSupportResponses());
 //        setupBadge(settingsButtonWithBadge, model.getNumSettingsNotifications(), model.getShowNumSettingsNotifications());
 
-//        navigation.addListener(viewPath -> {
-//            if (viewPath.size() != 2 || viewPath.indexOf(HomeView.class) != 0)
-//                return;
-//
-//            Class<? extends View> viewClass = viewPath.tip();
-//            View view = ViewLoader.load(viewClass);
-//            contentContainer.getChildren().setAll(view.getRoot());
-//
-//            try {
-//                navButtons.getToggles().stream()
-//                        .filter(toggle -> toggle instanceof NavButton)
-//                        .filter(button -> viewClass == ((NavButton) button).viewClass)
-//                        .findFirst()
-//                        .orElseThrow(() -> new Exception("No button matching "+viewClass.getName()+" found"))
-//                        .setSelected(true);
-//            } catch (Exception e) {
-//                LOG.warning(e.getLocalizedMessage());
-//            }
-//        });
+        navigation.addListener(viewPath -> {
+            if (viewPath.size() != 2 || viewPath.indexOf(HomeView.class) != 0)
+                return;
+
+            Class<? extends View> viewClass = viewPath.tip();
+            View view = ViewLoader.load(viewClass);
+            contentContainer.getChildren().setAll(view.getRoot());
+
+            try {
+                navButtons.getToggles().stream()
+                        .filter(toggle -> toggle instanceof NavButton)
+                        .filter(button -> viewClass == ((NavButton) button).viewClass)
+                        .findFirst()
+                        .orElseThrow(() -> new Exception("No button matching "+viewClass.getName()+" found"))
+                        .setSelected(true);
+            } catch (Exception e) {
+                LOG.warning(e.getLocalizedMessage());
+            }
+        });
 
 //        VBox splashScreen = createSplashScreen();
 
-//        root.getChildren().addAll(baseApplicationContainer, splashScreen);
+//        rootContainer.getChildren().addAll(baseApplicationContainer, splashScreen);
+        rootContainer.getChildren().addAll(baseApplicationContainer);
 
 //        model.getShowAppScreen().addListener((ov, oldValue, newValue) -> {
 //            if (newValue) {
@@ -320,6 +318,7 @@ public class HomeView extends InitializableView<StackPane, HomeViewModel> {
 
         // Delay a bit to give time for rendering the splash screen
 //        UserThread.execute(() -> onUiReadyHandler.run());
+        LOG.info("Initialized.");
     }
 
     private Separator getNavigationSeparator() {
@@ -486,13 +485,13 @@ public class HomeView extends InitializableView<StackPane, HomeViewModel> {
 //        setBottomAnchor(blockchainSyncBox, 7d);
 
         // version
-        String version = OneMFiveAppContext.getInstance().getProperty("1m5.version");
+        String version = OneMFiveAppContext.getVersion();
         versionLabel = new AutoTooltipLabel();
         versionLabel.setId("footer-pane");
         versionLabel.setTextAlignment(TextAlignment.CENTER);
         versionLabel.setAlignment(Pos.BASELINE_CENTER);
         versionLabel.setText("v" + version);
-        root.widthProperty().addListener((ov, oldValue, newValue) -> {
+        rootContainer.widthProperty().addListener((ov, oldValue, newValue) -> {
             versionLabel.setLayoutX(((double) newValue - versionLabel.getWidth()) / 2);
         });
         setBottomAnchor(versionLabel, 7d);

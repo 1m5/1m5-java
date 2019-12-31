@@ -1,8 +1,17 @@
 package io.onemfive.desktop.views.email;
 
 import io.onemfive.desktop.views.InitializableView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 
-public class EmailView extends InitializableView<StackPane, EmailViewModel> {
+public class EmailView extends InitializableView {
+
+    public EmailView() {
+        model = new EmailViewModel();
+    }
+
+    @Override
+    protected void initialize() {
+        LOG.info("Initializing...");
+
+        LOG.info("Initialized.");
+    }
 }

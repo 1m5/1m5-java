@@ -20,7 +20,7 @@ public class ImageUtil {
     }
 
     public static Image getApplicationIconImage () {
-        return getImageByUrl("images/icon_white.png");
+        return getImageByUrl("/io/onemfive/desktop/images/icon_white.png");
     }
 
     private static Image getImageByUrl(String url) {

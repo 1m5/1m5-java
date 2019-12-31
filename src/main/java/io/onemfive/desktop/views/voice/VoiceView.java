@@ -1,7 +1,17 @@
 package io.onemfive.desktop.views.voice;
 
 import io.onemfive.desktop.views.InitializableView;
-import javafx.scene.layout.HBox;
 
-public class VoiceView extends InitializableView<HBox, VoiceViewModel> {
+public class VoiceView extends InitializableView {
+
+    public VoiceView() {
+        model = new VoiceViewModel();
+    }
+
+    @Override
+    protected void initialize() {
+        LOG.info("Initializing...");
+
+        LOG.info("Initialized.");
+    }
 }
