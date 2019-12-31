@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.browser;
 
-public class BrowserViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class BrowserViewModel implements Model {
 }

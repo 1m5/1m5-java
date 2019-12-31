@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.messenger;
 
-public class MessengerViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class MessengerViewModel implements Model {
 }

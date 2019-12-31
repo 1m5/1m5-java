@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.support;
 
-public class SupportViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class SupportViewModel implements Model {
 }

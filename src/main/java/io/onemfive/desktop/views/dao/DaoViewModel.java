@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.dao;
 
-public class DaoViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class DaoViewModel implements Model {
 }

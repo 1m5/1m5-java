@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.identities;
 
-public class IdentitiesViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class IdentitiesViewModel implements Model {
 }

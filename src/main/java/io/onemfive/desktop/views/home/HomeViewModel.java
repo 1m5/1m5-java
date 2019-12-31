@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.home;
 
-public class HomeViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class HomeViewModel implements Model {
 }

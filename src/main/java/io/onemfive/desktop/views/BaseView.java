@@ -5,20 +5,25 @@ import javafx.scene.Node;
 
 import java.util.logging.Logger;
 
-public abstract class BaseView<R extends Node, M> implements View {
+public abstract class BaseView<R extends Node, Model> implements View {
 
     protected final Logger LOG = Logger.getLogger(this.getClass().getName());
 
     @FXML
     protected R root;
-    protected M model;
-
-    public BaseView(M model) {
-        this.model = model;
-    }
+    protected Model model;
 
     public BaseView() {
         this(null);
+    }
+
+    public BaseView(Model model) {
+        this.model = model;
+    }
+
+    public BaseView(R root, Model model) {
+        this.root = root;
+        this.model = model;
     }
 
     @Override
@@ -26,7 +31,15 @@ public abstract class BaseView<R extends Node, M> implements View {
         return root;
     }
 
-    public void setModel(M model) {
+    public void setRoote(R root) {
+        this.root = root;
+    }
+
+    public void setModel(Model model) {
         this.model = model;
+    }
+
+    public Model getModel() {
+        return model;
     }
 }

@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.dashboard;
 
-public class DashboardViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class DashboardViewModel implements Model {
 }

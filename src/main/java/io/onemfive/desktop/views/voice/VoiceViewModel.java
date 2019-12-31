@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.voice;
 
-public class VoiceViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class VoiceViewModel implements Model {
 }

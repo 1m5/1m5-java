@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.calendar;
 
-public class CalendarViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class CalendarViewModel implements Model {
 }

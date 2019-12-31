@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.video;
 
-public class VideoViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class VideoViewModel implements Model {
 }

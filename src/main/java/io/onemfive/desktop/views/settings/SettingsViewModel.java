@@ -1,4 +1,6 @@
 package io.onemfive.desktop.views.settings;
 
-public class SettingsViewModel {
+import io.onemfive.desktop.views.Model;
+
+public class SettingsViewModel implements Model {
 }
