@@ -3,6 +3,7 @@ package io.onemfive;
 
 import dorkbox.systemTray.MenuItem;
 import dorkbox.systemTray.SystemTray;
+import io.onemfive.core.util.AppThread;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,22 +44,17 @@ public class DAppTray {
         launchDesktopMenuItem = new MenuItem("Desktop", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        dApp.launchUI();
-                    }
-                }.start();
+                new AppThread(dApp::launchUI).start();
             }
         });
-        launchDesktopMenuItem.setEnabled(false);
+        launchDesktopMenuItem.setEnabled(true);
         systemTray.getMenu().add(launchDesktopMenuItem).setShortcut('s');
 
         // Quit
         quitMenuItem = new MenuItem("Quit", new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                new Thread() {
+                new AppThread() {
                     @Override
                     public void run() {
                         systemTray.setImage(Resources.SYS_TRAY_ICON_YELLOW);
