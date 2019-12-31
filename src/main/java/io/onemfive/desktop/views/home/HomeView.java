@@ -101,16 +101,16 @@ public class HomeView extends InitializableView {
         final ToggleButton supportButton = new NavButton(SupportView.class, Resources.get("homeView.menu.support").toUpperCase());
         final ToggleButton settingsButton = new NavButton(SettingsView.class, Resources.get("homeView.menu.settings").toUpperCase());
 
-        Badge emailButtonWithBadge = new Badge(emailButton);
-        Badge messengerButtonWithBadge = new Badge(messengerButton);
-        Badge calendarButtonWithBadge = new Badge(calendarButton);
-        Badge callButtonWithBadge = new Badge(voiceButton);
-        Badge videoButtonWithBadge = new Badge(videoButton);
-        Badge appsButtonWithBadge = new Badge(appsButton);
-        Badge daoButtonWithBadge = new Badge(daoButton);
-        daoButtonWithBadge.getStyleClass().add("new");
-        Badge supportButtonWithBadge = new Badge(supportButton);
-        Badge settingsButtonWithBadge = new Badge(settingsButton);
+//        Badge emailButtonWithBadge = new Badge(emailButton);
+//        Badge messengerButtonWithBadge = new Badge(messengerButton);
+//        Badge calendarButtonWithBadge = new Badge(calendarButton);
+//        Badge voiceButtonWithBadge = new Badge(voiceButton);
+//        Badge videoButtonWithBadge = new Badge(videoButton);
+//        Badge appsButtonWithBadge = new Badge(appsButton);
+//        Badge daoButtonWithBadge = new Badge(daoButton);
+//        daoButtonWithBadge.getStyleClass().add("new");
+//        Badge supportButtonWithBadge = new Badge(supportButton);
+//        Badge settingsButtonWithBadge = new Badge(settingsButton);
 
         Locale locale = OneMFiveAppContext.getLocale();
         DecimalFormat currencyFormat = (DecimalFormat) NumberFormat.getNumberInstance(locale);
@@ -214,17 +214,25 @@ public class HomeView extends InitializableView {
 //            }
 //        });
 
+//        HBox primaryNav = new HBox(dashboardButton, getNavigationSeparator(), browserButton, getNavigationSeparator(),
+//                emailButtonWithBadge, getNavigationSeparator(), messengerButtonWithBadge, getNavigationSeparator(), calendarButtonWithBadge);
+
         HBox primaryNav = new HBox(dashboardButton, getNavigationSeparator(), browserButton, getNavigationSeparator(),
-                emailButtonWithBadge, getNavigationSeparator(), messengerButtonWithBadge, getNavigationSeparator(), calendarButtonWithBadge);
+                emailButton, getNavigationSeparator(), messengerButton, getNavigationSeparator(), calendarButton);
 
         primaryNav.setAlignment(Pos.CENTER_LEFT);
         primaryNav.getStyleClass().add("nav-primary");
         HBox.setHgrow(primaryNav, Priority.SOMETIMES);
 
-        HBox secondaryNav = new HBox(callButtonWithBadge, getNavigationSpacer(), videoButtonWithBadge,
-                getNavigationSpacer(), appsButtonWithBadge, getNavigationSpacer(), daoButtonWithBadge,
-                getNavigationSeparator(), identitiesButton, getNavigationSeparator(), supportButtonWithBadge,
-                getNavigationSeparator(), settingsButtonWithBadge);
+//        HBox secondaryNav = new HBox(voiceButtonWithBadge, getNavigationSpacer(), videoButtonWithBadge,
+//                getNavigationSpacer(), appsButtonWithBadge, getNavigationSpacer(), daoButtonWithBadge,
+//                getNavigationSeparator(), identitiesButton, getNavigationSeparator(), supportButtonWithBadge,
+//                getNavigationSeparator(), settingsButtonWithBadge);
+        HBox secondaryNav = new HBox(voiceButton, getNavigationSpacer(), videoButton,
+                getNavigationSpacer(), appsButton, getNavigationSpacer(), daoButton,
+                getNavigationSeparator(), identitiesButton, getNavigationSeparator(), supportButton,
+                getNavigationSeparator(), settingsButton);
+
         secondaryNav.getStyleClass().add("nav-secondary");
         HBox.setHgrow(secondaryNav, Priority.SOMETIMES);
 
@@ -273,6 +281,7 @@ public class HomeView extends InitializableView {
         }};
         baseApplicationContainer.setBottom(createFooter());
 
+//        setupBadge(emailButtonWithBadge, model.getNumUnreadEmails(), model.getShowNumUnreadEmails());
 //        setupBadge(emailButtonWithBadge, model.getNumUnreadEmails(), model.getShowNumUnreadEmails());
 //        setupBadge(messengerButtonWithBadge, model.getNumUnreadMessages(), model.getShowNumUnreadMessages());
 //        setupBadge(calendarButtonWithBadge, model.getNumReminders(), model.getShowNumReminders());

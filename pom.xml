@@ -304,6 +304,7 @@
 					<include>**/*.fxml</include>
 					<include>**/*.css</include>
 					<include>**/*.ttf</include>
+					<include>**/*.otf</include>
 				</includes>
 			</resource>
 		</resources>
