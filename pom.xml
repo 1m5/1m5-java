@@ -301,6 +301,7 @@
 					<include>**/*.txt</include>
 					<include>**/*.crt</include>
 					<include>**/*.png</include>
+					<include>**/*.fxml</include>
 				</includes>
 			</resource>
 		</resources>
