@@ -118,7 +118,7 @@ public class HomeView extends InitializableView<StackPane, HomeViewModel> {
         Locale locale = OneMFiveAppContext.getLocale();
         DecimalFormat currencyFormat = (DecimalFormat) NumberFormat.getNumberInstance(locale);
         currencyFormat.setMinimumFractionDigits(0);
-        currencyFormat.setMaximumFractionDigits(8);
+        currencyFormat.setMaximumFractionDigits(2);
 
         root.sceneProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -286,25 +286,25 @@ public class HomeView extends InitializableView<StackPane, HomeViewModel> {
 //        setupBadge(supportButtonWithBadge, model.getNumSupportResponses(), model.getShowSupportResponses());
 //        setupBadge(settingsButtonWithBadge, model.getNumSettingsNotifications(), model.getShowNumSettingsNotifications());
 
-        navigation.addListener(viewPath -> {
-            if (viewPath.size() != 2 || viewPath.indexOf(HomeView.class) != 0)
-                return;
-
-            Class<? extends View> viewClass = viewPath.tip();
-            View view = ViewLoader.load(viewClass);
-            contentContainer.getChildren().setAll(view.getRoot());
-
-            try {
-                navButtons.getToggles().stream()
-                        .filter(toggle -> toggle instanceof NavButton)
-                        .filter(button -> viewClass == ((NavButton) button).viewClass)
-                        .findFirst()
-                        .orElseThrow(() -> new Exception("No button matching "+viewClass.getName()+" found"))
-                        .setSelected(true);
-            } catch (Exception e) {
-                LOG.warning(e.getLocalizedMessage());
-            }
-        });
+//        navigation.addListener(viewPath -> {
+//            if (viewPath.size() != 2 || viewPath.indexOf(HomeView.class) != 0)
+//                return;
+//
+//            Class<? extends View> viewClass = viewPath.tip();
+//            View view = ViewLoader.load(viewClass);
+//            contentContainer.getChildren().setAll(view.getRoot());
+//
+//            try {
+//                navButtons.getToggles().stream()
+//                        .filter(toggle -> toggle instanceof NavButton)
+//                        .filter(button -> viewClass == ((NavButton) button).viewClass)
+//                        .findFirst()
+//                        .orElseThrow(() -> new Exception("No button matching "+viewClass.getName()+" found"))
+//                        .setSelected(true);
+//            } catch (Exception e) {
+//                LOG.warning(e.getLocalizedMessage());
+//            }
+//        });
 
 //        VBox splashScreen = createSplashScreen();
 
