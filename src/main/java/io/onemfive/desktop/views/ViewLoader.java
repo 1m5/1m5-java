@@ -1,10 +1,12 @@
 package io.onemfive.desktop.views;
 
+import io.onemfive.core.util.ClassUtil;
 import javafx.fxml.FXMLLoader;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 public class ViewLoader {
