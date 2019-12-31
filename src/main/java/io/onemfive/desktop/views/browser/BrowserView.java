@@ -6,8 +6,15 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Worker;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
@@ -18,7 +25,8 @@ public class BrowserView extends InitializableView {
     private final WebEngine engine = browser.getEngine();
     private final WebHistory history = engine.getHistory();
 
-    private HBox rootContainer;
+    private VBox rootContainer;
+    private String lastUrl;
 
     public BrowserView() {
         model = new BrowserViewModel();
@@ -29,7 +37,52 @@ public class BrowserView extends InitializableView {
         LOG.info("Initializing...");
         super.initialize();
 
-        rootContainer = (HBox)root;
+        rootContainer = (VBox)root;
+        rootContainer.setPadding(new Insets(5));
+        rootContainer.setSpacing(5);
+
+        TextField url = new TextField();
+        url.setText("https://1m5.io");
+
+        Button go = new Button("Go");
+        go.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                LOG.info("Go: "+url.getText());
+                engine.load(url.getText());
+                LOG.info(url.getText()+" loaded");
+            }
+        });
+
+        Button refresh = new Button("Refresh");
+        refresh.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                LOG.info("Refresh: "+url.getText());
+                engine.reload();
+                LOG.info(url.getText()+" resfreshed");
+            }
+        });
+
+        Button back = new Button("Back");
+        back.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                LOG.info("Back...");
+                history.go(history.getCurrentIndex() -1);
+                LOG.info("Backed");
+            }
+        });
+
+        Button stop = new Button("Stop");
+        stop.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                LOG.info("Cancel...");
+                engine.getLoadWorker().cancel();
+                LOG.info("Canceled");
+            }
+        });
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(browser);
@@ -39,7 +92,7 @@ public class BrowserView extends InitializableView {
                     @Override
                     public void changed(ObservableValue ov, Worker.State oldState, Worker.State newState) {
                         if (newState == Worker.State.SUCCEEDED) {
-//                            root.getScene().setTitle(engine.getLocation());
+                            url.setText(engine.getLocation());
                         }
                     }
                 });
@@ -60,6 +113,11 @@ public class BrowserView extends InitializableView {
         );
         history.go(0);
 
+        rootContainer.getChildren().add(url);
+        rootContainer.getChildren().add(go);
+        rootContainer.getChildren().add(refresh);
+        rootContainer.getChildren().add(back);
+        rootContainer.getChildren().add(stop);
         rootContainer.getChildren().add(scrollPane);
 
         LOG.info("Initialized.");

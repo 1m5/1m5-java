@@ -3,7 +3,10 @@ Theme colors:
 
 logo colors:
 
-1m5 blue: 0f86c3
+1m5 black: 191919
+1m5 white: f4f1ec
+1m5 blue: 247ef8
+1m5 purple: 7756ff
 1m5 grey: 666666
 
 00abff
@@ -72,8 +75,8 @@ bg color of non edit textFields: fafafa
     -bs-rd-nav-selected: #25B135;
     -bs-rd-nav-deselected: rgba(255, 255, 255, 0.59);
     -bs-rd-nav-background: #2EA33C;
-    -bs-rd-nav-primary-background: #25B135;
-    -bs-rd-nav-primary-border: #189E27;
+    -bs-rd-nav-primary-background: #7756ff;
+    -bs-rd-nav-primary-border: #666666;
     -bs-rd-grey: #373737;
     -fx-accent: -bs-rd-green; /* 18 usages */
 
