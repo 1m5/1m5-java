@@ -41,9 +41,9 @@ public class IdentitiesView extends ActivatableView {
         HBox contactHeader = new HBox();
         contactHeader.setPadding(new Insets(5));
         contactHeader.setSpacing(5);
-        Label nameCol = new Label("Name");
-        nameCol.setPrefWidth(200);
-        contactHeader.getChildren().add(nameCol);
+        Label aliasCol = new Label("Alias");
+        aliasCol.setPrefWidth(200);
+        contactHeader.getChildren().add(aliasCol);
         Label addressCol = new Label("Address");
         addressCol.setPrefWidth(500);
         contactHeader.getChildren().add(addressCol);
