@@ -40,14 +40,16 @@
     -bs-bg-green: #99ba9c;
     -bs-rd-green: #25B135;
     -bs-rd-green-dark: #3EA34A;
-    -bs-rd-nav-selected: #25b135;
-    -bs-rd-nav-deselected: rgba(255, 255, 255, 0.59);
-    -bs-rd-nav-background: #2ea33c;
-    -bs-rd-nav-primary-background: #25b135;
-    -bs-rd-nav-primary-border: #189e27;
+
+    -bs-rd-nav-selected: #191919;
+    -bs-rd-nav-deselected: rgba(255, 255, 255, 0.85);
+    -bs-rd-nav-background: #999999;
+    -bs-rd-nav-primary-background: #AAAAAA;
+    -bs-rd-nav-primary-border: #444444;
     -bs-rd-nav-border: #535353;
     -bs-rd-nav-border-color: rgba(255, 255, 255, 0.31);
-    -bs-rd-tab-border: #e2e0e0;
+    -bs-rd-tab-border: #535353;
+
     -bs-tab-content-area: #ffffff;
     -bs-color-gray-background: #f2f2f2;
     -bs-content-pane-bg-top: #f2f2f2;
