@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
@@ -49,6 +50,7 @@ public class BrowserView extends InitializableView {
 
         TextField url = new TextField();
         url.setText("https://1m5.io");
+        HBox.setHgrow(url, Priority.ALWAYS);
         nav.getChildren().add(url);
 
         Button go = new Button("Go");
