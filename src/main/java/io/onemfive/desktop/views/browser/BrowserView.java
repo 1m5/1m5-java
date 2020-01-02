@@ -26,6 +26,7 @@ public class BrowserView extends InitializableView {
     private final WebHistory history = engine.getHistory();
 
     private VBox rootContainer;
+    private HBox nav;
     private String lastUrl;
 
     public BrowserView() {
@@ -41,8 +42,14 @@ public class BrowserView extends InitializableView {
         rootContainer.setPadding(new Insets(5));
         rootContainer.setSpacing(5);
 
+        nav = new HBox();
+        nav.setPadding(new Insets(5));
+        nav.setSpacing(5);
+        rootContainer.getChildren().add(nav);
+
         TextField url = new TextField();
         url.setText("https://1m5.io");
+        nav.getChildren().add(url);
 
         Button go = new Button("Go");
         go.setOnAction(new EventHandler<ActionEvent>() {
@@ -53,6 +60,7 @@ public class BrowserView extends InitializableView {
                 LOG.info(url.getText()+" loaded");
             }
         });
+        nav.getChildren().add(go);
 
         Button refresh = new Button("Refresh");
         refresh.setOnAction(new EventHandler<ActionEvent>() {
@@ -63,6 +71,7 @@ public class BrowserView extends InitializableView {
                 LOG.info(url.getText()+" resfreshed");
             }
         });
+        nav.getChildren().add(refresh);
 
         Button back = new Button("Back");
         back.setOnAction(new EventHandler<ActionEvent>() {
@@ -73,6 +82,7 @@ public class BrowserView extends InitializableView {
                 LOG.info("Backed");
             }
         });
+        nav.getChildren().add(back);
 
         Button stop = new Button("Stop");
         stop.setOnAction(new EventHandler<ActionEvent>() {
@@ -83,9 +93,11 @@ public class BrowserView extends InitializableView {
                 LOG.info("Canceled");
             }
         });
+        nav.getChildren().add(stop);
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(browser);
+        rootContainer.getChildren().add(scrollPane);
 
         engine.getLoadWorker().stateProperty()
                 .addListener(new ChangeListener<Worker.State>() {
@@ -113,16 +125,7 @@ public class BrowserView extends InitializableView {
         );
         history.go(0);
 
-        rootContainer.getChildren().add(url);
-        rootContainer.getChildren().add(go);
-        rootContainer.getChildren().add(refresh);
-        rootContainer.getChildren().add(back);
-        rootContainer.getChildren().add(stop);
-        rootContainer.getChildren().add(scrollPane);
-
         LOG.info("Initialized.");
     }
-
-
 
 }
