@@ -13,6 +13,7 @@ public abstract class BaseView implements View {
     @FXML
     protected Node root;
     protected Navigation navigation;
+    protected Navigation.Listener navigationListener;
 
     public BaseView() {}
 
