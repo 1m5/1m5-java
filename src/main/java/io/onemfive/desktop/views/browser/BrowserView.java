@@ -25,26 +25,20 @@ public class BrowserView extends InitializableView {
     private final WebEngine engine = webView.getEngine();
     private final WebHistory history = engine.getHistory();
 
-    private BorderPane rootContainer;
-    private VBox vBox;
-    private HBox nav;
-    private String lastUrl;
-
     @Override
     protected void initialize() {
         LOG.info("Initializing...");
         super.initialize();
 
+        BorderPane rootContainer = (BorderPane) root;
         engine.setJavaScriptEnabled(true);
 
-        rootContainer = (BorderPane) root;
-
-        vBox = new VBox();
+        VBox vBox = new VBox();
         vBox.setPadding(new Insets(5));
         vBox.setSpacing(5);
         rootContainer.setCenter(vBox);
 
-        nav = new HBox();
+        HBox nav = new HBox();
         nav.setPadding(new Insets(5));
         nav.setSpacing(5);
         vBox.getChildren().add(nav);

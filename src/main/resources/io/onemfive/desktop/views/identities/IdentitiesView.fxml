@@ -1,29 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXTabPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.AnchorPane?>
-<JFXTabPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:id="root" fx:controller="io.onemfive.desktop.views.identities.IdentitiesView"
-            AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
-            AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
-    <Tab fx:id="mineTab" closable="false">
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
-                    fitToHeight="true"
-                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-    </Tab>
-    <Tab fx:id="addMineTab" closable="false">
+<?import javafx.scene.layout.*?>
 
-    </Tab>
-    <Tab fx:id="contactsTab" closable="false">
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
-                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-    </Tab>
-    <Tab fx:id="addContactTab" closable="false">
 
-    </Tab>
-</JFXTabPane>
+<StackPane xmlns="http://javafx.com/javafx/10.0.2-internal"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:id="root" fx:controller="io.onemfive.desktop.views.identities.IdentitiesView">
+
+</StackPane>
