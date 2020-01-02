@@ -49,10 +49,6 @@ public class HomeView extends InitializableView {
     private Runnable onUiReadyHandler;
     private final ToggleGroup navButtons = new ToggleGroup();
 
-    public HomeView() {
-        model = new HomeViewModel();
-    }
-
     public void setTransitionUtil(TransitionUtil transitionUtil) {
         this.transitionUtil = transitionUtil;
     }

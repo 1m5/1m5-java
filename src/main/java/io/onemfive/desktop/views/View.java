@@ -6,7 +6,6 @@ import javafx.scene.Node;
 public interface View {
     void setRoot(Node node);
     Node getRoot();
-    Model getModel();
     void setNavigation(Navigation navigation);
     Navigation getNavigation();
 }

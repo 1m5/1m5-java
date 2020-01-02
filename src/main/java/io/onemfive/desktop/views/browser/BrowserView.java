@@ -30,10 +30,6 @@ public class BrowserView extends InitializableView {
     private HBox nav;
     private String lastUrl;
 
-    public BrowserView() {
-        model = new BrowserViewModel();
-    }
-
     @Override
     protected void initialize() {
         LOG.info("Initializing...");

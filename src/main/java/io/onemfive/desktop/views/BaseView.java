@@ -12,7 +12,6 @@ public abstract class BaseView implements View {
 
     @FXML
     protected Node root;
-    protected Model model;
     protected Navigation navigation;
 
     public BaseView() {}
@@ -25,11 +24,6 @@ public abstract class BaseView implements View {
     @Override
     public void setRoot(Node root) {
         this.root = root;
-    }
-
-    @Override
-    public Model getModel() {
-        return model;
     }
 
     @Override
