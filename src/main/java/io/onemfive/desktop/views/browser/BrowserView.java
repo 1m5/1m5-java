@@ -105,6 +105,8 @@ public class BrowserView extends InitializableView {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(webView);
         // TODO: Change this to auto-fill space
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
         webView.setPrefWidth(1200);
 
         vBox.getChildren().add(scrollPane);
