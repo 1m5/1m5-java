@@ -271,7 +271,7 @@ public class HomeView extends InitializableView {
             getStyleClass().add("content-pane");
             setLeftAnchor(this, 0d);
             setRightAnchor(this, 0d);
-            setTopAnchor(this, 57d);
+            setTopAnchor(this, 40d);
             setBottomAnchor(this, 0d);
         }};
 
