@@ -217,8 +217,13 @@ public class HomeView extends InitializableView {
 //        HBox primaryNav = new HBox(dashboardButton, getNavigationSeparator(), browserButton, getNavigationSeparator(),
 //                emailButtonWithBadge, getNavigationSeparator(), messengerButtonWithBadge, getNavigationSeparator(), calendarButtonWithBadge);
 
-        HBox primaryNav = new HBox(dashboardButton, getNavigationSeparator(), browserButton, getNavigationSeparator(),
-                emailButton, getNavigationSeparator(), messengerButton, getNavigationSeparator(), calendarButton);
+        HBox primaryNav = new HBox(
+                browserButton, getNavigationSeparator(),
+                emailButton, getNavigationSeparator(),
+                messengerButton, getNavigationSeparator(),
+                videoButton, getNavigationSeparator(),
+                voiceButton, getNavigationSeparator(),
+                calendarButton);
 
         primaryNav.setAlignment(Pos.CENTER_LEFT);
         primaryNav.getStyleClass().add("nav-primary");
@@ -228,15 +233,17 @@ public class HomeView extends InitializableView {
 //                getNavigationSpacer(), appsButtonWithBadge, getNavigationSpacer(), daoButtonWithBadge,
 //                getNavigationSeparator(), identitiesButton, getNavigationSeparator(), supportButtonWithBadge,
 //                getNavigationSeparator(), settingsButtonWithBadge);
-        HBox secondaryNav = new HBox(voiceButton, getNavigationSpacer(), videoButton,
-                getNavigationSpacer(), appsButton, getNavigationSpacer(), daoButton,
-                getNavigationSeparator(), identitiesButton, getNavigationSeparator(), supportButton,
-                getNavigationSeparator(), settingsButton);
+        HBox secondaryNav = new HBox(
+                dashboardButton, getNavigationSeparator(),
+                identitiesButton, getNavigationSeparator(),
+                appsButton, getNavigationSeparator(),
+                daoButton, getNavigationSeparator(),
+                supportButton, getNavigationSeparator(),
+                settingsButton);
 
         secondaryNav.getStyleClass().add("nav-secondary");
-        HBox.setHgrow(secondaryNav, Priority.SOMETIMES);
-
         secondaryNav.setAlignment(Pos.CENTER);
+        HBox.setHgrow(secondaryNav, Priority.SOMETIMES);
 
 //        HBox priceAndBalance = new HBox(marketPriceBox.second, getNavigationSeparator(), availableBalanceBox.second,
 //                getNavigationSeparator(), reservedBalanceBox.second, getNavigationSeparator(), lockedBalanceBox.second);

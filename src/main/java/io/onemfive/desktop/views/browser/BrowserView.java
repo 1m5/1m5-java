@@ -1,6 +1,5 @@
 package io.onemfive.desktop.views.browser;
 
-import io.onemfive.desktop.Navigation;
 import io.onemfive.desktop.views.InitializableView;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -12,21 +11,22 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 
 public class BrowserView extends InitializableView {
 
-    private final WebView browser = new WebView();
-    private final WebEngine engine = browser.getEngine();
+    private final WebView webView = new WebView();
+    private final WebEngine engine = webView.getEngine();
     private final WebHistory history = engine.getHistory();
 
-    private VBox rootContainer;
+    private BorderPane rootContainer;
+    private VBox vBox;
     private HBox nav;
     private String lastUrl;
 
@@ -39,14 +39,19 @@ public class BrowserView extends InitializableView {
         LOG.info("Initializing...");
         super.initialize();
 
-        rootContainer = (VBox)root;
-        rootContainer.setPadding(new Insets(5));
-        rootContainer.setSpacing(5);
+        engine.setJavaScriptEnabled(true);
+
+        rootContainer = (BorderPane) root;
+
+        vBox = new VBox();
+        vBox.setPadding(new Insets(5));
+        vBox.setSpacing(5);
+        rootContainer.setCenter(vBox);
 
         nav = new HBox();
         nav.setPadding(new Insets(5));
         nav.setSpacing(5);
-        rootContainer.getChildren().add(nav);
+        vBox.getChildren().add(nav);
 
         TextField url = new TextField();
         url.setText("https://1m5.io");
@@ -80,7 +85,7 @@ public class BrowserView extends InitializableView {
             @Override
             public void handle(ActionEvent actionEvent) {
                 LOG.info("Back...");
-                history.go(history.getCurrentIndex() -1);
+                history.go(-1);
                 LOG.info("Backed");
             }
         });
@@ -98,8 +103,11 @@ public class BrowserView extends InitializableView {
         nav.getChildren().add(stop);
 
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(browser);
-        rootContainer.getChildren().add(scrollPane);
+        scrollPane.setContent(webView);
+        // TODO: Change this to auto-fill space
+        webView.setPrefWidth(1200);
+
+        vBox.getChildren().add(scrollPane);
 
         engine.getLoadWorker().stateProperty()
                 .addListener(new ChangeListener<Worker.State>() {
