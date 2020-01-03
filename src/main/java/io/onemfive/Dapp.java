@@ -72,7 +72,7 @@ public class Dapp {
                     System.exit(-1);
                 }
             }
-        }, "1M5-Router");
+        }, "1M5-Router-Thread");
         routerThread.start();
     }
 
