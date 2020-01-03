@@ -30,6 +30,9 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
 
     private static Runnable shutDownHandler;
 
+    public static double width;
+    public static double height;
+
     private Stage stage;
     private boolean popupOpened;
     private Scene scene;
@@ -72,13 +75,13 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
             // Just ignore the exception and continue, which means the window will use the minimum window size below
             // since we are unable to determine if we can use a larger size
         }
-        scene = new Scene((StackPane)homeView.getRoot(),
-                maxWindowBounds.width < INITIAL_WINDOW_WIDTH ?
-                        Math.max(maxWindowBounds.width, MIN_WINDOW_WIDTH) :
-                        INITIAL_WINDOW_WIDTH,
-                maxWindowBounds.height < INITIAL_WINDOW_HEIGHT ?
-                        Math.max(maxWindowBounds.height, MIN_WINDOW_HEIGHT) :
-                        INITIAL_WINDOW_HEIGHT);
+        width = maxWindowBounds.width < INITIAL_WINDOW_WIDTH ?
+                Math.max(maxWindowBounds.width, MIN_WINDOW_WIDTH) :
+                INITIAL_WINDOW_WIDTH;
+        height = maxWindowBounds.height < INITIAL_WINDOW_HEIGHT ?
+                Math.max(maxWindowBounds.height, MIN_WINDOW_HEIGHT) :
+                INITIAL_WINDOW_HEIGHT;
+        scene = new Scene((StackPane)homeView.getRoot(), width, height);
 
         CssTheme.loadSceneStyles(scene, 0);
 
