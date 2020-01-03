@@ -1,4 +1,4 @@
-package io.onemfive.did;
+package io.onemfive.core.keyring;
 
 import io.onemfive.data.ServiceMessage;
 import io.onemfive.data.DID;
