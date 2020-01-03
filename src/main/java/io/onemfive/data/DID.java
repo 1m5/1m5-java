@@ -34,7 +34,9 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
     // Identities used for personal identification: Alias, PublicKey
     private Map<String, PublicKey> identities = new HashMap<>();
     // Identities used in peer networks: Network name, NetworkPeer
-    private Map<String,NetworkPeer> peers = new HashMap<>();
+    private Map<String, NetworkPeer> peers = new HashMap<>();
+    // Attributes
+    private Map<String,Object> attributes = new HashMap<>();
 
     public DID() {
     }
@@ -156,6 +158,30 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
             return peers.get(network.name());
         }
         return null;
+    }
+
+    public Map<String,Object> getAttributes(){
+        return attributes;
+    }
+
+    public void addAttribute(String name, Object attribute) {
+        if(attributes==null) {
+            attributes = new HashMap<>();
+        }
+        attributes.put(name, attribute);
+    }
+
+    public Object getAttribute(String name) {
+        if(attributes==null) {
+            return null;
+        }
+        return attributes.get(name);
+    }
+
+    public void removeAttribute(String name) {
+        if(attributes!=null) {
+            attributes.remove(name);
+        }
     }
 
     @Override
