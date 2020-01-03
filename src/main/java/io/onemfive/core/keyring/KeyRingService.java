@@ -39,6 +39,7 @@ public class KeyRingService extends BaseService {
     public static final String OPERATION_DECRYPT_SYMMETRIC = "DECRYPT_SYMMETRIC";
     public static final String OPERATION_SIGN = "SIGN";
     public static final String OPERATION_VERIFY_SIGNATURE = "VERIFY_SIGNATURE";
+    public static final String OPERATION_VOUCH = "VOUCH";
     public static final String OPERATION_RELOAD = "RELOAD";
 
     public static final int PASSWORD_HASH_STRENGTH_64 = 0x10; // About 64 iterations for SHA-256
@@ -494,6 +495,23 @@ public class KeyRingService extends BaseService {
                     LOG.warning(e1.getLocalizedMessage());
                 }
                 break;
+            }
+            case OPERATION_VOUCH: {
+                VouchRequest r = (VouchRequest)DLC.getData(VouchRequest.class,e);
+                if(r.signer==null) {
+                    r.statusCode = VouchRequest.SIGNER_REQUIRED;
+                    break;
+                }
+                if(r.signee==null){
+                    r.statusCode = VouchRequest.SIGNEE_REQUIRED;
+                    break;
+                }
+                if(r.attributesToSign==null) {
+                    r.statusCode = VouchRequest.ATTRIBUTES_REQUIRED;
+                    break;
+                }
+                // TODO: Verify attributes to sign are available attributs
+                LOG.warning("VOUCH not yet implemented.");
             }
             case OPERATION_RELOAD: {
                 loadKeyRingImplementations();
