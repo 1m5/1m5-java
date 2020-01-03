@@ -13,19 +13,19 @@ public class LoadDIDDAO extends LocalFSDAO {
 
     private Logger LOG = Logger.getLogger(LoadDIDDAO.class.getName());
 
-    private DID providedDID;
+    private String alias;
     private DID loadedDID = new DID();
 
-    public LoadDIDDAO(InfoVaultDB infoVaultDB, DID did) {
+    public LoadDIDDAO(InfoVaultDB infoVaultDB, String alias) {
         super(infoVaultDB);
-        this.providedDID = did;
+        this.alias = alias;
     }
 
     @Override
     public void execute() {
         byte[] content;
         try {
-            content = infoVaultDB.load(DID.class.getName(), providedDID.getUsername());
+            content = infoVaultDB.load(DID.class.getName(), alias);
         } catch (FileNotFoundException e) {
             exception = e;
             return;
