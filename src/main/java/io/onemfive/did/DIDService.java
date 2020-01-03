@@ -5,6 +5,7 @@ import io.onemfive.core.keyring.AuthNRequest;
 import io.onemfive.core.keyring.GenerateKeyRingCollectionsRequest;
 import io.onemfive.data.DID;
 import io.onemfive.data.Hash;
+import io.onemfive.data.TextMessage;
 import io.onemfive.data.route.Route;
 import io.onemfive.did.dao.LoadDIDDAO;
 import io.onemfive.did.dao.SaveDIDDAO;
@@ -42,10 +43,10 @@ public class DIDService extends BaseService {
     public static final String OPERATION_HASH = "HASH";
     public static final String OPERATION_VERIFY_HASH = "VERIFY_HASH";
 
-    public static final String OPERATION_VOUCH = "VOUCH";
-
     public static final String OPERATION_ADD_CONTACT = "ADD_CONTACT";
     public static final String OPERATION_GET_CONTACT = "GET_CONTACT";
+    public static final String OPERATION_GET_CONTACTS = "GET_CONTACTS";
+    public static final String OPERATION_DELETE_CONTACT = "DELETE_CONTACT";
 
     private static final Pattern layout = Pattern.compile("\\$31\\$(\\d\\d?)\\$(.{43})");
 
@@ -105,6 +106,14 @@ public class DIDService extends BaseService {
             }
             case OPERATION_GET_CONTACT: {
                 getContact(e);
+                break;
+            }
+            case OPERATION_GET_CONTACTS: {
+                getContacts(e);
+                break;
+            }
+            case OPERATION_DELETE_CONTACT: {
+                deleteContact(e);
                 break;
             }
             case OPERATION_VERIFY: {
@@ -172,7 +181,9 @@ public class DIDService extends BaseService {
             case OPERATION_SAVE: {
                 LOG.info("Received save DID request.");
                 DID did = (DID)DLC.getData(DID.class,e);
-                e.setDID(save(did, true));
+                if(did!=null) {
+                    e.setDID(save(did, true));
+                }
                 break;
             }
             case OPERATION_AUTHENTICATE_CREATE: {
@@ -206,28 +217,8 @@ public class DIDService extends BaseService {
                 }
                 break;
             }
-            case OPERATION_VOUCH:{
-                VouchRequest r = (VouchRequest)DLC.getData(VouchRequest.class,e);
-                if(r.signer==null) {
-                    r.statusCode = VouchRequest.SIGNER_REQUIRED;
-                    break;
-                }
-                if(r.signee==null){
-                    r.statusCode = VouchRequest.SIGNEE_REQUIRED;
-                    break;
-                }
-                if(r.attributesToSign==null) {
-                    r.statusCode = VouchRequest.ATTRIBUTES_REQUIRED;
-                    break;
-                }
-
-            }
             default: deadLetter(e); // Operation not supported
         }
-    }
-
-    private void vouch(VouchRequest request) {
-        // TODO: complete signing attributes
     }
 
     private DID getLocalDID(GetLocalDIDRequest r) {
@@ -247,16 +238,28 @@ public class DIDService extends BaseService {
     }
 
     private void addContact(Envelope e) {
-
+        LOG.info("Received add Contact request.");
     }
 
     private void getContact(Envelope e) {
+        LOG.info("Received get Contact request.");
+        String alias = ((TextMessage)e.getMessage()).getText();
+        DID loadedDID = loadDID(alias);
 
+    }
+
+    private void getContacts(Envelope e) {
+        LOG.info("Received get Contacts request.");
+
+    }
+
+    private void deleteContact(Envelope e) {
+        LOG.info("Received delete Contact request.");
     }
 
     private DID verify(DID did) {
         LOG.info("Received verify DID request.");
-        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, did);
+        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, did.getUsername());
         dao.execute();
         DID didLoaded = dao.getLoadedDID();
         if(didLoaded != null && did.getUsername() != null && did.getUsername().equals(didLoaded.getUsername())) {
@@ -301,7 +304,7 @@ public class DIDService extends BaseService {
      * @param r AuthenticateDIDRequest
      */
     private void authenticate(AuthenticateDIDRequest r) {
-        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, r.did);
+        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, r.did.getUsername());
         dao.execute();
         DID loadedDID = dao.getLoadedDID();
         if(loadedDID.getPassphraseHash()==null) {
@@ -343,11 +346,17 @@ public class DIDService extends BaseService {
         }
     }
 
-    private boolean isNew(DID didToLoad) {
-        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, didToLoad);
+    private boolean isNew(String alias) {
+        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, alias);
         dao.execute();
         DID loadedDID = dao.getLoadedDID();
         return loadedDID == null || loadedDID.getUsername() == null || loadedDID.getUsername().isEmpty();
+    }
+
+    private DID loadDID(String alias) {
+        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, alias);
+        dao.execute();
+        return dao.getLoadedDID();
     }
 
     @Override
