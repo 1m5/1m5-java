@@ -41,6 +41,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
 
     public static void setClient(Client c) {
         client = c;
+        ViewLoader.setClient(c);
     }
 
     public static void setDappTray(DAppTray tray) {

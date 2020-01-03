@@ -1,5 +1,6 @@
 package io.onemfive.desktop.views;
 
+import io.onemfive.core.client.Client;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 
@@ -12,8 +13,12 @@ import java.util.logging.Logger;
 public class ViewLoader {
 
     private static final Logger LOG = Logger.getLogger(ViewLoader.class.getName());
+    private static final HashMap<Object, BaseView> cache = new HashMap<>();
+    private static Client client;
 
-    private static final HashMap<Object, View> cache = new HashMap<>();
+    public static void setClient(Client c) {
+        client = c;
+    }
 
     public static View load(Class<? extends View> viewClass) {
         // Caching on by default
@@ -21,7 +26,7 @@ public class ViewLoader {
     }
 
     public static View load(Class<? extends View> viewClass, boolean useCache) {
-        View view = null;
+        BaseView view = null;
         if (cache.containsKey(viewClass) && useCache) {
             view = cache.get(viewClass);
         } else {
@@ -30,8 +35,9 @@ public class ViewLoader {
                 Node n = FXMLLoader.load(loc);
                 if(n!=null) {
                     try {
-                        view = (View)Class.forName(viewClass.getName()).getConstructor().newInstance();
+                        view = (BaseView)Class.forName(viewClass.getName()).getConstructor().newInstance();
                         view.setRoot(n);
+                        view.setClient(client);
                         if(useCache) {
                             cache.put(viewClass, view);
                         }
