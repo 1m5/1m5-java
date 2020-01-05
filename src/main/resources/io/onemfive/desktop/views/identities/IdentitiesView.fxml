@@ -1,20 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Text?>
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:id="root"
-           fx:controller="io.onemfive.desktop.views.apps.AppsView">
-    <VBox alignment="CENTER">
-        <Text text="Identities (DID)"/>
-        <Text text="0.7.0 Roadmap" />
-        <Text text="0.6.1: Tor Integration" strikethrough="true"/>
-        <Text text="0.6.2: Uncensored Routing" strikethrough="true"/>
-        <Text text="0.6.3: Peer Graph"/>
-        <Text text="0.6.4: Messenger"/>
-        <Text text="0.6.5: Browser"/>
-        <Text text="0.6.6: Monitor"/>
-        <Text text="0.6.8: Keyring, Infovault"/>
-    </VBox>
+           fx:controller="io.onemfive.desktop.views.identities.IdentitiesView">
+
 </StackPane>
