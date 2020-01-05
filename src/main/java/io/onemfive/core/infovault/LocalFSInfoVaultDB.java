@@ -16,11 +16,6 @@ public class LocalFSInfoVaultDB implements InfoVaultDB {
     public LocalFSInfoVaultDB() {}
 
     @Override
-    public void execute(DAO dao) throws Exception {
-
-    }
-
-    @Override
     public Status getStatus() {
         return status;
     }

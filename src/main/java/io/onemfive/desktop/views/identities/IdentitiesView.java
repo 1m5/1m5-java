@@ -75,9 +75,7 @@ public class IdentitiesView extends ActivatableView {
             @Override
             public void handle(ActionEvent actionEvent) {
                 if(!identityAliasTxt.getText().isEmpty() && !identityAddress.getText().isEmpty()) {
-                    identityAddresses.add(identityAliasTxt.getText() + ": " + identityAddress.getText());
-                    identityAliasTxt.clear();
-                    identityAddress.clear();
+
                 }
             }
         });
@@ -94,7 +92,7 @@ public class IdentitiesView extends ActivatableView {
             public void handle(ActionEvent actionEvent) {
                 int index = identitiesList.getSelectionModel().getSelectedIndex();
                 if(index >= 0) {
-                    identityAddresses.remove(index);
+//                    identityAddresses.remove(index);
                 }
             }
         });
@@ -141,9 +139,9 @@ public class IdentitiesView extends ActivatableView {
             @Override
             public void handle(ActionEvent actionEvent) {
                 if(!contractAliasTxt.getText().isEmpty() && !contactAddress.getText().isEmpty()) {
-                    contactAddresses.add(contractAliasTxt.getText() + ": " + contactAddress.getText());
-                    contractAliasTxt.clear();
-                    contactAddress.clear();
+//                    contactAddresses.add(contractAliasTxt.getText() + ": " + contactAddress.getText());
+//                    contractAliasTxt.clear();
+//                    contactAddress.clear();
                 }
             }
         });
@@ -151,6 +149,9 @@ public class IdentitiesView extends ActivatableView {
 
         ListView<String> contactsList = new ListView<>();
         contactsList.setPrefSize(400,500);
+
+        // Get Contacts
+
 
 //        addresses.add("Alice: f8j2kwjfdwjaf4faofrj4oif8qojfi4fjpq38f4pmf348fjf");
 //        addresses.add("Bob: fo347ha7uihfu7h4yfk74uqfh7f43nffh747f2h473fh7f4n3");
@@ -166,7 +167,7 @@ public class IdentitiesView extends ActivatableView {
             public void handle(ActionEvent actionEvent) {
                 int index = contactsList.getSelectionModel().getSelectedIndex();
                 if(index >= 0) {
-                    contactAddresses.remove(index);
+//                    contactAddresses.remove(index);
                 }
             }
         });

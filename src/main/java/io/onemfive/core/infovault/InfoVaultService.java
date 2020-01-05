@@ -61,8 +61,7 @@ public class InfoVaultService extends BaseService {
     }
 
     private void execute(Envelope e) throws Exception {
-        DAO dao = (DAO)DLC.getData(DAO.class, e);
-        dao.execute();
+        LOG.warning("Not yet implemented.");
     }
 
     public static InfoVaultDB getInfoVaultDBInstance(String infoVaultDBClass)

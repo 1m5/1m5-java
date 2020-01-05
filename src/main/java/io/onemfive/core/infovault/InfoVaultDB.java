@@ -16,8 +16,6 @@ public interface InfoVaultDB {
 
     enum Status {Starting,StartupFailed,Running,Stopping,Shutdown}
 
-    void execute(DAO dao) throws Exception;
-
     void save(String label, String key, byte[] content, boolean autoCreate) throws FileNotFoundException;
 
     byte[] load(String label, String key) throws FileNotFoundException;
