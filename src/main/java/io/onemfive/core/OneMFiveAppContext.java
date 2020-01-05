@@ -274,7 +274,6 @@ public class OneMFiveAppContext {
         }
 
         // InfoVaultDB
-        overrideProps.setProperty("1m5.dir.services.io.onemfive.core.infovault.InfoVaultService", servicesDir.getAbsolutePath() + "/io.onemfive.core.infovault.InfoVaultService");
         try {
             if(overrideProps.getProperty(InfoVaultDB.class.getName()) != null) {
                 LOG.info("Instantiating InfoVaultDB of type: "+overrideProps.getProperty(InfoVaultDB.class.getName()));
@@ -283,6 +282,8 @@ public class OneMFiveAppContext {
                 LOG.info("No InfoVaultDB type provided. Instantiating InfoVaultDB of default type: "+LocalFSInfoVaultDB.class.getName());
                 infoVaultDB = InfoVaultService.getInfoVaultDBInstance(LocalFSInfoVaultDB.class.getName());
             }
+            infoVaultDB.setLocation(servicesDir.getAbsolutePath()+"/"+InfoVaultService.class.getSimpleName());
+            infoVaultDB.setName("generalDB");
             infoVaultDB.init(overrideProps);
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());

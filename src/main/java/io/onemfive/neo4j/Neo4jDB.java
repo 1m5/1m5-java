@@ -1,6 +1,6 @@
 package io.onemfive.neo4j;
 
-import io.onemfive.core.infovault.InfoVaultDB;
+import io.onemfive.core.infovault.BaseInfoVaultDB;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
@@ -12,14 +12,14 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class Neo4jDB implements InfoVaultDB {
+public class Neo4jDB extends BaseInfoVaultDB {
 
     private static final Logger LOG = Logger.getLogger(Neo4jDB.class.getName());
 
     private boolean initialized = false;
     private Properties properties;
     private GraphDatabaseService graphDb;
-    private String location;
+    private String name;
 
     public Neo4jDB() {
         super();
@@ -29,20 +29,11 @@ public class Neo4jDB implements InfoVaultDB {
         return graphDb;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     @Override
     public Status getStatus() {
         return null;
     }
 
-    @Override
     public void save(String label, String key, byte[] content, boolean autoCreate) throws FileNotFoundException {
         try (Transaction tx = graphDb.beginTx()) {
             Node n = graphDb.findNode(Label.label(label),"name",key);
@@ -58,7 +49,6 @@ public class Neo4jDB implements InfoVaultDB {
         }
     }
 
-    @Override
     public byte[] load(String label, String key) throws FileNotFoundException {
         byte[] content;
         try (Transaction tx = graphDb.beginTx()) {
@@ -74,7 +64,6 @@ public class Neo4jDB implements InfoVaultDB {
         return content;
     }
 
-    @Override
     public List<byte[]> loadAll(String label) {
         List<byte[]> byteList = new ArrayList<>();
         ResourceIterator<Node> nodes = graphDb.findNodes(Label.label(label));
@@ -93,11 +82,15 @@ public class Neo4jDB implements InfoVaultDB {
             LOG.warning("Neo4J DB location required. Please provide.");
             return false;
         }
+        if(name==null) {
+            LOG.warning("Neo4J DB name required. Please provide.");
+            return false;
+        }
         if(!initialized) {
             this.properties = properties;
-            File dbDir = new File(location);
+            File dbDir = new File(location+"/"+name);
             if(!dbDir.exists() && !dbDir.mkdir()) {
-                LOG.warning("Unable to create graph db directory at: "+location);
+                LOG.warning("Unable to create graph db directory at: "+location+"/"+name);
                 return false;
             }
 

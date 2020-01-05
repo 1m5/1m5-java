@@ -46,7 +46,8 @@ public class GraphPeerManager extends BasePeerManager {
             LOG.warning("IOException caught retrieving NetworkService's service directory.");
             return false;
         }
-        db.setLocation(baseDir + "/" + DBNAME);
+        db.setLocation(baseDir);
+        db.setName(DBNAME);
         String cleanDB = properties.getProperty("onemfive.sensors.db.cleanOnRestart");
         if (Boolean.parseBoolean(cleanDB)) {
             FileUtil.rmdir(db.getLocation(), false);

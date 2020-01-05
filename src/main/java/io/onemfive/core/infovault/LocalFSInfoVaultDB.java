@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class LocalFSInfoVaultDB implements InfoVaultDB {
+public class LocalFSInfoVaultDB extends BaseInfoVaultDB {
 
     private Logger LOG = Logger.getLogger(LocalFSInfoVaultDB.class.getName());
 
@@ -145,16 +145,23 @@ public class LocalFSInfoVaultDB implements InfoVaultDB {
 
     @Override
     public boolean init(Properties properties) {
-        File baseDir = new File(properties.getProperty("1m5.dir.services.io.onemfive.core.infovault.InfoVaultService"));
-        if(!baseDir.exists() && !baseDir.mkdir()) {
-            LOG.warning("Unable to build InfoVaultService directory at: "+baseDir.getAbsolutePath());
+        if(location==null) {
+            LOG.warning("Location must be provided.");
             return false;
-        } else {
-            baseDir.setWritable(true);
         }
-        dbDir = new File(baseDir, this.getClass().getSimpleName());
+        if(name==null) {
+            LOG.warning("Name must be provided.");
+            return false;
+        }
+        File baseDir = new File(location);
+        if (!baseDir.exists() && !baseDir.mkdir()) {
+            LOG.warning("Unable to build InfoVaultService directory at: " + baseDir.getAbsolutePath());
+            return false;
+        }
+        baseDir.setWritable(true);
+        dbDir = new File(baseDir, name);
         if(!dbDir.exists() && !dbDir.mkdir()) {
-            LOG.warning("Unable to create directory for LocalFSInfoVaultDB.");
+            LOG.warning("Unable to create dbFile at: "+location+"/"+name);
             return false;
         } else {
             dbDir.setWritable(true);

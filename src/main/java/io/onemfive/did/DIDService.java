@@ -1,6 +1,8 @@
 package io.onemfive.did;
 
 import io.onemfive.core.*;
+import io.onemfive.core.infovault.InfoVaultDB;
+import io.onemfive.core.infovault.InfoVaultService;
 import io.onemfive.core.keyring.AuthNRequest;
 import io.onemfive.core.keyring.GenerateKeyRingCollectionsRequest;
 import io.onemfive.data.DID;
@@ -11,8 +13,10 @@ import io.onemfive.data.util.JSONParser;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.util.DLC;
 import io.onemfive.data.util.HashUtil;
+import io.onemfive.neo4j.Neo4jDB;
 
 import java.io.FileNotFoundException;
+import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.*;
@@ -54,6 +58,9 @@ public class DIDService extends BaseService {
 
     private DID nodeDID;
     private Map<String,DID> localUserDIDs = new HashMap<>();
+    private InfoVaultDB contactsDB;
+
+    private ContactsManager contactsManager;
 
     public DIDService() {}
 
@@ -371,7 +378,32 @@ public class DIDService extends BaseService {
         super.start(properties);
         LOG.info("Starting....");
         updateStatus(ServiceStatus.STARTING);
-
+        try {
+            contactsDB = InfoVaultService.getInfoVaultDBInstance(Neo4jDB.class.getName());
+            // TODO: Support external drives (InfoVault)
+            contactsDB.setLocation(getServiceDirectory().getAbsolutePath());
+            contactsDB.setName("contactsDb");
+        } catch (ClassNotFoundException e) {
+            LOG.warning(e.getLocalizedMessage());
+            updateStatus(ServiceStatus.ERROR);
+            return false;
+        } catch (IllegalAccessException e) {
+            LOG.warning(e.getLocalizedMessage());
+            updateStatus(ServiceStatus.ERROR);
+            return false;
+        } catch (InstantiationException e) {
+            LOG.warning(e.getLocalizedMessage());
+            updateStatus(ServiceStatus.ERROR);
+            return false;
+        } catch (InvocationTargetException e) {
+            LOG.warning(e.getLocalizedMessage());
+            updateStatus(ServiceStatus.ERROR);
+            return false;
+        } catch (NoSuchMethodException e) {
+            LOG.warning(e.getLocalizedMessage());
+            updateStatus(ServiceStatus.ERROR);
+            return false;
+        }
         updateStatus(ServiceStatus.RUNNING);
         LOG.info("Started.");
         return true;

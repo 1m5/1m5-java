@@ -1,7 +1,6 @@
 package io.onemfive.data.social;
 
 import io.onemfive.data.DID;
-import io.onemfive.data.JSONSerializable;
 
 import java.util.Map;
 
@@ -10,7 +9,7 @@ import java.util.Map;
  *
  * @author objectorange
  */
-public class Individual extends Party implements JSONSerializable {
+public class Individual extends Party {
 
     private DID did;
 
@@ -24,12 +23,21 @@ public class Individual extends Party implements JSONSerializable {
 
     @Override
     public Map<String, Object> toMap() {
-        return did.toMap();
+        Map<String,Object> m = super.toMap();
+        if(did!=null) {
+            m.put("did", did.toMap());
+        }
+        return m;
     }
 
     @Override
     public void fromMap(Map<String, Object> m) {
-        did = new DID();
-        did.fromMap(m);
+        super.fromMap(m);
+        if(m!=null) {
+            if(m.get("did")!=null) {
+                DID did = new DID();
+                did.fromMap((Map<String,Object>)m.get("did"));
+            }
+        }
     }
 }

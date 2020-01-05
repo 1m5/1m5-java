@@ -16,6 +16,11 @@ public interface InfoVaultDB {
 
     enum Status {Starting,StartupFailed,Running,Stopping,Shutdown}
 
+    void setLocation(String location);
+    String getLocation();
+
+    void setName(String name);
+
     void save(String label, String key, byte[] content, boolean autoCreate) throws FileNotFoundException;
 
     byte[] load(String label, String key) throws FileNotFoundException;
