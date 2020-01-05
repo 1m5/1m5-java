@@ -15,7 +15,6 @@ import io.onemfive.desktop.views.browser.BrowserView;
 import io.onemfive.desktop.views.calendar.CalendarView;
 import io.onemfive.desktop.views.dao.DaoView;
 import io.onemfive.desktop.views.dashboard.DashboardView;
-import io.onemfive.desktop.views.email.EmailView;
 import io.onemfive.desktop.views.identities.IdentitiesView;
 import io.onemfive.desktop.views.messenger.MessengerView;
 import io.onemfive.desktop.views.settings.SettingsView;
@@ -86,7 +85,6 @@ public class HomeView extends InitializableView {
 
         final ToggleButton dashboardButton = new NavButton(DashboardView.class, Resources.get("homeView.menu.dashboard").toUpperCase());
         final ToggleButton browserButton = new NavButton(BrowserView.class, Resources.get("homeView.menu.browser").toUpperCase());
-        final ToggleButton emailButton = new NavButton(EmailView.class, Resources.get("homeView.menu.email").toUpperCase());
         final ToggleButton messengerButton = new NavButton(MessengerView.class, Resources.get("homeView.menu.messenger").toUpperCase());
         final ToggleButton calendarButton = new NavButton(CalendarView.class, Resources.get("homeView.menu.calendar").toUpperCase());
         final ToggleButton voiceButton = new NavButton(VoiceView.class, Resources.get("homeView.menu.voice").toUpperCase());
@@ -120,8 +118,6 @@ public class HomeView extends InitializableView {
                         dashboardButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT2, keyEvent)) {
                         browserButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT3, keyEvent)) {
-                        emailButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT4, keyEvent)) {
                         messengerButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT5, keyEvent)) {
@@ -214,9 +210,8 @@ public class HomeView extends InitializableView {
 //                emailButtonWithBadge, getNavigationSeparator(), messengerButtonWithBadge, getNavigationSeparator(), calendarButtonWithBadge);
 
         HBox primaryNav = new HBox(
-                browserButton, getNavigationSeparator(),
-                emailButton, getNavigationSeparator(),
                 messengerButton, getNavigationSeparator(),
+                browserButton, getNavigationSeparator(),
                 videoButton, getNavigationSeparator(),
                 voiceButton, getNavigationSeparator(),
                 calendarButton);
