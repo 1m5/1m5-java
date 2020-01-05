@@ -7,12 +7,12 @@ import io.onemfive.data.DID;
 import io.onemfive.data.Hash;
 import io.onemfive.data.TextMessage;
 import io.onemfive.data.route.Route;
-import io.onemfive.did.dao.LoadDIDDAO;
-import io.onemfive.did.dao.SaveDIDDAO;
+import io.onemfive.data.util.JSONParser;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.util.DLC;
 import io.onemfive.data.util.HashUtil;
 
+import java.io.FileNotFoundException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.*;
@@ -259,9 +259,7 @@ public class DIDService extends BaseService {
 
     private DID verify(DID did) {
         LOG.info("Received verify DID request.");
-        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, did.getUsername());
-        dao.execute();
-        DID didLoaded = dao.getLoadedDID();
+        DID didLoaded = loadDID(did.getUsername());
         if(didLoaded != null && did.getUsername() != null && did.getUsername().equals(didLoaded.getUsername())) {
             didLoaded.setVerified(true);
             LOG.info("DID verification successful.");
@@ -277,7 +275,7 @@ public class DIDService extends BaseService {
      * Saves and returns DID generating passphrase hash if none exists.
      * @param did DID
      */
-    private DID save(DID did, boolean autocreate) {
+    private DID save(DID did, boolean autoCreate) {
         LOG.info("Saving DID...");
         if(did.getPassphraseHash() == null) {
             LOG.info("Hashing passphrase...");
@@ -290,10 +288,14 @@ public class DIDService extends BaseService {
                 return did;
             }
         }
-        SaveDIDDAO dao = new SaveDIDDAO(infoVaultDB, did, autocreate);
-        dao.execute();
-        if(dao.getException() != null) {
-            LOG.warning("Create DID threw exception: "+dao.getException().getLocalizedMessage());
+        try {
+            infoVaultDB.save(
+                    DID.class.getName(),
+                    did.getUsername(),
+                    JSONParser.toString(did.toMap()).getBytes(),
+                    autoCreate);
+        } catch (FileNotFoundException e) {
+            LOG.warning(e.getLocalizedMessage());
         }
         LOG.info("DID saved.");
         return did;
@@ -304,9 +306,7 @@ public class DIDService extends BaseService {
      * @param r AuthenticateDIDRequest
      */
     private void authenticate(AuthenticateDIDRequest r) {
-        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, r.did.getUsername());
-        dao.execute();
-        DID loadedDID = dao.getLoadedDID();
+        DID loadedDID = loadDID(r.did.getUsername());
         if(loadedDID.getPassphraseHash()==null) {
             if(r.autogenerate) {
                 r.did.setVerified(true);
@@ -347,16 +347,23 @@ public class DIDService extends BaseService {
     }
 
     private boolean isNew(String alias) {
-        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, alias);
-        dao.execute();
-        DID loadedDID = dao.getLoadedDID();
+        DID loadedDID = loadDID(alias);
         return loadedDID == null || loadedDID.getUsername() == null || loadedDID.getUsername().isEmpty();
     }
 
     private DID loadDID(String alias) {
-        LoadDIDDAO dao = new LoadDIDDAO(infoVaultDB, alias);
-        dao.execute();
-        return dao.getLoadedDID();
+        DID loadedDID = new DID();
+        byte[] content;
+        try {
+            content = infoVaultDB.load(DID.class.getName(), alias);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+        String jsonBody = new String(content);
+        LOG.info("JSON loaded: "+jsonBody);
+        loadedDID.fromMap((Map<String,Object>) JSONParser.parse(jsonBody));
+        LOG.info("DID Loaded from map.");
+        return loadedDID;
     }
 
     @Override
