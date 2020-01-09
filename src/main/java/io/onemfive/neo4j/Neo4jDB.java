@@ -19,7 +19,6 @@ public class Neo4jDB extends BaseInfoVaultDB {
     private boolean initialized = false;
     private Properties properties;
     private GraphDatabaseService graphDb;
-    private String name;
 
     public Neo4jDB() {
         super();
