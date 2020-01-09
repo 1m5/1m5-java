@@ -283,7 +283,7 @@ public class OneMFiveAppContext {
                 infoVaultDB = InfoVaultService.getInfoVaultDBInstance(LocalFSInfoVaultDB.class.getName());
             }
             infoVaultDB.setLocation(servicesDir.getAbsolutePath()+"/"+InfoVaultService.class.getSimpleName());
-            infoVaultDB.setName("generalDB");
+            infoVaultDB.setName("1m5-infovault-db");
             infoVaultDB.init(overrideProps);
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());
