@@ -23,7 +23,7 @@ public class GraphPeerManager extends BasePeerManager {
     // Peer-to-Peer Relationship
     public static final String PEER_TO_PEER_AVG_LATENCY = "peerToPeerAvgLatency";
 
-    public static final String DBNAME = "imspg";
+    public static final String DBNAME = "1m5_peers_db";
 
     private Neo4jDB db;
 
