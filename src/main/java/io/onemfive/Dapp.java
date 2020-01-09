@@ -59,13 +59,13 @@ public class Dapp {
     private static AppThread routerThread;
 
     public static void main(String[] args) {
-        // Start GUI in current thread
-        Application.launch(DesktopApp.class);
+        LOG.info("1M5 Dapp initializing...\n\tThread name: " + Thread.currentThread().getName());
         // Start bus in separate thread
         routerThread = new AppThread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    LOG.info("1M5 Router initializing...\n\tThread name: " + Thread.currentThread().getName());
                     init(args);
                 } catch (Exception e) {
                     System.out.print(e.getLocalizedMessage());
@@ -74,6 +74,9 @@ public class Dapp {
             }
         }, "1M5-Router-Thread");
         routerThread.start();
+        waitABit(2000); // Wait 2 seconds for Client to get created and passed to DesktopApp
+        // Start GUI in current thread
+        Application.launch(DesktopApp.class);
     }
 
     public static void init(String[] args) throws Exception {
