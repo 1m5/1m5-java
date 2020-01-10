@@ -1,3 +1,29 @@
+/*
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
+ */
 package io.onemfive.core.util;
 
 import java.io.BufferedReader;
@@ -8,16 +34,17 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 /**
  * Passes a command to the OS shell for execution and manages the input and
  * output.
  * <p>
  * This class must be kept <code>gcj</code>-compatible.
- *
- * @author I2P - hypercubus
  */
 public class ShellCommand {
+
+    private static Logger LOG = Logger.getLogger(ShellCommand.class.getName());
 
     private static final boolean DEBUG = false;
     private static final boolean CONSUME_OUTPUT    = true;
@@ -26,21 +53,16 @@ public class ShellCommand {
     private static final boolean WAIT_FOR_EXIT_STATUS    = true;
     private static final boolean NO_WAIT_FOR_EXIT_STATUS = false;
 
-    // Following are unused, only for NO_CONSUME_OUTPUT;
-    // need synchronization or volatile or something if we init using it.
-    private InputStream   _errorStream;
-    private InputStream   _inputStream;
-    private OutputStream  _outputStream;
+    private InputStream errorStream;
+    private InputStream inputStream;
+    private OutputStream outputStream;
 
-    /** @since 0.9.3 */
     private static class Result {
         public volatile boolean commandSuccessful;
     }
 
     /**
      * Executes a shell command in its own thread.
-     *
-     * @author hypercubus
      */
     private class CommandThread extends AppThread {
         private final boolean consumeOutput;
@@ -48,7 +70,7 @@ public class ShellCommand {
         private final Result result;
 
         /**
-         *  @param shellCommand either a String or a String[] (since 0.8.3)
+         *  @param shellCommand either a String or a String[]
          *  @param consumeOutput always true, false is unused, possibly untested
          *  @param result out parameter
          */
@@ -65,16 +87,6 @@ public class ShellCommand {
         }
     }
 
-    /**
-     * Consumes stream data. Instances of this class, when given the
-     * <code>STDOUT</code> and <code>STDERR</code> input streams of a
-     * <code>Runtime.exec()</code> process for example, will prevent blocking
-     * during a <code>Process.waitFor()</code> loop and thereby allow the
-     * process to exit properly. This class makes no attempt to preserve the
-     * consumed data.
-     *
-     * @author hypercubus
-     */
     private static class StreamConsumer extends AppThread {
         private final BufferedReader bufferedReader;
 
@@ -98,14 +110,6 @@ public class ShellCommand {
 
     private final static int BUFFER_SIZE = 1024;
 
-    /**
-     * Reads data from a <code>java.io.InputStream</code> and writes it to
-     * <code>STDOUT</code>.
-     *
-     * UNUSED, only for NO_CONSUME_OUTPUT
-     *
-     * @author hypercubus
-     */
     private static class StreamReader extends AppThread {
         private final BufferedReader bufferedReader;
 
@@ -132,14 +136,6 @@ public class ShellCommand {
         }
     }
 
-    /**
-     * Reads data from <code>STDIN</code> and writes it to a
-     * <code>java.io.OutputStream</code>.
-     *
-     * UNUSED, only for NO_CONSUME_OUTPUT
-     *
-     * @author hypercubus
-     */
     private static class StreamWriter extends AppThread {
         private final BufferedWriter bufferedWriter;
 
@@ -320,13 +316,11 @@ public class ShellCommand {
      *                      returns an exit status of 0 (indicating success),
      *                      OR if the time expires,
      *                      else <code>false</code>.
-     * @since 0.8.3
      */
     public boolean executeSilentAndWaitTimed(String[] commandArray, int seconds) {
         return executeSAWT(commandArray, seconds);
     }
 
-    /** @since 0.8.3 */
     private boolean executeSAWT(Object shellCommand, int seconds) {
         String name = null;
         long begin = 0;
@@ -362,19 +356,19 @@ public class ShellCommand {
     /** @deprecated unused */
     @Deprecated
     public InputStream getErrorStream() {
-        return _errorStream;
+        return errorStream;
     }
 
     /** @deprecated unused */
     @Deprecated
     public InputStream getInputStream() {
-        return _inputStream;
+        return inputStream;
     }
 
     /** @deprecated unused */
     @Deprecated
     public OutputStream getOutputStream() {
-        return _outputStream;
+        return outputStream;
     }
 
     /**
@@ -422,14 +416,14 @@ public class ShellCommand {
                 processStdoutConsumer.start();
             } else {
                 // unused, consumeOutput always true
-                _errorStream = process.getErrorStream();
-                _inputStream = process.getInputStream();
-                _outputStream = process.getOutputStream();
-                Thread processStderrReader = new StreamReader(_errorStream);
+                errorStream = process.getErrorStream();
+                inputStream = process.getInputStream();
+                outputStream = process.getOutputStream();
+                Thread processStderrReader = new StreamReader(errorStream);
                 processStderrReader.start();
-                Thread processStdinWriter = new StreamWriter(_outputStream);
+                Thread processStdinWriter = new StreamWriter(outputStream);
                 processStdinWriter.start();
-                Thread processStdoutReader = new StreamReader(_inputStream);
+                Thread processStdoutReader = new StreamReader(inputStream);
                 processStdoutReader.start();
             }
             if (waitForExitStatus) {
@@ -466,25 +460,24 @@ public class ShellCommand {
         return true;
     }
 
-    /** unused, only for NO_CONSUME_OUTPUT */
     private void killStreams() {
         try {
-            _errorStream.close();
+            errorStream.close();
         } catch (IOException e) {
             // Fall through.
         }
         try {
-            _inputStream.close();
+            inputStream.close();
         } catch (IOException e1) {
             // Fall through.
         }
         try {
-            _outputStream.close();
+            outputStream.close();
         } catch (IOException e2) {
             // Fall through.
         }
-        _errorStream = null;
-        _inputStream = null;
-        _outputStream = null;
+        errorStream = null;
+        inputStream = null;
+        outputStream = null;
     }
 }

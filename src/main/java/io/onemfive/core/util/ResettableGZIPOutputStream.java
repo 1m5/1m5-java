@@ -1,3 +1,29 @@
+/*
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
+ */
 package io.onemfive.core.util;
 
 import java.io.IOException;
@@ -17,15 +43,15 @@ import java.util.zip.DeflaterOutputStream;
  */
 public class ResettableGZIPOutputStream extends DeflaterOutputStream {
     /** has the header been written out yet? */
-    private boolean _headerWritten;
+    private boolean _eaderWritten;
     /** how much data is in the uncompressed stream? */
-    private long _writtenSize;
-    private final CRC32 _crc32;
+    private long writtenSize;
+    private final CRC32 crc32;
     private static final boolean DEBUG = false;
 
     public ResettableGZIPOutputStream(OutputStream o) {
         super(o, new Deflater(9, true));
-        _crc32 = new CRC32();
+        crc32 = new CRC32();
     }
 
     /**
@@ -34,11 +60,11 @@ public class ResettableGZIPOutputStream extends DeflaterOutputStream {
      */
     public void reset() {
         if (DEBUG)
-            System.out.println("Resetting (writtenSize=" + _writtenSize + ")");
+            System.out.println("Resetting (writtenSize=" + writtenSize + ")");
         def.reset();
-        _crc32.reset();
-        _writtenSize = 0;
-        _headerWritten = false;
+        crc32.reset();
+        writtenSize = 0;
+        _eaderWritten = false;
     }
 
     private static final byte[] HEADER = new byte[] {
@@ -54,28 +80,28 @@ public class ResettableGZIPOutputStream extends DeflaterOutputStream {
      * obviously not threadsafe, but its a stream, thats standard
      */
     private void ensureHeaderIsWritten() throws IOException {
-        if (_headerWritten) return;
+        if (_eaderWritten) return;
         if (DEBUG) System.out.println("Writing header");
         out.write(HEADER);
-        _headerWritten = true;
+        _eaderWritten = true;
     }
 
     private void writeFooter() throws IOException {
         // damn RFC writing their bytes backwards...
-        long crcVal = _crc32.getValue();
+        long crcVal = crc32.getValue();
         out.write((int)(crcVal & 0xFF));
         out.write((int)((crcVal >>> 8) & 0xFF));
         out.write((int)((crcVal >>> 16) & 0xFF));
         out.write((int)((crcVal >>> 24) & 0xFF));
 
-        long sizeVal = _writtenSize; // % (1 << 31) // *redundant*
+        long sizeVal = writtenSize; // % (1 << 31) // *redundant*
         out.write((int)(sizeVal & 0xFF));
         out.write((int)((sizeVal >>> 8) & 0xFF));
         out.write((int)((sizeVal >>> 16) & 0xFF));
         out.write((int)((sizeVal >>> 24) & 0xFF));
         out.flush();
         if (DEBUG) {
-            System.out.println("Footer written: crcVal=" + crcVal + " sizeVal=" + sizeVal + " written=" + _writtenSize);
+            System.out.println("Footer written: crcVal=" + crcVal + " sizeVal=" + sizeVal + " written=" + writtenSize);
             System.out.println("size hex: " + Long.toHexString(sizeVal));
             System.out.print(  "size2 hex:" + Long.toHexString((int)(sizeVal & 0xFF)));
             System.out.print(  Long.toHexString((int)((sizeVal >>> 8) & 0xFF)));
@@ -100,8 +126,8 @@ public class ResettableGZIPOutputStream extends DeflaterOutputStream {
     @Override
     public void write(int b) throws IOException {
         ensureHeaderIsWritten();
-        _crc32.update(b);
-        _writtenSize++;
+        crc32.update(b);
+        writtenSize++;
         super.write(b);
     }
     @Override
@@ -111,61 +137,9 @@ public class ResettableGZIPOutputStream extends DeflaterOutputStream {
     @Override
     public void write(byte buf[], int off, int len) throws IOException {
         ensureHeaderIsWritten();
-        _crc32.update(buf, off, len);
-        _writtenSize += len;
+        crc32.update(buf, off, len);
+        writtenSize += len;
         super.write(buf, off, len);
     }
 
-/******
- public static void main(String args[]) {
- for (int i = 0; i < 2; i++)
- test();
- }
- private static void test() {
- byte b[] = "hi, how are you today?".getBytes();
- try {
- ByteArrayOutputStream baos = new ByteArrayOutputStream(64);
- ResettableGZIPOutputStream o = new ResettableGZIPOutputStream(baos);
- o.write(b);
- o.finish();
- o.flush();
- byte compressed[] = baos.toByteArray();
-
- ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
- SnoopGZIPOutputStream gzo = new SnoopGZIPOutputStream(baos2);
- gzo.write(b);
- gzo.finish();
- gzo.flush();
- long value = gzo.getCRC().getValue();
- byte compressed2[] = baos2.toByteArray();
- System.out.println("CRC32 values: Resettable = " + o._crc32.getValue()
- + " GZIP = " + value);
-
- System.out.print("Resettable compressed data: ");
- for (int i = 0; i < compressed.length; i++)
- System.out.print(Integer.toHexString(compressed[i] & 0xFF) + " ");
- System.out.println();
- System.out.print("      GZIP compressed data: ");
- for (int i = 0; i < compressed2.length; i++)
- System.out.print(Integer.toHexString(compressed2[i] & 0xFF) + " ");
- System.out.println();
-
- GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(compressed));
- byte rv[] = new byte[128];
- int read = in.read(rv);
- if (!DataHelper.eq(rv, 0, b, 0, b.length))
- throw new RuntimeException("foo, read=" + read);
- else
- System.out.println("match, w00t");
- } catch (Exception e) { e.printStackTrace(); }
- }
-
- // just for testing/verification, expose the CRC32 values
- private static final class SnoopGZIPOutputStream extends GZIPOutputStream {
- public SnoopGZIPOutputStream(OutputStream o) throws IOException {
- super(o);
- }
- public CRC32 getCRC() { return crc; }
- }
- ******/
 }

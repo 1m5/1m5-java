@@ -1,13 +1,30 @@
-package io.onemfive.core.util.data;
-
 /*
- * free (adj.): unencumbered; not under the control of others
- * Written by jrandom in 2003 and released into the public domain
- * with no warranty of any kind, either expressed or implied.
- * It probably won't make your computer catch on fire, or eat
- * your children, but it might.  Use at your own risk.
- *
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
  */
+package io.onemfive.core.util.data;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -44,8 +61,6 @@ import io.onemfive.core.util.*;
 
 /**
  * Defines some simple IO routines for dealing with marshalling data structures
- *
- * @author jrandom
  */
 public class DataHelper {
 
@@ -56,7 +71,6 @@ public class DataHelper {
      *  Map of String to itself to cache common
      *  keys in RouterInfo, RouterAddress, and BlockfileNamingService properties.
      *  Reduces Object proliferation caused by frequent deserialization.
-     *  @since 0.8.12
      */
     private static final Map<String, String> _propertiesKeyCache;
     static {
@@ -108,8 +122,6 @@ public class DataHelper {
      * is repeated until there are no more bytes (not characters!) left as defined by the
      * first two byte integer.
      *
-     *  As of 0.9.18, throws DataFormatException on duplicate key
-     *
      * @param rawStream stream to read the mapping from
      * @throws DataFormatException if the format is invalid
      * @throws IOException if there is a problem reading the data
@@ -125,14 +137,11 @@ public class DataHelper {
     /**
      *  Ditto, load into an existing properties
      *
-     *  As of 0.9.18, throws DataFormatException on duplicate key
-     *
      *  @param props the Properties to load into
      *  @param rawStream stream to read the mapping from
      *  @throws DataFormatException if the format is invalid
      *  @throws IOException if there is a problem reading the data
      *  @return the parameter props
-     *  @since 0.8.13
      */
     public static Properties readProperties(InputStream rawStream, Properties props)
             throws DataFormatException, IOException {
@@ -190,10 +199,6 @@ public class DataHelper {
      *
      * Properties from the defaults table of props (if any) are not written out by this method.
      *
-     * jrandom disabled UTF-8 in mid-2004, for performance reasons,
-     * i.e. slow foo.getBytes("UTF-8")
-     * Re-enable it so we can pass UTF-8 tunnel names through the I2CP SessionConfig.
-     *
      * Use utf8 = false for RouterAddress (fast, non UTF-8)
      * Use utf8 = true for SessionConfig (slow, UTF-8)
      * @param props source may be null
@@ -214,17 +219,12 @@ public class DataHelper {
      *
      * Properties from the defaults table of props (if any) are not written out by this method.
      *
-     * jrandom disabled UTF-8 in mid-2004, for performance reasons,
-     * i.e. slow foo.getBytes("UTF-8")
-     * Re-enable it so we can pass UTF-8 tunnel names through the I2CP SessionConfig.
-     *
      * Use utf8 = false for RouterAddress (fast, non UTF-8)
      * Use utf8 = true for SessionConfig (slow, UTF-8)
      * @param props source may be null
      * @param sort should we sort the properties? (set to false if already sorted, e.g. OrderedProperties)
      * @throws DataFormatException if any string is over 255 bytes long, or if the total length
      *                             (not including the two length bytes) is greater than 65535 bytes.
-     * @since 0.8.7
      */
     public static void writeProperties(OutputStream rawStream, Properties props, boolean utf8, boolean sort)
             throws DataFormatException, IOException {
@@ -261,7 +261,7 @@ public class DataHelper {
         }
     }
 
-    /*
+    /**
      * Writes the props to the byte array, sorted
      * See readProperties() for the format.
      * Property keys and values must not contain '=' or ';', this is not checked and they are not escaped
@@ -313,8 +313,6 @@ public class DataHelper {
      * See readProperties() for the format.
      * Warning - confusing method name, Properties is the target.
      * Strings must be UTF-8 encoded in the byte array.
-     *
-     *  As of 0.9.18, throws DataFormatException on duplicate key
      *
      * @param source source
      * @param target returned Properties
@@ -388,7 +386,6 @@ public class DataHelper {
     /**
      * Pretty print the mapping, unsorted
      * (unless the options param is an OrderedProperties)
-     * @since 0.9.4
      */
     public static String toString(Map<?, ?> options) {
         StringBuilder buf = new StringBuilder();
@@ -413,8 +410,6 @@ public class DataHelper {
      * - '#' or ';' starts a comment line, but '!' does not
      * - Leading whitespace is not trimmed
      * - '=' is the only key-termination character (not ':' or whitespace)
-     *
-     * As of 0.9.10, an empty value is allowed.
      *
      * As in Java Properties, duplicate keys are allowed, last one wins.
      *
@@ -476,7 +471,7 @@ public class DataHelper {
     /**
      * Writes the props to the file, unsorted (unless props is an OrderedProperties)
      * Note that this does not escape the \r or \n that are unescaped in loadProps() above.
-     * As of 0.8.1, file will be mode 600.
+     * File will be mode 600.
      *
      * Properties from the defaults table of props (if any) are not written out by this method.
      *
@@ -533,7 +528,6 @@ public class DataHelper {
 
     /**
      * Pretty print the collection
-     *
      */
     public static String toString(Collection<?> col) {
         StringBuilder buf = new StringBuilder();
@@ -626,8 +620,8 @@ public class DataHelper {
      * Integers are a fixed number of bytes (numBytes), stored as unsigned integers in network byte order.
      * @param rawStream stream to read from
      * @param numBytes number of bytes to read and format into a number, 1 to 8
-     * @throws DataFormatException if negative (only possible if numBytes = 8) (since 0.8.12)
-     * @throws EOFException since 0.8.2, if there aren't enough bytes to read the number
+     * @throws DataFormatException if negative (only possible if numBytes = 8)
+     * @throws EOFException if there aren't enough bytes to read the number
      * @throws IOException if there is an IO error reading the number
      * @return number
      */
@@ -717,7 +711,6 @@ public class DataHelper {
      *
      * @param numBytes 1-8
      * @param value non-negative
-     * @since 0.8.12
      */
     public static void toLongLE(byte target[], int offset, int numBytes, long value) {
         if (numBytes <= 0 || numBytes > 8) throw new IllegalArgumentException("Invalid number of bytes");
@@ -761,7 +754,6 @@ public class DataHelper {
      * @return non-negative
      * @throws ArrayIndexOutOfBoundsException
      * @throws IllegalArgumentException if negative (only possible if numBytes = 8)
-     * @since 0.8.12
      */
     public static long fromLongLE(byte src[], int offset, int numBytes) {
         if (numBytes <= 0 || numBytes > 8) throw new IllegalArgumentException("Invalid number of bytes");
@@ -775,7 +767,8 @@ public class DataHelper {
         return rv;
     }
 
-    /** Read in a date from the stream as specified by the I2P data structure spec.
+    /**
+     * Read in a date from the stream as specified by the I2P data structure spec.
      * A date is an 8 byte unsigned integer in network byte order specifying the number of
      * milliseconds since midnight on January 1, 1970 in the GMT timezone. If the number is
      * 0, the date is undefined or null. (yes, this means you can't represent midnight on 1/1/1970)
@@ -791,7 +784,8 @@ public class DataHelper {
         return new Date(date);
     }
 
-    /** Write out a date to the stream as specified by the I2P data structure spec.
+    /**
+     * Write out a date to the stream as specified by the I2P data structure spec.
      * @param out stream to write to
      * @param date date to write (can be null)
      * @throws DataFormatException if the date is not valid
@@ -834,7 +828,8 @@ public class DataHelper {
 
     public static final int DATE_LENGTH = 8;
 
-    /** Read in a string from the stream as specified by the I2P data structure spec.
+    /**
+     * Read in a string from the stream as specified by the I2P data structure spec.
      * A string is 1 or more bytes where the first byte is the number of bytes (not characters!)
      * in the string and the remaining 0-255 bytes are the non-null terminated UTF-8 encoded character array.
      *
@@ -860,7 +855,8 @@ public class DataHelper {
         return new String(raw, "UTF-8");
     }
 
-    /** Write out a string to the stream as specified by the I2P data structure spec.  Note that the max
+    /**
+     * Write out a string to the stream as specified by the I2P data structure spec.  Note that the max
      * size for a string allowed by the spec is 255 bytes.
      *
      * WARNING - this method destroys the encoding, and therefore violates
@@ -887,7 +883,8 @@ public class DataHelper {
         }
     }
 
-    /** Write out a string to the stream as specified by the I2P data structure spec.  Note that the max
+    /**
+     * Write out a string to the stream as specified by the I2P data structure spec.  Note that the max
      * size for a string allowed by the spec is 255 bytes.
      *
      * This method correctly uses UTF-8
@@ -897,7 +894,6 @@ public class DataHelper {
      *               cause a DataFormatException to be thrown
      * @throws DataFormatException if the string is not valid
      * @throws IOException if there is an IO error writing the string
-     * @since public since 0.9.26
      */
     public static void writeStringUTF8(OutputStream out, String string)
             throws DataFormatException, IOException {
@@ -916,7 +912,8 @@ public class DataHelper {
         }
     }
 
-    /** Read in a boolean as specified by the I2P data structure spec.
+    /**
+     * Read in a boolean as specified by the I2P data structure spec.
      * A boolean is 1 byte that is either 0 (false), 1 (true), or 2 (null)
      * @param in stream to read from
      * @throws DataFormatException if the boolean is not valid
@@ -942,7 +939,8 @@ public class DataHelper {
         }
     }
 
-    /** Write out a boolean as specified by the I2P data structure spec.
+    /**
+     * Write out a boolean as specified by the I2P data structure spec.
      * A boolean is 1 byte that is either 0 (false), 1 (true), or 2 (null)
      * @param out stream to write to
      * @param bool boolean value, or null
@@ -1103,7 +1101,6 @@ public class DataHelper {
      *
      *  @throws NullPointerException if lhs or rhs is null
      *  @throws ArrayIndexOutOfBoundsException if either array isn't long enough
-     *  @since 0.9.13
      */
     public final static boolean eqCT(byte lhs[], int offsetLeft, byte rhs[], int offsetRight, int length) {
         int r = 0;
@@ -1236,7 +1233,6 @@ public class DataHelper {
      *  http://stackoverflow.com/questions/14057720/robust-skipping-of-data-in-a-java-io-inputstream-and-its-subtypes
      *  http://stackoverflow.com/questions/11511093/java-inputstream-skip-return-value-near-end-of-file
      *
-     *  @since 0.9.9
      */
     public static void skip(InputStream in, long n) throws IOException {
         if (n < 0)
@@ -1270,10 +1266,10 @@ public class DataHelper {
      *  This is different than InputStream.read(target), in that it
      *  does repeated reads until the full data is received.
      *
-     *  As of 0.9.27, throws EOFException if the full length is not read.
+     *  Throws EOFException if the full length is not read.
      *
      *  @return target.length
-     *  @throws EOFException if the full length is not read (since 0.9.27)
+     *  @throws EOFException if the full length is not read
      */
     public static int read(InputStream in, byte target[]) throws IOException {
         return read(in, target, 0, target.length);
@@ -1285,11 +1281,11 @@ public class DataHelper {
      *  returns the new offset (== old offset + length).
      *  It also does repeated reads until the full data is received.
      *
-     *  WARNING - Broken for nonzero offset before 0.9.27.
-     *  As of 0.9.27, throws EOFException if the full length is not read.
+     *  WARNING - Broken for nonzero offset
+     *  Throws EOFException if the full length is not read.
      *
      *  @return the new offset (== old offset + length)
-     *  @throws EOFException if the full length is not read (since 0.9.27)
+     *  @throws EOFException if the full length is not read
      */
     public static int read(InputStream in, byte target[], int offset, int length) throws IOException {
         int cur = 0;
@@ -1308,7 +1304,7 @@ public class DataHelper {
      * Read a newline delimited line from the stream, returning the line (without
      * the newline), or null if EOF reached on an empty line
      * Warning - strips \n but not \r
-     * Warning - 8KB line length limit as of 0.7.13, @throws IOException if exceeded
+     * Warning - 8KB line length limit; @throws IOException if exceeded
      * Warning - not UTF-8
      *
      * @return null on EOF
@@ -1318,7 +1314,7 @@ public class DataHelper {
     /**
      * update the hash along the way
      * Warning - strips \n but not \r
-     * Warning - 8KB line length limit as of 0.7.13, @throws IOException if exceeded
+     * Warning - 8KB line length limit; @throws IOException if exceeded
      * Warning - not UTF-8
      *
      * @param hash null OK
@@ -1334,13 +1330,13 @@ public class DataHelper {
             return null;
     }
 
-    /** ridiculously long, just to prevent OOM DOS @since 0.7.13 */
+    /** ridiculously long, just to prevent OOM DOS */
     private static final int MAX_LINE_LENGTH = 8*1024;
 
     /**
      * Read in a line, placing it into the buffer (excluding the newline).
      * Warning - strips \n but not \r
-     * Warning - 8KB line length limit as of 0.7.13, @throws IOException if exceeded
+     * Warning - 8KB line length limit; @throws IOException if exceeded
      * Warning - not UTF-8
      *
      * @return true if the line was read, false if eof was reached on an empty line
@@ -1353,13 +1349,11 @@ public class DataHelper {
     /**
      * update the hash along the way
      * Warning - strips \n but not \r
-     * Warning - 8KB line length limit as of 0.7.13, @throws IOException if exceeded
+     * Warning - 8KB line length limit; @throws IOException if exceeded
      * Warning - not UTF-8
      *
      * @param hash null OK
      * @return true if the line was read, false if eof was reached on an empty line
-     *              (returns true for non-empty last line without a newline)
-     * @since 0.8.8
      */
     public static boolean readLine(InputStream in, StringBuilder buf, MessageDigest hash) throws IOException {
         int c = -1;
@@ -1377,7 +1371,6 @@ public class DataHelper {
 
     /**
      *  update the hash along the way
-     *  @since 0.8.8
      */
     public static void write(OutputStream out, byte data[], MessageDigest hash) throws IOException {
         hash.update(data);
@@ -1414,8 +1407,6 @@ public class DataHelper {
      * as precision is less important in the GUI than in logging.
      *
      * Negative numbers handled correctly.
-     *
-     * @since 0.8.2
      */
     public static String formatDuration2(long ms) {
         if (ms == 0)
@@ -1467,8 +1458,6 @@ public class DataHelper {
 
     /**
      * Like formatDuration2(long) but with microsec and nanosec also.
-     *
-     * @since 0.9.19
      */
     public static String formatDuration2(double ms) {
         if (ms == 0d)
@@ -1548,7 +1537,7 @@ public class DataHelper {
      * This seems consistent with most style guides out there.
      * Use only in HTML, and not inside form values (use
      * formatSize2(bytes, false) there instead).
-     * @since 0.7.14, uses thin non-breaking space since 0.9.31
+     * @since uses thin non-breaking space
      */
     public static String formatSize2(long bytes) {
         return formatSize2(bytes, true);
@@ -1558,7 +1547,6 @@ public class DataHelper {
      * Like formatSize but with a space after the number
      * This seems consistent with most style guides out there.
      * @param nonBreaking use an HTML thin non-breaking space (&#8239;)
-     * @since 0.9.31
      */
     public static String formatSize2(long bytes, boolean nonBreaking) {
         double val = bytes;
@@ -1617,23 +1605,6 @@ public class DataHelper {
         return escaped;
     }
 
-    /**
-     * Unescape a string taken from HTML
-     * @param escaped the escaped string, may be null
-     * @return the unescaped string, or null if null is passed in
-     */
-/**** unused, uncomment if you need it
- public static String unescapeHTML(String escaped) {
- if (escaped == null) return null;
- String unescaped = escaped;
- for (int i = 0; i < escapeChars.length; i++) {
- unescaped = unescaped.replace(escapeCodes[i], escapeChars[i]);
- }
- return unescaped;
- }
- ****/
-
-    /** */
     public static final int MAX_UNCOMPRESSED = 40*1024;
     public static final int MAX_COMPRESSION = Deflater.BEST_COMPRESSION;
     public static final int NO_COMPRESSION = Deflater.NO_COMPRESSION;
@@ -1643,12 +1614,8 @@ public class DataHelper {
      *  The compressed data conforms to RFC 1952,
      *  with a 10-byte gzip header and a 8-byte gzip checksum footer.
      *
-     *  Prior to 0.9.29, this would return a zero-length output
-     *  for a zero-length input. As of 0.9.29, output is valid for
-     *  a zero-length input also.
-     *
      *  @throws IllegalArgumentException if input size is over 40KB
-     *  @throws IllegalStateException on compression failure, as of 0.9.29
+     *  @throws IllegalStateException on compression failure
      *  @return null if orig is null
      */
     public static byte[] compress(byte orig[]) {
@@ -1660,12 +1627,8 @@ public class DataHelper {
      *  The compressed data conforms to RFC 1952,
      *  with a 10-byte gzip header and a 8-byte gzip checksum footer.
      *
-     *  Prior to 0.9.29, this would return a zero-length output
-     *  for a zero-length input. As of 0.9.29, output is valid for
-     *  a zero-length input also.
-     *
      *  @throws IllegalArgumentException if size is over 40KB
-     *  @throws IllegalStateException on compression failure, as of 0.9.29
+     *  @throws IllegalStateException on compression failure
      *  @return null if orig is null
      */
     public static byte[] compress(byte orig[], int offset, int size) {
@@ -1677,12 +1640,8 @@ public class DataHelper {
      *  The compressed data conforms to RFC 1952,
      *  with a 10-byte gzip header and a 8-byte gzip checksum footer.
      *
-     *  Prior to 0.9.29, this would return a zero-length output
-     *  for a zero-length input. As of 0.9.29, output is valid for
-     *  a zero-length input also.
-     *
      *  @throws IllegalArgumentException if size is over 40KB
-     *  @throws IllegalStateException on compression failure, as of 0.9.29
+     *  @throws IllegalStateException on compression failure
      *  @param level the compression level, 0 to 9
      *  @return null if orig is null
      */
@@ -1841,7 +1800,6 @@ public class DataHelper {
      *  Warning - misnamed, converts to ISO-8859-1.
      *
      *  @param orig non-null, truncates to 8-bit chars
-     *  @since 0.9.5
      */
     public static byte[] getASCII(String orig) {
         byte[] rv = new byte[orig.length()];
@@ -1858,7 +1816,6 @@ public class DataHelper {
      *  @param s non-null
      *  @param regex non-null
      *  @throws java.util.regex.PatternSyntaxException unchecked
-     *  @since 0.9.24
      */
     public static String[] split(String s, String regex) {
         return split(s, regex, 0);
@@ -1874,7 +1831,6 @@ public class DataHelper {
      *  @param regex non-null
      *  @param limit result threshold
      *  @throws java.util.regex.PatternSyntaxException unchecked
-     *  @since 0.9.24
      */
     public static String[] split(String s, String regex, int limit) {
         Pattern p = patterns.get(regex);
@@ -1890,7 +1846,6 @@ public class DataHelper {
      *
      * @param in non-null
      * @param out non-null
-     * @since 0.9.29
      */
     public static void copy(InputStream in, OutputStream out) throws IOException {
         final ByteCache cache = ByteCache.getInstance(8, 8*1024);

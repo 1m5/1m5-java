@@ -52,8 +52,6 @@ public class OneMFiveAppContext {
     private static Properties envProps;
 
     private StatManager statManager;
-    private LogManager logManager;
-    private SimpleTimer simpleTimer;
 
     private ServiceBus serviceBus;
 
@@ -574,48 +572,10 @@ public class OneMFiveAppContext {
     }
 
     /**
-     * Query the log manager for this context, which may in turn have its own
-     * set of configuration settings (loaded from the context's properties).
-     * Each context's logManager keeps its own isolated set of Log instances with
-     * their own log levels, output locations, and rotation configuration.
-     */
-    public LogManager logManager() {
-        if (!logManagerInitialized)
-            initializeLogManager();
-        return logManager;
-    }
-
-    private void initializeLogManager() {
-        synchronized (lock4) {
-            if (logManager == null)
-                logManager = new LogManager(this);
-            logManagerInitialized = true;
-        }
-    }
-
-    /**
      *  Is the wrapper present?
      */
     public boolean hasWrapper() {
         return System.getProperty("wrapper.version") != null;
-    }
-
-    /**
-     * Use instead of SimpleTimer2.getInstance()
-     * @since 0.9 to replace static instance in the class
-     */
-    public SimpleTimer simpleTimer() {
-        if (!simpleTimerInitialized)
-            initializeSimpleTimer();
-        return simpleTimer;
-    }
-
-    private void initializeSimpleTimer() {
-        synchronized (lock3) {
-            if (simpleTimer == null)
-                simpleTimer = new SimpleTimer(this);
-            simpleTimerInitialized = true;
-        }
     }
 
 }

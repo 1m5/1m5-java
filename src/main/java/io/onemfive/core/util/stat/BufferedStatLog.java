@@ -1,8 +1,33 @@
+/*
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
+ */
 package io.onemfive.core.util.stat;
 
 import io.onemfive.core.OneMFiveAppContext;
 import io.onemfive.core.util.OOMHandledThread;
-import io.onemfive.core.util.Log;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,40 +39,41 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 /**
  * Note - if no filter is defined in stat.logFilters at startup, this class will not
  * be instantiated - see StatManager.
  */
 public class BufferedStatLog implements StatLog {
-    private final OneMFiveAppContext _context;
-    private final Log _log;
-    private final StatEvent _events[];
-    private int _eventNext;
-    private int _lastWrite;
-    /** flush stat events to disk after this many events (or 30s)*/
-    private int _flushFrequency;
-    private final List<String> _statFilters;
-    private String _lastFilters;
-    private BufferedWriter _out;
-    private String _outFile;
-    /** short circuit for adding data, set to true if some filters are set, false if its empty (so we can skip the sync) */
-    private volatile boolean _filtersSpecified;
 
+    private static Logger LOG = Logger.getLogger(BufferedStatLog.class.getName());
     private static final int BUFFER_SIZE = 1024;
     private static final boolean DISABLE_LOGGING = false;
 
+    private final OneMFiveAppContext context;
+    private final StatEvent events[];
+    private int eventNext;
+    private int lastWrite;
+    /** flush stat events to disk after this many events (or 30s)*/
+    private int flushFrequency;
+    private final List<String> statFilters;
+    private String lastFilters;
+    private BufferedWriter out;
+    private String outFile;
+    /** short circuit for adding data, set to true if some filters are set, false if its empty (so we can skip the sync) */
+    private volatile boolean filtersSpecified;
+
     public BufferedStatLog(OneMFiveAppContext ctx) {
-        _context = ctx;
-        _log = ctx.logManager().getLog(BufferedStatLog.class);
-        _events = new StatEvent[BUFFER_SIZE];
+        context = ctx;
+        events = new StatEvent[BUFFER_SIZE];
         if (DISABLE_LOGGING) return;
         for (int i = 0; i < BUFFER_SIZE; i++)
-            _events[i] = new StatEvent();
-        _eventNext = 0;
-        _lastWrite = _events.length-1;
-        _statFilters = new ArrayList<String>(10);
-        _flushFrequency = 500;
+            events[i] = new StatEvent();
+        eventNext = 0;
+        lastWrite = events.length-1;
+        statFilters = new ArrayList<String>(10);
+        flushFrequency = 500;
         updateFilters();
         OOMHandledThread writer = new OOMHandledThread(new StatLogWriter(), "StatLogWriter");
         writer.setDaemon(true);
@@ -57,66 +83,65 @@ public class BufferedStatLog implements StatLog {
     public void addData(String scope, String stat, long value, long duration) {
         if (DISABLE_LOGGING) return;
         if (!shouldLog(stat)) return;
-        synchronized (_events) {
-            _events[_eventNext].init(scope, stat, value, duration);
-            _eventNext = (_eventNext + 1) % _events.length;
+        synchronized (events) {
+            events[eventNext].init(scope, stat, value, duration);
+            eventNext = (eventNext + 1) % events.length;
 
-            if (_eventNext == _lastWrite)
-                _lastWrite = (_lastWrite + 1) % _events.length; // drop an event
+            if (eventNext == lastWrite)
+                lastWrite = (lastWrite + 1) % events.length; // drop an event
 
-            if (_log.shouldLog(Log.DEBUG))
-                _log.debug("AddData next=" + _eventNext + " lastWrite=" + _lastWrite);
+            LOG.info("AddData next=" + eventNext + " lastWrite=" + lastWrite);
 
-            if (_eventNext > _lastWrite) {
-                if (_eventNext - _lastWrite >= _flushFrequency)
-                    _events.notifyAll();
+            if (eventNext > lastWrite) {
+                if (eventNext - lastWrite >= flushFrequency)
+                    events.notifyAll();
             } else {
-                if (_events.length - 1 - _lastWrite + _eventNext >= _flushFrequency)
-                    _events.notifyAll();
+                if (events.length - 1 - lastWrite + eventNext >= flushFrequency)
+                    events.notifyAll();
             }
         }
     }
 
     private boolean shouldLog(String stat) {
-        if (!_filtersSpecified) return false;
-        synchronized (_statFilters) {
-            return _statFilters.contains(stat) || _statFilters.contains("*");
+        if (!filtersSpecified) return false;
+        synchronized (statFilters) {
+            return statFilters.contains(stat) || statFilters.contains("*");
         }
     }
 
     private void updateFilters() {
-        String val = _context.getProperty(StatManager.PROP_STAT_FILTER);
+        String val = context.getProperty(StatManager.PROP_STAT_FILTER);
         if (val != null) {
-            if ( (_lastFilters != null) && (_lastFilters.equals(val)) ) {
+            if ( (lastFilters != null) && (lastFilters.equals(val)) ) {
                 // noop
             } else {
                 StringTokenizer tok = new StringTokenizer(val, ",");
-                synchronized (_statFilters) {
-                    _statFilters.clear();
+                synchronized (statFilters) {
+                    statFilters.clear();
                     while (tok.hasMoreTokens())
-                        _statFilters.add(tok.nextToken().trim());
-                    _filtersSpecified = !_statFilters.isEmpty();
+                        statFilters.add(tok.nextToken().trim());
+                    filtersSpecified = !statFilters.isEmpty();
                 }
             }
-            _lastFilters = val;
+            lastFilters = val;
         } else {
-            synchronized (_statFilters) {
-                _statFilters.clear();
-                _filtersSpecified = false;
+            synchronized (statFilters) {
+                statFilters.clear();
+                filtersSpecified = false;
             }
         }
 
-        String filename = _context.getProperty(StatManager.PROP_STAT_FILE, StatManager.DEFAULT_STAT_FILE);
+        String filename = context.getProperty(StatManager.PROP_STAT_FILE, StatManager.DEFAULT_STAT_FILE);
         File foo = new File(filename);
         if (!foo.isAbsolute())
-            filename = (new File(_context.getBaseDir(), filename)).getAbsolutePath();
-        if ( (_outFile != null) && (_outFile.equals(filename)) ) {
+            filename = (new File(context.getBaseDir(), filename)).getAbsolutePath();
+        if ( (outFile != null) && (outFile.equals(filename)) ) {
             // noop
         } else {
-            if (_out != null) try { _out.close(); } catch (IOException ioe) {}
-            _outFile = filename;
+            if (out != null) try { out.close(); } catch (IOException ioe) {}
+            outFile = filename;
             try {
-                _out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_outFile, true), "UTF-8"), 32*1024);
+                out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile, true), "UTF-8"), 32*1024);
             } catch (IOException ioe) { ioe.printStackTrace(); }
         }
     }
@@ -128,25 +153,24 @@ public class BufferedStatLog implements StatLog {
             int writeEnd = -1;
             while (true) {
                 try {
-                    synchronized (_events) {
-                        if (_eventNext > _lastWrite) {
-                            if (_eventNext - _lastWrite < _flushFrequency)
-                                _events.wait(30*1000);
+                    synchronized (events) {
+                        if (eventNext > lastWrite) {
+                            if (eventNext - lastWrite < flushFrequency)
+                                events.wait(30*1000);
                         } else {
-                            if (_events.length - 1 - _lastWrite + _eventNext < _flushFrequency)
-                                _events.wait(30*1000);
+                            if (events.length - 1 - lastWrite + eventNext < flushFrequency)
+                                events.wait(30*1000);
                         }
-                        writeStart = (_lastWrite + 1) % _events.length;
-                        writeEnd = _eventNext;
-                        _lastWrite = (writeEnd == 0 ? _events.length-1 : writeEnd - 1);
+                        writeStart = (lastWrite + 1) % events.length;
+                        writeEnd = eventNext;
+                        lastWrite = (writeEnd == 0 ? events.length-1 : writeEnd - 1);
                     }
                     if (writeStart != writeEnd) {
                         try {
-                            if (_log.shouldLog(Log.DEBUG))
-                                _log.debug("writing " + writeStart +"->"+ writeEnd);
+                            LOG.info("writing " + writeStart +"->"+ writeEnd);
                             writeEvents(writeStart, writeEnd);
                         } catch (RuntimeException e) {
-                            _log.error("error writing " + writeStart +"->"+ writeEnd, e);
+                            LOG.warning("error writing " + writeStart +"->"+ writeEnd+": "+ e.getLocalizedMessage());
                         }
                     }
                 } catch (InterruptedException ie) {}
@@ -161,27 +185,27 @@ public class BufferedStatLog implements StatLog {
                     //if (shouldLog(_events[cur].getStat())) {
                     String when = null;
                     synchronized (_fmt) {
-                        when = _fmt.format(new Date(_events[cur].getTime()));
+                        when = _fmt.format(new Date(events[cur].getTime()));
                     }
-                    _out.write(when);
-                    _out.write(" ");
-                    if (_events[cur].getScope() == null)
-                        _out.write("noScope");
+                    out.write(when);
+                    out.write(" ");
+                    if (events[cur].getScope() == null)
+                        out.write("noScope");
                     else
-                        _out.write(_events[cur].getScope());
-                    _out.write(" ");
-                    _out.write(_events[cur].getStat());
-                    _out.write(" ");
-                    _out.write(Long.toString(_events[cur].getValue()));
-                    _out.write(" ");
-                    _out.write(Long.toString(_events[cur].getDuration()));
-                    _out.write("\n");
+                        out.write(events[cur].getScope());
+                    out.write(" ");
+                    out.write(events[cur].getStat());
+                    out.write(" ");
+                    out.write(Long.toString(events[cur].getValue()));
+                    out.write(" ");
+                    out.write(Long.toString(events[cur].getDuration()));
+                    out.write("\n");
                     //}
-                    cur = (cur + 1) % _events.length;
+                    cur = (cur + 1) % events.length;
                 }
-                _out.flush();
+                out.flush();
             } catch (IOException ioe) {
-                _log.error("Error writing out", ioe);
+                LOG.warning("Error writing out: "+ioe.getLocalizedMessage());
             }
         }
     }

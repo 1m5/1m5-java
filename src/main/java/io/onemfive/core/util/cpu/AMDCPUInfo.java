@@ -1,32 +1,44 @@
 /*
- * Created on Jul 17, 2004
- *
- * free (adj.): unencumbered; not under the control of others
- * Written by Iakin in 2004 and released into the public domain
- * with no warranty of any kind, either expressed or implied.
- * It probably won't make your computer catch on fire, or eat
- * your children, but it might. Use at your own risk.
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
  */
 package io.onemfive.core.util.cpu;
 
-/**
- * An interface for classes that provide lowlevel information about AMD CPU's
- *
- * @author Iakin
- */
 public interface AMDCPUInfo extends CPUInfo {
     /**
      * @return true if the CPU present in the machine is at least an 'k6' CPU
      */
-    public boolean IsK6Compatible();
+    boolean IsK6Compatible();
     /**
      * @return true if the CPU present in the machine is at least an 'k6-2' CPU
      */
-    public boolean IsK6_2_Compatible();
+    boolean IsK6_2_Compatible();
     /**
      * @return true if the CPU present in the machine is at least an 'k6-3' CPU
      */
-    public boolean IsK6_3_Compatible();
+    boolean IsK6_3_Compatible();
     /**
      * @return true if the CPU present in the machine is at least an 'geode' CPU
      */
@@ -34,43 +46,38 @@ public interface AMDCPUInfo extends CPUInfo {
     /**
      * @return true if the CPU present in the machine is at least an 'k7' CPU (Atlhon, Duron etc. and better)
      */
-    public boolean IsAthlonCompatible();
+    boolean IsAthlonCompatible();
     /**
      * @return true if the CPU present in the machine is at least an 'k8' CPU (Atlhon 64, Opteron etc. and better)
      */
-    public boolean IsAthlon64Compatible();
+    boolean IsAthlon64Compatible();
     /**
      * @return true if the CPU present in the machine is at least an 'k10' CPU
-     * @since 0.9.26
      */
-    public boolean IsK10Compatible();
+    boolean IsK10Compatible();
     /**
      * @return true if the CPU present in the machine is at least an 'bobcat' CPU
      */
-    public boolean IsBobcatCompatible();
+    boolean IsBobcatCompatible();
     /**
      * @return true if the CPU present in the machine is at least an 'jaguar' CPU
-     * @since 0.9.26
      */
-    public boolean IsJaguarCompatible();
+    boolean IsJaguarCompatible();
     /**
      * @return true if the CPU present in the machine is at least a 'bulldozer' CPU
      */
-    public boolean IsBulldozerCompatible();
+    boolean IsBulldozerCompatible();
     /**
      * @return true if the CPU present in the machine is at least a 'piledriver' CPU
-     * @since 0.9.26
      */
-    public boolean IsPiledriverCompatible();
+    boolean IsPiledriverCompatible();
     /**
      * @return true if the CPU present in the machine is at least a 'steamroller' CPU
-     * @since 0.9.26
      */
-    public boolean IsSteamrollerCompatible();
+    boolean IsSteamrollerCompatible();
     /**
      * @return true if the CPU present in the machine is at least a 'excavator' CPU
-     * @since 0.9.26
      */
-    public boolean IsExcavatorCompatible();
+    boolean IsExcavatorCompatible();
 
 }

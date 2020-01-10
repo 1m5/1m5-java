@@ -1,3 +1,29 @@
+/*
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
+ */
 package io.onemfive.core.util;
 
 import io.onemfive.core.util.data.DataHelper;
@@ -23,12 +49,12 @@ public class ReusableGZIPOutputStream extends ResettableGZIPOutputStream {
     //private static final boolean ENABLE_CACHING = !(SystemVersion.isApache() ||
     //                                                SystemVersion.isAndroid());
     private static final boolean ENABLE_CACHING = false;
-    private static final LinkedBlockingQueue<ReusableGZIPOutputStream> _available;
+    private static final LinkedBlockingQueue<ReusableGZIPOutputStream> available;
     static {
         if (ENABLE_CACHING)
-            _available = new LinkedBlockingQueue<ReusableGZIPOutputStream>(16);
+            available = new LinkedBlockingQueue<ReusableGZIPOutputStream>(16);
         else
-            _available = null;
+            available = null;
     }
 
     /**
@@ -37,7 +63,7 @@ public class ReusableGZIPOutputStream extends ResettableGZIPOutputStream {
     public static ReusableGZIPOutputStream acquire() {
         ReusableGZIPOutputStream rv = null;
         if (ENABLE_CACHING)
-            rv = _available.poll();
+            rv = available.poll();
         if (rv == null) {
             rv = new ReusableGZIPOutputStream();
         }
@@ -51,7 +77,7 @@ public class ReusableGZIPOutputStream extends ResettableGZIPOutputStream {
     public static void release(ReusableGZIPOutputStream out) {
         out.reset();
         if (ENABLE_CACHING)
-            _available.offer(out);
+            available.offer(out);
     }
 
     private final ByteArrayOutputStream _buffer;
@@ -78,77 +104,10 @@ public class ReusableGZIPOutputStream extends ResettableGZIPOutputStream {
 
     /**
      *  Clear the cache.
-     *  @since 0.9.21
      */
     public static void clearCache() {
-        if (_available != null)
-            _available.clear();
+        if (available != null)
+            available.clear();
     }
 
-/******
- public static void main(String args[]) {
- try {
- for (int i = 0; i < 2; i++)
- test();
- for (int i = 0; i < 64*1024; i++) {
- if (!test(i)) break;
- }
- } catch (Exception e) { e.printStackTrace(); }
- try { Thread.sleep(10*1000); } catch (InterruptedException ie){}
- System.out.println("After all tests are complete...");
- }
- private static void test() {
- byte b[] = "hi, how are you today?".getBytes();
- try {
- ReusableGZIPOutputStream o = ReusableGZIPOutputStream.acquire();
- o.write(b);
- o.finish();
- o.flush();
- byte compressed[] = o.getData();
- ReusableGZIPOutputStream.release(o);
-
- ResettableGZIPInputStream in = new ResettableGZIPInputStream(new java.io.ByteArrayInputStream(compressed));
- byte rv[] = new byte[128];
- int read = in.read(rv);
- if (!DataHelper.eq(rv, 0, b, 0, b.length))
- throw new RuntimeException("foo, read=" + read);
- else
- System.out.println("match, w00t");
- } catch (Exception e) { e.printStackTrace(); }
- }
-
- private static boolean test(int size) {
- byte b[] = new byte[size];
- RandomSource.getInstance().nextBytes(b);
- try {
- ReusableGZIPOutputStream o = ReusableGZIPOutputStream.acquire();
- o.write(b);
- o.finish();
- o.flush();
- byte compressed[] = o.getData();
- ReusableGZIPOutputStream.release(o);
-
- ResettableGZIPInputStream in = new ResettableGZIPInputStream(new java.io.ByteArrayInputStream(compressed));
- ByteArrayOutputStream baos2 = new ByteArrayOutputStream(size);
- byte rbuf[] = new byte[128];
- while (true) {
- int read = in.read(rbuf);
- if (read == -1)
- break;
- baos2.write(rbuf, 0, read);
- }
- byte rv[] = baos2.toByteArray();
- if (!DataHelper.eq(rv, 0, b, 0, b.length)) {
- throw new RuntimeException("foo, read=" + rv.length);
- } else {
- System.out.println("match, w00t @ " + size);
- return true;
- }
- } catch (Exception e) {
- System.out.println("Error on size=" + size + ": " + e.getMessage());
- e.printStackTrace();
- return false;
- }
- }
- *****/
 }

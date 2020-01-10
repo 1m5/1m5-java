@@ -1,67 +1,82 @@
 /*
- * Created on Jul 17, 2004
- *
- * free (adj.): unencumbered; not under the control of others
- * Written by Iakin in 2004 and released into the public domain
- * with no warranty of any kind, either expressed or implied.
- * It probably won't make your computer catch on fire, or eat
- * your children, but it might. Use at your own risk.
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
  */
 package io.onemfive.core.util.cpu;
 
 /**
  * An interface for classes that provide lowlevel information about Intel CPU's
- *
- * @author Iakin
  */
 public interface IntelCPUInfo extends CPUInfo {
 
     /**
      * @return true if the CPU is at least a Pentium CPU.
      */
-    public boolean IsPentiumCompatible();
+    boolean IsPentiumCompatible();
 
     /**
      * @return true if the CPU is at least a Pentium which implements the MMX instruction/feature set.
      */
-    public boolean IsPentiumMMXCompatible();
+    boolean IsPentiumMMXCompatible();
 
     /**
      * @return true if the CPU implements at least the p6 instruction set (Pentium II or better).
      * Please note that an PentimPro CPU causes/should cause this method to return false (due to that CPU using a
      * very early implementation of the p6 instruction set. No MMX etc.)
      */
-    public boolean IsPentium2Compatible();
+    boolean IsPentium2Compatible();
 
     /**
      * @return true if the CPU implements at least a Pentium III level of the p6 instruction/feature set.
      */
-    public boolean IsPentium3Compatible();
+    boolean IsPentium3Compatible();
 
     /**
      * Supports the SSE 2 instructions. Does not necessarily support SSE 3.
      * https://en.wikipedia.org/wiki/Pentium_4
      * @return true if the CPU implements at least a Pentium IV level instruction/feature set.
      */
-    public boolean IsPentium4Compatible();
+    boolean IsPentium4Compatible();
 
     /**
      * @return true if the CPU implements at least a Pentium M level instruction/feature set.
      */
-    public boolean IsPentiumMCompatible();
+    boolean IsPentiumMCompatible();
 
     /**
      * Supports the SSE 2 and SSE 3 instructions.
      * https://en.wikipedia.org/wiki/Atom_processor
      * @return true if the CPU implements at least a Atom level instruction/feature set.
      */
-    public boolean IsAtomCompatible();
+    boolean IsAtomCompatible();
 
     /**
      * Supports the SSE 3 instructions.
      * @return true if the CPU implements at least a Core2 level instruction/feature set.
      */
-    public boolean IsCore2Compatible();
+    boolean IsCore2Compatible();
 
     /**
      * Supports the SSE 3, 4.1, 4.2 instructions.
@@ -72,16 +87,15 @@ public interface IntelCPUInfo extends CPUInfo {
      *
      * @return true if the CPU implements at least a Corei level instruction/feature set.
      */
-    public boolean IsCoreiCompatible();
+    boolean IsCoreiCompatible();
 
     /**
      * Supports the SSE 3, 4.1, 4.2 instructions.
      * Supports the AVX 1 instructions.
      * In general, this requires 32nm or smaller process.
      * @return true if the CPU implements at least a SandyBridge level instruction/feature set.
-     * @since 0.9.26
      */
-    public boolean IsSandyCompatible();
+    boolean IsSandyCompatible();
 
     /**
      * Supports the SSE 3, 4.1, 4.2 instructions.
@@ -93,9 +107,8 @@ public interface IntelCPUInfo extends CPUInfo {
      * Ivy Bridge is a successor to Sandy Bridge, so use IsSandyCompatible().
      *
      * @return true if the CPU implements at least a IvyBridge level instruction/feature set.
-     * @since 0.9.26
      */
-    public boolean IsIvyCompatible();
+    boolean IsIvyCompatible();
 
     /**
      * Supports the SSE 3, 4.1, 4.2 instructions.
@@ -115,9 +128,8 @@ public interface IntelCPUInfo extends CPUInfo {
      *
      * In general, this requires 22nm or smaller process.
      * @return true if the CPU implements at least a Haswell level instruction/feature set.
-     * @since 0.9.26
      */
-    public boolean IsHaswellCompatible();
+    boolean IsHaswellCompatible();
 
     /**
      * Supports the SSE 3, 4.1, 4.2 instructions.
@@ -136,7 +148,6 @@ public interface IntelCPUInfo extends CPUInfo {
      * and Corei-compatible if they do not.
      *
      * @return true if the CPU implements at least a Broadwell level instruction/feature set.
-     * @since 0.9.26
      */
-    public boolean IsBroadwellCompatible();
+    boolean IsBroadwellCompatible();
 }

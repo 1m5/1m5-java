@@ -1,3 +1,29 @@
+/*
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
+ */
 package io.onemfive.core.util.stat;
 
 import io.onemfive.core.OneMFiveAppContext;
@@ -21,14 +47,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 public class StatManager {
-    private final OneMFiveAppContext _context;
-
-    /** stat name to FrequencyStat */
-    private final ConcurrentHashMap<String, FrequencyStat> _frequencyStats;
-    /** stat name to RateStat */
-    private final ConcurrentHashMap<String, RateStat> _rateStats;
-    /** may be null */
-    private StatLog _statLog;
 
     /**
      *  Comma-separated stats or * for all.
@@ -40,33 +58,43 @@ public class StatManager {
     public static final String DEFAULT_STAT_FILE = "stats.log";
     /** default false */
     public static final String PROP_STAT_FULL = "stat.full";
+    /** every this many minutes for frequencies */
+    private static final int FREQ_COALESCE_RATE = 9;
+
+    private final OneMFiveAppContext context;
+
+    /** stat name to FrequencyStat */
+    private final ConcurrentHashMap<String, FrequencyStat> frequencyStats;
+    /** stat name to RateStat */
+    private final ConcurrentHashMap<String, RateStat> rateStats;
+    /** may be null */
+    private StatLog statLog;
+
+    private int coalesceCounter;
 
     /**
      * The stat manager should only be constructed and accessed through the
      * application context.  This constructor should only be used by the
      * appropriate application context itself.
-     *
      */
     public StatManager(OneMFiveAppContext context) {
-        _context = context;
-        _frequencyStats = new ConcurrentHashMap<String,FrequencyStat>(8);
-        _rateStats = new ConcurrentHashMap<String,RateStat>(128);
+        this.context = context;
+        frequencyStats = new ConcurrentHashMap<>(8);
+        rateStats = new ConcurrentHashMap<>(128);
         String filter = getStatFilter();
         if (filter != null && filter.length() > 0)
-            _statLog = new BufferedStatLog(context);
+            statLog = new BufferedStatLog(context);
     }
 
-    /** @since 0.8.8 */
     public void shutdown() {
-        _frequencyStats.clear();
-        _rateStats.clear();
+        frequencyStats.clear();
+        rateStats.clear();
     }
 
-    /** may be null */
-    public StatLog getStatLog() { return _statLog; }
+    public StatLog getStatLog() { return statLog; }
     public void setStatLog(StatLog log) {
-        _statLog = log;
-        for (RateStat rs : _rateStats.values()) {
+        statLog = log;
+        for (RateStat rs : rateStats.values()) {
             rs.setStatLog(log);
         }
     }
@@ -93,11 +121,10 @@ public class StatManager {
      * @param description simple description of the statistic
      * @param group used to group statistics together
      * @param periods array of period lengths (in milliseconds)
-     * @since 0.8.7
      */
     public void createRequiredFrequencyStat(String name, String description, String group, long periods[]) {
-        if (_frequencyStats.containsKey(name)) return;
-        _frequencyStats.putIfAbsent(name, new FrequencyStat(name, description, group, periods));
+        if (frequencyStats.containsKey(name)) return;
+        frequencyStats.putIfAbsent(name, new FrequencyStat(name, description, group, periods));
     }
 
     /**
@@ -122,55 +149,49 @@ public class StatManager {
      * @param description simple description of the statistic
      * @param group used to group statistics together
      * @param periods array of period lengths (in milliseconds)
-     * @since 0.8.7
      */
     public void createRequiredRateStat(String name, String description, String group, long periods[]) {
-        if (_rateStats.containsKey(name)) return;
+        if (rateStats.containsKey(name)) return;
         RateStat rs = new RateStat(name, description, group, periods);
-        if (_statLog != null) rs.setStatLog(_statLog);
-        _rateStats.putIfAbsent(name, rs);
+        if (statLog != null) rs.setStatLog(statLog);
+        rateStats.putIfAbsent(name, rs);
     }
 
     // Hope this doesn't cause any problems with unsynchronized accesses like addRateData() ...
     public void removeRateStat(String name) {
-        _rateStats.remove(name);
+        rateStats.remove(name);
     }
 
     /** update the given frequency statistic, taking note that an event occurred (and recalculating all frequencies) */
     public void updateFrequency(String name) {
-        FrequencyStat freq = _frequencyStats.get(name);
+        FrequencyStat freq = frequencyStats.get(name);
         if (freq != null) freq.eventOccurred();
     }
 
     /** update the given rate statistic, taking note that the given data point was received (and recalculating all rates) */
     public void addRateData(String name, long data, long eventDuration) {
-        RateStat stat = _rateStats.get(name); // unsynchronized
+        RateStat stat = rateStats.get(name); // unsynchronized
         if (stat != null) stat.addData(data, eventDuration);
     }
 
     /**
      * Update the given rate statistic, taking note that the given data point was received (and recalculating all rates).
      * Zero duration.
-     * @since 0.8.10
      */
     public void addRateData(String name, long data) {
-        RateStat stat = _rateStats.get(name); // unsynchronized
+        RateStat stat = rateStats.get(name); // unsynchronized
         if (stat != null) stat.addData(data);
     }
 
-    private int coalesceCounter;
-    /** every this many minutes for frequencies */
-    private static final int FREQ_COALESCE_RATE = 9;
-
     public void coalesceStats() {
         if (++coalesceCounter % FREQ_COALESCE_RATE == 0) {
-            for (FrequencyStat stat : _frequencyStats.values()) {
+            for (FrequencyStat stat : frequencyStats.values()) {
                 if (stat != null) {
                     stat.coalesceStats();
                 }
             }
         }
-        for (RateStat stat : _rateStats.values()) {
+        for (RateStat stat : rateStats.values()) {
             if (stat != null) {
                 stat.coalesceStats();
             }
@@ -181,32 +202,32 @@ public class StatManager {
      *  Misnamed, as it returns a FrequenceyStat, not a Frequency.
      */
     public FrequencyStat getFrequency(String name) {
-        return _frequencyStats.get(name);
+        return frequencyStats.get(name);
     }
 
     /**
      *  Misnamed, as it returns a RateStat, not a Rate.
      */
     public RateStat getRate(String name) {
-        return _rateStats.get(name);
+        return rateStats.get(name);
     }
 
     public Set<String> getFrequencyNames() {
-        return new HashSet<String>(_frequencyStats.keySet());
+        return new HashSet<String>(frequencyStats.keySet());
     }
 
     public Set<String> getRateNames() {
-        return new HashSet<String>(_rateStats.keySet());
+        return new HashSet<String>(rateStats.keySet());
     }
 
     /** is the given stat a monitored rate? */
     public boolean isRate(String statName) {
-        return _rateStats.containsKey(statName);
+        return rateStats.containsKey(statName);
     }
 
     /** is the given stat a monitored frequency? */
     public boolean isFrequency(String statName) {
-        return _frequencyStats.containsKey(statName);
+        return frequencyStats.containsKey(statName);
     }
 
     /**
@@ -215,7 +236,7 @@ public class StatManager {
      */
     public Map<String, SortedSet<String>> getStatsByGroup() {
         Map<String, SortedSet<String>> groups = new HashMap<String, SortedSet<String>>(32);
-        for (FrequencyStat stat : _frequencyStats.values()) {
+        for (FrequencyStat stat : frequencyStats.values()) {
             String gname = stat.getGroupName();
             SortedSet<String> names = groups.get(gname);
             if (names == null) {
@@ -224,7 +245,7 @@ public class StatManager {
             }
             names.add(stat.getName());
         }
-        for (RateStat stat : _rateStats.values()) {
+        for (RateStat stat : rateStats.values()) {
             String gname = stat.getGroupName();
             SortedSet<String> names = groups.get(gname);
             if (names == null) {
@@ -236,8 +257,8 @@ public class StatManager {
         return groups;
     }
 
-    public String getStatFilter() { return _context.getProperty(PROP_STAT_FILTER); }
-    public String getStatFile() { return _context.getProperty(PROP_STAT_FILE, DEFAULT_STAT_FILE); }
+    public String getStatFilter() { return context.getProperty(PROP_STAT_FILTER); }
+    public String getStatFile() { return context.getProperty(PROP_STAT_FILE, DEFAULT_STAT_FILE); }
 
     /**
      * Save memory by not creating stats unless they are required for conscious operation.
@@ -247,7 +268,7 @@ public class StatManager {
      * @return true if the stat should be ignored.
      */
     public boolean ignoreStat(String statName) {
-        return _context.isConsciousContext() && !_context.getBooleanProperty(PROP_STAT_FULL);
+        return context.isConsciousContext() && !context.getBooleanProperty(PROP_STAT_FULL);
     }
 
     /**
@@ -257,9 +278,9 @@ public class StatManager {
      * @throws IOException if something goes wrong
      */
     public void store(OutputStream out, String prefix) throws IOException {
-        for (FrequencyStat fs : _frequencyStats.values())
+        for (FrequencyStat fs : frequencyStats.values())
             fs.store(out, prefix);
-        for (RateStat rs : _rateStats.values())
+        for (RateStat rs : rateStats.values())
             rs.store(out,prefix);
     }
 }

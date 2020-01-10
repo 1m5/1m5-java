@@ -1,9 +1,36 @@
+/*
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
+ */
 package io.onemfive.core.util.stat;
 
 import io.onemfive.core.util.data.DataHelper;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * Simple rate calculator for periodically sampled data points - determining an
@@ -13,66 +40,65 @@ import java.util.Properties;
  * If value is always a constant, you should be using Frequency instead.
  */
 public class Rate {
-    //private final static Log _log = new Log(Rate.class);
-    private float _currentTotalValue;
-    // was long, save space
-    private int _currentEventCount;
-    private int _currentTotalEventTime;
-    private float _lastTotalValue;
-    // was long, save space
-    private int _lastEventCount;
-    private int _lastTotalEventTime;
-    private float _extremeTotalValue;
-    // was long, save space
-    private int _extremeEventCount;
-    private int _extremeTotalEventTime;
-    private float _lifetimeTotalValue;
-    private long _lifetimeEventCount;
-    private long _lifetimeTotalEventTime;
-    private RateSummaryListener _summaryListener;
-    private RateStat _stat;
 
-    private long _lastCoalesceDate;
-    private long _creationDate;
-    // was long, save space
-    private int _period;
+    private final static Logger LOG = Logger.getLogger(Rate.class.getName());
 
-    /** locked during coalesce and addData */
-    // private final Object _lock = new Object();
+    private float currentTotalValue;
+    // was long, save space
+    private int currentEventCount;
+    private int currentTotalEventTime;
+    private float lastTotalValue;
+    // was long, save space
+    private int lastEventCount;
+    private int lastTotalEventTime;
+    private float extremeTotalValue;
+    // was long, save space
+    private int extremeEventCount;
+    private int extremeTotalEventTime;
+    private float lifetimeTotalValue;
+    private long lifetimeEventCount;
+    private long lifetimeTotalEventTime;
+    private RateSummaryListener summaryListener;
+    private RateStat stat;
+
+    private long lastCoalesceDate;
+    private long creationDate;
+    // was long, save space
+    private int period;
 
     /** in the current (partial) period, what is the total value acrued through all events? */
     public synchronized double getCurrentTotalValue() {
-        return _currentTotalValue;
+        return currentTotalValue;
     }
 
     /** in the current (partial) period, how many events have occurred? */
     public synchronized long getCurrentEventCount() {
-        return _currentEventCount;
+        return currentEventCount;
     }
 
     /** in the current (partial) period, how much of the time has been spent doing the events? */
     public synchronized long getCurrentTotalEventTime() {
-        return _currentTotalEventTime;
+        return currentTotalEventTime;
     }
 
     /** in the last full period, what was the total value acrued through all events? */
     public synchronized double getLastTotalValue() {
-        return _lastTotalValue;
+        return lastTotalValue;
     }
 
     /** in the last full period, how many events occurred? */
     public synchronized long getLastEventCount() {
-        return _lastEventCount;
+        return lastEventCount;
     }
 
     /** in the last full period, how much of the time was spent doing the events? */
     public synchronized long getLastTotalEventTime() {
-        return _lastTotalEventTime;
+        return lastTotalEventTime;
     }
 
     /** what was the max total value acrued in any period?  */
     public synchronized double getExtremeTotalValue() {
-        return _extremeTotalValue;
+        return extremeTotalValue;
     }
 
     /**
@@ -80,46 +106,46 @@ public class Rate {
      * Note that this is not necesarily the highest event count; that isn't tracked.
      */
     public synchronized long getExtremeEventCount() {
-        return _extremeEventCount;
+        return extremeEventCount;
     }
 
     /** when the max(totalValue) was achieved, how much of the time was spent doing the events? */
     public synchronized long getExtremeTotalEventTime() {
-        return _extremeTotalEventTime;
+        return extremeTotalEventTime;
     }
 
     /** since rate creation, what was the total value acrued through all events?  */
     public synchronized double getLifetimeTotalValue() {
-        return _lifetimeTotalValue;
+        return lifetimeTotalValue;
     }
 
     /** since rate creation, how many events have occurred? */
     public synchronized long getLifetimeEventCount() {
-        return _lifetimeEventCount;
+        return lifetimeEventCount;
     }
 
     /** since rate creation, how much of the time was spent doing the events? */
     public synchronized long getLifetimeTotalEventTime() {
-        return _lifetimeTotalEventTime;
+        return lifetimeTotalEventTime;
     }
 
     /** when was the rate last coalesced? */
     public synchronized long getLastCoalesceDate() {
-        return _lastCoalesceDate;
+        return lastCoalesceDate;
     }
 
     /** when was this rate created? */
     public synchronized long getCreationDate() {
-        return _creationDate;
+        return creationDate;
     }
 
     /** how large should this rate's cycle be? */
     public synchronized long getPeriod() {
-        return _period;
+        return period;
     }
 
-    public RateStat getRateStat() { return _stat; }
-    public void setRateStat(RateStat rs) { _stat = rs; }
+    public RateStat getRateStat() { return stat; }
+    public void setRateStat(RateStat rs) { stat = rs; }
 
     /**
      * A rate with period shorter than Router.COALESCE_TIME = 50*1000 has to
@@ -131,9 +157,9 @@ public class Rate {
         if (period <= 0 || period > Integer.MAX_VALUE)
             throw new IllegalArgumentException();
 
-        _creationDate = now();
-        _lastCoalesceDate = _creationDate;
-        _period = (int) period;
+        creationDate = now();
+        lastCoalesceDate = creationDate;
+        this.period = (int) period;
     }
 
     /**
@@ -161,10 +187,10 @@ public class Rate {
      * and the various get*Saturation*() and get*EventTime() methods will return zero.
      */
     public synchronized void addData(long value) {
-        _currentTotalValue += value;
-        _currentEventCount++;
-        _lifetimeTotalValue += value;
-        _lifetimeEventCount++;
+        currentTotalValue += value;
+        currentEventCount++;
+        lifetimeTotalValue += value;
+        lifetimeEventCount++;
     }
 
     /**
@@ -201,13 +227,13 @@ public class Rate {
      * @param eventDuration how long it took to accrue this data (set to 0 if it was instantaneous)
      */
     public synchronized void addData(long value, long eventDuration) {
-        _currentTotalValue += value;
-        _currentEventCount++;
-        _currentTotalEventTime += eventDuration;
+        currentTotalValue += value;
+        currentEventCount++;
+        currentTotalEventTime += eventDuration;
 
-        _lifetimeTotalValue += value;
-        _lifetimeEventCount++;
-        _lifetimeTotalEventTime += eventDuration;
+        lifetimeTotalValue += value;
+        lifetimeEventCount++;
+        lifetimeTotalEventTime += eventDuration;
     }
 
     /** 2s is plenty of slack to deal with slow coalescing (across many stats) */
@@ -216,8 +242,8 @@ public class Rate {
         long now = now();
         double correctedTotalValue; // for summaryListener which divides by rounded EventCount
         synchronized (this) {
-            long measuredPeriod = now - _lastCoalesceDate;
-            if (measuredPeriod < _period - SLACK) {
+            long measuredPeriod = now - lastCoalesceDate;
+            if (measuredPeriod < period - SLACK) {
                 // no need to coalesce (assuming we only try to do so once per minute)
                 //if (_log.shouldLog(Log.DEBUG))
                 //    _log.debug("not coalescing, measuredPeriod = " + measuredPeriod + " period = " + _period);
@@ -227,41 +253,41 @@ public class Rate {
             // ok ok, lets coalesce
 
             // how much were we off by?  (so that we can sample down the measured values)
-            float periodFactor = measuredPeriod / (float)_period;
-            _lastTotalValue = _currentTotalValue / periodFactor;
-            _lastEventCount = (int) (0.499999 + (_currentEventCount / periodFactor));
-            _lastTotalEventTime = (int) (_currentTotalEventTime / periodFactor);
-            _lastCoalesceDate = now;
-            if (_currentEventCount == 0)
+            float periodFactor = measuredPeriod / (float) period;
+            lastTotalValue = currentTotalValue / periodFactor;
+            lastEventCount = (int) (0.499999 + (currentEventCount / periodFactor));
+            lastTotalEventTime = (int) (currentTotalEventTime / periodFactor);
+            lastCoalesceDate = now;
+            if (currentEventCount == 0)
                 correctedTotalValue = 0;
             else
-                correctedTotalValue = _currentTotalValue *
-                        (_lastEventCount / (double) _currentEventCount);
+                correctedTotalValue = currentTotalValue *
+                        (lastEventCount / (double) currentEventCount);
 
-            if (_lastTotalValue >= _extremeTotalValue) {  // get the most recent if identical
-                _extremeTotalValue = _lastTotalValue;
-                _extremeEventCount = _lastEventCount;
-                _extremeTotalEventTime = _lastTotalEventTime;
+            if (lastTotalValue >= extremeTotalValue) {  // get the most recent if identical
+                extremeTotalValue = lastTotalValue;
+                extremeEventCount = lastEventCount;
+                extremeTotalEventTime = lastTotalEventTime;
             }
 
-            _currentTotalValue = 0.0f;
-            _currentEventCount = 0;
-            _currentTotalEventTime = 0;
+            currentTotalValue = 0.0f;
+            currentEventCount = 0;
+            currentTotalEventTime = 0;
         }
-        if (_summaryListener != null)
-            _summaryListener.add(correctedTotalValue, _lastEventCount, _lastTotalEventTime, _period);
+        if (summaryListener != null)
+            summaryListener.add(correctedTotalValue, lastEventCount, lastTotalEventTime, period);
     }
 
-    public void setSummaryListener(RateSummaryListener listener) { _summaryListener = listener; }
-    public RateSummaryListener getSummaryListener() { return _summaryListener; }
+    public void setSummaryListener(RateSummaryListener listener) { summaryListener = listener; }
+    public RateSummaryListener getSummaryListener() { return summaryListener; }
 
     /**
      * What was the average value across the events in the last period?
      */
     public synchronized double getAverageValue() {
-        int lec = _lastEventCount;  // avoid race NPE
-        if ((_lastTotalValue != 0) && (lec > 0))
-            return _lastTotalValue / lec;
+        int lec = lastEventCount;  // avoid race NPE
+        if ((lastTotalValue != 0) && (lec > 0))
+            return lastTotalValue / lec;
 
         return 0.0D;
     }
@@ -271,8 +297,8 @@ public class Rate {
      * what was the average value?
      */
     public synchronized double getExtremeAverageValue() {
-        if ((_extremeTotalValue != 0) && (_extremeEventCount > 0))
-            return _extremeTotalValue / _extremeEventCount;
+        if ((extremeTotalValue != 0) && (extremeEventCount > 0))
+            return extremeTotalValue / extremeEventCount;
 
         return 0.0D;
     }
@@ -281,15 +307,14 @@ public class Rate {
      * What was the average value across the events since the stat was created?
      */
     public synchronized double getLifetimeAverageValue() {
-        if ((_lifetimeTotalValue != 0) && (_lifetimeEventCount > 0))
-            return _lifetimeTotalValue / _lifetimeEventCount;
+        if ((lifetimeTotalValue != 0) && (lifetimeEventCount > 0))
+            return lifetimeTotalValue / lifetimeEventCount;
 
         return 0.0D;
     }
 
     /**
      * @return the average or lifetime average depending on last event count
-     * @since 0.9.4
      */
     public synchronized double getAvgOrLifetimeAvg() {
         if (getLastEventCount() > 0)
@@ -304,13 +329,13 @@ public class Rate {
      * @return ratio, or 0 if event times aren't used
      */
     public synchronized double getLastEventSaturation() {
-        if ((_lastEventCount > 0) && (_lastTotalEventTime > 0)) {
+        if ((lastEventCount > 0) && (lastTotalEventTime > 0)) {
             /*double eventTime = (double) _lastTotalEventTime / (double) _lastEventCount;
             double maxEvents = _period / eventTime;
             double saturation = _lastEventCount / maxEvents;
             return saturation;
              */
-            return ((double)_lastTotalEventTime) / (double)_period;
+            return ((double) lastTotalEventTime) / (double) period;
         }
 
         return 0.0D;
@@ -324,10 +349,10 @@ public class Rate {
      * @return ratio, or 0 if the statistic doesn't use event times
      */
     public synchronized double getExtremeEventSaturation() {
-        if ((_extremeEventCount > 0) && (_extremeTotalEventTime > 0)) {
-            double eventTime = (double) _extremeTotalEventTime / (double) _extremeEventCount;
-            double maxEvents = _period / eventTime;
-            return _extremeEventCount / maxEvents;
+        if ((extremeEventCount > 0) && (extremeTotalEventTime > 0)) {
+            double eventTime = (double) extremeTotalEventTime / (double) extremeEventCount;
+            double maxEvents = period / eventTime;
+            return extremeEventCount / maxEvents;
         }
         return 0.0D;
     }
@@ -339,11 +364,11 @@ public class Rate {
      * @return ratio, or 0 if event times aren't used
      */
     public synchronized double getLifetimeEventSaturation() {
-        if ((_lastEventCount > 0) && (_lifetimeTotalEventTime > 0)) {
-            double eventTime = (double) _lifetimeTotalEventTime / (double) _lifetimeEventCount;
-            double maxEvents = _period / eventTime;
+        if ((lastEventCount > 0) && (lifetimeTotalEventTime > 0)) {
+            double eventTime = (double) lifetimeTotalEventTime / (double) lifetimeEventCount;
+            double maxEvents = period / eventTime;
             double numPeriods = getLifetimePeriods();
-            double avgEventsPerPeriod = _lifetimeEventCount / numPeriods;
+            double avgEventsPerPeriod = lifetimeEventCount / numPeriods;
             return avgEventsPerPeriod / maxEvents;
         }
         return 0.0D;
@@ -351,8 +376,8 @@ public class Rate {
 
     /** how many periods have we already completed? */
     public synchronized long getLifetimePeriods() {
-        long lifetime = now() - _creationDate;
-        double periods = lifetime / (double) _period;
+        long lifetime = now() - creationDate;
+        double periods = lifetime / (double) period;
         return (long) Math.floor(periods);
     }
 
@@ -363,9 +388,9 @@ public class Rate {
      * @return max total value, or 0 if event times aren't used
      */
     public synchronized double getLastSaturationLimit() {
-        if ((_lastTotalValue != 0) && (_lastEventCount > 0) && (_lastTotalEventTime > 0)) {
+        if ((lastTotalValue != 0) && (lastEventCount > 0) && (lastTotalEventTime > 0)) {
             double saturation = getLastEventSaturation();
-            if (saturation != 0.0D) return _lastTotalValue / saturation;
+            if (saturation != 0.0D) return lastTotalValue / saturation;
 
             return 0.0D;
         }
@@ -380,9 +405,9 @@ public class Rate {
      * @return event total at saturation, or 0 if no event times are measured
      */
     public synchronized double getExtremeSaturationLimit() {
-        if ((_extremeTotalValue != 0) && (_extremeEventCount > 0) && (_extremeTotalEventTime > 0)) {
+        if ((extremeTotalValue != 0) && (extremeEventCount > 0) && (extremeTotalEventTime > 0)) {
             double saturation = getExtremeEventSaturation();
-            if (saturation != 0.0d) return _extremeTotalValue / saturation;
+            if (saturation != 0.0d) return extremeTotalValue / saturation;
 
             return 0.0D;
         }
@@ -396,8 +421,8 @@ public class Rate {
      * Warning- returns ratio, not percentage (i.e. it is not multiplied by 100 here)
      */
     public synchronized double getPercentageOfExtremeValue() {
-        if ((_lastTotalValue != 0) && (_extremeTotalValue != 0))
-            return _lastTotalValue / _extremeTotalValue;
+        if ((lastTotalValue != 0) && (extremeTotalValue != 0))
+            return lastTotalValue / extremeTotalValue;
 
         return 0.0D;
     }
@@ -407,9 +432,9 @@ public class Rate {
      * Warning- returns ratio, not percentage (i.e. it is not multiplied by 100 here)
      */
     public synchronized double getPercentageOfLifetimeValue() {
-        if ((_lastTotalValue != 0) && (_lifetimeTotalValue != 0)) {
-            double lifetimePeriodValue = _period * (_lifetimeTotalValue / (now() - _creationDate));
-            return _lastTotalValue / lifetimePeriodValue;
+        if ((lastTotalValue != 0) && (lifetimeTotalValue != 0)) {
+            double lifetimePeriodValue = period * (lifetimeTotalValue / (now() - creationDate));
+            return lastTotalValue / lifetimePeriodValue;
         }
 
         return 0.0D;
@@ -431,7 +456,7 @@ public class Rate {
     public synchronized RateAverages computeAverages(RateAverages out, boolean useLifetime) {
         out.reset();
 
-        final long total = _currentEventCount + _lastEventCount;
+        final long total = currentEventCount + lastEventCount;
         out.setTotalEventCount(total);
 
         if (total <= 0) {
@@ -439,10 +464,10 @@ public class Rate {
             out.setAverage(avg);
         } else {
 
-            if (_currentEventCount > 0)
-                out.setCurrent( getCurrentTotalValue() / _currentEventCount );
-            if (_lastEventCount > 0)
-                out.setLast( getLastTotalValue() / _lastEventCount );
+            if (currentEventCount > 0)
+                out.setCurrent( getCurrentTotalValue() / currentEventCount);
+            if (lastEventCount > 0)
+                out.setLast( getLastTotalValue() / lastEventCount);
 
             out.setTotalValues(getCurrentTotalValue() + getLastTotalValue());
             out.setAverage( out.getTotalValues()  / total );
@@ -451,42 +476,42 @@ public class Rate {
     }
 
     public synchronized void store(String prefix, StringBuilder buf) throws IOException {
-        PersistenceHelper.addTime(buf, prefix, ".period", "Length of the period:", _period);
+        PersistenceHelper.addTime(buf, prefix, ".period", "Length of the period:", period);
         PersistenceHelper.addDate(buf, prefix, ".creationDate",
-                "When was this rate created?", _creationDate);
+                "When was this rate created?", creationDate);
         PersistenceHelper.addDate(buf, prefix, ".lastCoalesceDate",
                 "When did we last coalesce this rate?",
-                _lastCoalesceDate);
+                lastCoalesceDate);
         PersistenceHelper.addDate(buf, prefix, ".currentDate",
                 "When was this data written?", now());
         PersistenceHelper.add(buf, prefix, ".currentTotalValue",
-                "Total value of data points in the current (uncoalesced) period", _currentTotalValue);
+                "Total value of data points in the current (uncoalesced) period", currentTotalValue);
         PersistenceHelper.add(buf, prefix, ".currentEventCount",
-                "How many events have occurred in the current (uncoalesced) period?", _currentEventCount);
+                "How many events have occurred in the current (uncoalesced) period?", currentEventCount);
         PersistenceHelper.addTime(buf, prefix, ".currentTotalEventTime",
                 "How much time have the events in the current (uncoalesced) period consumed?",
-                _currentTotalEventTime);
+                currentTotalEventTime);
         PersistenceHelper.add(buf, prefix, ".lastTotalValue",
-                "Total value of data points in the most recent (coalesced) period", _lastTotalValue);
+                "Total value of data points in the most recent (coalesced) period", lastTotalValue);
         PersistenceHelper.add(buf, prefix, ".lastEventCount",
-                "How many events have occurred in the most recent (coalesced) period?", _lastEventCount);
+                "How many events have occurred in the most recent (coalesced) period?", lastEventCount);
         PersistenceHelper.addTime(buf, prefix, ".lastTotalEventTime",
                 "How much time have the events in the most recent (coalesced) period consumed?",
-                _lastTotalEventTime);
+                lastTotalEventTime);
         PersistenceHelper.add(buf, prefix, ".extremeTotalValue",
-                "Total value of data points in the most extreme period", _extremeTotalValue);
+                "Total value of data points in the most extreme period", extremeTotalValue);
         PersistenceHelper.add(buf, prefix, ".extremeEventCount",
-                "How many events have occurred in the most extreme period?", _extremeEventCount);
+                "How many events have occurred in the most extreme period?", extremeEventCount);
         PersistenceHelper.addTime(buf, prefix, ".extremeTotalEventTime",
                 "How much time have the events in the most extreme period consumed?",
-                _extremeTotalEventTime);
+                extremeTotalEventTime);
         PersistenceHelper.add(buf, prefix, ".lifetimeTotalValue",
-                "Total value of data points since this stat was created", _lifetimeTotalValue);
+                "Total value of data points since this stat was created", lifetimeTotalValue);
         PersistenceHelper.add(buf, prefix, ".lifetimeEventCount",
-                "How many events have occurred since this stat was created?", _lifetimeEventCount);
+                "How many events have occurred since this stat was created?", lifetimeEventCount);
         PersistenceHelper.addTime(buf, prefix, ".lifetimeTotalEventTime",
                 "How much total time was consumed by the events since this stat was created?",
-                _lifetimeTotalEventTime);
+                lifetimeTotalEventTime);
     }
 
     /**
@@ -500,25 +525,25 @@ public class Rate {
      * @throws IllegalArgumentException if the data was formatted incorrectly
      */
     public synchronized void load(Properties props, String prefix, boolean treatAsCurrent) throws IllegalArgumentException {
-        _period = PersistenceHelper.getInt(props, prefix, ".period");
-        _creationDate = PersistenceHelper.getLong(props, prefix, ".creationDate");
-        _lastCoalesceDate = PersistenceHelper.getLong(props, prefix, ".lastCoalesceDate");
-        _currentTotalValue = (float)PersistenceHelper.getDouble(props, prefix, ".currentTotalValue");
-        _currentEventCount = PersistenceHelper.getInt(props, prefix, ".currentEventCount");
-        _currentTotalEventTime = (int)PersistenceHelper.getLong(props, prefix, ".currentTotalEventTime");
-        _lastTotalValue = (float)PersistenceHelper.getDouble(props, prefix, ".lastTotalValue");
-        _lastEventCount = PersistenceHelper.getInt(props, prefix, ".lastEventCount");
-        _lastTotalEventTime = (int)PersistenceHelper.getLong(props, prefix, ".lastTotalEventTime");
-        _extremeTotalValue = (float)PersistenceHelper.getDouble(props, prefix, ".extremeTotalValue");
-        _extremeEventCount = PersistenceHelper.getInt(props, prefix, ".extremeEventCount");
-        _extremeTotalEventTime = (int)PersistenceHelper.getLong(props, prefix, ".extremeTotalEventTime");
-        _lifetimeTotalValue = (float)PersistenceHelper.getDouble(props, prefix, ".lifetimeTotalValue");
-        _lifetimeEventCount = PersistenceHelper.getLong(props, prefix, ".lifetimeEventCount");
-        _lifetimeTotalEventTime = PersistenceHelper.getLong(props, prefix, ".lifetimeTotalEventTime");
+        period = PersistenceHelper.getInt(props, prefix, ".period");
+        creationDate = PersistenceHelper.getLong(props, prefix, ".creationDate");
+        lastCoalesceDate = PersistenceHelper.getLong(props, prefix, ".lastCoalesceDate");
+        currentTotalValue = (float)PersistenceHelper.getDouble(props, prefix, ".currentTotalValue");
+        currentEventCount = PersistenceHelper.getInt(props, prefix, ".currentEventCount");
+        currentTotalEventTime = (int)PersistenceHelper.getLong(props, prefix, ".currentTotalEventTime");
+        lastTotalValue = (float)PersistenceHelper.getDouble(props, prefix, ".lastTotalValue");
+        lastEventCount = PersistenceHelper.getInt(props, prefix, ".lastEventCount");
+        lastTotalEventTime = (int)PersistenceHelper.getLong(props, prefix, ".lastTotalEventTime");
+        extremeTotalValue = (float)PersistenceHelper.getDouble(props, prefix, ".extremeTotalValue");
+        extremeEventCount = PersistenceHelper.getInt(props, prefix, ".extremeEventCount");
+        extremeTotalEventTime = (int)PersistenceHelper.getLong(props, prefix, ".extremeTotalEventTime");
+        lifetimeTotalValue = (float)PersistenceHelper.getDouble(props, prefix, ".lifetimeTotalValue");
+        lifetimeEventCount = PersistenceHelper.getLong(props, prefix, ".lifetimeEventCount");
+        lifetimeTotalEventTime = PersistenceHelper.getLong(props, prefix, ".lifetimeTotalEventTime");
 
-        if (treatAsCurrent) _lastCoalesceDate = now();
+        if (treatAsCurrent) lastCoalesceDate = now();
 
-        if (_period <= 0) throw new IllegalArgumentException("Period for " + prefix + " is invalid");
+        if (period <= 0) throw new IllegalArgumentException("Period for " + prefix + " is invalid");
         coalesce();
     }
 
@@ -531,12 +556,12 @@ public class Rate {
         if ((obj == null) || !(obj instanceof Rate)) return false;
         if (obj == this) return true;
         Rate r = (Rate) obj;
-        if (_period != r.getPeriod() || _creationDate != r.getCreationDate())
+        if (period != r.getPeriod() || creationDate != r.getCreationDate())
             return false;
-        if (_stat == null && r._stat == null)
+        if (stat == null && r.stat == null)
             return true;
-        if (_stat != null && r._stat != null)
-            return _stat.nameGroupDescEquals(r._stat);
+        if (stat != null && r.stat != null)
+            return stat.nameGroupDescEquals(r.stat);
         return false;
     }
 
@@ -546,7 +571,7 @@ public class Rate {
      */
     @Override
     public synchronized int hashCode() {
-        return DataHelper.hashCode(_stat) ^ _period ^ ((int) _creationDate);
+        return DataHelper.hashCode(stat) ^ period ^ ((int) creationDate);
     }
 
     @Override
@@ -574,7 +599,7 @@ public class Rate {
         return buf.toString();
     }
 
-    private final static long now() {
+    private static long now() {
         // "event time" is in the stat log (and uses Clock).
         // we just want sequential and stable time here, so use the OS time, since it doesn't
         // skew periodically

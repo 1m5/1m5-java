@@ -1,3 +1,29 @@
+/*
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
+ */
 package io.onemfive.core.util.data;
 
 import java.io.ByteArrayOutputStream;
@@ -10,41 +36,11 @@ import java.util.Locale;
 
 /**
  * Encodes and decodes to and from Base64 notation.
- *
- * <p>
- * Change Log:
- * </p>
- * <ul>
- *  <li>v1.3.6 - Fixed OutputStream.flush() so that 'position' is reset.</li>
- *  <li>v1.3.5 - Added flag to turn on and off line breaks. Fixed bug in input stream
- *      where last buffer being read, if not completely full, was not returned.</li>
- *  <li>v1.3.4 - Fixed when "improperly padded stream" error was thrown at the wrong time.</li>
- *  <li>v1.3.3 - Fixed I/O streams which were totally messed up.</li>
- * </ul>
- *
- * <p>
- * I am placing this code in the Public Domain. Do with it as you will.
- * This software comes with no guarantees or warranties but with
- * plenty of well-wishing instead!
- * Please visit <a href="http://iharder.net/xmlizable">http://iharder.net/xmlizable</a>
- * periodically to check for updates or to contribute improvements.
- * </p>
- *
- * Modified by jrandom for i2p, using safeEncode / safeDecode to create filesystem and URL safe
- * base64 values (replacing / with ~, and + with -)
- *
- * @author Robert Harder
- * @author rob@iharder.net
- * @version 1.3.4
  */
 public class Base64 {
 
-
-    //private final static Log _log = new Log(Base64.class);
-
     /**
      *  Output will be a multiple of 4 chars, including 0-2 trailing '='
-     *  As of 0.9.14, encodes the UTF-8 encoding of source. Prior to that, used the platform's encoding.
      *
      *  @param source if null will return ""
      */
@@ -89,15 +85,6 @@ public class Base64 {
     /**
      *  Decodes data from Base64 notation using the I2P alphabet.
      *
-     *  As of 0.9.14, does not require trailing '=' if remaining bits are zero.
-     *  Prior to that, trailing 1, 2, or 3 chars were ignored.
-     *
-     *  As of 0.9.14, trailing garbage after an '=' will cause an error.
-     *  Prior to that, it was ignored.
-     *
-     *  As of 0.9.14, whitespace will cause an error.
-     *  Prior to that, it was ignored.
-     *
      *  @param s Base 64 encoded string using the I2P alphabet A-Z, a-z, 0-9, -, ~
      *  @return the decoded data, null on error
      */
@@ -110,7 +97,6 @@ public class Base64 {
      *
      *  @param useStandardAlphabet Warning, must be false for I2P compatibility
      *  @return the decoded data, null on error
-     *  @since 0.9.25
      */
     public static byte[] decode(String s, boolean useStandardAlphabet) {
         return safeDecode(s, useStandardAlphabet);
@@ -137,7 +123,6 @@ public class Base64 {
 
     /**
      *  The I2P Alphabet.
-     *  @since 0.9.29
      */
     public static final String ALPHABET_I2P = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-~";
 
@@ -147,7 +132,6 @@ public class Base64 {
     /**
      * Translates a Base64 value to either its 6-bit reconstruction value
      * or a negative number indicating some other meaning.
-     * As of 0.9.14 this is the decoding for the I2P alphabet. See safeDecode().
      **/
     private final static byte[] DECODABET = { -9, -9, -9, -9, -9, -9, -9, -9, -9, // Decimal  0 -  8
             -5, -5, // Whitespace: Tab and Linefeed
@@ -286,133 +270,6 @@ public class Base64 {
         System.exit(1);
     }
 
-/*******
- private static void test() {
- String orig = "you smell";
- String encoded = Base64.encode(orig.getBytes());
- System.out.println("Encoded: [" + encoded + "]");
- byte decoded[] = Base64.decode(encoded);
- String transformed = new String(decoded);
- if (orig.equals(transformed))
- System.out.println("D(E('you smell')) == 'you smell'");
- else
- throw new RuntimeException("D(E('you smell')) != 'you smell'!!! transformed = [" + transformed + "]");
- byte all[] = new byte[256];
- for (int i = 0; i < all.length; i++)
- all[i] = (byte) (0xFF & i);
- encoded = Base64.encode(all);
- System.out.println("Encoded: [" + encoded + "]");
- decoded = Base64.decode(encoded);
- if (DataHelper.eq(decoded, all))
- System.out.println("D(E([all bytes])) == [all bytes]");
- else
- throw new RuntimeException("D(E([all bytes])) != [all bytes]!!!");
- }
- *******/
-
-    /* ********  E N C O D I N G   M E T H O D S  ******** */
-
-    /**
-     * Encodes the first three bytes of array <var>threeBytes</var>
-     * and returns a four-byte array in Base64 notation.
-     *
-     * @param threeBytes the array to convert
-     * @return four byte array in Base64 notation.
-     * @since 1.3
-     */
-/***** unused (standard alphabet)
- private static byte[] encode3to4(byte[] threeBytes) {
- return encode3to4(threeBytes, 3);
- } // end encodeToBytes
- ******/
-
-    /**
-     * Encodes up to the first three bytes of array <var>threeBytes</var>
-     * and returns a four-byte array in Base64 notation.
-     * The actual number of significant bytes in your array is
-     * given by <var>numSigBytes</var>.
-     * The array <var>threeBytes</var> needs only be as big as
-     * <var>numSigBytes</var>.
-     *
-     * @param threeBytes the array to convert
-     * @param numSigBytes the number of significant bytes in your array
-     * @return four byte array in Base64 notation.
-     * @since 1.3
-     */
-/***** unused (standard alphabet)
- private static byte[] encode3to4(byte[] threeBytes, int numSigBytes) {
- byte[] dest = new byte[4];
- encode3to4(threeBytes, 0, numSigBytes, dest, 0);
- return dest;
- }
- ******/
-
-    /**
-     * Encodes up to three bytes of the array <var>source</var>
-     * and writes the resulting four Base64 bytes to <var>destination</var>.
-     * The source and destination arrays can be manipulated
-     * anywhere along their length by specifying
-     * <var>srcOffset</var> and <var>destOffset</var>.
-     * This method does not check to make sure your arrays
-     * are large enough to accomodate <var>srcOffset</var> + 3 for
-     * the <var>source</var> array or <var>destOffset</var> + 4 for
-     * the <var>destination</var> array.
-     * The actual number of significant bytes in your array is
-     * given by <var>numSigBytes</var>.
-     *
-     * @param source the array to convert
-     * @param srcOffset the index where conversion begins
-     * @param numSigBytes the number of significant bytes in your array
-     * @param destination the array to hold the conversion
-     * @param destOffset the index where output will be put
-     * @return the <var>destination</var> array
-     * @since 1.3
-     */
-/***** unused (standard alphabet)
- private static byte[] encode3to4(byte[] source, int srcOffset, int numSigBytes, byte[] destination, int destOffset) {
- //           1         2         3
- // 01234567890123456789012345678901 Bit position
- // --------000000001111111122222222 Array position from threeBytes
- // --------|    ||    ||    ||    | Six bit groups to index ALPHABET
- //          >>18  >>12  >> 6  >> 0  Right shift necessary
- //                0x3f  0x3f  0x3f  Additional AND
-
- // Create buffer with zero-padding if there are only one or two
- // significant bytes passed in the array.
- // We have to shift left 24 in order to flush out the 1's that appear
- // when Java treats a value as negative that is cast from a byte to an int.
- int inBuff = (numSigBytes > 0 ? ((source[srcOffset] << 24) >>> 8) : 0)
- | (numSigBytes > 1 ? ((source[srcOffset + 1] << 24) >>> 16) : 0)
- | (numSigBytes > 2 ? ((source[srcOffset + 2] << 24) >>> 24) : 0);
-
- switch (numSigBytes) {
- case 3:
- destination[destOffset] = ALPHABET[(inBuff >>> 18)];
- destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
- destination[destOffset + 2] = ALPHABET[(inBuff >>> 6) & 0x3f];
- destination[destOffset + 3] = ALPHABET[(inBuff) & 0x3f];
- return destination;
-
- case 2:
- destination[destOffset] = ALPHABET[(inBuff >>> 18)];
- destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
- destination[destOffset + 2] = ALPHABET[(inBuff >>> 6) & 0x3f];
- destination[destOffset + 3] = EQUALS_SIGN;
- return destination;
-
- case 1:
- destination[destOffset] = ALPHABET[(inBuff >>> 18)];
- destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
- destination[destOffset + 2] = EQUALS_SIGN;
- destination[destOffset + 3] = EQUALS_SIGN;
- return destination;
-
- default:
- return destination;
- } // end switch
- } // end encode3to4
- ******/
-
     /**
      *  @param alpha alphabet
      */
@@ -457,21 +314,7 @@ public class Base64 {
             default:
                 return;
         } // end switch
-    } // end encode3to4
-
-    /**
-     * Encodes a byte array into Base64 notation.
-     * Equivalen to calling
-     * <code>encodeBytes( source, 0, source.length )</code>
-     *
-     * @param source The data to convert
-     * @since 1.4
-     */
-/***** unused
- private static String encodeBytes(byte[] source) {
- return encodeBytes(source, false); // don't add newlines
- } // end encodeBytes
- ******/
+    }
 
     /**
      * Same as encodeBytes, except uses a filesystem / URL friendly set of characters,
@@ -509,47 +352,11 @@ public class Base64 {
 
     /**
      * Encodes a byte array into Base64 notation.
-     * Equivalen to calling
-     * <code>encodeBytes( source, 0, source.length )</code>
-     *
-     * @param source The data to convert
-     * @param breakLines Break lines at 80 characters or less.
-     * @since 1.4
-     */
-/***** unused
- private static String encodeBytes(byte[] source, boolean breakLines) {
- return encodeBytes(source, 0, source.length, breakLines);
- } // end encodeBytes
- ******/
-
-    /**
-     * Encodes a byte array into Base64 notation.
-     *
-     * @param source The data to convert
-     * @param off Offset in array where conversion should begin
-     * @param len Length of data to convert
-     * @since 1.4
-     */
-/***** unused
- private static String encodeBytes(byte[] source, int off, int len) {
- return encodeBytes(source, off, len, true);
- } // end encodeBytes
-
- private static String encodeBytes(byte[] source, int off, int len, boolean breakLines) {
- StringBuilder buf = new StringBuilder( (len*4)/3 );
- encodeBytes(source, off, len, breakLines, buf, ALPHABET);
- return buf.toString();
- }
- ******/
-
-    /**
-     * Encodes a byte array into Base64 notation.
      *
      * @param source The data to convert
      * @param off Offset in array where conversion should begin
      * @param len Length of data to convert
      * @param breakLines Break lines at 80 characters or less.
-     * @since 1.4
      */
     private static void encodeBytes(byte[] source, int off, int len, boolean breakLines, StringBuilder out, byte alpha[]) {
         //int len43 = len * 4 / 3;
@@ -581,46 +388,6 @@ public class Base64 {
     } // end encodeBytes
 
     /**
-     * Encodes a string in Base64 notation with line breaks
-     * after every 75 Base64 characters.
-     *
-     * @param s the string to encode
-     * @return the encoded string
-     * @since 1.3
-     */
-/***** unused
- private static String encodeString(String s) {
- return encodeString(s, true);
- } // end encodeString
- ******/
-
-
-
-    /* ********  D E C O D I N G   M E T H O D S  ******** */
-
-    /**
-     * Decodes the first four bytes of array <var>fourBytes</var>
-     * and returns an array up to three bytes long with the
-     * decoded values.
-     *
-     * @param fourBytes the array with Base64 content
-     * @return array with decoded values
-     * @since 1.3
-     */
-/***** unused
- private static byte[] decode4to3(byte[] fourBytes) {
- byte[] outBuff1 = new byte[3];
- int count = decode4to3(fourBytes, 0, outBuff1, 0);
- byte[] outBuff2 = new byte[count];
-
- for (int i = 0; i < count; i++)
- outBuff2[i] = outBuff1[i];
-
- return outBuff2;
- }
- ******/
-
-    /**
      * Decodes four bytes from array <var>source</var>
      * and writes the resulting bytes (up to three of them)
      * to <var>destination</var>.
@@ -640,7 +407,6 @@ public class Base64 {
      * @param destination the array to hold the conversion
      * @param destOffset the index where output will be put
      * @return the number of decoded bytes converted 1-3, or -1 on error, never zero
-     * @since 1.3
      */
     private static int decode4to3(byte[] source, int srcOffset, byte[] destination, int destOffset) {
         byte decode0 = DECODABET[source[srcOffset++]];
@@ -692,15 +458,13 @@ public class Base64 {
             destination[destOffset] = (byte) (outBuff);
             return 3;
         }
-    } // end decodeToBytes
+    }
 
     /**
      * Decodes data from Base64 notation.
-     * As of 0.9.14, this uses the I2P alphabet, so it is not "standard".
      *
      * @param s the string to decode
      * @return the decoded data, null on error
-     * @since 1.4
      */
     private static byte[] standardDecode(String s) {
         // We use getUTF8() instead of getASCII() so we may verify
@@ -717,21 +481,8 @@ public class Base64 {
      * Equivlaent to calling
      * <code>new String( decode( s ) )</code>
      *
-     * As of 0.9.14, decodes as UTF-8. Prior to that, it used the platform's encoding.
-     * For best results, decoded data should be 7 bit.
-     *
-     * As of 0.9.14, does not require trailing '=' if remaining bits are zero.
-     * Prior to that, trailing 1, 2, or 3 chars were ignored.
-     *
-     * As of 0.9.14, trailing garbage after an '=' will cause an error.
-     * Prior to that, it was ignored.
-     *
-     * As of 0.9.14, whitespace will cause an error.
-     * Prior to that, it was ignored.
-     *
      * @param s the string to decode
      * @return The data as a string, or null on error
-     * @since 1.4
      */
     public static String decodeToString(String s) {
         byte[] b = decode(s);
@@ -744,20 +495,10 @@ public class Base64 {
      * Decodes Base64 content in byte array format and returns
      * the decoded byte array.
      *
-     * As of 0.9.14, does not require trailing '=' if remaining bits are zero.
-     * Prior to that, trailing 1, 2, or 3 chars were ignored.
-     *
-     * As of 0.9.14, trailing garbage after an '=' will cause an error.
-     * Prior to that, it was ignored.
-     *
-     * As of 0.9.14, whitespace will cause an error.
-     * Prior to that, it was ignored.
-     *
      * @param source The Base64 encoded data
      * @param off    The offset of where to begin decoding
      * @param len    The length of characters to decode
      * @return decoded data, null on error
-     * @since 1.3
      */
     private static byte[] decode(byte[] source, int off, int len) {
         int len34 = len * 3 / 4;
@@ -805,5 +546,5 @@ public class Base64 {
         byte[] out = new byte[outBuffPosn];
         System.arraycopy(outBuff, 0, out, 0, outBuffPosn);
         return out;
-    } // end decode
-} // end class Base64
+    }
+}
