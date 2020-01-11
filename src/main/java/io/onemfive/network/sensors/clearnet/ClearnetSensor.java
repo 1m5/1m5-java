@@ -119,15 +119,17 @@ public class ClearnetSensor extends BaseSensor {
 
     /**
      * Configuration of Servers in the form:
-     *      name, port, launch on start, concrete implementation of io.onemfive.network.sensors.clearnet.server.AsynchronousEnvelopeHandler, run websocket, relative resource directory|n,...}
+     *      name, port, launch on start, concrete implementation of io.onemfive.network.sensors.clearnet.AsynchronousEnvelopeHandler, run websocket, relative resource directory|n,...}
      */
-    public static final String SERVERS_CONFIG = "1m5.sensors.clearnet.config";
+    public static final String SERVERS_CONFIG = "1m5.sensors.clearnet.servers.config";
 
     private static final Logger LOG = Logger.getLogger(ClearnetSensor.class.getName());
 
     private boolean isTest = false;
+    private boolean clientsEnabled = false;
+    private boolean serversEnabled = false;
 
-    private final List<Server> servers = new ArrayList<>();
+    private final Map<String,Server> servers = new HashMap<>();
     private EnvelopeWebSocket webSocket = null;
     private final Map<String,AsynchronousEnvelopeHandler> handlers = new HashMap<>();
     private int nextHandlerId = 1;
@@ -411,215 +413,192 @@ public class ClearnetSensor extends BaseSensor {
         updateStatus(SensorStatus.INITIALIZING);
         Config.logProperties(p);
         try {
-            properties = Config.loadFromClasspath("clearnet.config", p, false);
+            properties = Config.loadFromClasspath("1m5-sensors-clearnet.config", p, false);
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());
         }
 
         String sensorsDirStr = properties.getProperty("1m5.dir.sensors");
-        if(sensorsDirStr==null) {
+        if (sensorsDirStr == null) {
             LOG.warning("1m5.dir.sensors property is null. Please set prior to instantiating Clearnet Client Sensor.");
             return false;
         }
         try {
-            File sensorDir = new File(new File(sensorsDirStr),"clearnet");
-            if(!sensorDir.exists() && !sensorDir.mkdir()) {
+            File sensorDir = new File(new File(sensorsDirStr), "clearnet");
+            if (!sensorDir.exists() && !sensorDir.mkdir()) {
                 LOG.warning("Unable to create Clearnet Sensor directory.");
                 return false;
             } else {
-                properties.put("1m5.dir.sensors.clearnet",sensorDir.getCanonicalPath());
+                properties.put("1m5.dir.sensors.clearnet", sensorDir.getCanonicalPath());
             }
         } catch (IOException e) {
-            LOG.warning("IOException caught while building Clearnet sensor directory: \n"+e.getLocalizedMessage());
-            return false;
-        }
-
-        boolean trustAllCerts = "true".equals(properties.get("io.onemfive.network.sensors.clearnet.client.trustallcerts"));
-        SSLContext trustAllSSLContext = null;
-        try {
-            if(trustAllCerts) {
-                LOG.info("Initialize SSLContext with trustallcerts...");
-                trustAllSSLContext = SSLContext.getInstance("TLS");
-                trustAllSSLContext.init(null, trustAllTrustManager, new java.security.SecureRandom());
-            }
-        } catch (NoSuchAlgorithmException e) {
-            LOG.warning(e.getLocalizedMessage());
-            return false;
-        } catch (KeyManagementException e) {
-            LOG.warning(e.getLocalizedMessage());
-            return false;
-        }
-
-        try {
-            LOG.info("Setting up HTTP spec clients for http, https, and strong https....");
-            httpSpec = new ConnectionSpec
-                    .Builder(ConnectionSpec.CLEARTEXT)
-                    .build();
-            if(proxy == null) {
-                LOG.info("Setting up http client...");
-                httpClient = new OkHttpClient.Builder()
-                        .connectionSpecs(Collections.singletonList(httpSpec))
-                        .retryOnConnectionFailure(true)
-                        .followRedirects(true)
-                        .build();
-            } else {
-                LOG.info("Setting up http client with proxy...");
-                httpClient = new OkHttpClient.Builder()
-                        .connectionSpecs(Arrays.asList(httpSpec))
-                        .retryOnConnectionFailure(true)
-                        .followRedirects(true)
-                        .proxy(proxy)
-                        .build();
-            }
-
-            LOG.info("Setting https.protocols to system property...");
-            System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,TLSv1.3");
-
-            httpsCompatibleSpec = new ConnectionSpec
-                    .Builder(ConnectionSpec.COMPATIBLE_TLS)
-//                    .supportsTlsExtensions(true)
-//                    .allEnabledTlsVersions()
-//                    .allEnabledCipherSuites()
-                    .build();
-
-            if(proxy == null) {
-                LOG.info("Setting up https client...");
-                if(trustAllCerts) {
-                    LOG.info("Trust All Certs HTTPS Compatible Client building...");
-                    httpsCompatibleClient = new OkHttpClient.Builder()
-                            .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
-                            .hostnameVerifier(trustAllHostnameVerifier)
-                            .build();
-                } else {
-                    LOG.info("Standard HTTPS Compatible Client building...");
-                    httpsCompatibleClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Arrays.asList(httpsCompatibleSpec))
-                            .build();
-                }
-            } else {
-                LOG.info("Setting up https client with proxy...");
-                if(trustAllCerts) {
-                    LOG.info("Trust All Certs HTTPS Compatible Client with Proxy building...");
-                    httpsCompatibleClient = new OkHttpClient.Builder()
-                            .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
-                            .hostnameVerifier(trustAllHostnameVerifier)
-                            .proxy(proxy)
-                            .build();
-                } else {
-                    LOG.info("Standard HTTPS Compatible Client with Proxy building...");
-                    httpsCompatibleClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Arrays.asList(httpsCompatibleSpec))
-                            .proxy(proxy)
-                            .build();
-                }
-            }
-
-            httpsStrongSpec = new ConnectionSpec
-                    .Builder(ConnectionSpec.MODERN_TLS)
-                    .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_3)
-                    .cipherSuites(
-                            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                            CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                            CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
-                    .build();
-
-            if(proxy == null) {
-                LOG.info("Setting up strong https client...");
-                if(trustAllCerts) {
-                    LOG.info("Trust All Certs Strong HTTPS Compatible Client building...");
-                    httpsStrongClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Collections.singletonList(httpsStrongSpec))
-                            .retryOnConnectionFailure(true)
-                            .followSslRedirects(true)
-                            .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
-                            .hostnameVerifier(trustAllHostnameVerifier)
-                            .build();
-                } else {
-                    LOG.info("Standard Strong HTTPS Compatible Client building...");
-                    httpsStrongClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Collections.singletonList(httpsStrongSpec))
-                            .retryOnConnectionFailure(true)
-                            .followSslRedirects(true)
-                            .build();
-                }
-            } else {
-                LOG.info("Setting up strong https client with proxy...");
-                if(trustAllCerts) {
-                    LOG.info("Trust All Certs Strong HTTPS Compatible Client with Proxy building...");
-                    httpsStrongClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Collections.singletonList(httpsStrongSpec))
-                            .retryOnConnectionFailure(true)
-                            .followSslRedirects(true)
-                            .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
-                            .hostnameVerifier(trustAllHostnameVerifier)
-                            .proxy(proxy)
-                            .build();
-                } else {
-                    LOG.info("Standard Strong HTTPS Compatible Client with Proxy building...");
-                    httpsStrongClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Collections.singletonList(httpsStrongSpec))
-                            .retryOnConnectionFailure(true)
-                            .followSslRedirects(true)
-                            .proxy(proxy)
-                            .build();
-                }
-            }
-
-        } catch (Exception e) {
-            LOG.warning("Exception caught launching Clearnet Client Sensor: "+e.getLocalizedMessage());
+            LOG.warning("IOException caught while building Clearnet sensor directory: \n" + e.getLocalizedMessage());
             return false;
         }
 
         updateStatus(SensorStatus.STARTING);
-        if("true".equals(properties.getProperty(Config.PROP_UI))) {
-            String webDir = this.getClass().getClassLoader().getResource("io/onemfive/network/sensors/clearnet/server/ui").toExternalForm();
-            // Start HTTP Server for 1M5 UI
-            AsynchronousEnvelopeHandler dataHandler = new EnvelopeJSONDataHandler();
-            dataHandler.setSensor(this);
-            dataHandler.setServiceName("1M5-Data-Service");
 
-            ResourceHandler resourceHandler = new ResourceHandler();
-            resourceHandler.setDirectoriesListed(false);
-            resourceHandler.setResourceBase(webDir);
-
-            ContextHandler dataContext = new ContextHandler();
-            dataContext.setContextPath("/data/*");
-            dataContext.setHandler(dataHandler);
-
-            HandlerCollection handlers = new HandlerCollection();
-            handlers.addHandler(new SessionHandler());
-            handlers.addHandler(dataContext);
-            handlers.addHandler(resourceHandler);
-            handlers.addHandler(new DefaultHandler());
-
-            boolean launchOnStart = "true".equals(properties.getProperty(Config.PROP_UI_LAUNCH_ON_START));
-            // 571 BC - Birth of Laozi, Chinese Philosopher and Writer, author of Tao Te Ching
-            if(!startServer("1M5", 5710, handlers, launchOnStart))
+        // Clients setup
+        if ("true".equals(properties.getProperty("1m5.sensors.clearnet.client.enable"))) {
+            clientsEnabled = true;
+            boolean trustAllCerts = "true".equals(properties.get("1m5.network.sensors.clearnet.client.trustallcerts"));
+            SSLContext trustAllSSLContext = null;
+            try {
+                if (trustAllCerts) {
+                    LOG.info("Initialize SSLContext with trustallcerts...");
+                    trustAllSSLContext = SSLContext.getInstance("TLS");
+                    trustAllSSLContext.init(null, trustAllTrustManager, new java.security.SecureRandom());
+                }
+            } catch (NoSuchAlgorithmException e) {
+                LOG.warning(e.getLocalizedMessage());
                 return false;
+            } catch (KeyManagementException e) {
+                LOG.warning(e.getLocalizedMessage());
+                return false;
+            }
+
+            try {
+                LOG.info("Setting up HTTP spec clients for http, https, and strong https....");
+                httpSpec = new ConnectionSpec
+                        .Builder(ConnectionSpec.CLEARTEXT)
+                        .build();
+                if (proxy == null) {
+                    LOG.info("Setting up http client...");
+                    httpClient = new OkHttpClient.Builder()
+                            .connectionSpecs(Collections.singletonList(httpSpec))
+                            .retryOnConnectionFailure(true)
+                            .followRedirects(true)
+                            .build();
+                } else {
+                    LOG.info("Setting up http client with proxy...");
+                    httpClient = new OkHttpClient.Builder()
+                            .connectionSpecs(Arrays.asList(httpSpec))
+                            .retryOnConnectionFailure(true)
+                            .followRedirects(true)
+                            .proxy(proxy)
+                            .build();
+                }
+
+                LOG.info("Setting https.protocols to system property...");
+                System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,TLSv1.3");
+
+                httpsCompatibleSpec = new ConnectionSpec
+                        .Builder(ConnectionSpec.COMPATIBLE_TLS)
+//                    .supportsTlsExtensions(true)
+//                    .allEnabledTlsVersions()
+//                    .allEnabledCipherSuites()
+                        .build();
+
+                if (proxy == null) {
+                    LOG.info("Setting up https client...");
+                    if (trustAllCerts) {
+                        LOG.info("Trust All Certs HTTPS Compatible Client building...");
+                        httpsCompatibleClient = new OkHttpClient.Builder()
+                                .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
+                                .hostnameVerifier(trustAllHostnameVerifier)
+                                .build();
+                    } else {
+                        LOG.info("Standard HTTPS Compatible Client building...");
+                        httpsCompatibleClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Arrays.asList(httpsCompatibleSpec))
+                                .build();
+                    }
+                } else {
+                    LOG.info("Setting up https client with proxy...");
+                    if (trustAllCerts) {
+                        LOG.info("Trust All Certs HTTPS Compatible Client with Proxy building...");
+                        httpsCompatibleClient = new OkHttpClient.Builder()
+                                .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
+                                .hostnameVerifier(trustAllHostnameVerifier)
+                                .proxy(proxy)
+                                .build();
+                    } else {
+                        LOG.info("Standard HTTPS Compatible Client with Proxy building...");
+                        httpsCompatibleClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Arrays.asList(httpsCompatibleSpec))
+                                .proxy(proxy)
+                                .build();
+                    }
+                }
+
+                httpsStrongSpec = new ConnectionSpec
+                        .Builder(ConnectionSpec.MODERN_TLS)
+                        .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_3)
+                        .cipherSuites(
+                                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                                CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                                CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
+                        .build();
+
+                if (proxy == null) {
+                    LOG.info("Setting up strong https client...");
+                    if (trustAllCerts) {
+                        LOG.info("Trust All Certs Strong HTTPS Compatible Client building...");
+                        httpsStrongClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Collections.singletonList(httpsStrongSpec))
+                                .retryOnConnectionFailure(true)
+                                .followSslRedirects(true)
+                                .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
+                                .hostnameVerifier(trustAllHostnameVerifier)
+                                .build();
+                    } else {
+                        LOG.info("Standard Strong HTTPS Compatible Client building...");
+                        httpsStrongClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Collections.singletonList(httpsStrongSpec))
+                                .retryOnConnectionFailure(true)
+                                .followSslRedirects(true)
+                                .build();
+                    }
+                } else {
+                    LOG.info("Setting up strong https client with proxy...");
+                    if (trustAllCerts) {
+                        LOG.info("Trust All Certs Strong HTTPS Compatible Client with Proxy building...");
+                        httpsStrongClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Collections.singletonList(httpsStrongSpec))
+                                .retryOnConnectionFailure(true)
+                                .followSslRedirects(true)
+                                .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
+                                .hostnameVerifier(trustAllHostnameVerifier)
+                                .proxy(proxy)
+                                .build();
+                    } else {
+                        LOG.info("Standard Strong HTTPS Compatible Client with Proxy building...");
+                        httpsStrongClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Collections.singletonList(httpsStrongSpec))
+                                .retryOnConnectionFailure(true)
+                                .followSslRedirects(true)
+                                .proxy(proxy)
+                                .build();
+                    }
+                }
+
+            } catch (Exception e) {
+                LOG.warning("Exception caught launching Clearnet Sensor clients: " + e.getLocalizedMessage());
+                return false;
+            }
         }
 
-        if(properties.getProperty(SERVERS_CONFIG)!=null) {
+        // Servers setup
+        if (properties.getProperty(SERVERS_CONFIG) != null) {
+            serversEnabled = true;
             String serversConfig = properties.getProperty(SERVERS_CONFIG);
-            LOG.info("Building servers configuration: "+serversConfig);
-            String[] servers = serversConfig.split(":");
-            LOG.info("Number of servers to start: "+servers.length);
+            LOG.info("Building servers configuration: " + serversConfig);
+            String[] serv = serversConfig.split(":");
+            LOG.info("Number of servers to start: " + serv.length);
             boolean launchOnStart = false;
-            if(servers.length > 0) {
-                // TODO: Support multiple servers?
-//            for(String s : servers) {
-                String s = servers[0];
+            for (String s : serv) {
                 HandlerCollection handlers = new HandlerCollection();
 
                 String[] m = s.split(",");
                 String name = m[0];
-                if(name==null){
+                if (name == null) {
                     LOG.warning("Name must be provided for HTTP server.");
                     return false;
                 }
 
                 String type = m[1];
-                if(type==null) {
-                    LOG.warning("Type must be provided for HTTP Proxy with name="+name);
+                if (type == null) {
+                    LOG.warning("Type must be provided for HTTP Proxy with name=" + name);
                     return false;
                 }
 
@@ -630,7 +609,7 @@ public class ClearnetSensor extends BaseSensor {
                 }
                 int port = Integer.parseInt(portStr);
 
-                if("proxy".equals(type)) {
+                if ("proxy".equals(type)) {
                     String kandlerStr = m[3];
                     AsynchronousEnvelopeHandler handler = null;
 //                    handlers.addHandler(new DefaultHandler());
@@ -650,7 +629,7 @@ public class ClearnetSensor extends BaseSensor {
                         LOG.warning("Handler implementation " + kandlerStr + " not found. Ensure library included.");
                         return false;
                     }
-                } else if("local".equals(type)) {
+                } else if ("local".equals(type)) {
 
                     String launchOnStartStr = m[3];
                     launchOnStart = "true".equals(launchOnStartStr);
@@ -773,12 +752,13 @@ public class ClearnetSensor extends BaseSensor {
                     }
                 }
 
-                if(!startServer(name, port, handlers, launchOnStart)) {
-                    LOG.warning("Unable to start server "+name);
+                if (!startServer(name, port, handlers, launchOnStart)) {
+                    LOG.warning("Unable to start server " + name);
                     updateStatus(SensorStatus.ERROR);
+                    return false;
                 } else {
-                    if(webSocket != null) {
-                        LOG.info("Subscribing WebSocket ("+webSocket.getClass().getName()+") to TEXT notifications...");
+                    if (webSocket != null) {
+                        LOG.info("Subscribing WebSocket (" + webSocket.getClass().getName() + ") to TEXT notifications...");
                         // Subscribe to Text notifications
                         Subscription subscription = new Subscription() {
                             @Override
@@ -790,19 +770,16 @@ public class ClearnetSensor extends BaseSensor {
                         Envelope e = Envelope.documentFactory();
                         DLC.addData(SubscriptionRequest.class, r, e);
                         DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
-                        if(sendIn(e)) {
-                            updateStatus(SensorStatus.NETWORK_CONNECTED);
-                        } else {
+                        if (!sendIn(e)) {
                             updateStatus(SensorStatus.ERROR);
                             LOG.warning("Error sending subscription request to Notification Service for Web Socket.");
+                            return false;
                         }
-                    } else {
-                        updateStatus(SensorStatus.NETWORK_CONNECTED);
                     }
                 }
             }
+            updateStatus(SensorStatus.NETWORK_CONNECTED);
         }
-
         LOG.info("Started.");
         return true;
     }
@@ -813,8 +790,8 @@ public class ClearnetSensor extends BaseSensor {
         LOG.info("Starting HTTP Server for "+name+" on 127.0.0.1:"+port);
         try {
             server.start();
-//            LOG.finest(server.dump());
-            servers.add(server);
+            LOG.finest(server.dump());
+            servers.put(name, server);
             LOG.info("HTTP Server for "+name+" started on 127.0.0.1:"+port);
         } catch (Exception e) {
             LOG.severe("Exception caught while starting HTTP Server for "+name+" with port "+port+": "+e.getLocalizedMessage());
@@ -839,7 +816,7 @@ public class ClearnetSensor extends BaseSensor {
     @Override
     public boolean restart() {
         LOG.info("Restarting...");
-        for(Server server : servers) {
+        for(Server server : servers.values()) {
             try {
                 server.stop();
                 server.start();
@@ -854,7 +831,7 @@ public class ClearnetSensor extends BaseSensor {
     @Override
     public boolean shutdown() {
         LOG.info("Shutting down...");
-        for(Server server : servers) {
+        for(Server server : servers.values()) {
             try {
                 server.stop();
             } catch (Exception e) {
