@@ -42,10 +42,10 @@ public class Base32 {
         BigInteger mod;
         for(s = new StringBuffer(); bi.compareTo(BASE) >= 0; bi = bi.subtract(mod).divide(BASE)) {
             mod = bi.mod(BASE);
-            s.insert(0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".charAt(mod.intValue()));
+            s.insert(0, ALPHABET.charAt(mod.intValue()));
         }
 
-        s.insert(0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".charAt(bi.intValue()));
+        s.insert(0, ALPHABET.charAt(bi.intValue()));
         byte[] var7 = input;
         int var4 = input.length;
 
@@ -55,7 +55,7 @@ public class Base32 {
                 break;
             }
 
-            s.insert(0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".charAt(0));
+            s.insert(0, ALPHABET.charAt(0));
         }
 
         return s.toString();
@@ -66,7 +66,7 @@ public class Base32 {
         boolean stripSignByte = bytes.length > 1 && bytes[0] == 0 && bytes[1] < 0;
         int leadingZeros = 0;
 
-        for(int tmp = 0; input.charAt(tmp) == "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".charAt(0); ++tmp) {
+        for(int tmp = 0; input.charAt(tmp) == ALPHABET.charAt(0); ++tmp) {
             ++leadingZeros;
         }
 
@@ -79,7 +79,7 @@ public class Base32 {
         BigInteger bi = BigInteger.valueOf(0L);
 
         for(int i = input.length() - 1; i >= 0; --i) {
-            int alphaIndex = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".indexOf(input.charAt(i));
+            int alphaIndex = ALPHABET.indexOf(input.charAt(i));
             if(alphaIndex == -1) {
                 throw new IllegalStateException("Illegal character " + input.charAt(i) + " at " + i);
             }
