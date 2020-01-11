@@ -55,7 +55,7 @@ import java.util.logging.Logger;
 /**
  * This is the main entry point into the application by supported networks.
  * It registers all supported/configured Sensors and manages their lifecycle.
- * All Sensors' status has an effect on the SensorsService status which is
+ * All Sensors' status has an effect on the NetworkService status which is
  * monitored by the ServiceBus.
  *
  *  @author objectorange
