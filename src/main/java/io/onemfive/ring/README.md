@@ -1,4 +1,4 @@
-# 1m5-ring
+# 1M5 Ring
 A decentralized metric-based reputation protocol.
 
 ## Abstract

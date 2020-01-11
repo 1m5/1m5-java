@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.core.dao;
+package io.onemfive.voice;
 
-public class DaoService {
+public class VoiceService {
 }

@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.core.voice;
+package io.onemfive.dam;
 
-public class VoiceService {
+public class DAMService {
 }

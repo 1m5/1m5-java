@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.core.video;
+package io.onemfive.video;
 
 public class VideoService {
 }

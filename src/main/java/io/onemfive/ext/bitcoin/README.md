@@ -1,5 +1,5 @@
-# 1m5-bitcoin
-A censorship resistant full Bitcoin client and a private Simple Payment Verification (SPV) client.
+# 1M5 Bitcoin
+A censorship resistant full Bitcoin client, private Simple Payment Verification (SPV) client, and fully remote thin client.
 
 It uses Tor for accessing the Bitcoin blockchain until blocked then sidesteps blocks using
 I2P/1DN to get to a 1M5 node that has access to Tor using that node or uses 1DN to complete the
@@ -20,4 +20,4 @@ the wire and 1M5 requires all communications to go through it to ensure communic
 So in essence, this project's goal is a censorship resistant AND private BitcoinJ implementation. BitcoinJ
 is maintained under the open source Apache 2.0 License.
 
-1M5-Bitcoin is maintained under the Unlicensed 'license' placing it in the global public domain with no copyright.
+1M5 Bitcoin is maintained under the Unlicensed 'license' placing it in the global public domain with no copyright.
