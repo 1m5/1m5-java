@@ -48,13 +48,13 @@ import java.util.*;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-public class Dapp {
+public class DApp {
 
-    private static final Logger LOG = Logger.getLogger(Dapp.class.getName());
+    private static final Logger LOG = Logger.getLogger(DApp.class.getName());
 
     public enum Status {Shutdown, Initializing, Initialized, Starting, Running, ShuttingDown, Errored, Exiting}
 
-    private static final Dapp instance = new Dapp();
+    private static final DApp instance = new DApp();
 
     private static OneMFiveAppContext oneMFiveAppContext;
     private static ClientAppManager manager;

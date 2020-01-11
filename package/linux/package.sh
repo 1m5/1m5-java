@@ -99,7 +99,7 @@ $JAVA_HOME/bin/javapackager \
     -outdir $base_dir/package/linux \
     -srcdir $src_dir \
     -srcfiles 1m5-$version.jar \
-    -appclass io.onemfive.Dapp \
+    -appclass io.onemfive.DApp \
     -BjvmOptions=-Xss1280k \
     -outfile 1m5-$version \
     -v

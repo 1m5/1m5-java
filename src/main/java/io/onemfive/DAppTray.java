@@ -57,7 +57,7 @@ public class DAppTray {
     private MenuItem launchDesktopMenuItem;
     private MenuItem quitMenuItem;
 
-    public void start(Dapp dApp) {
+    public void start(DApp dApp) {
         SystemTray.SWING_UI = new DAppUI();
         systemTray = SystemTray.get();
         if (systemTray == null) {
