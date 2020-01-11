@@ -2,9 +2,6 @@ package io.onemfive.core;
 
 import io.onemfive.core.client.Client;
 import io.onemfive.core.client.ClientAppManager;
-import io.onemfive.data.*;
-import io.onemfive.data.util.ByteArrayWrapper;
-import io.onemfive.data.util.DLC;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 

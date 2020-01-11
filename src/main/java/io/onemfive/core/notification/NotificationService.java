@@ -30,10 +30,10 @@ import io.onemfive.core.BaseService;
 import io.onemfive.core.MessageProducer;
 import io.onemfive.core.ServiceStatus;
 import io.onemfive.core.ServiceStatusListener;
-import io.onemfive.core.util.AppThread;
+import io.onemfive.util.AppThread;
 import io.onemfive.data.*;
 import io.onemfive.data.route.Route;
-import io.onemfive.data.util.DLC;
+import io.onemfive.util.DLC;
 
 import java.util.*;
 import java.util.logging.Logger;

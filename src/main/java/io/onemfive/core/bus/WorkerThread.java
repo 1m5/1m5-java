@@ -30,7 +30,7 @@ import io.onemfive.core.BaseService;
 import io.onemfive.core.MessageConsumer;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.orchestration.OrchestrationService;
-import io.onemfive.core.util.AppThread;
+import io.onemfive.util.AppThread;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.route.Route;
 

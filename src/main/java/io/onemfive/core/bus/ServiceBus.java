@@ -33,9 +33,9 @@ import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.orchestration.OrchestrationService;
-import io.onemfive.core.util.AppThread;
+import io.onemfive.util.AppThread;
 import io.onemfive.data.Envelope;
-import io.onemfive.data.util.DLC;
+import io.onemfive.util.DLC;
 import io.onemfive.did.DIDService;
 import io.onemfive.network.NetworkService;
 

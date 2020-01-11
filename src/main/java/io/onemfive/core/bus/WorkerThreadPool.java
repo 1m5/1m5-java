@@ -28,7 +28,7 @@ package io.onemfive.core.bus;
 
 import io.onemfive.core.BaseService;
 import io.onemfive.core.client.ClientAppManager;
-import io.onemfive.core.util.AppThread;
+import io.onemfive.util.AppThread;
 
 import java.util.Map;
 import java.util.Properties;

@@ -1,3 +1,29 @@
+/*
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
+ */
 package io.onemfive.core;
 
 import io.onemfive.core.client.ClientAppManager;
@@ -5,9 +31,7 @@ import io.onemfive.core.bus.ServiceBus;
 import io.onemfive.core.infovault.InfoVaultDB;
 import io.onemfive.core.infovault.InfoVaultService;
 import io.onemfive.core.infovault.LocalFSInfoVaultDB;
-import io.onemfive.core.util.data.Base64;
-import io.onemfive.core.util.*;
-import io.onemfive.core.util.stat.StatManager;
+import io.onemfive.util.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,30 +39,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * <p>Provide a scope for accessing services that 15M5 provides.  Rather than
- * using the traditional singleton, where any component can access the component
- * in question directly, all of those 1M5 related services are exposed through
- * a particular OneMFiveAppContext. This helps not only with understanding their use
- * and the services 1M5 provides, but it also allows multiple isolated
- * environments to operate concurrently within the same JVM - particularly useful
- * for stubbing out implementations of the rooted services and simulating the
- * software's interaction between multiple instances.</p>
- *
- * <p>As a simplification, there is also a global context - if some component needs
- * access to one of the services but doesn't have its own context from which
- * to root itself, it binds to the OneMFiveAppContext's globalAppContext(), which is
- * the first context that was created within the JVM, or a new one if no context
- * existed already.  This functionality is often used within the 1M5 core for
- * logging - e.g. <pre>
- *     private static final Log _log = new Log(someClass.class);
- * </pre>
- * It is for this reason that applications that care about working with multiple
- * contexts should build their own context as soon as possible (within the main(..))
- * so that any referenced components will latch on to that context instead of
- * instantiating a new one.  However, there are situations in which both can be
- * relevant.</p>
- *
- * @author I2P, objectorange
+ * Global router context.
  */
 public class OneMFiveAppContext {
 
@@ -46,20 +47,17 @@ public class OneMFiveAppContext {
 
     /** the context that components without explicit root are bound */
     protected static OneMFiveAppContext globalAppContext;
+    // TODO: Move configurations to its own class
 //    protected final OneMFiveConfig config;
 
     protected final Properties overrideProps = new Properties();
     private static Properties envProps;
-
-    private StatManager statManager;
 
     private ServiceBus serviceBus;
 
     private InfoVaultDB infoVaultDB;
 
     private volatile boolean statManagerInitialized;
-    private volatile boolean logManagerInitialized;
-    private volatile boolean simpleTimerInitialized;
 
     protected Set<Runnable> shutdownTasks;
     private File baseDir;
@@ -386,7 +384,7 @@ public class OneMFiveAppContext {
                 // our random() probably isn't warmed up yet
                 byte[] rand = new byte[6];
                 tmpDirRand.nextBytes(rand);
-                String f = "1m5-" + Base64.encode(rand) + ".tmp";
+                String f = "1m5-" + Base64.getEncoder().encodeToString(rand) + ".tmp";
                 tmpDir = new SecureFile(d, f);
                 if (tmpDir.exists()) {
                     // good or bad ? loop and try again?
@@ -551,24 +549,6 @@ public class OneMFiveAppContext {
      */
     public boolean isConsciousContext() {
         return false;
-    }
-
-    /**
-     * The statistics component with which we can track various events
-     * over time.
-     */
-    public StatManager statManager() {
-        if (!statManagerInitialized)
-            initializeStatManager();
-        return statManager;
-    }
-
-    private void initializeStatManager() {
-        synchronized (lock2) {
-            if (statManager == null)
-                statManager = new StatManager(this);
-            statManagerInitialized = true;
-        }
     }
 
     /**

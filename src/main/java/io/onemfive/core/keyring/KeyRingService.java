@@ -27,13 +27,12 @@
 package io.onemfive.core.keyring;
 
 import io.onemfive.core.*;
-import io.onemfive.core.util.SystemVersion;
+import io.onemfive.util.SystemVersion;
 import io.onemfive.data.EncryptionAlgorithm;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.PublicKey;
 import io.onemfive.data.route.Route;
-import io.onemfive.data.util.Base64;
-import io.onemfive.data.util.DLC;
+import io.onemfive.util.DLC;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -213,8 +212,8 @@ public class KeyRingService extends BaseService {
                         PGPPublicKey identityPublicKey = keyRing.getPublicKey(c, r.alias, true);
                         r.identityPublicKey = new PublicKey();
                         r.identityPublicKey.setAlias(r.alias);
-                        r.identityPublicKey.setFingerprint(Base64.encode(identityPublicKey.getFingerprint()));
-                        r.identityPublicKey.setAddress(Base64.encode(identityPublicKey.getEncoded()));
+                        r.identityPublicKey.setFingerprint(Base64.getEncoder().encodeToString(identityPublicKey.getFingerprint()));
+                        r.identityPublicKey.setAddress(Base64.getEncoder().encodeToString(identityPublicKey.getEncoded()));
                         r.identityPublicKey.isEncryptionKey(identityPublicKey.isEncryptionKey());
                         r.identityPublicKey.isIdentityKey(identityPublicKey.isMasterKey());
                         LOG.info("Identity Public Key loaded\n\tfingerprint: " + r.identityPublicKey.getFingerprint() + "\n\taddress: " + r.identityPublicKey.getAddress());
@@ -222,8 +221,8 @@ public class KeyRingService extends BaseService {
                         PGPPublicKey encryptionPublicKey = keyRing.getPublicKey(c, r.alias, false);
                         r.encryptionPublicKey = new PublicKey();
                         r.encryptionPublicKey.setAlias(r.alias);
-                        r.encryptionPublicKey.setFingerprint(Base64.encode(encryptionPublicKey.getFingerprint()));
-                        r.encryptionPublicKey.setAddress(Base64.encode(encryptionPublicKey.getEncoded()));
+                        r.encryptionPublicKey.setFingerprint(Base64.getEncoder().encodeToString(encryptionPublicKey.getFingerprint()));
+                        r.encryptionPublicKey.setAddress(Base64.getEncoder().encodeToString(encryptionPublicKey.getEncoded()));
                         r.encryptionPublicKey.isEncryptionKey(encryptionPublicKey.isEncryptionKey());
                         r.encryptionPublicKey.isIdentityKey(encryptionPublicKey.isMasterKey());
                         LOG.info("Encryption Public Key loaded\n\tfingerprint: " + r.encryptionPublicKey.getFingerprint() + "\n\taddress: " + r.encryptionPublicKey.getAddress());

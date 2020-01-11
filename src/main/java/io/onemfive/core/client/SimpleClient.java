@@ -33,7 +33,7 @@ import io.onemfive.data.EventMessage;
 import io.onemfive.data.ServiceCallback;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Subscription;
-import io.onemfive.data.util.DLC;
+import io.onemfive.util.DLC;
 
 import java.util.ArrayList;
 import java.util.HashMap;

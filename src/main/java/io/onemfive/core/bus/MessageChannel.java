@@ -29,7 +29,7 @@ package io.onemfive.core.bus;
 import io.onemfive.core.LifeCycle;
 import io.onemfive.core.MessageProducer;
 import io.onemfive.data.Envelope;
-import io.onemfive.data.util.DLC;
+import io.onemfive.util.DLC;
 
 import java.util.Date;
 import java.util.Properties;

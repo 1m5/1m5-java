@@ -1,13 +1,34 @@
+/*
+  This is free and unencumbered software released into the public domain.
+
+  Anyone is free to copy, modify, publish, use, compile, sell, or
+  distribute this software, either in source code form or as a compiled
+  binary, for any purpose, commercial or non-commercial, and by any
+  means.
+
+  In jurisdictions that recognize copyright laws, the author or authors
+  of this software dedicate any and all copyright interest in the
+  software to the public domain. We make this dedication for the benefit
+  of the public at large and to the detriment of our heirs and
+  successors. We intend this dedication to be an overt act of
+  relinquishment in perpetuity of all present and future rights to this
+  software under copyright law.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+  For more information, please refer to <http://unlicense.org/>
+ */
 package io.onemfive.data;
 
-import io.onemfive.data.util.Base64;
-import io.onemfive.data.util.DataFormatException;
-import io.onemfive.data.util.DataHelper;
-import io.onemfive.data.util.HashUtil;
-
 import java.io.*;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
 
 /**
  * TODO: Add Description
@@ -29,21 +50,8 @@ public abstract class Data {
         return data.length;
     }
 
-    public String toBase64() throws DataFormatException, IOException {
-        return data == null ? null : Base64.encode(data);
-    }
-
-    public void fromBase64(String data) throws DataFormatException {
-        if (data == null) {
-            throw new DataFormatException("Null data passed in");
-        } else {
-            byte[] bytes = Base64.decode(data);
-            if (bytes == null) {
-                throw new DataFormatException("Bad Base64 \"" + data + '"');
-            } else {
-                fromByteArray(bytes);
-            }
-        }
+    public String toBase64() {
+        return data == null ? null : Base64.getEncoder().encodeToString(data);
     }
 
     public void setData(byte[] data) {
@@ -54,41 +62,14 @@ public abstract class Data {
         return data;
     }
 
-    public Hash calculateHash(Hash.Algorithm algorithm) throws NoSuchAlgorithmException {
-        return data != null ? HashUtil.generateHash(data, algorithm) : null;
-    }
-
-    public byte[] toByteArray() throws DataFormatException, IOException {
+    public byte[] toByteArray() throws IOException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream(512);
             writeBytes(baos);
             return baos.toByteArray();
     }
 
-    public void writeBytes(OutputStream out) throws DataFormatException, IOException {
+    public void writeBytes(OutputStream out) throws IOException {
         out.write(data);
-    }
-
-    public void fromByteArray(byte[] data) throws DataFormatException {
-        if (data == null) {
-            throw new DataFormatException("Null data passed in");
-        } else {
-            try {
-                ByteArrayInputStream bais = new ByteArrayInputStream(data);
-                readBytes(bais);
-            } catch (IOException var3) {
-                throw new DataFormatException("Error reading the byte array", var3);
-            }
-        }
-    }
-
-    public void readBytes(InputStream in) throws DataFormatException, IOException {
-        int length = this.length();
-        data = new byte[length];
-        read(in, data);
-    }
-
-    protected int read(InputStream in, byte[] target) throws IOException {
-        return DataHelper.read(in, target);
     }
 
     public int hashCode() {

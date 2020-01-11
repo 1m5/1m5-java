@@ -32,7 +32,7 @@ import io.onemfive.core.bus.ServiceNotAccessibleException;
 import io.onemfive.core.bus.ServiceNotSupportedException;
 import io.onemfive.core.bus.ServiceRegisteredException;
 import io.onemfive.data.route.Route;
-import io.onemfive.data.util.DLC;
+import io.onemfive.util.DLC;
 import io.onemfive.data.Envelope;
 
 import java.util.*;

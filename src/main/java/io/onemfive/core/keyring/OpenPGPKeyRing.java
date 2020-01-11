@@ -26,7 +26,6 @@
  */
 package io.onemfive.core.keyring;
 
-import io.onemfive.core.util.data.Base64;
 import io.onemfive.data.EncryptionAlgorithm;
 import io.onemfive.data.PublicKey;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
@@ -118,8 +117,8 @@ public class OpenPGPKeyRing implements KeyRing {
                     LOG.info("Identity Public Key found.");
                     r.identityPublicKey = new PublicKey();
                     r.identityPublicKey.setAlias(r.keyRingUsername);
-                    r.identityPublicKey.setFingerprint(Base64.encode(identityPublicKey.getFingerprint()));
-                    r.identityPublicKey.setAddress(Base64.encode(identityPublicKey.getEncoded()));
+                    r.identityPublicKey.setFingerprint(Base64.getEncoder().encodeToString(identityPublicKey.getFingerprint()));
+                    r.identityPublicKey.setAddress(Base64.getEncoder().encodeToString(identityPublicKey.getEncoded()));
                     r.identityPublicKey.isIdentityKey(identityPublicKey.isMasterKey());
                     r.identityPublicKey.isEncryptionKey(identityPublicKey.isEncryptionKey());
                 }
@@ -129,8 +128,8 @@ public class OpenPGPKeyRing implements KeyRing {
                     LOG.info("Encryption Public Key found.");
                     r.encryptionPublicKey = new PublicKey();
                     r.encryptionPublicKey.setAlias(r.keyRingUsername);
-                    r.encryptionPublicKey.setFingerprint(Base64.encode(encryptionPublicKey.getFingerprint()));
-                    r.encryptionPublicKey.setAddress(Base64.encode(encryptionPublicKey.getEncoded()));
+                    r.encryptionPublicKey.setFingerprint(Base64.getEncoder().encodeToString(encryptionPublicKey.getFingerprint()));
+                    r.encryptionPublicKey.setAddress(Base64.getEncoder().encodeToString(encryptionPublicKey.getEncoded()));
                     r.encryptionPublicKey.isIdentityKey(encryptionPublicKey.isMasterKey());
                     r.encryptionPublicKey.isEncryptionKey(encryptionPublicKey.isEncryptionKey());
                 }
@@ -232,7 +231,7 @@ public class OpenPGPKeyRing implements KeyRing {
 
         if(r.passphraseOnly) {
             r.content.setEncryptionPassphraseEncrypted(true);
-            r.content.setEncryptionPassphrase(Base64.encode(content.toByteArray()));
+            r.content.setEncryptionPassphrase(Base64.getEncoder().encodeToString(content.toByteArray()));
             r.content.setEncryptionPassphraseAlgorithm(EncryptionAlgorithm.CAST5);
         } else {
             r.content.setEncrypted(true);
@@ -251,7 +250,7 @@ public class OpenPGPKeyRing implements KeyRing {
     public void decrypt(DecryptRequest r) throws IOException, PGPException {
         byte[] c;
         if(r.passphraseOnly)
-            c = Base64.decode(r.content.getEncryptionPassphrase());
+            c = Base64.getDecoder().decode(r.content.getEncryptionPassphrase());
         else
             c = r.content.getBody();
         InputStream in = PGPUtil.getDecoderStream(new ByteArrayInputStream(c));
