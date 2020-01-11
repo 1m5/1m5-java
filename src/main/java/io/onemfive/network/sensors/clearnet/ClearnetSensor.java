@@ -33,6 +33,7 @@ import io.onemfive.data.*;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorStatus;
+import io.onemfive.util.BrowserUtil;
 import io.onemfive.util.DLC;
 import io.onemfive.util.Multipart;
 import okhttp3.*;
@@ -821,7 +822,7 @@ public class ClearnetSensor extends BaseSensor {
             return false;
         }
         if(launch)
-            ClearnetServerUtil.launchBrowser("http://127.0.0.1:"+port+"/");
+            BrowserUtil.launch("http://127.0.0.1:"+port+"/");
         return true;
     }
 
