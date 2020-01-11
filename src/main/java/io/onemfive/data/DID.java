@@ -265,6 +265,9 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
                 pm.put(n, peers.get(n).toMap());
             }
         }
+        if(attributes!=null && attributes.size() > 0) {
+            m.put("attributes", attributes);
+        }
         return m;
     }
 
@@ -312,6 +315,9 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
                 p.fromMap((Map<String,Object>)pm.get(n));
                 peers.put(n, p);
             }
+        }
+        if(m.get("attributes")!=null) {
+            attributes = (Map<String,Object>)m.get("atttributes");
         }
     }
 
