@@ -34,6 +34,7 @@ import io.onemfive.core.admin.AdminService;
 import io.onemfive.core.client.Client;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.client.ClientStatusListener;
+import io.onemfive.data.ServiceCallback;
 import io.onemfive.desktop.DesktopTray;
 import io.onemfive.util.AppThread;
 import io.onemfive.data.Envelope;
@@ -78,7 +79,7 @@ public class DRouter {
     public static File userAppConfigDir;
     public static File userAppCacheDir;
 
-    private static AppThread routerThread;
+    private static Thread routerThread;
 
     public static void main(String[] args) {
         LOG.info("1M5 initializing...\n\tThread name: " + Thread.currentThread().getName());
@@ -89,20 +90,16 @@ public class DRouter {
                 Application.launch(DesktopApp.class);
             }
         }).start();
+        Thread.currentThread().setName("1M5-Router-Thread");
         // Start bus in separate thread
-        routerThread = new AppThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    LOG.info("1M5 Router initializing...\n\tThread name: " + Thread.currentThread().getName());
-                    init(args);
-                } catch (Exception e) {
-                    System.out.print(e.getLocalizedMessage());
-                    System.exit(-1);
-                }
-            }
-        }, "1M5-Router-Thread");
-        routerThread.start();
+        routerThread = Thread.currentThread();
+        try {
+            LOG.info("1M5 Router initializing...\n\tThread name: " + Thread.currentThread().getName());
+            init(args);
+        } catch (Exception e) {
+            System.out.print(e.getLocalizedMessage());
+            System.exit(-1);
+        }
     }
 
     public static void init(String[] args) throws Exception {
@@ -183,7 +180,6 @@ public class DRouter {
         manager = oneMFiveAppContext.getClientAppManager(config);
         manager.setShutdownOnLastUnregister(true);
         client = manager.getClient(true);
-        DesktopApp.setup(routerThread, client);
 
         ClientStatusListener clientStatusListener = new ClientStatusListener() {
             @Override
@@ -265,6 +261,34 @@ public class DRouter {
         // Register Services
         DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES,e);
         client.request(e);
+    }
+
+    public static void sendRequest(Envelope e) {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(client==null) {
+                    waitABit(1000);
+                }
+                client.request(e);
+            }
+        },"1M5-Send-To-Bus-Thread");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    public static void sendRequest(Envelope e, ServiceCallback cb) {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(client==null) {
+                    waitABit(1000);
+                }
+                client.request(e, cb);
+            }
+        },"1M5-Send-To-Bus-With-Callback-Thread");
+        t.setDaemon(true);
+        t.start();
     }
 
     private static void waitABit(long waitTime) {

@@ -48,10 +48,8 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
 
     private static final Logger LOG = Logger.getLogger(DesktopApp.class.getName());
 
-    private static Client client;
     private static DesktopTray desktopTray;
     private static SystemTray systemTray;
-    private static AppThread routerThread;
 
     private static Runnable shutDownHandler;
 
@@ -70,12 +68,6 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
     public static void setDappTray(DesktopTray tray) {
         desktopTray = tray;
         systemTray = desktopTray.systemTray;
-    }
-
-    public static void setup(AppThread thread, Client c) {
-        routerThread = thread;
-        client = c;
-        ViewLoader.setup(routerThread, client);
     }
 
     @Override

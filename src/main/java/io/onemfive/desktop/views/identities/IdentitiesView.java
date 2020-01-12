@@ -26,6 +26,7 @@
  */
 package io.onemfive.desktop.views.identities;
 
+import io.onemfive.DRouter;
 import io.onemfive.data.DID;
 import io.onemfive.data.Envelope;
 import io.onemfive.desktop.DesktopApp;
@@ -100,11 +101,19 @@ public class IdentitiesView extends ActivatableView {
         identitiesPane.getChildren().add(identitiesHeader);
 
         Label identityAliasCol = new Label("Alias");
-        identityAliasCol.setPrefWidth(150);
+        identityAliasCol.setPrefWidth(100);
         identitiesHeader.getChildren().add(identityAliasCol);
 
+        Label identityPwdCol = new Label("Password");
+        identityPwdCol.setPrefWidth(100);
+        identitiesHeader.getChildren().add(identityPwdCol);
+
+        Label identityPwd2Col = new Label("Password Again");
+        identityPwd2Col.setPrefWidth(100);
+        identitiesHeader.getChildren().add(identityPwd2Col);
+
         Label identityAddressCol = new Label("Address");
-        identityAddressCol.setPrefWidth(350);
+        identityAddressCol.setPrefWidth(200);
         identitiesHeader.getChildren().add(identityAddressCol);
 
         HBox addIdentityBox = new HBox();
@@ -147,7 +156,7 @@ public class IdentitiesView extends ActivatableView {
                     DLC.addData(DID.class, did, e1);
                     DLC.addRoute(UIService.class, UIService.OPERATION_NOTIFY_UI, e1);
                     DLC.addRoute(DIDService.class, DIDService.OPERATION_SAVE_IDENTITY, e1);
-                    client.request(e1);
+                    DRouter.sendRequest(e1);
                 }
             }
         });
@@ -224,7 +233,7 @@ public class IdentitiesView extends ActivatableView {
             DLC.addRoute(UIService.class, UIService.OPERATION_NOTIFY_UI, e);
             DLC.addRoute(DIDService.class, DIDService.OPERATION_ADD_CONTACT, e);
             DLC.addEntity(did, e);
-            client.request(e);
+            DRouter.sendRequest(e);
         });
         addContactBox.getChildren().add(addContact);
 
@@ -249,19 +258,19 @@ public class IdentitiesView extends ActivatableView {
         Envelope e1 = Envelope.documentFactory();
         DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e1);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e1);
-        client.request(e1);
+        DRouter.sendRequest(e1);
 
         // Get Contacts
         Envelope e2 = Envelope.documentFactory();
         DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_CONTACTS, e2);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_CONTACTS, e2);
-        client.request(e2);
+        DRouter.sendRequest(e2);
 
         // Get Active Identity
         Envelope e3 = Envelope.documentFactory();
         DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_ACTIVE_IDENTITY, e3);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_ACTIVE_IDENTITY, e3);
-        client.request(e3);
+        DRouter.sendRequest(e3);
 
         LOG.info("Initialized.");
     }
