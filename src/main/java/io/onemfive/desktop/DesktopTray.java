@@ -24,19 +24,20 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive;
+package io.onemfive.desktop;
 
 import dorkbox.systemTray.MenuItem;
 import dorkbox.systemTray.SystemTray;
+import io.onemfive.DRouter;
 import io.onemfive.util.AppThread;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.logging.Logger;
 
-public class DRouterTray {
+public class DesktopTray {
 
-    private Logger LOG = Logger.getLogger(DRouterTray.class.getName());
+    private Logger LOG = Logger.getLogger(DesktopTray.class.getName());
 
     public static final String INITIALIZING = "Initializing...";
     public static final String STARTING = "Starting...";
@@ -58,7 +59,7 @@ public class DRouterTray {
     private MenuItem quitMenuItem;
 
     public void start(DRouter dRouter) {
-        SystemTray.SWING_UI = new DRouterUI();
+        SystemTray.SWING_UI = new DesktopTrayUI();
         systemTray = SystemTray.get();
         if (systemTray == null) {
             throw new RuntimeException("Unable to load SystemTray!");

@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive;
+package io.onemfive.desktop;
 
 import dorkbox.systemTray.Entry;
 import dorkbox.systemTray.Menu;
@@ -44,7 +44,7 @@ import java.awt.*;
  * Factory to allow for Look & Feel of the Swing UI components in the SystemTray.
  */
 public
-class DRouterUI implements SwingUIFactory {
+class DesktopTrayUI implements SwingUIFactory {
 
     /**
      * Allows one to specify the Look & Feel of the menus (The main SystemTray and sub-menus)

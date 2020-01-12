@@ -34,6 +34,7 @@ import io.onemfive.core.admin.AdminService;
 import io.onemfive.core.client.Client;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.client.ClientStatusListener;
+import io.onemfive.desktop.DesktopTray;
 import io.onemfive.util.AppThread;
 import io.onemfive.data.Envelope;
 import io.onemfive.util.DLC;
@@ -67,7 +68,7 @@ public class DRouter {
     private static Scanner scanner;
     private static Status status = Status.Shutdown;
     private static boolean useTray = false;
-    private static DRouterTray tray;
+    private static DesktopTray tray;
     private static int uiPort;
     private boolean peerDiscoveryStarted = false;
     private ServiceStatus networkServiceStatus = ServiceStatus.SHUTDOWN;
@@ -123,7 +124,7 @@ public class DRouter {
         LOG.info("1M5 Version: "+config.getProperty("1m5.version")+"."+config.getProperty("1m5.version.build"));
 
         // Launch Tray
-        tray = new DRouterTray();
+        tray = new DesktopTray();
         tray.start(instance);
         DesktopApp.setDappTray(tray);
         status = Status.Initialized;
@@ -133,7 +134,7 @@ public class DRouter {
     public void start() {
         try {
             status = Status.Starting;
-            tray.updateStatus(DRouterTray.STARTING);
+            tray.updateStatus(DesktopTray.STARTING);
             // launch router
             instance.launch();
             running = true;
@@ -144,11 +145,11 @@ public class DRouter {
             }
             if(oneMFiveAppContext.getServiceBus().gracefulShutdown()) {
                 status = Status.Shutdown;
-                tray.updateStatus(DRouterTray.STOPPED);
+                tray.updateStatus(DesktopTray.STOPPED);
                 System.out.println("1M5 Dapp Stopped.");
             } else {
                 status = Status.Errored;
-                tray.updateStatus(DRouterTray.ERRORED);
+                tray.updateStatus(DesktopTray.ERRORED);
                 System.out.println("1M5 Dapp Errored on Shutdown.");
             }
             OneMFiveAppContext.clearGlobalContext(); // Make sure we don't use the old context when restarting
@@ -192,22 +193,22 @@ public class DRouter {
                 switch(clientAppManagerStatus) {
                     case INITIALIZING: {
                         LOG.info("Dapp starting...");
-                        tray.updateStatus(DRouterTray.STARTING);
+                        tray.updateStatus(DesktopTray.STARTING);
                         break;
                     }
                     case READY: {
                         LOG.info("Dapp connected.");
-                        tray.updateStatus(DRouterTray.CONNECTED);
+                        tray.updateStatus(DesktopTray.CONNECTED);
                         break;
                     }
                     case STOPPING: {
                         LOG.info("Dapp stopping...");
-                        tray.updateStatus(DRouterTray.SHUTTINGDOWN);
+                        tray.updateStatus(DesktopTray.SHUTTINGDOWN);
                         break;
                     }
                     case STOPPED: {
                         LOG.info("Dapp stopped.");
-                        tray.updateStatus(DRouterTray.STOPPED);
+                        tray.updateStatus(DesktopTray.STOPPED);
                         break;
                     }
                 }
@@ -244,16 +245,16 @@ public class DRouter {
                 }
                 networkServiceStatus = serviceStatus;
                 if(serviceStatus == ServiceStatus.RUNNING) {
-                    tray.updateStatus(DRouterTray.CONNECTED);
+                    tray.updateStatus(DesktopTray.CONNECTED);
                 } else if(serviceStatus == ServiceStatus.PARTIALLY_RUNNING) {
                     LOG.info("1M5 Sensor Service reporting Partially Running. Updating status to Reconnecting...");
-                    tray.updateStatus(DRouterTray.RECONNECTING);
+                    tray.updateStatus(DesktopTray.RECONNECTING);
                 } else if(serviceStatus == ServiceStatus.DEGRADED_RUNNING) {
                     LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Reconnecting...");
-                    tray.updateStatus(DRouterTray.DEGRADED);
+                    tray.updateStatus(DesktopTray.DEGRADED);
                 } else if(serviceStatus == ServiceStatus.BLOCKED) {
                     LOG.info("1M5 Sensor Service reporting Degraded Running. Updating status to Blocked.");
-                    tray.updateStatus(DRouterTray.BLOCKED);
+                    tray.updateStatus(DesktopTray.BLOCKED);
                 }
             }
         };

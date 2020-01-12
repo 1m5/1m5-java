@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive;
+package io.onemfive.desktop;
 
 import java.net.URL;
 
