@@ -65,3 +65,6 @@ across the user community. Some future projects include:
 * using Shortwave/Full Radio Spectrum (large scope that will be broken down)
 * using LiFi (some research completed, vendor relationship in place)
 * [Nym](https://nymtech.net/) potentially
+
+## History
+* Created and submitted as proposal #168 on 1/12/2020
