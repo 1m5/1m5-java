@@ -268,22 +268,6 @@ public class OneMFiveAppContext {
                 (new Exception("I did it")).printStackTrace();
             }
         }
-
-        // InfoVaultDB
-        try {
-            if(overrideProps.getProperty(InfoVaultDB.class.getName()) != null) {
-                LOG.info("Instantiating InfoVaultDB of type: "+overrideProps.getProperty(InfoVaultDB.class.getName()));
-                infoVaultDB = InfoVaultService.getInfoVaultDBInstance(overrideProps.getProperty(InfoVaultDB.class.getName()));
-            } else {
-                LOG.info("No InfoVaultDB type provided. Instantiating InfoVaultDB of default type: "+LocalFSInfoVaultDB.class.getName());
-                infoVaultDB = InfoVaultService.getInfoVaultDBInstance(LocalFSInfoVaultDB.class.getName());
-            }
-            infoVaultDB.setLocation(servicesDir.getAbsolutePath()+"/"+InfoVaultService.class.getSimpleName());
-            infoVaultDB.setName("1m5-infovault-db");
-            infoVaultDB.init(overrideProps);
-        } catch (Exception e) {
-            LOG.warning(e.getLocalizedMessage());
-        }
         this.configured = true;
     }
 
