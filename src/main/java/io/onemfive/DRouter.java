@@ -81,7 +81,14 @@ public class DRouter {
     private static AppThread routerThread;
 
     public static void main(String[] args) {
-        LOG.info("1M5 Dapp initializing...\n\tThread name: " + Thread.currentThread().getName());
+        LOG.info("1M5 initializing...\n\tThread name: " + Thread.currentThread().getName());
+        // Start GUI
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Application.launch(DesktopApp.class);
+            }
+        }).start();
         // Start bus in separate thread
         routerThread = new AppThread(new Runnable() {
             @Override
@@ -96,9 +103,6 @@ public class DRouter {
             }
         }, "1M5-Router-Thread");
         routerThread.start();
-        waitABit(2000); // Wait 2 seconds for Client to get created and passed to DesktopApp
-        // Start GUI in current thread
-        Application.launch(DesktopApp.class);
     }
 
     public static void init(String[] args) throws Exception {
@@ -171,10 +175,6 @@ public class DRouter {
         running = false;
         waiting = false;
         System.exit(0);
-    }
-
-    public void launchUI() {
-       // TODO: set show on HomeView
     }
 
     private void launch() throws Exception {

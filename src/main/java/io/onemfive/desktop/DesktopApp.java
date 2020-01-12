@@ -58,7 +58,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
     public static double width;
     public static double height;
 
-    private Stage stage;
+    private static Stage stage;
     private boolean popupOpened;
     private Scene scene;
     private boolean shutDownRequested;
@@ -121,7 +121,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
 
         // make the UI visible
 //        stage.show();
-        show();
+//        show();
     }
 
     @Override
@@ -162,7 +162,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
         }
     }
 
-    public void show() {
+    public static void show() {
         stage.show();
     }
 

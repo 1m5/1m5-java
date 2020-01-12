@@ -26,6 +26,7 @@
  */
 package io.onemfive.desktop;
 
+import com.sun.javafx.application.PlatformImpl;
 import dorkbox.systemTray.MenuItem;
 import dorkbox.systemTray.SystemTray;
 import io.onemfive.DRouter;
@@ -70,7 +71,12 @@ public class DesktopTray {
         launchDesktopMenuItem = new MenuItem("Desktop", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                new AppThread(dRouter::launchUI).start();
+                PlatformImpl.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        DesktopApp.show();
+                    }
+                });
             }
         });
         launchDesktopMenuItem.setEnabled(true);
