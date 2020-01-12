@@ -54,7 +54,7 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
     private Hash passphraseHash;
     private Hash.Algorithm passphraseHashAlgorithm = Hash.Algorithm.PBKDF2WithHmacSHA1; // Default
     private String description = "";
-    private Status status = Status.ACTIVE;
+    private Status status = Status.INACTIVE;
     private volatile Boolean verified = false;
     private volatile Boolean authenticated = false;
     // Identities used for personal identification: Alias, PublicKey
