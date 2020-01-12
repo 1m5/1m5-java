@@ -26,10 +26,6 @@
  */
 package io.onemfive.core.infovault;
 
-import io.onemfive.data.DID;
-import io.onemfive.util.JSONParser;
-import io.onemfive.util.JSONPretty;
-
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;

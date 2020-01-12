@@ -89,16 +89,17 @@ public class InfoVaultService extends BaseService {
         LOG.warning("Not yet implemented.");
     }
 
-    public static InfoVaultDB getInfoVaultDBInstance(String infoVaultDBClass)
-            throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
-        InfoVaultDB instance = instances.get(infoVaultDBClass);
-        if(instance == null) {
-            synchronized (lock) {
-                instance = (InfoVaultDB)Class.forName(infoVaultDBClass).getConstructor().newInstance();
-                instances.put(infoVaultDBClass,instance);
-            }
-        }
-        return instance;
+    public static InfoVaultDB factory(String name, String location, String infoVaultDBClass, Properties properties) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        InfoVaultDB db = (InfoVaultDB)Class.forName(infoVaultDBClass).getConstructor().newInstance();
+        db.setLocation(location);
+        db.setName(name);
+        db.init(properties);
+        instances.put(name, db);
+        return db;
+    }
+
+    public static InfoVaultDB getInfoVaultDBInstance(String name) {
+        return instances.get(name);
     }
 
     @Override

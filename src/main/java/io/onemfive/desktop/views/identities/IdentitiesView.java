@@ -154,7 +154,8 @@ public class IdentitiesView extends ActivatableView {
                     did.getPublicKey().setAlias(identityAliasTxt.getText());
                     Envelope e1 = Envelope.documentFactory();
                     DLC.addData(DID.class, did, e1);
-                    DLC.addRoute(UIService.class, UIService.OPERATION_NOTIFY_UI, e1);
+                    DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e1);
+                    DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e1);
                     DLC.addRoute(DIDService.class, DIDService.OPERATION_SAVE_IDENTITY, e1);
                     DRouter.sendRequest(e1);
                 }
@@ -165,6 +166,7 @@ public class IdentitiesView extends ActivatableView {
         ListView<String> identitiesList = new ListView<>();
         identitiesList.setPrefSize(400, 500);
         identitiesList.setItems(identityAddresses);
+        identitiesList.setEditable(true);
         identitiesPane.getChildren().add(identitiesList);
 
         Button deleteIdentity = new Button("Delete");

@@ -72,13 +72,16 @@ public class UIService extends BaseService {
     }
 
     private void handleAll(Envelope e) {
+        LOG.info("Received UI Service request...");
         Route route = e.getRoute();
         String operation = route.getOperation();
         switch (operation) {
             case OPERATION_UPDATE_ACTIVE_IDENTITY: {
+                LOG.info("Update active identity request...");
                 final DID activeIdentity = (DID)DLC.getEntity(e);
                 if(activeIdentity!=null) {
                     Platform.runLater(() -> {
+                        LOG.info("Updating IdentitiesView active DID...");
                         IdentitiesView v = (IdentitiesView)ViewLoader.load(IdentitiesView.class, true);
                         v.updateActiveDID(activeIdentity);
                     });
@@ -86,9 +89,11 @@ public class UIService extends BaseService {
                 break;
             }
             case OPERATION_UPDATE_CONTACTS: {
+                LOG.info("Update active contacts request...");
                 final List<DID> contacts = (List<DID>)DLC.getValue("contacts", e);
                 if(contacts!=null) {
                     Platform.runLater(() -> {
+                        LOG.info("Updating IdentitiesView contacts...");
                         IdentitiesView v = (IdentitiesView)ViewLoader.load(IdentitiesView.class, true);
                         v.updateContacts(contacts);
                     });
@@ -96,9 +101,11 @@ public class UIService extends BaseService {
                 break;
             }
             case OPERATION_UPDATE_IDENTITIES: {
+                LOG.info("Update identities request...");
                 final List<DID> identities = (List<DID>)DLC.getValue("identities", e);
                 if(identities!=null) {
                     Platform.runLater(() -> {
+                        LOG.info("Updating IdentitiesView identities...");
                         IdentitiesView v = (IdentitiesView)ViewLoader.load(IdentitiesView.class, true);
                         v.updateIdentities(identities);
                     });

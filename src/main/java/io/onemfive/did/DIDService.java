@@ -550,20 +550,9 @@ public class DIDService extends BaseService {
         updateStatus(ServiceStatus.STARTING);
         // TODO: Support external drives (InfoVault)
         try {
-            nodeDB = InfoVaultService.getInfoVaultDBInstance(LocalFSInfoVaultDB.class.getName());
-            nodeDB.setLocation(getServiceDirectory().getAbsolutePath());
-            nodeDB.setName("node");
-            nodeDB.init(properties);
-
-            identitiesDB = InfoVaultService.getInfoVaultDBInstance(LocalFSInfoVaultDB.class.getName());
-            identitiesDB.setLocation(getServiceDirectory().getAbsolutePath());
-            identitiesDB.setName("identities");
-            identitiesDB.init(properties);
-
-            contactsDB = InfoVaultService.getInfoVaultDBInstance(LocalFSInfoVaultDB.class.getName());
-            contactsDB.setLocation(getServiceDirectory().getAbsolutePath());
-            contactsDB.setName("contacts");
-            contactsDB.init(properties);
+            nodeDB = InfoVaultService.factory("node", getServiceDirectory().getAbsolutePath(), LocalFSInfoVaultDB.class.getName(), properties);
+            identitiesDB = InfoVaultService.factory("identities", getServiceDirectory().getAbsolutePath(), LocalFSInfoVaultDB.class.getName(), properties);
+            contactsDB = InfoVaultService.factory("contacts", getServiceDirectory().getAbsolutePath(), LocalFSInfoVaultDB.class.getName(), properties);
         } catch (ClassNotFoundException e) {
             LOG.warning(e.getLocalizedMessage());
             updateStatus(ServiceStatus.ERROR);
