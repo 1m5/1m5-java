@@ -1,2 +1,2 @@
-# 1M5 DAO
-Support for enabling the Decentralized Autonomous Mission.
+# 1M5 DAM
+Support for enabling the Decentralized Autonomous Mission (DAM).
