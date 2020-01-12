@@ -1,5 +1,5 @@
 # Censorship Resistance with 1M5 Integration
-Proposal for Bisq Network to integrate 1M5 into their communication stack, inter-node and when accessing remote Bitcoin nodes.
+Proposal for Bisq Network to integrate [1M5](https://1m5.io) into their communication stack, inter-node and when accessing remote Bitcoin, seed, and pricing nodes.
 
 ## Issue
 [Censorship](https://en.wikipedia.org/wiki/Censorship) is the suppression of speech, public communication, or other information, on the basis that such material is 
