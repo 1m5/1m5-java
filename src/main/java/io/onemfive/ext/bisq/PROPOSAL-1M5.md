@@ -20,6 +20,8 @@ Routing using Tor, I2P, Bluetooth, WiFi Direct, WiFi, Shortwave, and LiFi to ens
 
 Development would require the ability to expose 1M5 as a proxy to Bisq, testing the integration, then documenting it. In addition, a 1M5 Operator/Admin Role would be added to monitor and report on 1M5 effectiveness fixing any bugs that come up while providing an expected level of support.
 
+1M5 is open source under the Unlicense 'license' and free to use. Long-term it is desired to be managed and developed similarly to Bisq's DAO as a Decentralized Autonomous Mission.
+
 1M5 currently can access the Tor and I2P networks. Ensuring Tor blocks get routed through I2P until a node with 1M5 that has access to Tor can complete the request needs a little extra work and testing. Additional networks will be integrated in the future.
 
 * Integration via Proxy: 520 hours @ 1M Satoshis/hr (~$39k USD 1/2020)
