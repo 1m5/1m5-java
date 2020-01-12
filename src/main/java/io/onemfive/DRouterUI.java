@@ -44,7 +44,7 @@ import java.awt.*;
  * Factory to allow for Look & Feel of the Swing UI components in the SystemTray.
  */
 public
-class DAppUI implements SwingUIFactory {
+class DRouterUI implements SwingUIFactory {
 
     /**
      * Allows one to specify the Look & Feel of the menus (The main SystemTray and sub-menus)

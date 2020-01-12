@@ -34,9 +34,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.logging.Logger;
 
-public class DAppTray {
+public class DRouterTray {
 
-    private Logger LOG = Logger.getLogger(DAppTray.class.getName());
+    private Logger LOG = Logger.getLogger(DRouterTray.class.getName());
 
     public static final String INITIALIZING = "Initializing...";
     public static final String STARTING = "Starting...";
@@ -57,8 +57,8 @@ public class DAppTray {
     private MenuItem launchDesktopMenuItem;
     private MenuItem quitMenuItem;
 
-    public void start(DApp dApp) {
-        SystemTray.SWING_UI = new DAppUI();
+    public void start(DRouter dRouter) {
+        SystemTray.SWING_UI = new DRouterUI();
         systemTray = SystemTray.get();
         if (systemTray == null) {
             throw new RuntimeException("Unable to load SystemTray!");
@@ -69,7 +69,7 @@ public class DAppTray {
         launchDesktopMenuItem = new MenuItem("Desktop", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                new AppThread(dApp::launchUI).start();
+                new AppThread(dRouter::launchUI).start();
             }
         });
         launchDesktopMenuItem.setEnabled(true);
@@ -84,9 +84,9 @@ public class DAppTray {
                     public void run() {
                         systemTray.setImage(Resources.SYS_TRAY_ICON_YELLOW);
                         updateStatus("Quitting");
-                        dApp.shutdown();
+                        dRouter.shutdown();
                         systemTray.shutdown();
-                        dApp.exit();
+                        dRouter.exit();
                     }
                 }.start();
             }

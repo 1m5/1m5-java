@@ -27,7 +27,7 @@
 package io.onemfive.desktop;
 
 import dorkbox.systemTray.SystemTray;
-import io.onemfive.DAppTray;
+import io.onemfive.DRouterTray;
 import io.onemfive.core.client.Client;
 import io.onemfive.util.AppThread;
 import io.onemfive.util.UncaughtExceptionHandler;
@@ -50,7 +50,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
     private static final Logger LOG = Logger.getLogger(DesktopApp.class.getName());
 
     private static Client client;
-    private static DAppTray dAppTray;
+    private static DRouterTray dRouterTray;
     private static SystemTray systemTray;
     private static AppThread routerThread;
 
@@ -68,9 +68,9 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
         shutDownHandler = this::stop;
     }
 
-    public static void setDappTray(DAppTray tray) {
-        dAppTray = tray;
-        systemTray = dAppTray.systemTray;
+    public static void setDappTray(DRouterTray tray) {
+        dRouterTray = tray;
+        systemTray = dRouterTray.systemTray;
     }
 
     public static void setup(AppThread thread, Client c) {
