@@ -170,7 +170,7 @@ public class OneMFiveAppContext {
             }
         }  else {
             try {
-                baseDir = SystemSettings.getUserAppHomeDir("1m5","core",true);
+                baseDir = SystemSettings.getUserAppHomeDir("1m5","router",true);
             } catch (IOException e) {
                 LOG.warning(e.getLocalizedMessage());
                 return;
@@ -178,9 +178,9 @@ public class OneMFiveAppContext {
             if(baseDir!=null) {
                 overrideProps.put("1m5.dir.base", baseDir.getAbsolutePath());
             } else {
-                baseDir = SystemSettings.getSystemApplicationDir("1m5", "core", true);
+                baseDir = SystemSettings.getSystemApplicationDir("1m5", "router", true);
                 if (baseDir == null) {
-                    LOG.severe("Unable to create base system directory for 1M5 core.");
+                    LOG.severe("Unable to create base system directory for 1M5 router.");
                     return;
                 } else {
                     baseStr = baseDir.getAbsolutePath();
@@ -291,21 +291,21 @@ public class OneMFiveAppContext {
      *  attempt to write to it.
      *  It may actually be read-only on a multi-user installation.
      *
-     *  In Linux, the path is: /usr/share/1m5/core
-     *  In Mac, the path is: /Applications/1m5/core
-     *  in Windows, the path is: C:\\\\Program Files\\1m5\\core
+     *  In Linux, the path is: /home/[user]/1m5/router
+     *  In Mac, the path is: /home/[user]/Applications/1m5/router
+     *  in Windows, the path is: C:\\\\Program Files\\1m5\\router
      *
      *  @return File constant for the life of the context
      */
     public File getBaseDir() { return baseDir; }
 
     /**
-     *  The direcory for core config files.
+     *  The directory for config files.
      *  Dapps may use this to read router configuration files if necessary.
      *  There may also be config files in this directory as templates for user
      *  installations that should not be altered by dapps.
      *
-     *  1m5/core/config
+     *  1m5/router/config
      *
      *  @return File constant for the life of the context
      */
@@ -315,7 +315,7 @@ public class OneMFiveAppContext {
      *  The OS process id of the currently running instance.
      *  Dapps should not use this.
      *
-     *  1m5/core/pid
+     *  1m5/router/pid
      *
      *  @return File constant for the life of the context
      */
@@ -325,7 +325,7 @@ public class OneMFiveAppContext {
      *  Where the log directory is.
      *  Dapps should not use this.
      *
-     *  1m5/core/log
+     *  1m5/router/log
      *
      *  @return File constant for the life of the context
      */
@@ -335,7 +335,7 @@ public class OneMFiveAppContext {
      *  Where the core stores core-specific data.
      *  Applications should create their own data directory within their base directory.
      *
-     *  1m5/core/data
+     *  1m5/router/data
      *
      *  @return File constant for the life of the context
      */
@@ -345,7 +345,7 @@ public class OneMFiveAppContext {
      *  Where the core may store cache.
      *  Applications should create their own cache directory within their base directory.
      *
-     *  1m5/core/cache
+     *  1m5/router/cache
      *
      *  @return File constant for the life of the context
      */
@@ -356,7 +356,7 @@ public class OneMFiveAppContext {
      *  This directory is created on the first call in this context and is deleted on JVM exit.
      *  Applications should create their own temp directory within their base directory.
      *
-     *  1m5/core/tmp
+     *  1m5/router/tmp
      *
      *  @return File constant for the life of the context
      */
