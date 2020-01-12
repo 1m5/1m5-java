@@ -68,18 +68,15 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
         shutDownHandler = this::stop;
     }
 
-    public static void setClient(Client c) {
-        client = c;
-        ViewLoader.setClient(c);
-    }
-
     public static void setDappTray(DAppTray tray) {
         dAppTray = tray;
         systemTray = dAppTray.systemTray;
     }
 
-    public static void setRouterThread(AppThread thread) {
+    public static void setup(AppThread thread, Client c) {
         routerThread = thread;
+        client = c;
+        ViewLoader.setup(routerThread, client);
     }
 
     @Override

@@ -45,7 +45,9 @@ public class UIService extends BaseService {
     private static final Logger LOG = Logger.getLogger(UIService.class.getName());
 
     public static final String OPERATION_NOTIFY_UI = "NOTIFY_UI";
+    public static final String OPERATION_UPDATE_ACTIVE_IDENTITY = "UPDATE_ACTIVE_IDENTITY";
     public static final String OPERATION_UPDATE_CONTACTS = "UPDATE_CONTACTS";
+    public static final String OPERATION_UPDATE_IDENTITIES = "UPDATE_IDENTITIES";
 
     public UIService() {
     }
@@ -73,14 +75,35 @@ public class UIService extends BaseService {
         Route route = e.getRoute();
         String operation = route.getOperation();
         switch (operation) {
+            case OPERATION_UPDATE_ACTIVE_IDENTITY: {
+                final DID activeIdentity = (DID)DLC.getEntity(e);
+                if(activeIdentity!=null) {
+                    Platform.runLater(() -> {
+                        IdentitiesView v = (IdentitiesView)ViewLoader.load(IdentitiesView.class, true);
+                        v.updateActiveDID(activeIdentity);
+                    });
+                }
+                break;
+            }
             case OPERATION_UPDATE_CONTACTS: {
-                List<DID> contacts = (List<DID>)DLC.getValue("contacts", e);
+                final List<DID> contacts = (List<DID>)DLC.getValue("contacts", e);
                 if(contacts!=null) {
                     Platform.runLater(() -> {
                         IdentitiesView v = (IdentitiesView)ViewLoader.load(IdentitiesView.class, true);
                         v.updateContacts(contacts);
                     });
                 }
+                break;
+            }
+            case OPERATION_UPDATE_IDENTITIES: {
+                final List<DID> identities = (List<DID>)DLC.getValue("identities", e);
+                if(identities!=null) {
+                    Platform.runLater(() -> {
+                        IdentitiesView v = (IdentitiesView)ViewLoader.load(IdentitiesView.class, true);
+                        v.updateIdentities(identities);
+                    });
+                }
+                break;
             }
             case OPERATION_NOTIFY_UI: {
                 LOG.warning("UI Notifications not yet implemented.");

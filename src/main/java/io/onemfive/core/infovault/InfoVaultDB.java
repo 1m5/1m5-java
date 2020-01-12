@@ -51,6 +51,8 @@ public interface InfoVaultDB {
 
     byte[] load(String label, String key) throws FileNotFoundException;
 
+    List<byte[]> loadRange(String label, int start, int numberEntries);
+
     List<byte[]> loadAll(String label);
 
     Status getStatus();

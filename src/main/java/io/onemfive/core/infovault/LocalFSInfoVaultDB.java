@@ -26,10 +26,12 @@
  */
 package io.onemfive.core.infovault;
 
+import io.onemfive.data.DID;
+import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
+
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class LocalFSInfoVaultDB extends BaseInfoVaultDB {
@@ -122,6 +124,44 @@ public class LocalFSInfoVaultDB extends BaseInfoVaultDB {
             file = new File(path, key);
 
         return loadFile(file);
+    }
+
+    @Override
+    public List<byte[]> loadRange(String label, int start, int numberEntries) {
+        LOG.info("Loading range of content for label: "+label);
+        List<byte[]> contentList = new ArrayList<>();
+        File path = null;
+        if(label != null) {
+            path = new File(dbDir, label);
+            if(path.exists()) {
+                // first get a list of file names and sort them alphabetically
+                File[] children = path.listFiles();
+                Map<String,File> fileMap = new HashMap<>();
+                List<String> names = new ArrayList<>();
+                for(File f : children) {
+                    names.add(f.getName());
+                    fileMap.put(f.getName(), f);
+                }
+                Collections.sort(names);
+                int cursor = 1;
+                int end = start + numberEntries;
+                File f;
+                for(String name : names) {
+                    if(cursor>=start) {
+                        f = fileMap.get(name);
+                        try {
+                            contentList.add(loadFile(f));
+                        } catch (FileNotFoundException e) {
+                            LOG.warning("File not found: " + f.getAbsolutePath());
+                        }
+                    }
+                    cursor++;
+                    if(cursor > end)
+                        break;
+                }
+            }
+        }
+        return contentList;
     }
 
     @Override
@@ -221,5 +261,40 @@ public class LocalFSInfoVaultDB extends BaseInfoVaultDB {
 //
 //        System.out.println("did1.hash: "+did.getIdentityHash());
 //        System.out.println("did2.hash: "+didLoaded.getIdentityHash());
+//    }
+//    public static void main(String[] args) {
+//        LocalFSInfoVaultDB db = new LocalFSInfoVaultDB();
+//        db.setLocation("/home/objectorange/Projects/1m5/1m5/src/main/resources/");
+//        db.setName("contacts");
+//        db.init(null);
+//        try {
+//            DID didA = new DID();
+//            didA.setUsername("Alice");
+//            didA.setStatus(DID.Status.ACTIVE);
+//            didA.getPublicKey().setAddress("1234567890");
+//            didA.getAttributes().put("birthday", "1991-12-21");
+//            db.save(DID.class.getName(), didA.getUsername(), JSONPretty.toPretty(JSONParser.toString(didA.toMap()), 4).getBytes(), true);
+//
+//            DID didB = new DID();
+//            didB.setUsername("Bob");
+//            didB.setStatus(DID.Status.ACTIVE);
+//            didB.getPublicKey().setAddress("1234567890");
+//            didB.getAttributes().put("birthday", "1992-12-21");
+//            db.save(DID.class.getName(), didB.getUsername(), JSONPretty.toPretty(JSONParser.toString(didB.toMap()), 4).getBytes(), true);
+//
+//            DID didC = new DID();
+//            didC.setUsername("Charlie");
+//            didC.setStatus(DID.Status.ACTIVE);
+//            didC.getPublicKey().setAddress("1234567890");
+//            didC.getAttributes().put("birthday", "1993-12-21");
+//            db.save(DID.class.getName(), didC.getUsername(), JSONPretty.toPretty(JSONParser.toString(didC.toMap()), 4).getBytes(), true);
+//
+//            List<byte[]> bytes = db.loadRange(DID.class.getName(), 1, 10);
+//            for(byte[] b : bytes) {
+//                System.out.print(new String(b));
+//            }
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
 //    }
 }

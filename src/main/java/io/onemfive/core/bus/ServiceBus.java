@@ -33,6 +33,7 @@ import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.orchestration.OrchestrationService;
+import io.onemfive.desktop.UIService;
 import io.onemfive.util.AppThread;
 import io.onemfive.data.Envelope;
 import io.onemfive.util.DLC;
@@ -334,6 +335,9 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
         // Additional Services should be registered by client via Admin Service
         AdminService adminService = new AdminService(this, this);
         registeredServices.put(AdminService.class.getName(), adminService);
+
+        UIService uiService = new UIService(this, this);
+        registeredServices.put(UIService.class.getName(), uiService);
 
         // Start Registered Services
         for(final String serviceName : registeredServices.keySet()) {

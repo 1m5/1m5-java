@@ -27,8 +27,12 @@
 package io.onemfive.desktop.views.identities;
 
 import io.onemfive.data.DID;
+import io.onemfive.data.Envelope;
 import io.onemfive.desktop.DesktopApp;
+import io.onemfive.desktop.UIService;
 import io.onemfive.desktop.views.ActivatableView;
+import io.onemfive.did.DIDService;
+import io.onemfive.util.DLC;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -43,12 +47,32 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.util.List;
+
 public class IdentitiesView extends ActivatableView {
 
     private ObservableList<String> identityAddresses = FXCollections.observableArrayList();
     private ObservableList<String> contactAddresses = FXCollections.observableArrayList();
 
     private DID activeDID;
+
+    public void updateActiveDID(DID activeDID) {
+        this.activeDID = activeDID;
+    }
+
+    public void updateIdentities(List<DID> identities) {
+        identityAddresses.clear();
+        for(DID i : identities) {
+            identityAddresses.add(i.getUsername() + ": "+i.getPublicKey().getAddress());
+        }
+    }
+
+    public void updateContacts(List<DID> contacts) {
+        contactAddresses.clear();
+        for(DID c : contacts) {
+            contactAddresses.add(c.getUsername() + ": "+c.getPublicKey().getAddress());
+        }
+    }
 
     @Override
     protected void initialize() {
@@ -89,19 +113,41 @@ public class IdentitiesView extends ActivatableView {
         identitiesPane.getChildren().add(addIdentityBox);
 
         TextField identityAliasTxt = new TextField();
-        identityAliasTxt.setPrefWidth(150);
+        identityAliasTxt.setPrefWidth(100);
         addIdentityBox.getChildren().add(identityAliasTxt);
 
+        TextField identityPwdText = new TextField();
+        identityPwdText.setPrefWidth(100);
+        addIdentityBox.getChildren().add(identityPwdText);
+
+        TextField identityPwd2Text = new TextField();
+        identityPwd2Text.setPrefWidth(100);
+        addIdentityBox.getChildren().add(identityPwd2Text);
+
         TextField identityAddress = new TextField();
-        identityAddress.setPrefWidth(350);
+        identityAddress.setPrefWidth(200);
         addIdentityBox.getChildren().add(identityAddress);
 
         Button addIdemtity = new Button("Add");
         addIdemtity.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                if(!identityAliasTxt.getText().isEmpty() && !identityAddress.getText().isEmpty()) {
-
+                if(!identityAliasTxt.getText().isEmpty()
+                        && !identityAddress.getText().isEmpty()
+                        && !identityPwdText.getText().isEmpty()
+                        && !identityPwd2Text.getText().isEmpty()) {
+                    Envelope e = Envelope.documentFactory();
+                    DID did = new DID();
+                    did.setUsername(identityAliasTxt.getText());
+                    did.setPassphrase(identityPwdText.getText());
+                    did.setPassphrase2(identityPwd2Text.getText());
+                    did.getPublicKey().setAddress(identityAddress.getText());
+                    did.getPublicKey().setAlias(identityAliasTxt.getText());
+                    Envelope e1 = Envelope.documentFactory();
+                    DLC.addData(DID.class, did, e1);
+                    DLC.addRoute(UIService.class, UIService.OPERATION_NOTIFY_UI, e1);
+                    DLC.addRoute(DIDService.class, DIDService.OPERATION_SAVE_IDENTITY, e1);
+                    client.request(e1);
                 }
             }
         });
@@ -161,29 +207,29 @@ public class IdentitiesView extends ActivatableView {
         addContactBox.getChildren().add(contactAddress);
 
         Button addContact = new Button("Add");
-        addContact.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                if(!contractAliasTxt.getText().isEmpty() && !contactAddress.getText().isEmpty()) {
-//                    contactAddresses.add(contractAliasTxt.getText() + ": " + contactAddress.getText());
-//                    contractAliasTxt.clear();
-//                    contactAddress.clear();
-                }
+        addContact.setOnAction(actionEvent -> {
+            // TODO: Add error handling for alias and address
+            if(contractAliasTxt.getText().isEmpty()) {
+                LOG.info("Alias is required.");
+                return;
             }
+            if(contactAddress.getText().isEmpty()) {
+                LOG.info("Address is required.");
+                return;
+            }
+            DID did = new DID();
+            did.setUsername(contractAliasTxt.getText());
+            did.getPublicKey().setAddress(contactAddress.getText());
+            Envelope e = Envelope.documentFactory();
+            DLC.addRoute(UIService.class, UIService.OPERATION_NOTIFY_UI, e);
+            DLC.addRoute(DIDService.class, DIDService.OPERATION_ADD_CONTACT, e);
+            DLC.addEntity(did, e);
+            client.request(e);
         });
         addContactBox.getChildren().add(addContact);
 
         ListView<String> contactsList = new ListView<>();
         contactsList.setPrefSize(400,500);
-
-        // Get Contacts
-
-
-//        addresses.add("Alice: f8j2kwjfdwjaf4faofrj4oif8qojfi4fjpq38f4pmf348fjf");
-//        addresses.add("Bob: fo347ha7uihfu7h4yfk74uqfh7f43nffh747f2h473fh7f4n3");
-//        addresses.add("Charlie: iufhqofi437ufn4oiufhaf4bafiuhlkfqh4flk43nffn4lfnquf4");
-//        addresses.add("Danny: fiewufqhfeiufhefiluo7qlohf7ihefqeifhflukahnfaufhlwfe");
-
         contactsList.setItems(contactAddresses);
         contactsPane.getChildren().add(contactsList);
 
@@ -193,11 +239,29 @@ public class IdentitiesView extends ActivatableView {
             public void handle(ActionEvent actionEvent) {
                 int index = contactsList.getSelectionModel().getSelectedIndex();
                 if(index >= 0) {
-//                    contactAddresses.remove(index);
+
                 }
             }
         });
         contactsPane.getChildren().add(deleteContact);
+
+        // Get Identities
+        Envelope e1 = Envelope.documentFactory();
+        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e1);
+        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e1);
+        client.request(e1);
+
+        // Get Contacts
+        Envelope e2 = Envelope.documentFactory();
+        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_CONTACTS, e2);
+        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_CONTACTS, e2);
+        client.request(e2);
+
+        // Get Active Identity
+        Envelope e3 = Envelope.documentFactory();
+        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_ACTIVE_IDENTITY, e3);
+        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_ACTIVE_IDENTITY, e3);
+        client.request(e3);
 
         LOG.info("Initialized.");
     }

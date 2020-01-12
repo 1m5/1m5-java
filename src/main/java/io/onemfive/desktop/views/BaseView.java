@@ -28,6 +28,7 @@ package io.onemfive.desktop.views;
 
 import io.onemfive.core.client.Client;
 import io.onemfive.desktop.Navigation;
+import io.onemfive.util.AppThread;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 
@@ -38,6 +39,7 @@ public abstract class BaseView implements View {
     protected final Logger LOG = Logger.getLogger(this.getClass().getName());
 
     protected Client client;
+    protected Thread routerThread;
 
     @FXML
     protected Node root;
@@ -46,7 +48,8 @@ public abstract class BaseView implements View {
 
     public BaseView() {}
 
-    void setClient(Client client) {
+    void setup(AppThread thread, Client client) {
+        routerThread = thread;
         this.client = client;
     }
 

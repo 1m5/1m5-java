@@ -177,12 +177,12 @@ public class DApp {
     }
 
     private void launch() throws Exception {
-        // Getting ClientAppManager starts 1M5 Bus
         oneMFiveAppContext = OneMFiveAppContext.getInstance(config);
+        // Getting ClientAppManager starts 1M5 Bus
         manager = oneMFiveAppContext.getClientAppManager(config);
         manager.setShutdownOnLastUnregister(true);
         client = manager.getClient(true);
-        DesktopApp.setClient(client);
+        DesktopApp.setup(routerThread, client);
 
         ClientStatusListener clientStatusListener = new ClientStatusListener() {
             @Override

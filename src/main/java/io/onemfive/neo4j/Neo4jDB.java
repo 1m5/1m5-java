@@ -89,6 +89,11 @@ public class Neo4jDB extends BaseInfoVaultDB {
         return content;
     }
 
+    @Override
+    public List<byte[]> loadRange(String label, int start, int numberEntries) {
+        return null;
+    }
+
     public List<byte[]> loadAll(String label) {
         List<byte[]> byteList = new ArrayList<>();
         ResourceIterator<Node> nodes = graphDb.findNodes(Label.label(label));

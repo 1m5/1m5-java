@@ -27,6 +27,7 @@
 package io.onemfive.desktop.views;
 
 import io.onemfive.core.client.Client;
+import io.onemfive.util.AppThread;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 
@@ -40,9 +41,12 @@ public class ViewLoader {
 
     private static final Logger LOG = Logger.getLogger(ViewLoader.class.getName());
     private static final HashMap<Object, BaseView> cache = new HashMap<>();
-    private static Client client;
 
-    public static void setClient(Client c) {
+    private static Client client;
+    private static AppThread routerThread;
+
+    public static void setup(AppThread thread, Client c) {
+        routerThread = thread;
         client = c;
     }
 
@@ -63,7 +67,7 @@ public class ViewLoader {
                     try {
                         view = (BaseView)Class.forName(viewClass.getName()).getConstructor().newInstance();
                         view.setRoot(n);
-                        view.setClient(client);
+                        view.setup(routerThread, client);
                         if(useCache) {
                             cache.put(viewClass, view);
                         }
