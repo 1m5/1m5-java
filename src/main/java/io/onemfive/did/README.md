@@ -2,9 +2,20 @@
 Implementing [Web Of Trust](https://en.wikipedia.org/wiki/Web_of_trust) with Self Sovereign Identity.
 
 [W3C DID Specification](https://w3c-ccg.github.io/did-spec/) used as a guideline to ensure interoperability with other DID
-implementations.
+implementations. Once implemented IAW the [spec](https://w3c.github.io/did-core/), 
+[registration](https://w3c-ccg.github.io/did-method-registry/#the-registration-process) can be accomplished.
+[Verification](https://github.com/w3c-ccg/did-test-suite/) implementation is IAW the spec is the final work required.
  
 Uses Key Ring Service to Manage the Physical Persistence, Generation, Encryption, Decryption, Revocation, and Destruction of Keys
+
+## Abstract (from W3C)
+Decentralized identifiers (DIDs) are a new type of identifier to provide verifiable, decentralized digital identity. 
+These new identifiers are designed to enable the controller of a DID to prove control over it and to be implemented 
+independently of any centralized registry, identity provider, or certificate authority. DIDs are URLs that relate a 
+DID subject to a DID document allowing trustable interactions with that subject. DID documents are simple documents 
+describing how to use that specific DID. Each DID document can express cryptographic material, verification methods, 
+or service endpoints, which provide a set of mechanisms enabling a DID controller to prove control of the DID. 
+Service endpoints enable trusted interactions with the DID subject. 
 
 ## Bill of Rights
 
