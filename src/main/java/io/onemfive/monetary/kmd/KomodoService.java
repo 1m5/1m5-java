@@ -27,11 +27,15 @@
 package io.onemfive.monetary.kmd;
 
 import io.onemfive.core.BaseService;
+import io.onemfive.core.MessageProducer;
+import io.onemfive.core.ServiceStatus;
+import io.onemfive.core.ServiceStatusListener;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Request;
 import io.onemfive.data.route.Route;
 import io.onemfive.util.DLC;
 
+import java.util.Properties;
 import java.util.logging.Logger;
 
 public class KomodoService extends BaseService {
@@ -40,20 +44,52 @@ public class KomodoService extends BaseService {
 
     public static final String OPERATION_SPEND = "SPEND";
 
+    public KomodoService() {
+    }
+
+    public KomodoService(MessageProducer producer, ServiceStatusListener listener) {
+        super(producer, listener);
+    }
+
     @Override
     public void handleDocument(Envelope e) {
-        LOG.warning("Komodo not yet implemented.");
+        LOG.warning("Not yet implemented.");
         Route route = e.getRoute();
         String operation = route.getOperation();
         switch(operation) {
-            case OPERATION_SPEND: {
-                Request request = (Request) DLC.getData(Request.class,e);
-//                if(!bitcoin.send(request)) {
-//                    LOG.warning("Issue sending BTC to "+request.base58To);
-//                }
-                break;
-            }
             default: deadLetter(e); // Operation not supported
         }
+    }
+
+    @Override
+    public boolean start(Properties p) {
+        LOG.info("Starting....");
+        updateStatus(ServiceStatus.STARTING);
+
+        updateStatus(ServiceStatus.RUNNING);
+        LOG.info("Started.");
+        return true;
+    }
+
+    @Override
+    public boolean shutdown() {
+        LOG.info("Shutting down...");
+        updateStatus(ServiceStatus.SHUTTING_DOWN);
+
+
+        updateStatus(ServiceStatus.SHUTDOWN);
+        LOG.info("Shutdown.");
+        return true;
+    }
+
+    @Override
+    public boolean gracefulShutdown() {
+        LOG.info("Gracefully shutting down...");
+        updateStatus(ServiceStatus.GRACEFULLY_SHUTTING_DOWN);
+
+
+        updateStatus(ServiceStatus.GRACEFULLY_SHUTDOWN);
+        LOG.info("Gracefully shutdown.");
+        return true;
     }
 }
