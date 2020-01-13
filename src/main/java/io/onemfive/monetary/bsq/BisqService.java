@@ -27,7 +27,9 @@
 package io.onemfive.monetary.bsq;
 
 import io.onemfive.core.BaseService;
+import io.onemfive.core.MessageProducer;
 import io.onemfive.core.ServiceStatus;
+import io.onemfive.core.ServiceStatusListener;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.route.Route;
 
@@ -43,8 +45,16 @@ public class BisqService extends BaseService {
 
     private static final Logger LOG = Logger.getLogger(BisqService.class.getName());
 
+    public BisqService() {
+    }
+
+    public BisqService(MessageProducer producer, ServiceStatusListener listener) {
+        super(producer, listener);
+    }
+
     @Override
     public void handleDocument(Envelope e) {
+        LOG.warning("Not yet implemented.");
         Route route = e.getRoute();
         String operation = route.getOperation();
         switch(operation) {
