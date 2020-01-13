@@ -277,6 +277,13 @@
 			<artifactId>jfoenix</artifactId>
 			<version>9.0.6</version>
 		</dependency>
+		<!-- Monero -->
+		<dependency>
+			<groupId>io.github.monero-ecosystem</groupId>
+			<artifactId>monero-java</artifactId>
+			<version>0.2.1</version>
+		</dependency>
+
 		<!-- Test -->
 		<dependency>
 			<groupId>junit</groupId>
