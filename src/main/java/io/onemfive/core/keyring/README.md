@@ -25,6 +25,9 @@ As of 0.5.2, it is only supporting:
 
 #### Smart PGP Key Ring
 
+#### Shamir Secret Sharing
+https://en.wikipedia.org/wiki/Shamir's_Secret_Sharing
+
 ##### Purism
 https://docs.puri.sm/Librem_Key.html
 
