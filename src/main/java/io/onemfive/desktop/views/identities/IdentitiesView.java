@@ -27,11 +27,14 @@
 package io.onemfive.desktop.views.identities;
 
 import io.onemfive.DRouter;
+import io.onemfive.core.keyring.AuthNRequest;
+import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.data.DID;
 import io.onemfive.data.Envelope;
 import io.onemfive.desktop.DesktopApp;
 import io.onemfive.desktop.UIService;
 import io.onemfive.desktop.views.ActivatableView;
+import io.onemfive.did.AuthenticateDIDRequest;
 import io.onemfive.did.DIDService;
 import io.onemfive.util.DLC;
 import javafx.collections.FXCollections;
@@ -112,9 +115,9 @@ public class IdentitiesView extends ActivatableView {
         identityPwd2Col.setPrefWidth(100);
         identitiesHeader.getChildren().add(identityPwd2Col);
 
-        Label identityAddressCol = new Label("Address");
-        identityAddressCol.setPrefWidth(200);
-        identitiesHeader.getChildren().add(identityAddressCol);
+        Label identityLocationCol = new Label("Location");
+        identityLocationCol.setPrefWidth(200);
+        identitiesHeader.getChildren().add(identityLocationCol);
 
         HBox addIdentityBox = new HBox();
         addIdentityBox.setPadding(new Insets(5));
@@ -133,31 +136,44 @@ public class IdentitiesView extends ActivatableView {
         identityPwd2Text.setPrefWidth(100);
         addIdentityBox.getChildren().add(identityPwd2Text);
 
-        TextField identityAddress = new TextField();
-        identityAddress.setPrefWidth(200);
-        addIdentityBox.getChildren().add(identityAddress);
+        TextField identityLocationText = new TextField();
+        identityLocationText.setPrefWidth(200);
+        addIdentityBox.getChildren().add(identityLocationText);
 
         Button addIdemtity = new Button("Add");
         addIdemtity.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 if(!identityAliasTxt.getText().isEmpty()
-                        && !identityAddress.getText().isEmpty()
                         && !identityPwdText.getText().isEmpty()
                         && !identityPwd2Text.getText().isEmpty()) {
                     Envelope e = Envelope.documentFactory();
+                    // 4. Update UI
+                    DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e);
+                    // 3. Load ordered Identities
+                    DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e);
+                    // 2. Authenticate/Save DID
                     DID did = new DID();
                     did.setUsername(identityAliasTxt.getText());
                     did.setPassphrase(identityPwdText.getText());
                     did.setPassphrase2(identityPwd2Text.getText());
-                    did.getPublicKey().setAddress(identityAddress.getText());
-                    did.getPublicKey().setAlias(identityAliasTxt.getText());
-                    Envelope e1 = Envelope.documentFactory();
-                    DLC.addData(DID.class, did, e1);
-                    DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e1);
-                    DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e1);
-                    DLC.addRoute(DIDService.class, DIDService.OPERATION_SAVE_IDENTITY, e1);
-                    DRouter.sendRequest(e1);
+                    AuthenticateDIDRequest adr = new AuthenticateDIDRequest();
+                    adr.did = did;
+                    adr.autogenerate = true;
+                    DLC.addData(AuthenticateDIDRequest.class, adr, e);
+                    DLC.addRoute(DIDService.class, DIDService.OPERATION_AUTHENTICATE,e);
+                    // 1. Load Public Key addresses for short and full addresses
+                    AuthNRequest ar = new AuthNRequest();
+                    ar.location = identityLocationText.getText();
+                    ar.keyRingUsername = did.getUsername();
+                    ar.keyRingPassphrase = did.getPassphrase();
+                    ar.alias = did.getUsername(); // use username as default alias
+                    ar.aliasPassphrase = did.getPassphrase(); // just use same passphrase
+                    ar.autoGenerate = true;
+                    DLC.addData(AuthNRequest.class, ar, e);
+                    DLC.addRoute(KeyRingService.class, KeyRingService.OPERATION_AUTHN, e);
+                    // Send
+                    DRouter.sendRequest(e);
                 }
             }
         });

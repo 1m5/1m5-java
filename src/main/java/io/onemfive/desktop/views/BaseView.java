@@ -26,7 +26,6 @@
  */
 package io.onemfive.desktop.views;
 
-import io.onemfive.core.client.Client;
 import io.onemfive.desktop.Navigation;
 import javafx.fxml.FXML;
 import javafx.scene.Node;

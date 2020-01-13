@@ -304,6 +304,7 @@ public class NetworkService extends BaseService {
             }
         } else if(msg instanceof NetworkPeer) {
             LOG.info("Route in DID with I2P Address...");
+            // TODO: update DIDService's node DID
             NetworkPeer np = (NetworkPeer)msg;
             NetworkPeer localPeer = peerManager.getLocalPeer();
             if(np.getI2PFingerprint()!=null)
@@ -717,6 +718,7 @@ public class NetworkService extends BaseService {
             producer.send(e2);
 
             // Credentials
+            // TODO: All of this needs moved to the DIDService's node directory
             String username = "Alice";
             String passphrase = null;
             try {

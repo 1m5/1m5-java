@@ -109,11 +109,13 @@ public class KeyRingService extends BaseService {
                     DLC.addData(GenerateKeyRingCollectionsRequest.class, r, e);
                     break;
                 }
-                if(r.location == null) {
-                    r.statusCode = GenerateKeyRingCollectionsRequest.KEY_RING_LOCATION_REQUIRED;
-                    break;
+                File f;
+                if(r.location == null || r.location.isEmpty()) {
+                    // default
+                    f = getServiceDirectory();
+                } else {
+                    f = new File(r.location);
                 }
-                File f = new File(r.location);
                 if(!f.exists() && !f.mkdir()) {
                     r.statusCode = GenerateKeyRingCollectionsRequest.KEY_RING_LOCATION_INACCESSIBLE;
                     break;
@@ -149,11 +151,19 @@ public class KeyRingService extends BaseService {
             }
             case OPERATION_AUTHN: {
                 AuthNRequest r = (AuthNRequest)DLC.getData(AuthNRequest.class,e);
-                if(r.location == null) {
-                    r.statusCode = AuthNRequest.KEYRING_LOCATION_REQUIRED;
+                if(r==null) {
+                    r = new AuthNRequest();
+                    r.statusCode = AuthNRequest.REQUEST_REQUIRED;
+                    DLC.addData(AuthNRequest.class, r, e);
                     break;
                 }
-                File f = new File(r.location);
+                File f;
+                if(r.location == null || r.location.isEmpty()) {
+                    // Set locally
+                    f = getServiceDirectory();
+                } else {
+                    f = new File(r.location);
+                }
                 if(!f.exists() && !f.mkdir()) {
                     r.statusCode = AuthNRequest.KEYRING_LOCATION_INACCESSIBLE;
                     break;
@@ -241,11 +251,13 @@ public class KeyRingService extends BaseService {
                     r.statusCode = GenerateKeyRingsRequest.REQUEST_REQUIRED;
                     break;
                 }
-                if(r.location == null) {
-                    r.statusCode = GenerateKeyRingsRequest.KEYRING_LOCATION_REQUIRED;
-                    break;
+                File f;
+                if(r.location == null || r.location.isEmpty()) {
+                    // Set locally
+                    f = getServiceDirectory();
+                } else {
+                    f = new File(r.location);
                 }
-                File f = new File(r.location);
                 if(!f.exists() && !f.mkdir()) {
                     r.statusCode = GenerateKeyRingsRequest.KEYRING_LOCATION_INACCESSIBLE;
                     break;
