@@ -185,6 +185,9 @@ Documentation of the Core starts [here](https://github.com/1m5/core/tree/master/
 
 ## Integrations
 
+### [Bisq](https://bisq.network)
+Decentralized Exchange for Bitcoin/Fiat as well as other altcoins. Slated for future work.
+
 ### [Inkrypt](https://inkrypt.io)
 
 #### Anonymous Decentralized Cloud 
@@ -203,26 +206,6 @@ to share it with to include no one or everyone (global public).
 ## Support
 Support can be purchased with Bitcoin when availability exists. Please request support
 at: info@1m5.io
-
-Consulting is purchased in 10 hour blocks for 1 BTC (as of 1/2019).
-
-On-demand availability can be purchased in annual packages below.
-* Service Level Agreement (SLA) is maximum response time in hours
-* X is multiplier: Multiply it by the number of 10 hour blocks you wish to purchase to determine price,
-e.g. 30 hours of Live SLA is 2 * 30 hours * 1 BTC/10 hours = 6 BTC
-
-When multiple SLA packages are purchased
-and a support request is made, include the
-SLA package you wish to use.
-
-Note: Unused hours do not accumulate.
-
-| Package  | SLA  |  X   |
-|----------|:----:|:----:|
-| Develop  |   32 |  1   |
-| Testing  |   18 |  1.5 |   
-| Live     |    2 |  2   |
-| Critical | 0.25 |  3   |
 
 ## Fund Raising
 1M5 is funded entirely through donations, support, and volunteers. 
