@@ -396,6 +396,11 @@ public class DIDService extends BaseService {
      */
     private void authenticateIdentity(AuthenticateDIDRequest r, boolean isNode) {
         DID loadedDID = loadIdentity(r.did.getUsername(), isNode);
+        if(loadedDID==null) {
+            r.did.setAuthenticated(false);
+            r.statusCode = AuthenticateDIDRequest.DID_USERNAME_UNKNOWN;
+            return;
+        }
         if(loadedDID.getPassphraseHash()==null) {
             if(r.autogenerate) {
                 r.did.setVerified(true);
