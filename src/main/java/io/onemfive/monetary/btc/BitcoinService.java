@@ -26,6 +26,8 @@
  */
 package io.onemfive.monetary.btc;
 
+import io.onemfive.core.MessageProducer;
+import io.onemfive.core.ServiceStatusListener;
 import io.onemfive.data.route.Route;
 import io.onemfive.monetary.btc.blockchain.BlockChain;
 import io.onemfive.monetary.btc.blockstore.BlockStore;
@@ -58,6 +60,13 @@ public class BitcoinService extends BaseService {
     private Wallet wallet;
 
     private BitcoinConfig config;
+
+    public BitcoinService() {
+    }
+
+    public BitcoinService(MessageProducer producer, ServiceStatusListener listener) {
+        super(producer, listener);
+    }
 
     @Override
     public void handleDocument(Envelope e) {
