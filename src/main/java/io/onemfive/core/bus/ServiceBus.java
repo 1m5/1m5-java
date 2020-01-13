@@ -34,6 +34,10 @@ import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.orchestration.OrchestrationService;
 import io.onemfive.desktop.UIService;
+import io.onemfive.monetary.bsq.BisqService;
+import io.onemfive.monetary.btc.BitcoinService;
+import io.onemfive.monetary.kmd.KomodoService;
+import io.onemfive.monetary.xmr.MoneroService;
 import io.onemfive.util.AppThread;
 import io.onemfive.data.Envelope;
 import io.onemfive.util.DLC;
@@ -338,6 +342,26 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
 
         UIService uiService = new UIService(this, this);
         registeredServices.put(UIService.class.getName(), uiService);
+
+        if("true".equals(properties.getProperty("1m5.bsq.enabled"))) {
+            BisqService bisqService = new BisqService(this, this);
+            registeredServices.put(BisqService.class.getName(), bisqService);
+        }
+
+        if("true".equals(properties.getProperty("1m5.btc.enabled"))) {
+            BitcoinService bitcoinService = new BitcoinService(this, this);
+            registeredServices.put(BitcoinService.class.getName(), bitcoinService);
+        }
+
+        if("true".equals(properties.getProperty("1m5.kmd.enabled"))) {
+            KomodoService komodoService = new KomodoService(this, this);
+            registeredServices.put(KomodoService.class.getName(), komodoService);
+        }
+
+        if("true".equals(properties.getProperty("1m5.xmr.enabled"))) {
+            MoneroService moneroService = new MoneroService(this, this);
+            registeredServices.put(MoneroService.class.getName(), moneroService);
+        }
 
         // Start Registered Services
         for(final String serviceName : registeredServices.keySet()) {
