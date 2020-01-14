@@ -45,12 +45,15 @@ public abstract class BasePeerManager implements PeerManager, PeerReport {
 
     protected NetworkService service;
     protected NetworkPeer localPeer = new NetworkPeer();
-    protected PeerDiscovery peerDiscovery;
     protected TaskRunner taskRunner;
 
-    public BasePeerManager() {}
+    public BasePeerManager() {
+        localPeer = new NetworkPeer();
+        localPeer.setLocal(true);
+    }
 
     public BasePeerManager(TaskRunner runner) {
+        this();
         taskRunner = runner;
     }
 
@@ -58,7 +61,7 @@ public abstract class BasePeerManager implements PeerManager, PeerReport {
         this.properties = properties;
     }
 
-    public void setSensorsService(NetworkService service) {
+    public void setNetworkService(NetworkService service) {
         this.service = service;
     }
 
@@ -105,11 +108,6 @@ public abstract class BasePeerManager implements PeerManager, PeerReport {
     @Override
     public Boolean init(Properties properties) {
         this.properties = properties;
-        if(taskRunner==null) {
-            taskRunner = new TaskRunner();
-        }
-        peerDiscovery = new PeerDiscovery(PeerDiscovery.class.getSimpleName(), service, taskRunner, properties);
-        taskRunner.addTask(peerDiscovery);
         return true;
     }
 
