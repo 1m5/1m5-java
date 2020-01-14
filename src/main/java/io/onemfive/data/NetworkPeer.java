@@ -283,7 +283,7 @@ public class NetworkPeer implements Addressable, JSONSerializable, PIIClearable 
     public Map<String, Object> toMap() {
         Map<String,Object> m = new HashMap<>();
         if(local!=null)
-            m.put("local", local);
+            m.put("local", local.toString());
         if(network!=null)
             m.put("network",network);
         if(getAddress()!=null)
