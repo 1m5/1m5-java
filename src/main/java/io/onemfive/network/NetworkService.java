@@ -31,6 +31,7 @@ import io.onemfive.core.keyring.AuthNRequest;
 import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
+import io.onemfive.network.peers.PeerDiscovery;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.*;
@@ -666,9 +667,11 @@ public class NetworkService extends BaseService {
         // Peer Manager
         try {
             peerManager = (BasePeerManager) Class.forName(peerManagerClass).getConstructor().newInstance();
-            peerManager.setSensorsService(this);
+            peerManager.setNetworkService(this);
             peerManager.setTaskRunner(taskRunner);
             sensorManager.setPeerManager(peerManager);
+            PeerDiscovery peerDiscovery = new PeerDiscovery("1M5PeerDiscovery", this, taskRunner, properties);
+            taskRunner.addTask(peerDiscovery);
         } catch (Exception e) {
             LOG.warning("Exception caught while creating instance of Peer Manager "+sensorManagerClass);
             e.printStackTrace();
