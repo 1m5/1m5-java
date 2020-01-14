@@ -43,6 +43,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
+/**
+ * TODO: Currently average latency is not network-specific nor mancon-specific; we need to add these into the mix
+ */
 public class GraphPeerManager extends BasePeerManager {
 
     private static final Logger LOG = Logger.getLogger(GraphPeerManager.class.getName());
@@ -51,7 +54,7 @@ public class GraphPeerManager extends BasePeerManager {
     public static final String PEER_LOCAL = "localPeer";
 
     // Peer-to-Peer Relationship
-    public static final String PEER_TO_PEER_AVG_LATENCY = "peerToPeerAvgLatency";
+    public static final String AVG_ACK_LATENCY_MS = "avgAckLatencyMS";
 
     public static final String DBNAME = "1m5_peers_db";
 
@@ -120,37 +123,49 @@ public class GraphPeerManager extends BasePeerManager {
         return true;
     }
 
-//    public Node[] findShortestPath(NetworkPeer fromPeer, NetworkPeer toPeer) {
-//        Node[] shortestPath = null;
-//        PathFinder<Path> finder = GraphAlgoFactory.shortestPath(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.Known, Direction.OUTGOING), 15);
-//
-//        Node startNode = findPeerNode(fromPeer, true);
-//        Node endNode = findPeerNode(toPeer, true);
-//        Iterator<Path> i = finder.findAllPaths( startNode, endNode ).iterator();
-//        Path p;
-//        while(i.hasNext()) {
-//            p = i.next();
-//
-//        }
-//        return shortestPath;
-//    }
-//
-//    public Node[] findLowestLatencyPath(NetworkPeer fromPeer, NetworkPeer toPeer) {
-//        Node[] lowestLatencyPath = null;
-//        try (Transaction tx = db.getGraphDb().beginTx()) {
-//            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.Known, Direction.OUTGOING), PEER_TO_PEER_AVG_LATENCY);
-//            Node startNode = findPeerNode(fromPeer);
-//            Node endNode = findPeerNode(toPeer);
-//            if (startNode != null && endNode != null) {
-//                WeightedPath path = finder.findSinglePath(startNode, endNode);
-//                double weight = path.weight();
-//            }
-//            tx.success();
-//        } catch (Exception e) {
-//            LOG.warning(e.getLocalizedMessage());
-//        }
-//        return lowestLatencyPath;
-//    }
+    public List<NetworkPeer> findLeastHopsPath(NetworkPeer fromPeer, NetworkPeer toPeer) {
+        List<NetworkPeer> leastHopsPath = new ArrayList<>();
+        try (Transaction tx = db.getGraphDb().beginTx()) {
+            PathFinder<Path> finder = GraphAlgoFactory.shortestPath(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.Known, Direction.OUTGOING), 15);
+            Node startNode = findPeerNode(fromPeer);
+            Node endNode = findPeerNode(toPeer);
+            if (startNode != null && endNode != null) {
+                Path p = finder.findSinglePath(startNode, endNode);
+                NetworkPeer np;
+                for(Node n : p.nodes()) {
+                    np = toPeer(n);
+                    leastHopsPath.add(np);
+                }
+            }
+            tx.success();
+        } catch (Exception e) {
+            LOG.warning(e.getLocalizedMessage());
+        }
+        return leastHopsPath;
+    }
+
+    public List<NetworkPeer> findLowestLatencyPath(NetworkPeer fromPeer, NetworkPeer toPeer) {
+        List<NetworkPeer> lowestLatencyPath = new ArrayList<>();
+        try (Transaction tx = db.getGraphDb().beginTx()) {
+            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.Known, Direction.OUTGOING), AVG_ACK_LATENCY_MS);
+            Node startNode = findPeerNode(fromPeer);
+            Node endNode = findPeerNode(toPeer);
+            if (startNode != null && endNode != null) {
+                WeightedPath path = finder.findSinglePath(startNode, endNode);
+                double weight = path.weight();
+                LOG.info("weight="+weight);
+                NetworkPeer np;
+                for(Node n : path.nodes()) {
+                    np = toPeer(n);
+                    lowestLatencyPath.add(np);
+                }
+            }
+            tx.success();
+        } catch (Exception e) {
+            LOG.warning(e.getLocalizedMessage());
+        }
+        return lowestLatencyPath;
+    }
 
     @Override
     public NetworkPeer getLocalPeer() {
@@ -841,7 +856,7 @@ public class GraphPeerManager extends BasePeerManager {
         LOG.info("Relationship: "+rel);
         long sent = 10 *60*1000;
         long ack;
-        for(int i=0; i<105; i++) {
+        for(int i=0; i<2; i++) {
             ack = sent + 2000;
             mgr.savePeerStatusTimes(local, p1, sent, ack);
             sent = ack;
