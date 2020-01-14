@@ -137,12 +137,18 @@ public class GraphPeerManager extends BasePeerManager {
 //
 //    public Node[] findLowestLatencyPath(NetworkPeer fromPeer, NetworkPeer toPeer) {
 //        Node[] lowestLatencyPath = null;
-//        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.Known, Direction.OUTGOING), PEER_TO_PEER_AVG_LATENCY);
-//        Node startNode = findPeerNode(fromPeer, true);
-//        Node endNode = findPeerNode(toPeer, true);
-//        WeightedPath path = finder.findSinglePath( startNode, endNode );
-//        double weight = path.weight();
-//
+//        try (Transaction tx = db.getGraphDb().beginTx()) {
+//            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.Known, Direction.OUTGOING), PEER_TO_PEER_AVG_LATENCY);
+//            Node startNode = findPeerNode(fromPeer);
+//            Node endNode = findPeerNode(toPeer);
+//            if (startNode != null && endNode != null) {
+//                WeightedPath path = finder.findSinglePath(startNode, endNode);
+//                double weight = path.weight();
+//            }
+//            tx.success();
+//        } catch (Exception e) {
+//            LOG.warning(e.getLocalizedMessage());
+//        }
 //        return lowestLatencyPath;
 //    }
 
