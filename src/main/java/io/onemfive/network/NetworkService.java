@@ -123,7 +123,8 @@ public class NetworkService extends BaseService {
                     LOG.warning("Must provide a destination address when using a NetworkRequest.");
                     return;
                 }
-                packet = peerManager.buildPacket(request.origination, request.destination, e.getSensitivity());
+                packet = peerManager.buildPacket(request.origination, request.destination);
+                packet.setEnvelope(e);
                 sensor = sensorManager.selectSensor(packet);
                 if(sensor != null) {
                     LOG.info("Sending Packet to selected Sensor...");
@@ -185,7 +186,8 @@ public class NetworkService extends BaseService {
                     LOG.warning("Must provide a destination address when using a NetworkRequest.");
                     return;
                 }
-                Packet packet = peerManager.buildPacket(request.destination, request.origination, e.getSensitivity());
+                Packet packet = peerManager.buildPacket(request.destination, request.origination);
+                packet.setEnvelope(e);
                 Sensor sensor = sensorManager.selectSensor(packet);
                 sensor.replyOut(packet);
                 break;
