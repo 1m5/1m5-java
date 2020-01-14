@@ -22,3 +22,5 @@ target
 /.classpath
 /.project
 /.settings/
+/src/test/resources/logs
+**/store_lock
