@@ -48,7 +48,7 @@ public class NetworkPeer implements Addressable, JSONSerializable, PIIClearable 
 
     protected String network;
     protected DID did;
-    protected Boolean isLocal = false;
+    protected Boolean local = false;
 
     public NetworkPeer() {
         this(Network.IMS.name(), null, null);
@@ -266,12 +266,12 @@ public class NetworkPeer implements Addressable, JSONSerializable, PIIClearable 
             did.getPeer(Network.LIFI.name()).setFingerprint(fingerprint);
     }
 
-    public Boolean isLocal() {
-        return isLocal;
+    public Boolean getLocal() {
+        return local;
     }
 
     public void setLocal(Boolean local) {
-        isLocal = local;
+        this.local = local;
     }
 
     @Override
@@ -282,6 +282,8 @@ public class NetworkPeer implements Addressable, JSONSerializable, PIIClearable 
     @Override
     public Map<String, Object> toMap() {
         Map<String,Object> m = new HashMap<>();
+        if(local!=null)
+            m.put("local", local);
         if(network!=null)
             m.put("network",network);
         if(getAddress()!=null)
@@ -315,6 +317,7 @@ public class NetworkPeer implements Addressable, JSONSerializable, PIIClearable 
 
     @Override
     public void fromMap(Map<String, Object> m) {
+        if(m.get("local")!=null) local = Boolean.parseBoolean((String)m.get("local"));
         if(m.get("network")!=null) network = (String)m.get("network");
         if(m.get("address")!=null) setAddress((String)m.get("address"));
         if(m.get("fingerprint")!=null) setFingerprint((String)m.get("fingerprint"));
@@ -349,7 +352,7 @@ public class NetworkPeer implements Addressable, JSONSerializable, PIIClearable 
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
-        sb.append("{\n\tlocal: "+isLocal());
+        sb.append("{\n\tlocal: "+ getLocal());
 
         if(getNetwork()!=null)
             sb.append("\n\tnetwork: "+getNetwork());
