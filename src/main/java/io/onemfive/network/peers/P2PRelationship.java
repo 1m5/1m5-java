@@ -28,6 +28,8 @@ package io.onemfive.network.peers;
 
 import io.onemfive.data.JSONSerializable;
 import io.onemfive.network.sensors.SensorsConfig;
+import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
 import org.neo4j.graphdb.RelationshipType;
 
 import java.util.HashMap;
@@ -137,5 +139,10 @@ public class P2PRelationship implements JSONSerializable {
             if(m.get("ackTimesTracked")!=null)
                 ackTimesTracked = (String)m.get("ackTimesTracked");
         }
+    }
+
+    @Override
+    public String toString() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
     }
 }
