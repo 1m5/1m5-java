@@ -27,11 +27,15 @@
 package io.onemfive.network.peers;
 
 import io.onemfive.util.FileUtil;
+import io.onemfive.util.RandomUtil;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.*;
 import io.onemfive.neo4j.GraphUtil;
 import io.onemfive.neo4j.Neo4jDB;
 import io.onemfive.network.sensors.SensorsConfig;
+import org.neo4j.graphalgo.GraphAlgoFactory;
+import org.neo4j.graphalgo.PathFinder;
+import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.IndexDefinition;
 
@@ -148,14 +152,12 @@ public class GraphPeerManager extends BasePeerManager {
     }
 
     @Override
-    public Packet buildPacket(DID origination, DID destination, Sensitivity sensitivity) {
-        Packet packet = new Packet();
-        NetworkPeer origNP;
-        NetworkPeer destNP;
-        NetworkPeer to;
-        NetworkPeer from;
-
-        return packet;
+    public Packet buildPacket(DID origination, DID destination) {
+        Packet p = new Packet();
+        p.setId(String.valueOf(RandomUtil.nextRandomLong()));
+        p.setOriginationPeer(findPeerByAddress(origination.getPublicKey().getAddress()));
+        p.setDestinationPeer(findPeerByAddress(destination.getPublicKey().getAddress()));
+        return p;
     }
 
     @Override
@@ -200,6 +202,39 @@ public class GraphPeerManager extends BasePeerManager {
             LOG.info("Peers related as known.");
         }
         return true;
+    }
+
+    /**
+     * Requires to be used within a Transaction
+     * @param p
+     * @return
+     * @throws Exception
+     */
+    private Node findPeerNode(NetworkPeer p) {
+        if(p==null) return null;
+        NetworkPeer loaded = null;
+        String addressName = null;
+        String address;
+        if(p.getIMSAddress()!=null) {
+            addressName = "1m5Address";
+            address = p.getIMSAddress();
+        } else if(p.getI2PAddress()!=null) {
+            addressName = "i2pAddress";
+            address = p.getI2PAddress();
+        } else if(p.getTorAddress()!=null) {
+            addressName = "torAddress";
+            address = p.getTorAddress();
+        } else if(p.getSDRAddress()!=null) {
+            addressName = "sdrAddress";
+            address = p.getSDRAddress();
+        } else if(p.getLiFiAddress()!=null) {
+            addressName = "lifiAddress";
+            address = p.getLiFiAddress();
+        } else {
+            LOG.warning("NetworkPeer must have at least one valid address to load.");
+            return null;
+        }
+        return db.getGraphDb().findNode(PEER_LABEL, addressName, address);
     }
 
     @Override
@@ -656,7 +691,6 @@ public class GraphPeerManager extends BasePeerManager {
                 LOG.warning(e.getLocalizedMessage());
             }
             // Update stats
-            knownRel.advanceTotalAcks();
             knownRel.setLastAckTime(timeAcknowledged);
             knownRel.addAckTimeTracked(timeAcknowledged - timeSent);
             avgAckLatency = knownRel.getAvgAckLatencyMS();
@@ -798,6 +832,15 @@ public class GraphPeerManager extends BasePeerManager {
         NetworkPeer local = mgr.findPeerByAddress(mgr.localPeer.getAddress());
         LOG.info("Local?:"+local);
         P2PRelationship rel = mgr.getRelationship(local, p1, P2PRelationship.RelType.Known);
+        LOG.info("Relationship: "+rel);
+        long sent = 10 *60*1000;
+        long ack;
+        for(int i=0; i<105; i++) {
+            ack = sent + 2000;
+            mgr.savePeerStatusTimes(local, p1, sent, ack);
+            sent = ack;
+        }
+        rel = mgr.getRelationship(local, p1, P2PRelationship.RelType.Known);
         LOG.info("Relationship: "+rel);
     }
 }

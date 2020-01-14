@@ -54,11 +54,6 @@ public class P2PRelationship implements JSONSerializable {
     private Long avgAckLatencyMS = 0L;
     private String ackTimesTracked;
 
-    public Long advanceTotalAcks() {
-        totalAcks++;
-        return totalAcks;
-    }
-
     public void setTotalAcks(long totalAcks) {
         this.totalAcks = totalAcks;
     }
@@ -72,13 +67,14 @@ public class P2PRelationship implements JSONSerializable {
         if(ackTimesTracked ==null || ackTimesTracked.isEmpty()) {
             ackTimesTracked = String.valueOf(t);
         } else {
-            ackTimesTracked += "," + String.valueOf(t);
+            ackTimesTracked += "," + t;
         }
         int currNumberAcksTracked = ackTimesTracked.split(",").length;
         while(currNumberAcksTracked > SensorsConfig.MaxAT) {
             ackTimesTracked = ackTimesTracked.substring(ackTimesTracked.indexOf(",")+1);
             currNumberAcksTracked--;
         }
+        totalAcks++;
     }
 
     public String getAckTimesTracked() {

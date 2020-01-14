@@ -56,7 +56,7 @@ public interface PeerManager extends Runnable {
     Boolean savePeer(NetworkPeer peer, Boolean autocreate);
     NetworkPeer loadPeer(NetworkPeer peer);
     Boolean isRemoteLocal(NetworkPeer r);
-    Packet buildPacket(DID origination, DID destination, Sensitivity sensitivity);
+    Packet buildPacket(DID origination, DID destination);
     List<NetworkPeer> getAllPeers(NetworkPeer fromPeer, int pageSize, int beginIndex);
     Long totalPeersByRelationship(NetworkPeer fromPeer, P2PRelationship.RelType relType);
     Long totalPeersByRelationshipAndSensitivity(NetworkPeer fromPeer, P2PRelationship.RelType relType, Sensitivity sensitivity);
