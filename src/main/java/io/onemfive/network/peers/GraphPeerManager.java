@@ -53,7 +53,9 @@ public class GraphPeerManager extends BasePeerManager {
 
     private Neo4jDB db;
 
-    public GraphPeerManager() { }
+    public GraphPeerManager() {
+        super();
+    }
 
     public GraphPeerManager(TaskRunner runner) {
         super(runner);
@@ -61,21 +63,22 @@ public class GraphPeerManager extends BasePeerManager {
 
     public Boolean init(Properties properties) {
         if(!super.init(properties)) {
-            LOG.warning("Problem starting SensorManagerBase...exiting...");
+            LOG.warning("Problem starting...exiting...");
             return false;
         }
         db = new Neo4jDB();
-        String baseDir = null;
-        try {
-            baseDir = service.getServiceDirectory().getCanonicalPath();
-        } catch (IOException e) {
-            LOG.warning("IOException caught retrieving NetworkService's service directory.");
-            return false;
+        String baseDir = properties.getProperty("1m5.network.peers.dir");
+        if(baseDir==null) {
+            try {
+                baseDir = service.getServiceDirectory().getCanonicalPath();
+            } catch (IOException e) {
+                LOG.warning("IOException caught retrieving NetworkService's service directory.");
+                return false;
+            }
         }
         db.setLocation(baseDir);
         db.setName(DBNAME);
-        String cleanDB = properties.getProperty("onemfive.sensors.db.cleanOnRestart");
-        if (Boolean.parseBoolean(cleanDB)) {
+        if ("true".equals(properties.getProperty("onemfive.network.db.cleanOnRestart"))) {
             FileUtil.rmdir(db.getLocation(), false);
             LOG.info("Cleaned " + DBNAME);
         }
@@ -443,7 +446,7 @@ public class GraphPeerManager extends BasePeerManager {
 
     public boolean isRelated(NetworkPeer peer, P2PRelationship.RelType relType) {
         boolean isRelated = hasRelationship(getLocalPeer(), peer, relType);
-        LOG.info("Are Peers Related? :\n\tLocal Peer Address: "+getLocalPeer().getAddress()+"\n\tRemote Peer Address :"+peer.getAddress()+"\n\t is related: "+isRelated);
+        LOG.info("Are Peers Related?:\n\tLocal Peer Address: "+getLocalPeer().getAddress()+"\n\tRemote Peer Address: "+peer.getAddress()+"\n\t is related: "+isRelated);
         return isRelated;
     }
 
@@ -481,6 +484,28 @@ public class GraphPeerManager extends BasePeerManager {
                 Relationship r = lpn.createRelationshipTo(rpn, relType);
                 rt = initP2PRel(r);
                 LOG.info(rightPeer+" is now a "+relType.name()+" peer of "+leftPeer);
+            }
+            tx.success();
+        } catch(Exception e) {
+            LOG.warning(e.getLocalizedMessage());
+        }
+        return rt;
+    }
+
+    public P2PRelationship getRelationship(NetworkPeer leftPeer, NetworkPeer rightPeer, P2PRelationship.RelType relType) {
+        P2PRelationship rt = null;
+        try (Transaction tx = db.getGraphDb().beginTx()) {
+            Node lpn = db.getGraphDb().findNode(PEER_LABEL, "address", leftPeer.getAddress());
+            Node rpn = db.getGraphDb().findNode(PEER_LABEL, "address", rightPeer.getAddress());
+            Iterator<Relationship> i = lpn.getRelationships(relType, Direction.OUTGOING).iterator();
+            while(i.hasNext()) {
+                Relationship r = i.next();
+                if(r.getNodes()[1].equals(rpn)) {
+                    // load
+                    rt = initP2PRel(r);
+                    LOG.info("Found P2P Relationship");
+                    break;
+                }
             }
             tx.success();
         } catch(Exception e) {
@@ -744,5 +769,35 @@ public class GraphPeerManager extends BasePeerManager {
         P2PRelationship p2PR = new P2PRelationship();
         p2PR.fromMap(toMap(r));
         return p2PR;
+    }
+
+    public static void main(String[] args) {
+        Properties p = new Properties();
+        p.setProperty("1m5.network.peers.dir","/home/objectorange/Projects/1m5/1m5/src/test/resources");
+        GraphPeerManager mgr = new GraphPeerManager();
+        mgr.init(p);
+        // Save local
+        mgr.localPeer.getDid().setUsername("Alice");
+        mgr.localPeer.setAddress("1m5-local");
+        mgr.savePeer(mgr.localPeer, true);
+        // Update I2P Address
+        mgr.localPeer.setI2PAddress("i2p-local");
+        mgr.savePeer(mgr.localPeer, true);
+        // Found Peer
+        NetworkPeer p1 = new NetworkPeer();
+        p1.setAddress("1m5-1");
+        p1.setI2PAddress("i2p-1");
+        mgr.savePeer(p1, true);
+        if(!mgr.isRelated(p1, P2PRelationship.RelType.Known)) {
+            mgr.relatePeers(mgr.localPeer, p1, P2PRelationship.RelType.Known);
+        }
+        long numPeers = mgr.totalPeersByRelationship(mgr.localPeer, P2PRelationship.RelType.Known);
+        LOG.info("num peers: "+numPeers);
+        NetworkPeer neighbor = mgr.findPeerByAddress(p1.getAddress());
+        LOG.info("Found?:" + neighbor);
+        NetworkPeer local = mgr.findPeerByAddress(mgr.localPeer.getAddress());
+        LOG.info("Local?:"+local);
+        P2PRelationship rel = mgr.getRelationship(local, p1, P2PRelationship.RelType.Known);
+        LOG.info("Relationship: "+rel);
     }
 }
