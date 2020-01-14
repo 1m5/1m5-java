@@ -148,6 +148,9 @@ public class SensorManagerUncensored extends SensorManagerSimple {
                 }
             }
         }
+        // TODO: Determine if Destination Peer will work as To Peer with selected Sensor; for now just set both to To/From
+        packet.setToPeer(packet.getDestinationPeer());
+        packet.setFromPeer(packet.getOriginationPeer());
         if(err != null) {
             Envelope e = packet.getEnvelope();
             if (e.getMessage() != null) {
