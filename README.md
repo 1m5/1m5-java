@@ -175,7 +175,7 @@ Key internal services include:
 
 Key add-on services include:
 
-* Sensors Service for integrating different Sensor Managers for intelligent censorship-resistant routing
+* Network Service for integrating different Sensor Managers for intelligent censorship-resistant routing
 * Decentralized IDentification (DID) Service for authentication/authorization and reputation building (Web of Trust)
 
 ## [Implementation](https://github.com/1m5/core/tree/master/src/main/java/io/onemfive/core/README.md)
