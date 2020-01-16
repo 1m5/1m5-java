@@ -36,16 +36,12 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * A node on the 1M5 peer-to-peer network.
- *
- * Maintains addresses of the base networked peers including Tor, I2P, and IDN (Radio + LiFi).
- *
- * In 1M5, a NetworkPeer is provided set with an IMS address/fingerprint
- * with Tor, I2P, SDR, and LiFi set if their respective sensors are activated.
+ * A Peer on the 1M5 peer-to-peer network identified by DID and Network and
+ * whether or not it is local.
  *
  * @author objectorange
  */
-public class NetworkPeer implements JSONSerializable {
+public final class NetworkPeer implements JSONSerializable {
 
     private static Logger LOG = Logger.getLogger(NetworkPeer.class.getName());
 
