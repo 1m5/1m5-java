@@ -28,7 +28,7 @@ package io.onemfive.monetary.btc.blockchain;
 
 import io.onemfive.monetary.btc.packet.RejectPacket;
 import io.onemfive.monetary.btc.network.BitcoinPeer;
-import io.onemfive.monetary.btc.network.PeerDiscovery;
+import io.onemfive.monetary.btc.network.BitcoinPeerDiscovery;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +46,7 @@ public class TransactionBroadcast {
 
     private static final Logger log = Logger.getLogger(TransactionBroadcast.class.getName());
 
-    private PeerDiscovery peerDiscovery;
+    private BitcoinPeerDiscovery peerDiscovery;
     private Transaction tx;
     // Peers that returned a rejection message regarding this broadcast.
     private Map<BitcoinPeer, RejectPacket> rejections = new HashMap<>();
