@@ -23,17 +23,17 @@ public class CoreTest {
 
     @BeforeClass
     public static void startUp() {
-        oneMFiveAppContext = OneMFiveAppContext.getInstance();
-        clientAppManager = oneMFiveAppContext.getClientAppManager(null);
-        client = clientAppManager.getClient(true);
-        // NOTE: Don't forget to increase latch number for each asynchronous assertion
-        lock = new CountDownLatch(1);
-        // Allow startup
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-
-        }
+//        oneMFiveAppContext = OneMFiveAppContext.getInstance();
+//        clientAppManager = oneMFiveAppContext.getClientAppManager(null);
+//        client = clientAppManager.getClient(true);
+//        // NOTE: Don't forget to increase latch number for each asynchronous assertion
+//        lock = new CountDownLatch(1);
+//        // Allow startup
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//
+//        }
     }
 
     public void testBus() {
