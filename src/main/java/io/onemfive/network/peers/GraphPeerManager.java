@@ -26,6 +26,9 @@
  */
 package io.onemfive.network.peers;
 
+import io.onemfive.network.Network;
+import io.onemfive.network.NetworkPeer;
+import io.onemfive.network.Packet;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.RandomUtil;
 import io.onemfive.util.tasks.TaskRunner;
@@ -99,11 +102,7 @@ public class GraphPeerManager extends BasePeerManager {
                 LOG.info("1M5 Indexes not found; creating...");
                 // No Address Indexes...set them up
                 db.getGraphDb().schema().indexFor(PEER_LABEL).withName("NetworkPeer.address").on("address").create();
-                db.getGraphDb().schema().indexFor(PEER_LABEL).withName("NetworkPeer.1m5Address").on("1m5Address").create();
-                db.getGraphDb().schema().indexFor(PEER_LABEL).withName("NetworkPeer.torAddress").on("torAddress").create();
-                db.getGraphDb().schema().indexFor(PEER_LABEL).withName("NetworkPeer.i2pAddress").on("i2pAddress").create();
-                db.getGraphDb().schema().indexFor(PEER_LABEL).withName("NetworkPeer.sdrAddress").on("sdrAddress").create();
-                db.getGraphDb().schema().indexFor(PEER_LABEL).withName("NetworkPeer.lifiAddress").on("lifiAddress").create();
+                db.getGraphDb().schema().indexFor(PEER_LABEL).withName("NetworkPeer.network").on("network").create();
                 LOG.info("1M5 Indexes created.");
             }
             tx.success();
@@ -168,8 +167,9 @@ public class GraphPeerManager extends BasePeerManager {
     }
 
     @Override
-    public NetworkPeer getLocalPeer() {
-        return localPeer;
+    public NetworkPeer getLocalPeer(Network network) {
+        if(localPeers.get(network)==null) localPeers.put(network, new NetworkPeer(network));
+        return localPeers.get(network);
     }
 
     @Override
@@ -184,7 +184,7 @@ public class GraphPeerManager extends BasePeerManager {
     @Override
     public Boolean savePeer(NetworkPeer p, Boolean autocreate) {
         LOG.info("Saving NetworkPeer...");
-        if(p.getAddress()==null || p.getAddress().isEmpty() || p.getAddress().equals("null")) {
+        if(p.getDid().getPublicKey().getAddress()==null || p.getDid().getPublicKey().getAddress().isEmpty() || p.getDid().getPublicKey().getAddress().equals("null")) {
             LOG.info("NetworkPeer to save has no Address. Skipping.");
             return false;
         }
@@ -198,13 +198,14 @@ public class GraphPeerManager extends BasePeerManager {
             return true;
         else if(autocreate) {
             LOG.info("Creating NetworkPeer in graph...");
-            long numberPeers = totalPeersByRelationship(getLocalPeer(), P2PRelationship.RelType.Known);
+            long numberPeers = totalPeersByRelationship(getLocalPeer(p.getNetwork()), P2PRelationship.RelType.Known);
+            // TODO: Sensors configuration be network-specific
             if(numberPeers <= SensorsConfig.MaxPT) {
                 try (Transaction tx = db.getGraphDb().beginTx()) {
                     Node n = db.getGraphDb().createNode(PEER_LABEL);
                     toNode(p,n);
                     tx.success();
-                    LOG.info("CDNPeer saved to graph.");
+                    LOG.info("NetworkPeer saved to graph.");
                 } catch (Exception e) {
                     LOG.warning(e.getLocalizedMessage());
                 }
@@ -214,12 +215,9 @@ public class GraphPeerManager extends BasePeerManager {
         } else {
             LOG.info("New Peer but autocreate is false, unable to save peer.");
         }
-        if(isLocalReady()
-                && isRemoteReady(p)
-                && !isRemoteLocal(p)
-                && !isRelated(p, P2PRelationship.RelType.Known)) {
+        if(!isRemoteLocal(p) && !isRelated(p, P2PRelationship.RelType.Known)) {
             LOG.info("Peer not known: relating as known.");
-            relatePeers(getLocalPeer(), p, P2PRelationship.RelType.Known);
+            relatePeers(getLocalPeer(p.getNetwork()), p, P2PRelationship.RelType.Known);
             LOG.info("Peers related as known.");
         }
         return true;
@@ -232,59 +230,15 @@ public class GraphPeerManager extends BasePeerManager {
      * @throws Exception
      */
     private Node findPeerNode(NetworkPeer p) {
-        if(p==null) return null;
-        NetworkPeer loaded = null;
-        String addressName = null;
-        String address;
-        if(p.getIMSAddress()!=null) {
-            addressName = "1m5Address";
-            address = p.getIMSAddress();
-        } else if(p.getI2PAddress()!=null) {
-            addressName = "i2pAddress";
-            address = p.getI2PAddress();
-        } else if(p.getTorAddress()!=null) {
-            addressName = "torAddress";
-            address = p.getTorAddress();
-        } else if(p.getSDRAddress()!=null) {
-            addressName = "sdrAddress";
-            address = p.getSDRAddress();
-        } else if(p.getLiFiAddress()!=null) {
-            addressName = "lifiAddress";
-            address = p.getLiFiAddress();
-        } else {
-            LOG.warning("NetworkPeer must have at least one valid address to load.");
-            return null;
-        }
-        return db.getGraphDb().findNode(PEER_LABEL, addressName, address);
+        return db.getGraphDb().findNode(PEER_LABEL, "address", p.getDid().getPublicKey().getAddress());
     }
 
     @Override
     public NetworkPeer loadPeer(NetworkPeer p) {
         if(p==null) return null;
         NetworkPeer loaded = null;
-        String addressName = null;
-        String address;
-        if(p.getIMSAddress()!=null) {
-            addressName = "1m5Address";
-            address = p.getIMSAddress();
-        } else if(p.getI2PAddress()!=null) {
-            addressName = "i2pAddress";
-            address = p.getI2PAddress();
-        } else if(p.getTorAddress()!=null) {
-            addressName = "torAddress";
-            address = p.getTorAddress();
-        } else if(p.getSDRAddress()!=null) {
-            addressName = "sdrAddress";
-            address = p.getSDRAddress();
-        } else if(p.getLiFiAddress()!=null) {
-            addressName = "lifiAddress";
-            address = p.getLiFiAddress();
-        } else {
-            LOG.warning("NetworkPeer must have at least one valid address to load.");
-            return null;
-        }
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            Node n = db.getGraphDb().findNode(PEER_LABEL, addressName, address);
+            Node n = findPeerNode(p);
             loaded = toPeer(n);
             tx.success();
         } catch (Exception e) {
@@ -301,9 +255,9 @@ public class GraphPeerManager extends BasePeerManager {
     private boolean updatePeer(NetworkPeer p) throws Exception {
         LOG.info("Find and Update Peer Node...");
         boolean updated = false;
-        LOG.info("Looking up Node by Address: "+p.getAddress());
+        LOG.info("Looking up Node by Address: "+p.getDid().getPublicKey().getAddress());
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            Node n = db.getGraphDb().findNode(PEER_LABEL, "address", p.getAddress());
+            Node n = db.getGraphDb().findNode(PEER_LABEL, "address", p.getDid().getPublicKey().getAddress());
             if(n!=null) {
                 LOG.info("Found Node: updating...");
                 toNode(p, n);
@@ -319,7 +273,7 @@ public class GraphPeerManager extends BasePeerManager {
 
     @Override
     public Boolean verifyPeer(NetworkPeer peer) {
-        if(findPeerByNetworkedAddress(peer.getNetwork(), peer.getAddress())==null) {
+        if(findPeerByNetworkedAddress(peer.getNetwork(), peer.getDid().getPublicKey().getAddress())==null) {
             return savePeer(peer, true);
         }
         return true;
@@ -381,7 +335,7 @@ public class GraphPeerManager extends BasePeerManager {
     public Long totalPeersByRelationship(NetworkPeer p, P2PRelationship.RelType relType) {
         long count = -1;
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            String cql = "MATCH (n {address: '"+p.getAddress()+"'})-[:" + relType.name() + "]->()" +
+            String cql = "MATCH (n {address: '"+p.getDid().getPublicKey().getAddress()+"'})-[:" + relType.name() + "]->()" +
                     " RETURN count(*) as total";
             Result r = db.getGraphDb().execute(cql);
             if (r.hasNext()) {
@@ -392,7 +346,7 @@ public class GraphPeerManager extends BasePeerManager {
                 }
             }
             tx.success();
-            LOG.info(count + " peers for peer: "+p.getAddress());
+            LOG.info(count + " peers for peer: "+p.getDid().getPublicKey().getAddress());
         } catch(Exception e) {
             LOG.warning(e.getLocalizedMessage());
         }
@@ -405,38 +359,8 @@ public class GraphPeerManager extends BasePeerManager {
         return null;
     }
 
-    public boolean isLocalReady() {
-        boolean ready = getLocalPeer()!=null && getLocalPeer().getAddress()!=null;
-        if(ready) {
-            LOG.info("Local is ready: "+getLocalPeer().getAddress());
-        } else {
-            LOG.info("Local is not ready.");
-        }
-        return ready;
-    }
-
-    public boolean isRemoteReady(NetworkPeer r) {
-        boolean ready = r != null && r.getAddress()!=null;
-        if(ready) {
-            LOG.info("Remote is ready: "+r.getAddress());
-        } else {
-            LOG.info("Remote is not ready.");
-        }
-        return ready;
-    }
-
     public Boolean isRemoteLocal(NetworkPeer r) {
-        boolean remoteIsLocal = r != null
-                && r.getAddress()!=null
-                && getLocalPeer()!=null
-                && getLocalPeer().getAddress()!=null
-                && r.getAddress().equals(getLocalPeer().getAddress());
-        if(remoteIsLocal) {
-            LOG.info("Remote Peer is actually the Local Peer.");
-        } else {
-            LOG.info("Remote Peer is not the Local Peer.");
-        }
-        return remoteIsLocal;
+        return localPeers.get(r.getNetwork())!=null && localPeers.get(r.getNetwork()).getDid().getPublicKey().getAddress().equals(r.getDid().getPublicKey().getAddress());
     }
 
     public NetworkPeer findPeerByAddress(String address) {
@@ -453,11 +377,11 @@ public class GraphPeerManager extends BasePeerManager {
         return p;
     }
 
-    public NetworkPeer findPeerByNetworkedAddress(String network, String address) {
+    public NetworkPeer findPeerByNetworkedAddress(Network network, String address) {
         NetworkPeer p = null;
         if(address!=null && network!=null) {
             try (Transaction tx = db.getGraphDb().beginTx()) {
-                Node n = db.getGraphDb().findNode(PEER_LABEL, network.toLowerCase()+"Address", address);
+                Node n = db.getGraphDb().findNode(PEER_LABEL, "address", address);
                 if(n!=null) {
                     p = toPeer(n);
                 }
@@ -501,30 +425,31 @@ public class GraphPeerManager extends BasePeerManager {
     }
 
     public boolean isRelated(NetworkPeer peer, P2PRelationship.RelType relType) {
-        boolean isRelated = hasRelationship(getLocalPeer(), peer, relType);
-        LOG.info("Are Peers Related?:\n\tLocal Peer Address: "+getLocalPeer().getAddress()+"\n\tRemote Peer Address: "+peer.getAddress()+"\n\t is related: "+isRelated);
+        boolean isRelated = hasRelationship(getLocalPeer(peer.getNetwork()), peer, relType);
+        LOG.info("Are Peers Related?:\n\tLocal Peer Address: "+getLocalPeer(peer.getNetwork()).getDid().getPublicKey().getAddress()
+                +"\n\tRemote Peer Address: "+peer.getDid().getPublicKey().getAddress()+"\n\t is related: "+isRelated);
         return isRelated;
     }
 
     public P2PRelationship relatePeers(NetworkPeer leftPeer, NetworkPeer rightPeer, P2PRelationship.RelType relType) {
-        if(leftPeer==null || leftPeer.getAddress()==null) {
+        if(leftPeer==null || leftPeer.getDid().getPublicKey().getAddress()==null) {
             LOG.info("Relating peer not provided or doesn't have address, skipping.");
             return null;
         }
-        if(rightPeer==null || rightPeer.getAddress()==null) {
+        if(rightPeer==null || rightPeer.getDid().getPublicKey().getAddress()==null) {
             LOG.info("Peer to relate with not provided or doesn't have address, skipping.");
             return null;
         }
-        if(leftPeer.getAddress()!=null
-                && rightPeer.getAddress()!=null
-                && leftPeer.getAddress().equals(rightPeer.getAddress())) {
+        if(leftPeer.getDid().getPublicKey().getAddress()!=null
+                && rightPeer.getDid().getPublicKey().getAddress()!=null
+                && leftPeer.getDid().getPublicKey().getAddress().equals(rightPeer.getDid().getPublicKey().getAddress())) {
             LOG.info("Both peers are the same, skipping.");
             return null;
         }
         P2PRelationship rt = null;
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            Node lpn = db.getGraphDb().findNode(PEER_LABEL, "address", leftPeer.getAddress());
-            Node rpn = db.getGraphDb().findNode(PEER_LABEL, "address", rightPeer.getAddress());
+            Node lpn = db.getGraphDb().findNode(PEER_LABEL, "address", leftPeer.getDid().getPublicKey().getAddress());
+            Node rpn = db.getGraphDb().findNode(PEER_LABEL, "address", rightPeer.getDid().getPublicKey().getAddress());
             Iterator<Relationship> i = lpn.getRelationships(relType, Direction.OUTGOING).iterator();
             while(i.hasNext()) {
                 Relationship r = i.next();
@@ -539,7 +464,7 @@ public class GraphPeerManager extends BasePeerManager {
                 // create
                 Relationship r = lpn.createRelationshipTo(rpn, relType);
                 rt = initP2PRel(r);
-                LOG.info(rightPeer+" is now a "+relType.name()+" peer of "+leftPeer);
+                LOG.info(rightPeer+" is now a "+ relType.name()+" peer of "+leftPeer);
             }
             tx.success();
         } catch(Exception e) {
@@ -551,8 +476,8 @@ public class GraphPeerManager extends BasePeerManager {
     public P2PRelationship getRelationship(NetworkPeer leftPeer, NetworkPeer rightPeer, P2PRelationship.RelType relType) {
         P2PRelationship rt = null;
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            Node lpn = db.getGraphDb().findNode(PEER_LABEL, "address", leftPeer.getAddress());
-            Node rpn = db.getGraphDb().findNode(PEER_LABEL, "address", rightPeer.getAddress());
+            Node lpn = db.getGraphDb().findNode(PEER_LABEL, "address", leftPeer.getDid().getPublicKey().getAddress());
+            Node rpn = db.getGraphDb().findNode(PEER_LABEL, "address", rightPeer.getDid().getPublicKey().getAddress());
             Iterator<Relationship> i = lpn.getRelationships(relType, Direction.OUTGOING).iterator();
             while(i.hasNext()) {
                 Relationship r = i.next();
@@ -573,7 +498,7 @@ public class GraphPeerManager extends BasePeerManager {
     public long countByRelType(NetworkPeer p, P2PRelationship.RelType relType) {
         long count = -1;
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            String cql = "MATCH (n {address: '"+p.getAddress()+"'})-[:" + relType.name() + "]->()" +
+            String cql = "MATCH (n {address: '"+p.getDid().getPublicKey().getAddress()+"'})-[:" + relType.name() + "]->()" +
                     " RETURN count(*) as total";
             Result r = db.getGraphDb().execute(cql);
             if (r.hasNext()) {
@@ -584,7 +509,7 @@ public class GraphPeerManager extends BasePeerManager {
                 }
             }
             tx.success();
-            LOG.info(count+" "+relType.name());
+            LOG.info(count+" "+ relType.name());
         } catch(Exception e) {
             LOG.warning(e.getLocalizedMessage());
         }
@@ -597,7 +522,7 @@ public class GraphPeerManager extends BasePeerManager {
      */
     public boolean removeRelationship(NetworkPeer startPeer, NetworkPeer endPeer, P2PRelationship.RelType relType) {
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            String cql = "MATCH (n {address: '"+startPeer.getAddress()+"'})-[r:" + relType.name() + "]->( e {address: '"+endPeer.getAddress()+"'})" +
+            String cql = "MATCH (n {address: '"+startPeer.getDid().getPublicKey().getAddress()+"'})-[r:" + relType.name() + "]->( e {address: '"+endPeer.getDid().getPublicKey().getAddress()+"'})" +
                     " DELETE r;";
             db.getGraphDb().execute(cql);
             tx.success();
@@ -613,7 +538,7 @@ public class GraphPeerManager extends BasePeerManager {
         LOG.info("Looking up peers starting at index["+startIndex+"] and limited to "+limit+" peers....");
         List<NetworkPeer> peers = new ArrayList<>();
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            String cql = "START rp=node(*) MATCH (lp:"+PEER_LABEL+" {address: '"+lp.getAddress()+"'})->(rp:"+PEER_LABEL+")" +
+            String cql = "START rp=node(*) MATCH (lp:"+PEER_LABEL+" {address: '"+lp.getDid().getPublicKey().getAddress()+"'})->(rp:"+PEER_LABEL+")" +
                     " RETURN rp" +
                     " SKIP " + startIndex +
                     " LIMIT " + limit +";";
@@ -635,16 +560,16 @@ public class GraphPeerManager extends BasePeerManager {
         LOG.info("Saving Remote Peer...");
         if(savePeer(remotePeer, true)) {
             LOG.info("Remote Peer saved.");
-            relatePeers(getLocalPeer(), remotePeer, P2PRelationship.RelType.Known);
+            relatePeers(getLocalPeer(remotePeer.getNetwork()), remotePeer, P2PRelationship.RelType.Known);
             LOG.info("Remote Peer related as known to local peer.");
-            long numberKnown = totalPeersByRelationship(getLocalPeer(), P2PRelationship.RelType.Known);
+            long numberKnown = totalPeersByRelationship(getLocalPeer(remotePeer.getNetwork()), P2PRelationship.RelType.Known);
             NetworkPeer remoteRelP;
             for (NetworkPeer known : remoteKnown) {
                 if (numberKnown + saved > SensorsConfig.MaxPT)
                     break;
                 LOG.info("Saving Remote Known...");
                 savePeer(known, true);
-                relatePeers(getLocalPeer(), known, P2PRelationship.RelType.Known);
+                relatePeers(getLocalPeer(remotePeer.getNetwork()), known, P2PRelationship.RelType.Known);
                 LOG.info("Remote Peer saved and related as Known to local peer.");
                 relatePeers(remotePeer, known, P2PRelationship.RelType.Known);
                 LOG.info("Remote Known Peer related as Known to Remote Peer.");
@@ -660,7 +585,7 @@ public class GraphPeerManager extends BasePeerManager {
     public List<NetworkPeer> getReliablesToShare(NetworkPeer p) {
         List<NetworkPeer> peers = new ArrayList<>();
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            String cql = "MATCH (n {address: '"+p.getAddress()+"'})-[:" + P2PRelationship.RelType.Known.name() + "]->(x)" +
+            String cql = "MATCH (n {address: '"+p.getDid().getPublicKey().getAddress()+"'})-[:" + P2PRelationship.RelType.Known.name() + "]->(x)" +
                     " RETURN x" +
                     " LIMIT "+ SensorsConfig.MaxPS+";";
             Result result = db.getGraphDb().execute(cql);
@@ -678,28 +603,28 @@ public class GraphPeerManager extends BasePeerManager {
      * Saves Peer Request status results.
      * Determine if results change Reliable Peers list.
      * Reliable Peers are defined as peers known by given peer who have displayed
-     * a minimum number of acks (CDNConfig.mr) and minimum avg response time (<= CDNConfig.lmc)
+     * a minimum number of acks (SensorsConfig.mr) and minimum avg response time (<= SensorsConfig.lmc)
      *
-     * @param startPeer CDNPeer of request
-     * @param endPeer CDNPeer target
+     * @param startPeer NetworkPeer originator
+     * @param endPeer NetworkPeer destination
      * @param timeSent
      * @param timeAcknowledged
+     * @param network used
      */
-    public Boolean savePeerStatusTimes(NetworkPeer startPeer, NetworkPeer endPeer, Long timeSent, Long timeAcknowledged) {
+    public Boolean savePeerStatusTimes(NetworkPeer startPeer, NetworkPeer endPeer, Long timeSent, Long timeAcknowledged, Network network) {
         boolean addedAsReliable = false;
-        startPeer.setLocal(true); // Start is always local
 
-        boolean isKnown = false;
-        boolean isReliable = false;
-        boolean isSuperReliable = false;
+        boolean hasRelationship;
+        boolean isReliable;
+        boolean isSuperReliable;
 
         long totalAcks = 0;
-        long avgAckLatency = 0;
+        long avgAckLatency;
 
-        isKnown = hasRelationship(startPeer, endPeer, P2PRelationship.RelType.Known);
-        if(isKnown) {
+        hasRelationship = hasRelationship(startPeer, endPeer, P2PRelationship.RelType.Known);
+        if(hasRelationship) {
             P2PRelationship knownRel = new P2PRelationship();
-            String cql = "MATCH (n {address: '" + startPeer.getAddress() + "'})-[r:" + P2PRelationship.RelType.Known.name() + "]->(e {address: '" + endPeer.getAddress() + "'})" +
+            String cql = "MATCH (n {address: '" + startPeer.getDid().getPublicKey().getAddress() + "'})-[r:" + P2PRelationship.RelType.Known.name() + "]->(e {address: '" + endPeer.getDid().getPublicKey().getAddress() + "'})" +
                     "return r;";
             try (Transaction tx = db.getGraphDb().beginTx()) {
                 Result result = db.getGraphDb().execute(cql);
@@ -715,7 +640,7 @@ public class GraphPeerManager extends BasePeerManager {
             knownRel.setLastAckTime(timeAcknowledged);
             knownRel.addAckTimeTracked(timeAcknowledged - timeSent);
             avgAckLatency = knownRel.getAvgAckLatencyMS();
-            cql = "MATCH (n {address: '" + startPeer.getAddress() + "'})-[r:" + P2PRelationship.RelType.Known.name() + "]->(e {address: '" + endPeer.getAddress() + "'})" +
+            cql = "MATCH (n {address: '" + startPeer.getDid().getPublicKey().getAddress() + "'})-[r:" + P2PRelationship.RelType.Known.name() + "]->(e {address: '" + endPeer.getDid().getPublicKey().getAddress() + "'})" +
                     " SET r.totalAcks = " + knownRel.getTotalAcks() + "," +
                     " r.lastAckTime = " + knownRel.getLastAckTime() + "," +
                     " r.avgAckLatencyMS = " + avgAckLatency + "," +
@@ -727,7 +652,7 @@ public class GraphPeerManager extends BasePeerManager {
                 LOG.warning(e.getLocalizedMessage());
             }
             // Ensure total acks updated and persisted
-            cql = "MATCH (n {address: '" + startPeer.getAddress() + "'})-[r:" + P2PRelationship.RelType.Known.name() + "]->(e {address: '" + endPeer.getAddress() + "'})" +
+            cql = "MATCH (n {address: '" + startPeer.getDid().getPublicKey().getAddress() + "'})-[r:" + P2PRelationship.RelType.Known.name() + "]->(e {address: '" + endPeer.getDid().getPublicKey().getAddress() + "'})" +
                     "return r;";
             P2PRelationship k = new P2PRelationship();
             try (Transaction tx = db.getGraphDb().beginTx()) {
@@ -764,7 +689,7 @@ public class GraphPeerManager extends BasePeerManager {
 
         } else if(totalPeersByRelationship(startPeer, P2PRelationship.RelType.Known) <= SensorsConfig.MaxPT) {
             relatePeers(startPeer, endPeer, P2PRelationship.RelType.Known);
-            LOG.info("New known peer: "+endPeer);
+            LOG.info("New relationship ("+ P2PRelationship.RelType.Known.name()+") with peer: "+endPeer);
         } else {
             LOG.info("Max peers tracked: "+ SensorsConfig.MaxPT);
         }
@@ -773,7 +698,7 @@ public class GraphPeerManager extends BasePeerManager {
 
     public boolean hasRelationship(NetworkPeer startPeer, NetworkPeer endPeer, RelationshipType relType) {
         boolean hasRel = false;
-        String cql = "MATCH (n {address: '" + startPeer.getAddress() + "'})-[r:" + relType.name() + "]->(e {address: '" + endPeer.getAddress() + "'})" +
+        String cql = "MATCH (n {address: '" + startPeer.getDid().getPublicKey().getAddress() + "'})-[r:" + relType.name() + "]->(e {address: '" + endPeer.getDid().getPublicKey().getAddress() + "'})" +
                 " RETURN r;";
         try (Transaction tx = db.getGraphDb().beginTx()) {
             Result result = db.getGraphDb().execute(cql);
@@ -827,41 +752,188 @@ public class GraphPeerManager extends BasePeerManager {
     }
 
     public static void main(String[] args) {
+        /**
+         * For example, Peer A wishes to send a message to Peer C at lowest latency path:
+         *
+         * Using only I2P:
+         *
+         *     Peer A to Peer C avg latency with I2P is 10 seconds
+         *     Peer A to Peer B avg latency with I2P is 2 seconds
+         *     Peer B to Peer C avg latency with I2P is 4 seconds
+         *
+         * In this case Peer A will use Peer B to get to Peer C with a likely latency result of 6 seconds.
+         *
+         * But if Tor was used:
+         *
+         *     Peer A to Peer C avg latency with Tor is 5 seconds
+         *     Peer A to Peer B avg latency with Tor is 4 seconds
+         *     Peer B to Peer C avg latency with Tor is 6 seconds
+         *
+         * In this case Peer A will send directly to Peer C with Tor at a likely latency of 5 seconds
+         *
+         * And Using Bluetooth:
+         *
+         *     Peer A to Peer C avg latency with Bluetooth is 1/2 second (they are physically next to each other)
+         *     Peer A to Peer B avg latency with Bluetooth is 30 seconds (many hops)
+         *     Peer B to Peer C avg latency with Bluetooth is 30 seconds
+         *
+         * Peer A easily sends directly to Peer C with Bluetooth at a likely latency of 1/2 second
+         *
+         * If we use all networks to determine, Bluetooth will be selected using path A -> C.
+         *
+         * If then Peer C turns off Bluetooth and all networks are evaluated, Tor will be selected A -> C (5 seconds).
+         *
+         * But say Peer C's Tor access gets blocked, then I2P with path A -> B -> C will be selected.
+         *
+         * But say Peer B shows up near Peer A and turns on their Bluetooth with a result in avg latency
+         * with Bluetooth A -> B of 1/2 second, now the path to C will be A -> B using Bluetooth and B -> C using I2P
+         * with an expected latency of 4.5 seconds.
+         */
         Properties p = new Properties();
         p.setProperty("1m5.network.peers.dir","/home/objectorange/Projects/1m5/1m5/src/test/resources");
         GraphPeerManager mgr = new GraphPeerManager();
         mgr.init(p);
-        // Save local
-        mgr.localPeer.getDid().setUsername("Alice");
-        mgr.localPeer.setAddress("1m5-local");
-        mgr.savePeer(mgr.localPeer, true);
-        // Update I2P Address
-        mgr.localPeer.setI2PAddress("i2p-local");
-        mgr.savePeer(mgr.localPeer, true);
-        // Found Peer
-        NetworkPeer p1 = new NetworkPeer();
-        p1.setAddress("1m5-1");
-        p1.setI2PAddress("i2p-1");
-        mgr.savePeer(p1, true);
-        if(!mgr.isRelated(p1, P2PRelationship.RelType.Known)) {
-            mgr.relatePeers(mgr.localPeer, p1, P2PRelationship.RelType.Known);
-        }
-        long numPeers = mgr.totalPeersByRelationship(mgr.localPeer, P2PRelationship.RelType.Known);
+
+        // Node A
+        NetworkPeer pA = new NetworkPeer();
+        pA.getDid().getPublicKey().setAddress("1m5-A");
+        mgr.savePeer(pA, true);
+        NetworkPeer pAI2P = new NetworkPeer(Network.I2P);
+        pAI2P.getDid().getPublicKey().setAddress("i2p-A");
+        mgr.savePeer(pAI2P, true);
+        NetworkPeer pATor = new NetworkPeer(Network.TOR);
+        pATor.getDid().getPublicKey().setAddress("tor-A");
+        mgr.savePeer(pATor, true);
+        NetworkPeer pABT = new NetworkPeer(Network.RADIO_BLUETOOTH);
+        pABT.getDid().getPublicKey().setAddress("bt-A");
+        mgr.savePeer(pABT, true);
+
+        // Node B
+        NetworkPeer pB = new NetworkPeer();
+        pB.getDid().getPublicKey().setAddress("1m5-B");
+        mgr.savePeer(pB, true);
+        NetworkPeer pBI2P = new NetworkPeer(Network.I2P);
+        pBI2P.getDid().getPublicKey().setAddress("i2p-B");
+        mgr.savePeer(pBI2P, true);
+        NetworkPeer pBTor = new NetworkPeer(Network.TOR);
+        pBTor.getDid().getPublicKey().setAddress("tor-B");
+        mgr.savePeer(pBTor, true);
+        NetworkPeer pBBT = new NetworkPeer(Network.RADIO_BLUETOOTH);
+        pBBT.getDid().getPublicKey().setAddress("bt-B");
+        mgr.savePeer(pBBT, true);
+
+        // Node C
+        NetworkPeer pC = new NetworkPeer();
+        pC.getDid().getPublicKey().setAddress("1m5-C");
+        mgr.savePeer(pC, true);
+        NetworkPeer pCI2P = new NetworkPeer(Network.I2P);
+        pCI2P.getDid().getPublicKey().setAddress("i2p-C");
+        mgr.savePeer(pCI2P, true);
+        NetworkPeer pCTor = new NetworkPeer(Network.TOR);
+        pCTor.getDid().getPublicKey().setAddress("tor-C");
+        mgr.savePeer(pCTor, true);
+        NetworkPeer pCBT = new NetworkPeer(Network.RADIO_BLUETOOTH);
+        pCBT.getDid().getPublicKey().setAddress("bt-C");
+        mgr.savePeer(pCBT, true);
+
+        long numPeers = mgr.totalPeersByRelationship(mgr.localPeers.get(Network.IMS), P2PRelationship.RelType.Known);
         LOG.info("num peers: "+numPeers);
-        NetworkPeer neighbor = mgr.findPeerByAddress(p1.getAddress());
-        LOG.info("Found?:" + neighbor);
-        NetworkPeer local = mgr.findPeerByAddress(mgr.localPeer.getAddress());
-        LOG.info("Local?:"+local);
-        P2PRelationship rel = mgr.getRelationship(local, p1, P2PRelationship.RelType.Known);
-        LOG.info("Relationship: "+rel);
+
+        // Relate B->C
+        mgr.relatePeers(pB, pC, P2PRelationship.RelType.Known);
+
         long sent = 10 *60*1000;
         long ack;
+
+        // I2P latencies
+        // A -> C
         for(int i=0; i<2; i++) {
-            ack = sent + 2000;
-            mgr.savePeerStatusTimes(local, p1, sent, ack);
+            ack = sent + 10000;
+            mgr.savePeerStatusTimes(pAI2P, pCI2P, sent, ack, Network.I2P);
             sent = ack;
         }
-        rel = mgr.getRelationship(local, p1, P2PRelationship.RelType.Known);
-        LOG.info("Relationship: "+rel);
+        // A -> B
+        for(int i=0; i<2; i++) {
+            ack = sent + 2000;
+            mgr.savePeerStatusTimes(pAI2P, pBI2P, sent, ack, Network.I2P);
+            sent = ack;
+        }
+        // B -> C
+        for(int i=0; i<2; i++) {
+            ack = sent + 40000;
+            mgr.savePeerStatusTimes(pBI2P, pCI2P, sent, ack, Network.I2P);
+            sent = ack;
+        }
+
+        LOG.info("Lowest Latency Path on I2P A -> C: ");
+        List<NetworkPeer> llPath = mgr.findLowestLatencyPath(pAI2P, pCI2P);
+        for(NetworkPeer np : llPath) {
+            LOG.info(np.toString());
+        }
+
+        // Tor latencies
+        // A -> C
+        for(int i=0; i<2; i++) {
+            ack = sent + 500;
+            mgr.savePeerStatusTimes(pATor, pCTor, sent, ack, Network.TOR);
+            sent = ack;
+        }
+        // A -> B
+        for(int i=0; i<2; i++) {
+            ack = sent + 30000;
+            mgr.savePeerStatusTimes(pATor, pBTor, sent, ack, Network.TOR);
+            sent = ack;
+        }
+        // B -> C
+        for(int i=0; i<2; i++) {
+            ack = sent + 30000;
+            mgr.savePeerStatusTimes(pBTor, pCTor, sent, ack, Network.TOR);
+            sent = ack;
+        }
+
+        LOG.info("Lowest Latency Path on Tor A -> C: ");
+        llPath = mgr.findLowestLatencyPath(pATor, pCTor);
+        for(NetworkPeer np : llPath) {
+            LOG.info(np.toString());
+        }
+
+        // Bluetooth latencies
+        // A -> C
+        for(int i=0; i<2; i++) {
+            ack = sent + 5000;
+            mgr.savePeerStatusTimes(pABT, pCBT, sent, ack, Network.RADIO_BLUETOOTH);
+            sent = ack;
+        }
+        // A -> B
+        for(int i=0; i<2; i++) {
+            ack = sent + 4000;
+            mgr.savePeerStatusTimes(pABT, pBBT, sent, ack, Network.RADIO_BLUETOOTH);
+            sent = ack;
+        }
+        // B -> C
+        for(int i=0; i<2; i++) {
+            ack = sent + 6000;
+            mgr.savePeerStatusTimes(pBBT, pCBT, sent, ack, Network.RADIO_BLUETOOTH);
+            sent = ack;
+        }
+
+        LOG.info("Lowest Latency Path on BT A -> C: ");
+        llPath = mgr.findLowestLatencyPath(pABT, pCBT);
+        for(NetworkPeer np : llPath) {
+            LOG.info(np.toString());
+        }
+
+//        LOG.info("Lowest Latency Path on All Networks A -> C: ");
+//        llPath = mgr.findLowestLatencyPathAllNetworks(pA, pC);
+//        for(NetworkPeer np : llPath) {
+//            LOG.info(np.toString());
+//        }
+//
+//        LOG.info("Lowest Latency Path with only Tor and I2P A -> C: ");
+//        llPath = mgr.findLowestLatencyPathSpecifiedNetworks(pA, pC, Arrays.asList(Network.TOR, Network.I2P));
+//        for(NetworkPeer np : llPath) {
+//            LOG.info(np.toString());
+//        }
+
     }
 }

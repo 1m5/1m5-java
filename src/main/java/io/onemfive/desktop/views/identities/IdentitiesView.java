@@ -26,7 +26,7 @@
  */
 package io.onemfive.desktop.views.identities;
 
-import io.onemfive.DRouter;
+import io.onemfive.Daemon;
 import io.onemfive.core.keyring.AuthNRequest;
 import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.data.DID;
@@ -173,7 +173,7 @@ public class IdentitiesView extends ActivatableView {
                     DLC.addData(AuthNRequest.class, ar, e);
                     DLC.addRoute(KeyRingService.class, KeyRingService.OPERATION_AUTHN, e);
                     // Send
-                    DRouter.sendRequest(e);
+                    Daemon.sendRequest(e);
                 }
             }
         });
@@ -251,7 +251,7 @@ public class IdentitiesView extends ActivatableView {
             DLC.addRoute(UIService.class, UIService.OPERATION_NOTIFY_UI, e);
             DLC.addRoute(DIDService.class, DIDService.OPERATION_ADD_CONTACT, e);
             DLC.addEntity(did, e);
-            DRouter.sendRequest(e);
+            Daemon.sendRequest(e);
         });
         addContactBox.getChildren().add(addContact);
 
@@ -276,19 +276,19 @@ public class IdentitiesView extends ActivatableView {
         Envelope e1 = Envelope.documentFactory();
         DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e1);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e1);
-        DRouter.sendRequest(e1);
+        Daemon.sendRequest(e1);
 
         // Get Contacts
         Envelope e2 = Envelope.documentFactory();
         DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_CONTACTS, e2);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_CONTACTS, e2);
-        DRouter.sendRequest(e2);
+        Daemon.sendRequest(e2);
 
         // Get Active Identity
         Envelope e3 = Envelope.documentFactory();
         DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_ACTIVE_IDENTITY, e3);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_ACTIVE_IDENTITY, e3);
-        DRouter.sendRequest(e3);
+        Daemon.sendRequest(e3);
 
         LOG.info("Initialized.");
     }

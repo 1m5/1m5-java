@@ -27,19 +27,19 @@
 package io.onemfive.network.peers;
 
 import io.onemfive.core.keyring.AuthNRequest;
-import io.onemfive.data.DID;
-import io.onemfive.data.NetworkPeer;
-import io.onemfive.data.Packet;
-import io.onemfive.data.Sensitivity;
+import io.onemfive.data.*;
+import io.onemfive.network.Network;
+import io.onemfive.network.NetworkPeer;
+import io.onemfive.network.Packet;
 
 import java.util.List;
 import java.util.Properties;
 
 public interface PeerManager extends Runnable {
     Boolean init(Properties properties);
-    void updateLocalPeer(AuthNRequest request);
-    void updateLocalPeer(DID did);
-    NetworkPeer getLocalPeer();
+    void updateLocalAuthNPeer(AuthNRequest request);
+    void updateLocalPeer(NetworkPeer networkPeer);
+    NetworkPeer getLocalPeer(Network network);
     Boolean isKnown(NetworkPeer peer);
 
     /**
@@ -64,5 +64,5 @@ public interface PeerManager extends Runnable {
     NetworkPeer getRandomReachablePeer(NetworkPeer fromPeer, Sensitivity sensitivity);
     List<NetworkPeer> getReliablesToShare(NetworkPeer fromPeer);
     void reliablesFromRemotePeer(NetworkPeer remotePeer, List<NetworkPeer> reliables);
-    Boolean savePeerStatusTimes(NetworkPeer fromPeer, NetworkPeer toPeer, Long sent, Long acknowledged);
+    Boolean savePeerStatusTimes(NetworkPeer fromPeer, NetworkPeer toPeer, Long sent, Long acknowledged, Network network);
 }

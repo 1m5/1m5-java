@@ -26,8 +26,10 @@
  */
 package io.onemfive.network.sensors.radio.technologies.bluetooth;
 
-import io.onemfive.data.content.Text;
-import io.onemfive.network.sensors.radio.RadioDatagram;
+import io.onemfive.data.Envelope;
+import io.onemfive.data.TextMessage;
+import io.onemfive.network.NetworkPeer;
+import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.radio.RadioSensor;
 import io.onemfive.network.sensors.radio.RadioSession;
 import io.onemfive.network.sensors.radio.tasks.RadioTask;
@@ -42,11 +44,11 @@ public class PeerDiscovery extends RadioTask {
 
     private static final Logger LOG = Logger.getLogger(PeerDiscovery.class.getName());
 
-    private BluetoothPeer localPeer;
+    private NetworkPeer localPeer;
     private Bluetooth radio;
-    private Map<String, BluetoothPeer> peers;
+    private Map<String, NetworkPeer> peers;
 
-    public PeerDiscovery(BluetoothPeer localPeer, Bluetooth radio, Map<String, BluetoothPeer> peers, RadioSensor sensor, TaskRunner taskRunner, Properties properties, long periodicity) {
+    public PeerDiscovery(NetworkPeer localPeer, Bluetooth radio, Map<String, NetworkPeer> peers, RadioSensor sensor, TaskRunner taskRunner, Properties properties, long periodicity) {
         super(sensor, taskRunner, properties, periodicity);
         this.localPeer = localPeer;
         this.radio = radio;
@@ -59,14 +61,19 @@ public class PeerDiscovery extends RadioTask {
         if(super.runTask()) {
             started = true;
             if(peers != null && peers.size() > 0) {
-                Collection<BluetoothPeer> peersList = peers.values();
-                for (BluetoothPeer peer : peersList) {
+                Collection<NetworkPeer> peersList = peers.values();
+                Envelope e;
+                for (NetworkPeer peer : peersList) {
                     RadioSession session = radio.establishSession(peer, true);
-                    RadioDatagram datagram = new RadioDatagram();
-                    datagram.from = localPeer;
-                    datagram.to = peer;
-                    datagram.content = new Text(("Hola Gaia!-"+System.currentTimeMillis()+"").getBytes());
-                    session.sendDatagram(datagram);
+                    Packet packet = new Packet();
+                    packet.setOriginationPeer(localPeer);
+                    packet.setFromPeer(localPeer);
+                    packet.setToPeer(peer);
+                    packet.setDestinationPeer(peer);
+                    e = Envelope.textFactory();
+                    ((TextMessage)e.getMessage()).setText("Hola Gaia!-"+System.currentTimeMillis());
+                    packet.setEnvelope(e);
+                    session.send(packet);
                 }
             }
             lastCompletionTime = System.currentTimeMillis();

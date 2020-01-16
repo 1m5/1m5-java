@@ -28,8 +28,8 @@ package io.onemfive.network.sensors;
 
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.Envelope;
-import io.onemfive.data.Network;
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.Network;
+import io.onemfive.network.NetworkPeer;
 import io.onemfive.data.Sensitivity;
 
 import java.io.File;

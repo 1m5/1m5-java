@@ -224,6 +224,8 @@ public class KeyRingService extends BaseService {
                         r.identityPublicKey.setAlias(r.alias);
                         r.identityPublicKey.setFingerprint(Base64.getEncoder().encodeToString(identityPublicKey.getFingerprint()));
                         r.identityPublicKey.setAddress(Base64.getEncoder().encodeToString(identityPublicKey.getEncoded()));
+                        r.identityPublicKey.setBase64Encoded(true);
+                        r.identityPublicKey.setType("RSA2048");
                         r.identityPublicKey.isEncryptionKey(identityPublicKey.isEncryptionKey());
                         r.identityPublicKey.isIdentityKey(identityPublicKey.isMasterKey());
                         LOG.info("Identity Public Key loaded\n\tfingerprint: " + r.identityPublicKey.getFingerprint() + "\n\taddress: " + r.identityPublicKey.getAddress());
@@ -233,6 +235,8 @@ public class KeyRingService extends BaseService {
                         r.encryptionPublicKey.setAlias(r.alias);
                         r.encryptionPublicKey.setFingerprint(Base64.getEncoder().encodeToString(encryptionPublicKey.getFingerprint()));
                         r.encryptionPublicKey.setAddress(Base64.getEncoder().encodeToString(encryptionPublicKey.getEncoded()));
+                        r.encryptionPublicKey.setBase64Encoded(true);
+                        r.encryptionPublicKey.setType("RSA2048");
                         r.encryptionPublicKey.isEncryptionKey(encryptionPublicKey.isEncryptionKey());
                         r.encryptionPublicKey.isIdentityKey(encryptionPublicKey.isMasterKey());
                         LOG.info("Encryption Public Key loaded\n\tfingerprint: " + r.encryptionPublicKey.getFingerprint() + "\n\taddress: " + r.encryptionPublicKey.getAddress());

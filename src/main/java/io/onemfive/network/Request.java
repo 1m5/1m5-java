@@ -24,9 +24,10 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.radio.technologies.wifi;
+package io.onemfive.network;
 
-import io.onemfive.network.sensors.radio.RadioPeer;
+import io.onemfive.network.Packet;
 
-public class WiFiPeer extends RadioPeer {
+public class Request extends Packet {
+
 }

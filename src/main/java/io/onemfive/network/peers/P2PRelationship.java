@@ -27,7 +27,6 @@
 package io.onemfive.network.peers;
 
 import io.onemfive.data.JSONSerializable;
-import io.onemfive.data.Network;
 import io.onemfive.network.sensors.SensorsConfig;
 import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
@@ -43,32 +42,21 @@ import java.util.Map;
  */
 public class P2PRelationship implements JSONSerializable {
 
+    /**
+     * K relationships are between two Network Peers of the same Network.
+     */
     public enum RelType implements RelationshipType {
         Known,
         Reliable,
         SuperReliable,
         Banned,
-        Tor,
-        I2P,
-        SDR_BT,
-        LiFi
+        AvailableThrough
     }
 
     private Long totalAcks = 0L;
     private Long lastAckTime = 0L;
     private Long avgAckLatencyMS = 0L;
     private String ackTimesTracked;
-
-    public static RelType getRelationshipType(Network network) {
-        switch (network) {
-            case I2P: return RelType.I2P;
-            case TOR: return RelType.Tor;
-            case SDR: return RelType.SDR_BT;
-            case IMS: return RelType.Known;
-            case LIFI: return RelType.LiFi;
-            default: return null;
-        }
-    }
 
     public void setTotalAcks(long totalAcks) {
         this.totalAcks = totalAcks;
@@ -154,7 +142,17 @@ public class P2PRelationship implements JSONSerializable {
     }
 
     @Override
-    public String toString() {
+    public String toJSON() {
         return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
     }
 }

@@ -44,10 +44,6 @@
 			<properties>
 				<isTest>true</isTest>
 				<hidden>false</hidden>
-				<!-- Seeds in format network|address comma-delimited -->
-				<onemfive.sensors.seeds></onemfive.sensors.seeds>
-				<!-- Banned in format network|address comma-delimited -->
-				<onemfive.sensors.banned></onemfive.sensors.banned>
 				<!-- Clean out Graph DB on restart -->
 				<onemfive.sensors.db.cleanOnRestart>false</onemfive.sensors.db.cleanOnRestart>
 				<!-- Min Peers Tracked - the point at which Discovery process goes into 'hyper' mode. -->
@@ -71,10 +67,6 @@
 			<properties>
 				<isTest>false</isTest>
 				<hidden>false</hidden>
-				<!-- Seeds in format network|address comma-delimited -->
-				<onemfive.sensors.seeds></onemfive.sensors.seeds>
-				<!-- Banned in format network|address comma-delimited -->
-				<onemfive.sensors.banned></onemfive.sensors.banned>
 				<!-- Clean out Graph DB on restart -->
 				<onemfive.sensors.db.cleanOnRestart>false</onemfive.sensors.db.cleanOnRestart>
 				<!-- Min Peers Tracked - the point at which Discovery process goes into 'hyper' mode. -->
@@ -98,10 +90,6 @@
 			<properties>
 				<isTest>false</isTest>
 				<hidden>false</hidden>
-				<!-- Seeds in format network|address comma-delimited -->
-				<onemfive.sensors.seeds></onemfive.sensors.seeds>
-				<!-- Banned in format network|address comma-delimited -->
-				<onemfive.sensors.banned>false</onemfive.sensors.banned>
 				<!-- Clean out Graph DB on restart -->
 				<onemfive.sensors.db.cleanOnRestart>false</onemfive.sensors.db.cleanOnRestart>
 				<!-- Min Peers Tracked - the point at which Discovery process goes into 'hyper' mode. -->
@@ -126,10 +114,6 @@
 			<properties>
 				<isTest>false</isTest>
 				<hidden>false</hidden>
-				<!-- Seeds in format network|address comma-delimited -->
-				<onemfive.sensors.seeds></onemfive.sensors.seeds>
-				<!-- Banned in format network|address comma-delimited -->
-				<onemfive.sensors.banned></onemfive.sensors.banned>
 				<!-- Clean out Graph DB on restart -->
 				<onemfive.sensors.db.cleanOnRestart>false</onemfive.sensors.db.cleanOnRestart>
 				<!-- Min Peers Tracked - the point at which Discovery process goes into 'hyper' mode. -->

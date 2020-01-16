@@ -26,6 +26,8 @@
  */
 package io.onemfive.network.sensors.radio.technologies.bluetooth;
 
+import io.onemfive.network.Network;
+import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.sensors.radio.RadioSensor;
 import io.onemfive.network.sensors.radio.tasks.RadioTask;
 import io.onemfive.network.sensors.radio.tasks.TaskRunner;
@@ -44,13 +46,13 @@ public class ServiceDiscovery extends RadioTask implements DiscoveryListener {
 
     private Map<String, RemoteDevice> devices;
     private Map<String, List<String>> deviceServices;
-    private Map<String, BluetoothPeer> peers;
+    private Map<String, NetworkPeer> peers;
 
     private RemoteDevice currentDevice;
 
     private int result;
 
-    public ServiceDiscovery(Map<String, RemoteDevice> devices, Map<String, List<String>> deviceServices, Map<String, BluetoothPeer> peers, RadioSensor sensor, TaskRunner taskRunner, Properties properties, Long periodicity) {
+    public ServiceDiscovery(Map<String, RemoteDevice> devices, Map<String, List<String>> deviceServices, Map<String, NetworkPeer> peers, RadioSensor sensor, TaskRunner taskRunner, Properties properties, Long periodicity) {
         super(sensor, taskRunner, properties, periodicity);
         this.devices = devices;
         this.deviceServices = deviceServices;
@@ -131,11 +133,11 @@ public class ServiceDiscovery extends RadioTask implements DiscoveryListener {
                 LOG.info("service " + serviceName.getValue() + " found " + url);
                 // TODO: Ensure 1M5 has service name then perform check
 //                if("1M5".equals(serviceName.getValue())) {
-                    BluetoothPeer peer;
+                    NetworkPeer peer;
                     if(peers.get(currentDevice.getBluetoothAddress())==null) {
-                        peer = new BluetoothPeer();
-                        peer.setAddress(currentDevice.getBluetoothAddress());
-                        peer.setUrl(url);
+                        peer = new NetworkPeer(Network.RADIO_BLUETOOTH);
+                        peer.getDid().getPublicKey().setAddress(currentDevice.getBluetoothAddress());
+                        peer.getDid().getPublicKey().addAttribute("url", url);
                         peer.setLocal(false);
                         peers.put(currentDevice.getBluetoothAddress(), peer);
                     }

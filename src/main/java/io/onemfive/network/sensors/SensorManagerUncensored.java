@@ -27,7 +27,7 @@
 package io.onemfive.network.sensors;
 
 import io.onemfive.data.Envelope;
-import io.onemfive.data.Packet;
+import io.onemfive.network.Packet;
 
 import java.util.logging.Logger;
 

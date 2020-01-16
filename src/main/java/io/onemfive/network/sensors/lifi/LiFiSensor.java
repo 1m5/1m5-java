@@ -46,7 +46,7 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
     private static final Logger LOG = Logger.getLogger(LiFiSensor.class.getName());
 
     private LiFiSession session;
-    private LiFiPeer localNode;
+    private NetworkPeer localNode;
 
     public LiFiSensor() {
         super();
@@ -73,46 +73,37 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
 
     /**
      * Sends UTF-8 content to a Destination using LiFi.
-     * @param request Packet of data for request.
+     * @param packet Packet of data for request.
      *                 To DID must contain base64 encoded LiFi destination key.
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(Packet request) {
+    public boolean sendOut(Packet packet) {
         LOG.info("Sending LiFi Message...");
-        NetworkPeer toPeer = request.getToPeer();
+        NetworkPeer toPeer = packet.getToPeer();
         if(toPeer == null) {
             LOG.warning("No Peer for LiFi found in toDID while sending to LiFi.");
-            request.statusCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
+            packet.statusCode = NetworkRequest.DESTINATION_DID_REQUIRED;
             return false;
         }
         if(!Network.LIFI.name().equals((toPeer.getNetwork()))) {
             LOG.warning("LiFi requires a LiFiPeer.");
-            request.statusCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
+            packet.statusCode = NetworkRequest.DESTINATION_DID_WRONG_NETWORK;
             return false;
         }
-        LOG.info("Envelope to send: "+request.getEnvelope());
-        if(request.getEnvelope() == null) {
+        LOG.info("Envelope to send: "+packet.getEnvelope());
+        if(packet.getEnvelope() == null) {
             LOG.warning("No Envelope while sending to LiFi.");
-            request.statusCode = NetworkRequest.NO_CONTENT;
+            packet.statusCode = NetworkRequest.NO_CONTENT;
             return false;
         }
 
-        Destination toDestination = session.lookupDestination(toPeer.getAddress());
-        if(toDestination == null) {
-            LOG.warning("LiFi Peer To Destination not found.");
-            request.statusCode = NetworkRequest.DESTINATION_PEER_NOT_FOUND;
-            return false;
-        }
-        LiFiDatagramBuilder builder = new LiFiDatagramBuilder(session);
-        LiFiDatagram datagram = builder.makeLiFIDatagram(JSONPretty.toPretty(JSONParser.toString(request),4).getBytes());
-        Properties options = new Properties();
-        if(session.sendMessage(toDestination, datagram, options)) {
+        if(session.send(packet)) {
             LOG.info("LiFi Message sent.");
             return true;
         } else {
             LOG.warning("LiFi Message sending failed.");
-            request.statusCode = NetworkRequest.SENDING_FAILED;
+            packet.statusCode = NetworkRequest.SENDING_FAILED;
             return false;
         }
     }
@@ -150,33 +141,15 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
     @Override
     public void messageAvailable(LiFiSession session, int msgId, long size) {
         LOG.info("Message received by LiFi Sensor...");
-        byte[] msg = session.receiveMessage(msgId);
+        Packet packet = session.receive(msgId);
+        LOG.info("Received LiFi Packet:\n\tFrom: " + packet.getFromPeer().getDid().getPublicKey().getAddress() +"\n\tContent: " + packet.getEnvelope().toJSON());
 
-        LOG.info("Loading LiFi Datagram...");
-        LiFiDatagramExtractor d = new LiFiDatagramExtractor();
-        d.extractLiFiDatagram(msg);
-        LOG.info("LiFi Datagram loaded.");
-        byte[] payload = d.getPayload();
-        String strPayload = new String(payload);
-        LOG.info("Getting sender as LiFi Destination...");
-        Destination sender = d.getSender();
-        String address = sender.toBase64();
-        String fingerprint = sender.getHash().toBase64();
-        LOG.info("Received LiFi Message:\n\tFrom: " + address +"\n\tContent: " + strPayload);
-
-        Envelope e = Envelope.eventFactory(EventMessage.Type.TEXT);
-        NetworkPeer from = new NetworkPeer(Network.LIFI.name());
-        from.setAddress(address);
-        from.setFingerprint(fingerprint);
-        DID did = new DID();
-        did.addPeer(from);
-        e.setDID(did);
-        EventMessage m = (EventMessage) e.getMessage();
-        m.setName(fingerprint);
-        m.setMessage(strPayload);
-        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
-        LOG.info("Sending Event Message to Notification Service...");
-        sendIn(e);
+//        EventMessage m = (EventMessage) e.getMessage();
+//        m.setName(fingerprint);
+//        m.setMessage(strPayload);
+//        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
+//        LOG.info("Sending Event Message to Notification Service...");
+//        sendIn(e);
     }
 
     /**
@@ -243,32 +216,23 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
         session = new LiFiSession();
         session.connect();
 
-        Destination localDestination = session.getLocalDestination();
-        String address = localDestination.toBase64();
-        String fingerprint = localDestination.getHash().toBase64();
-        LOG.info("LiFiSensor Local destination key in base64: " + address);
-        LOG.info("LiFiSensor Local destination fingerprint (hash) in base64: " + fingerprint);
-
         session.addSessionListener(this);
 
-        NetworkPeer np = new NetworkPeer(Network.LIFI.name());
-        np.getDid().getPublicKey().setFingerprint(fingerprint);
-        np.getDid().getPublicKey().setAddress(address);
-
-        DID localDID = new DID();
-        localDID.addPeer(np);
+        localNode = new NetworkPeer(Network.LIFI);
+//        localNode.getDid().getPublicKey().setFingerprint(fingerprint);
+//        localNode.getDid().getPublicKey().setAddress(address);
 
         // Publish local LiFi address
         LOG.info("Publishing LiFi Network Peer's DID...");
         Envelope e = Envelope.eventFactory(EventMessage.Type.STATUS_DID);
         EventMessage m = (EventMessage) e.getMessage();
-        m.setName(fingerprint);
-        m.setMessage(localDID);
+//        m.setName(fingerprint);
+        m.setMessage(localNode);
         DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
 //        sensorManager.sendToBus(e);
     }
 
-    public LiFiPeer getLocalNode() {
+    public NetworkPeer getLocalNode() {
         return localNode;
     }
 

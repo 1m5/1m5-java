@@ -8,8 +8,6 @@
 hs_err_pid*
 .1m5
 .idea
-.ik
-.inkrypt-dcdn-dapp
 *.iml
 /deploy
 target

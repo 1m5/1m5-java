@@ -36,7 +36,6 @@ import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.client.ClientStatusListener;
 import io.onemfive.data.ServiceCallback;
 import io.onemfive.desktop.DesktopTray;
-import io.onemfive.util.AppThread;
 import io.onemfive.data.Envelope;
 import io.onemfive.util.DLC;
 import io.onemfive.desktop.DesktopApp;
@@ -50,13 +49,13 @@ import java.util.*;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-public class DRouter {
+public class Daemon {
 
-    private static final Logger LOG = Logger.getLogger(DRouter.class.getName());
+    private static final Logger LOG = Logger.getLogger(Daemon.class.getName());
 
     public enum Status {Shutdown, Initializing, Initialized, Starting, Running, ShuttingDown, Errored, Exiting}
 
-    private static final DRouter instance = new DRouter();
+    private static final Daemon instance = new Daemon();
 
     private static OneMFiveAppContext oneMFiveAppContext;
     private static ClientAppManager manager;

@@ -28,7 +28,7 @@ package io.onemfive.network.sensors;
 
 import io.onemfive.util.AppThread;
 import io.onemfive.data.Envelope;
-import io.onemfive.data.Packet;
+import io.onemfive.network.Packet;
 import io.onemfive.data.Sensitivity;
 import io.onemfive.data.route.Route;
 

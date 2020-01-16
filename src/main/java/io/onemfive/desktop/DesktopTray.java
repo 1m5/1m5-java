@@ -29,7 +29,7 @@ package io.onemfive.desktop;
 import com.sun.javafx.application.PlatformImpl;
 import dorkbox.systemTray.MenuItem;
 import dorkbox.systemTray.SystemTray;
-import io.onemfive.DRouter;
+import io.onemfive.Daemon;
 import io.onemfive.util.AppThread;
 
 import java.awt.event.ActionEvent;
@@ -59,7 +59,7 @@ public class DesktopTray {
     private MenuItem launchDesktopMenuItem;
     private MenuItem quitMenuItem;
 
-    public void start(DRouter dRouter) {
+    public void start(Daemon daemon) {
         SystemTray.SWING_UI = new DesktopTrayUI();
         systemTray = SystemTray.get();
         if (systemTray == null) {
@@ -91,9 +91,9 @@ public class DesktopTray {
                     public void run() {
                         systemTray.setImage(Resources.SYS_TRAY_ICON_YELLOW);
                         updateStatus("Quitting");
-                        dRouter.shutdown();
+                        daemon.shutdown();
                         systemTray.shutdown();
-                        dRouter.exit();
+                        daemon.exit();
                     }
                 }.start();
             }

@@ -26,6 +26,9 @@
  */
 package io.onemfive.data;
 
+import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,5 +57,15 @@ public abstract class ServiceMessage implements JSONSerializable {
             exception = new Exception((String)m.get("exception"));
         }
         if(m.get("type")!=null) type = (String)m.get("type");
+    }
+
+    @Override
+    public String toJSON() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
     }
 }

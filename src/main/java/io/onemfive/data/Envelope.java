@@ -28,6 +28,8 @@ package io.onemfive.data;
 
 import io.onemfive.data.route.DynamicRoutingSlip;
 import io.onemfive.data.route.Route;
+import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
 import io.onemfive.util.Multipart;
 import io.onemfive.util.RandomUtil;
 
@@ -358,5 +360,20 @@ public final class Envelope implements Persistable, JSONSerializable {
             }
         }
         if(m.get("sensitivity")!=null) sensitivity = Sensitivity.valueOf((String)m.get("sensitivity"));
+    }
+
+    @Override
+    public String toJSON() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
     }
 }

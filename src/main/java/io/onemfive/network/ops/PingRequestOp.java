@@ -27,8 +27,8 @@
 package io.onemfive.network.ops;
 
 import io.onemfive.core.RequestReply;
-import io.onemfive.data.Request;
-import io.onemfive.data.Response;
+import io.onemfive.network.Request;
+import io.onemfive.network.Response;
 import io.onemfive.network.sensors.SensorManager;
 
 import java.util.logging.Logger;

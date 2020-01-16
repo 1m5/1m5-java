@@ -27,11 +27,14 @@
 package io.onemfive.network.peers;
 
 import io.onemfive.core.keyring.AuthNRequest;
+import io.onemfive.network.Network;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.DID;
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.NetworkService;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -44,12 +47,11 @@ public abstract class BasePeerManager implements PeerManager, PeerReport {
     private Properties properties;
 
     protected NetworkService service;
-    protected NetworkPeer localPeer = new NetworkPeer();
+    protected Map<Network,NetworkPeer> localPeers = new HashMap<>();
     protected TaskRunner taskRunner;
 
     public BasePeerManager() {
-        localPeer = new NetworkPeer();
-        localPeer.setLocal(true);
+
     }
 
     public BasePeerManager(TaskRunner runner) {
@@ -70,21 +72,23 @@ public abstract class BasePeerManager implements PeerManager, PeerReport {
     }
 
     @Override
-    public NetworkPeer getLocalPeer() {
-        return localPeer;
+    public NetworkPeer getLocalPeer(Network network) {
+        return localPeers.get(network);
     }
 
     @Override
-    public void updateLocalPeer(AuthNRequest r) {
+    public void updateLocalAuthNPeer(AuthNRequest r) {
         if (r.statusCode == NO_ERROR) {
             LOG.info("Updating Local Peer: \n\taddress: "+r.identityPublicKey.getAddress()+"\n\tfingerprint: "+r.identityPublicKey.getFingerprint());
+            NetworkPeer localPeer = new NetworkPeer();
             if(r.identityPublicKey.getAddress()!=null)
-                localPeer.setAddress(r.identityPublicKey.getAddress());
+                localPeer.getDid().getPublicKey().setAddress(r.identityPublicKey.getAddress());
             if(r.identityPublicKey.getFingerprint()!=null)
-                localPeer.setFingerprint(r.identityPublicKey.getFingerprint());
-            DID d = localPeer.getDid();
-            d.setAuthenticated(true);
-            d.setVerified(true);
+                localPeer.getDid().getPublicKey().setFingerprint(r.identityPublicKey.getFingerprint());
+            localPeer.getDid().getPublicKey().isIdentityKey(true);
+            localPeer.setLocal(true);
+            localPeer.getDid().setAuthenticated(true);
+            localPeer.getDid().setVerified(true);
             savePeer(localPeer, true);
             LOG.info("Added returned public key to local Peer:"+localPeer);
         } else {
@@ -93,16 +97,10 @@ public abstract class BasePeerManager implements PeerManager, PeerReport {
     }
 
     @Override
-    public void updateLocalPeer(DID d) {
-        NetworkPeer updatedNetworkPeer = new NetworkPeer();
-        updatedNetworkPeer.setDid(d);
-        if(updatedNetworkPeer.getI2PFingerprint()!=null)
-            localPeer.setI2PFingerprint(updatedNetworkPeer.getI2PFingerprint());
-        if(updatedNetworkPeer.getI2PAddress()!=null)
-            localPeer.setI2PAddress(updatedNetworkPeer.getI2PAddress());
-        LOG.info("Saving local peer's DID updated with I2P addresses: "+localPeer);
-        savePeer(localPeer, false);
-        LOG.info("DID with I2P Addresses saved; DCDN Service ready for requests.");
+    public void updateLocalPeer(NetworkPeer np) {
+        localPeers.put(np.getNetwork(), np);
+        savePeer(np, true);
+        LOG.info("Update local Peer: "+np);
     }
 
     @Override

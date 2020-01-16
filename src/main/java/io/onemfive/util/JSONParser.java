@@ -26,11 +26,19 @@
  */
 package io.onemfive.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import java.lang.reflect.*;
 
 public class JSONParser {
+
+    public static Object parse(Path path) throws IOException {
+        return parse(new String(Files.readAllBytes(path)));
+    }
 
     public static Object parse(Object json)
     {

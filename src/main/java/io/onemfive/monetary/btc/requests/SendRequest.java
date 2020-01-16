@@ -26,7 +26,7 @@
  */
 package io.onemfive.monetary.btc.requests;
 
-import io.onemfive.data.Request;
+import io.onemfive.network.Request;
 
 public class SendRequest extends Request {
     public String base58From;

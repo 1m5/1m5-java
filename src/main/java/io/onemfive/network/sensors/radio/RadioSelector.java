@@ -26,9 +26,11 @@
  */
 package io.onemfive.network.sensors.radio;
 
+import io.onemfive.network.NetworkPeer;
+
 public class RadioSelector {
 
-    public static Radio determineBestRadio(RadioPeer toPeer) {
+    public static Radio determineBestRadio(NetworkPeer toPeer) {
 
         return null;
     }

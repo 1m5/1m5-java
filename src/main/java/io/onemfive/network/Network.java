@@ -24,36 +24,25 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.data;
+package io.onemfive.network;
 
-import io.onemfive.core.ServiceReport;
-import io.onemfive.network.NetworkReport;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class NetworkPeerReport implements JSONSerializable {
-
-    public List<ServiceReport> serviceReports;
-    public NetworkReport networkReport;
-
-    @Override
-    public Map<String, Object> toMap() {
-        Map<String,Object> m = new HashMap<>();
-        if(serviceReports!=null) m.put("serviceReports", serviceReports);
-        if(networkReport!=null) m.put("networkReport", networkReport.toMap());
-        return m;
-    }
-
-    @Override
-    public void fromMap(Map<String, Object> m) {
-        if(m.get("serviceReports")!=null) {
-            serviceReports = (List<ServiceReport>)m.get("serviceReports");
-        }
-        if(m.get("networkReport")!=null) {
-            networkReport = new NetworkReport();
-            networkReport.fromMap((Map<String,Object>)m.get("networkReport"));
-        }
-    }
+public enum Network {
+    // Invisible Matrix Services (1M5)
+    IMS,
+    // Invisible Internet Project (I2P)
+    I2P,
+    // The Onion Router (TOR)
+    TOR,
+    // Clearnet
+    CLEAR,
+    // 1DN - Radio
+    RADIO_CELLULAR,
+    RADIO_WIFI,
+    RADIO_WIFI_DIRECT,
+    RADIO_BLUETOOTH,
+    RADIO_BLUETOOTH_LE,
+    RADIO_SATELLITE,
+    RADIO_FULLSPECTRUM,
+    // 1DN - Light Fidelity (LiFi)
+    LIFI
 }

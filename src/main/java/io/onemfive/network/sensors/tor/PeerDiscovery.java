@@ -26,9 +26,10 @@
  */
 package io.onemfive.network.sensors.tor;
 
+import io.onemfive.network.NetworkPeer;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.Envelope;
-import io.onemfive.data.Packet;
+import io.onemfive.network.Packet;
 import io.onemfive.data.Sensitivity;
 import io.onemfive.util.DLC;
 import io.onemfive.network.NetworkService;
@@ -45,10 +46,10 @@ public class PeerDiscovery extends NetworkTask {
     private static final Logger LOG = Logger.getLogger(PeerDiscovery.class.getName());
 
     private TorSensor sensor;
-    private TorPeer localPeer;
-    private Map<String, TorPeer> peers;
+    private NetworkPeer localPeer;
+    private Map<String, NetworkPeer> peers;
 
-    public PeerDiscovery(TorPeer localPeer, Map<String, TorPeer> peers, TorSensor sensor, TaskRunner taskRunner, Properties properties, long periodicity) {
+    public PeerDiscovery(NetworkPeer localPeer, Map<String, NetworkPeer> peers, TorSensor sensor, TaskRunner taskRunner, Properties properties, long periodicity) {
         super(PeerDiscovery.class.getName(), taskRunner, properties, periodicity);
         this.localPeer = localPeer;
         this.peers = peers;
@@ -59,8 +60,8 @@ public class PeerDiscovery extends NetworkTask {
     public Boolean execute() {
         started = true;
         if(peers != null && peers.size() > 0) {
-            Collection<TorPeer> peersList = peers.values();
-            for (TorPeer peer : peersList) {
+            Collection<NetworkPeer> peersList = peers.values();
+            for (NetworkPeer peer : peersList) {
                 Envelope envelope = Envelope.documentFactory();
                 envelope.setSensitivity(Sensitivity.MEDIUM);
                 DLC.addExternalRoute(NetworkService.class, PingRequestOp.class.getName(), envelope, localPeer, peer);

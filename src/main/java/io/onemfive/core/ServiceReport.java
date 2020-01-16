@@ -27,6 +27,8 @@
 package io.onemfive.core;
 
 import io.onemfive.data.JSONSerializable;
+import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,5 +61,20 @@ public class ServiceReport implements JSONSerializable {
             if(m.get("running")!=null) running = Boolean.parseBoolean((String)m.get("running"));
             if(m.get("version")!=null) version = (String)m.get("version");
         }
+    }
+
+    @Override
+    public String toJSON() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
     }
 }

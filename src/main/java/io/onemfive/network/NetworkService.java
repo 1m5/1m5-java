@@ -67,8 +67,8 @@ public class NetworkService extends BaseService {
 
     public static final String OPERATION_SEND = "SEND";
     public static final String OPERATION_REPLY = "REPLY";
-    public static final String OPERATION_UPDATE_LOCAL_DID = "updateLocalDID";
-    public static final String OPERATION_RECEIVE_LOCAL_PEER = "receiveLocalPeer";
+    public static final String OPERATION_UPDATE_LOCAL_PEER = "updateLocalDID";
+    public static final String OPERATION_RECEIVE_LOCAL_AUTHN_PEER = "receiveLocalPeer";
 
     private SensorManager sensorManager;
     private BasePeerManager peerManager;
@@ -152,7 +152,7 @@ public class NetworkService extends BaseService {
                                 String toNetwork = sensor.getClass().getName();
                                 if (!fromNetwork.equals(toNetwork)) {
                                     LOG.info("Escalated sensor: " + toNetwork);
-                                    NetworkPeer newToPeer = peerManager.getRandomPeer(peerManager.getLocalPeer());
+                                    NetworkPeer newToPeer = peerManager.getRandomPeer(peerManager.getLocalPeer(sensor.getNetwork()));
                                     if (newToPeer == null) {
                                         LOG.warning("No other peers to route blocked request. Request is dead.");
                                     } else {
@@ -160,6 +160,7 @@ public class NetworkService extends BaseService {
                                         if (m != null) {
                                             m.clearErrorMessages();
                                         }
+                                        packet.setToPeer(newToPeer);
                                         // Send through escalated network
                                         sensor.sendOut(packet);
                                     }
@@ -192,13 +193,13 @@ public class NetworkService extends BaseService {
                 sensor.replyOut(packet);
                 break;
             }
-            case OPERATION_UPDATE_LOCAL_DID: {
-                LOG.info("Update local DID...");
-                peerManager.updateLocalPeer((DID)DLC.getData(DID.class,e));break;
+            case OPERATION_UPDATE_LOCAL_PEER: {
+                LOG.info("Update local Peer...");
+                peerManager.updateLocalPeer((NetworkPeer)DLC.getData(NetworkPeer.class,e));break;
             }
-            case OPERATION_RECEIVE_LOCAL_PEER: {
-                LOG.info("Receive Local CDNPeer...");
-                peerManager.updateLocalPeer(((AuthNRequest) DLC.getData(AuthNRequest.class,e)));break;
+            case OPERATION_RECEIVE_LOCAL_AUTHN_PEER: {
+                LOG.info("Receive Local AuthN Peer...");
+                peerManager.updateLocalAuthNPeer(((AuthNRequest) DLC.getData(AuthNRequest.class,e)));break;
             }
             default: {
                 LOG.warning("Operation ("+r.getOperation()+") not supported. Sending to Dead Letter queue.");
@@ -295,27 +296,19 @@ public class NetworkService extends BaseService {
                     } else {
                         LOG.warning("Packet " + packet.getClass().getName() + " not handled; ignoring.");
                     }
-                } else if(peerManager.isReachable(peerManager.getLocalPeer(), packet.getDestinationPeer(), envelope.getSensitivity())) {
+                } else if(peerManager.isReachable(peerManager.getLocalPeer(packet.getDestinationPeer().getNetwork()), packet.getDestinationPeer(), envelope.getSensitivity())) {
                     // Destination is known and reachable therefore forward
                     packet.setToPeer(packet.getDestinationPeer());
                 } else {
                     // Forward to a random reachable peer
-                    packet.setToPeer(peerManager.getRandomReachablePeer(peerManager.getLocalPeer(), envelope.getSensitivity()));
+                    packet.setToPeer(peerManager.getRandomReachablePeer(peerManager.getLocalPeer(packet.getDestinationPeer().getNetwork()), envelope.getSensitivity()));
                 }
             } else {
                 LOG.warning("Object " + obj.getClass().getName() + " not handled; ignoring.");
             }
         } else if(msg instanceof NetworkPeer) {
-            LOG.info("Route in DID with I2P Address...");
-            // TODO: update DIDService's node DID
-            NetworkPeer np = (NetworkPeer)msg;
-            NetworkPeer localPeer = peerManager.getLocalPeer();
-            if(np.getI2PFingerprint()!=null)
-                localPeer.setI2PFingerprint(np.getI2PFingerprint());
-            if(np.getI2PAddress()!=null)
-                localPeer.setI2PAddress(np.getI2PAddress());
-            LOG.info("Saving local peer's DID updated with I2P addresses: "+localPeer);
-            peerManager.savePeer(localPeer, false);
+            LOG.info("Route in NetworkPeer for update...");
+            peerManager.updateLocalPeer((NetworkPeer)msg);
             LOG.info("DID with I2P Addresses saved; Sensors Service ready for requests.");
         } else {
             LOG.warning("EnvelopeMessage message "+msg.getClass().getName()+" not handled.");
@@ -752,7 +745,7 @@ public class NetworkService extends BaseService {
 
             // 3. Request local Peer
             Envelope e3 = Envelope.documentFactory();
-            DLC.addRoute(NetworkService.class, NetworkService.OPERATION_RECEIVE_LOCAL_PEER, e3);
+            DLC.addRoute(NetworkService.class, NetworkService.OPERATION_RECEIVE_LOCAL_AUTHN_PEER, e3);
             // 2. Authenticate DID
             DID did = new DID();
             did.setUsername(username);

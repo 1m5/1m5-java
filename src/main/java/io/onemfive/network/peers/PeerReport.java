@@ -26,7 +26,7 @@
  */
 package io.onemfive.network.peers;
 
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkPeer;
 
 import java.util.List;
 

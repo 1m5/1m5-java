@@ -26,7 +26,7 @@
  */
 package io.onemfive.data.route;
 
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkPeer;
 
 public interface ExternalRoute extends Route {
     NetworkPeer getOrigination();

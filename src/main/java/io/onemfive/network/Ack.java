@@ -24,12 +24,13 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.lifi;
+package io.onemfive.network;
 
-/**
- * Interface to use for all LiFi calls.
- */
-public interface LiFi {
+import io.onemfive.network.Response;
 
-    int sendMessage(LiFiDatagram message);
+public class Ack extends Response {
+
+    public Ack(String requestId) {
+        super(requestId);
+    }
 }

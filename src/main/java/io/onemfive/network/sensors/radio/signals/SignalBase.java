@@ -159,7 +159,17 @@ public abstract class SignalBase implements Signal, JSONSerializable {
     }
 
     @Override
-    public String toString() {
+    public String toJSON() {
         return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
     }
 }

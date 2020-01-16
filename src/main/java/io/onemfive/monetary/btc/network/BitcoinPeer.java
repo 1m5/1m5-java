@@ -26,7 +26,7 @@
  */
 package io.onemfive.monetary.btc.network;
 
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkPeer;
 
 /**
  * TODO: Add Description

@@ -24,55 +24,48 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.radio;
+package io.onemfive.network;
 
+import io.onemfive.core.ServiceReport;
 import io.onemfive.data.JSONSerializable;
-import io.onemfive.data.content.Content;
+import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
-public class RadioDatagram implements JSONSerializable {
+public class NetworkPeerReport implements JSONSerializable {
 
-    private Logger LOG = Logger.getLogger(RadioDatagram.class.getName());
-
-    public RadioPeer from;
-    public RadioPeer to;
-    public RadioPeer destination;
-    public Content content;
+    public List<ServiceReport> serviceReports;
+    public NetworkReport networkReport;
 
     @Override
     public Map<String, Object> toMap() {
         Map<String,Object> m = new HashMap<>();
-        if(from!=null) m.put("from",from.toMap());
-        if(to!=null) m.put("to",to.toMap());
-        if(destination!=null) m.put("destination",destination.toMap());
-        if(content!=null) m.put("content",content.toMap());
+        if(serviceReports!=null) m.put("serviceReports", serviceReports);
+        if(networkReport!=null) m.put("networkReport", networkReport.toMap());
         return m;
     }
 
     @Override
     public void fromMap(Map<String, Object> m) {
-        if(m.get("from")!=null) {
-            from = new RadioPeer();
-            from.fromMap((Map<String,Object>)m.get("from"));
+        if(m.get("serviceReports")!=null) {
+            serviceReports = (List<ServiceReport>)m.get("serviceReports");
         }
-        if(m.get("to")!=null) {
-            to = new RadioPeer();
-            to.fromMap((Map<String,Object>)m.get("to"));
+        if(m.get("networkReport")!=null) {
+            networkReport = new NetworkReport();
+            networkReport.fromMap((Map<String,Object>)m.get("networkReport"));
         }
-        if(m.get("destination")!=null) {
-            destination = new RadioPeer();
-            destination.fromMap((Map<String,Object>)m.get("destination"));
-        }
-        if(m.get("content")!=null) {
-            try {
-                content = Content.newInstance(m);
-            } catch (Exception e) {
-                LOG.warning(e.getLocalizedMessage());
-            }
-            content.fromMap((Map<String,Object>)m.get("content"));
-        }
+    }
+
+    @Override
+    public String toJSON() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
     }
 }

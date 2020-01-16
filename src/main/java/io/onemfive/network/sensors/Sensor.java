@@ -27,6 +27,8 @@
 package io.onemfive.network.sensors;
 
 import io.onemfive.core.LifeCycle;
+import io.onemfive.network.Network;
+import io.onemfive.network.Packet;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.*;
 

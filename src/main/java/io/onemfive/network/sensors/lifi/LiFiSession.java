@@ -26,34 +26,24 @@
  */
 package io.onemfive.network.sensors.lifi;
 
+import io.onemfive.network.Packet;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 public class LiFiSession {
 
     private static final Logger LOG = Logger.getLogger(LiFiSession.class.getName());
 
-    private Destination localDestination;
     private List<LiFiSessionListener> sessionListeners = new ArrayList<>();
 
-    public Destination getLocalDestination() {
-        return localDestination;
-    }
-
-    public Destination lookupDestination(String address) {
-        Destination dest = null;
-
-        return dest;
-    }
-
-    public boolean sendMessage(Destination toDestination, LiFiDatagram datagram, Properties options) {
-        LOG.warning("LiFISession.sendMessage() not implemented.");
+    public boolean send(Packet packet) {
+        LOG.warning("LiFISession.send(Packet) not implemented.");
         return false;
     }
 
-    public byte[] receiveMessage(int msgId) {
+    public Packet receive(int msgId) {
         return null;
     }
 

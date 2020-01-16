@@ -26,8 +26,9 @@
  */
 package io.onemfive.network.sensors.radio.technologies.bluetooth;
 
+import io.onemfive.network.Network;
+import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.sensors.radio.BaseRadio;
-import io.onemfive.network.sensors.radio.RadioPeer;
 import io.onemfive.network.sensors.radio.RadioSession;
 import io.onemfive.network.sensors.radio.tasks.TaskRunner;
 
@@ -45,18 +46,18 @@ public class Bluetooth extends BaseRadio {
 
     private Properties properties;
 
-    private BluetoothPeer localPeer;
+    private NetworkPeer localPeer;
 
     private Map<String, RemoteDevice> devices = new HashMap<>();
     private Map<String, List<String>> deviceServices = new HashMap<>();
-    private Map<String, BluetoothPeer> peers = new HashMap<>();
+    private Map<String, NetworkPeer> peers = new HashMap<>();
 
     private DeviceDiscovery deviceDiscovery;
     private ServiceDiscovery serviceDiscovery;
     private PeerDiscovery peerDiscovery;
 
     @Override
-    public RadioSession establishSession(RadioPeer peer, Boolean autoConnect) {
+    public RadioSession establishSession(NetworkPeer peer, Boolean autoConnect) {
         BluetoothSession session = new BluetoothSession(this);
         if(autoConnect) {
             session.connect(peer);
@@ -87,8 +88,8 @@ public class Bluetooth extends BaseRadio {
         serviceDiscovery.setLongRunning(true);
         taskRunner.addTask(serviceDiscovery);
 
-        localPeer = new BluetoothPeer();
-        localPeer.setAddress("1234");
+        localPeer = new NetworkPeer(Network.RADIO_BLUETOOTH);
+        localPeer.getDid().getPublicKey().setAddress("1234");
 
         peerDiscovery = new PeerDiscovery( localPeer,this, peers, sensor, taskRunner, properties, 60 * 1000L);
         peerDiscovery.setLongRunning(true);

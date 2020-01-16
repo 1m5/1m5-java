@@ -27,18 +27,41 @@
 package io.onemfive.network.sensors;
 
 import io.onemfive.core.Config;
-import io.onemfive.data.Network;
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.Network;
+import io.onemfive.network.NetworkPeer;
 import io.onemfive.data.Sensitivity;
+import io.onemfive.util.JSONParser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class SensorsConfig {
 
     private static final Logger LOG = Logger.getLogger(SensorsConfig.class.getName());
+
+    public static Sensitivity currentSensitivity = Sensitivity.HIGH; // Default
+    // ------------ Discovery ---------------
+    public static String env = "devnet";
+    // Seeds
+    public static Map<String,List<NetworkPeer>> seeds = new HashMap<>();
+    // Banned
+    public static Map<String,List<NetworkPeer>> banned = new HashMap<>();
+    // Min Peers Tracked - the point at which Discovery process goes into 'hyper' mode.
+    public static int MinPT = 10;
+    // Max Peers Tracked - the total number of Peers to attempt to maintain knowledge of
+    public static int MaxPT = 100;
+    // Max Peers Sent - Maximum number of peers to send in a peer list (the bigger a datagram, the less chance of it getting through).
+    public static int MaxPS = 5;
+    // Max Acknowledgments Tracked
+    public static int MaxAT = 20;
+    // Update Interval - seconds between Discovery process
+    public static int UI = 60;
+    // Reliable Peer Min Acks
+    public static int MinAckRP = 20;
+    // Super Reliable Peer Min Acks
+    public static int MinAckSRP = 10000;
 
     public static void update(Properties properties) {
         try {
@@ -46,6 +69,7 @@ public class SensorsConfig {
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());
         }
+
         if(properties.getProperty("io.onemfive.network.sensitivity") != null) {
             try {
                 currentSensitivity = Sensitivity.valueOf(properties.getProperty("io.onemfive.network.sensitivity"));
@@ -56,37 +80,32 @@ public class SensorsConfig {
                 }
             }
         }
-        if(properties.getProperty("onemfive.sensors.seeds") != null) {
-            String i2pSeedsStr = properties.getProperty("onemfive.sensors.seeds");
-            if(i2pSeedsStr!=null && !"".equals(i2pSeedsStr)) {
-                String[] sl = i2pSeedsStr.split(",");
+
+        try {
+            Map<String,Object> pm = (Map<String,Object>)JSONParser.parse(Paths.get("1m5-peers.json"));
+            List<Map<String,Object>> envScope = (List<Map<String,Object>>)pm.get("peers");
+            for(Map<String,Object> eM : envScope) {
+                String env = (String)eM.get("environment");
                 NetworkPeer np;
-                String[] na;
-                for(String s : sl) {
-//                    na = s.split("|");
-//                    np = new NetworkPeer(na[0]);
-//                    np.setAddress(na[1]);
-                    // For now just assume I2P
-                    np = new NetworkPeer(Network.I2P.name());
-                    np.setAddress(s);
-                    seeds.add(np);
+                List<Map<String,Object>> seedList = (List<Map<String,Object>>)eM.get("seeds");
+                for(Map<String,Object> s : seedList) {
+                    np = new NetworkPeer();
+                    np.fromMap(s);
+                    if(seeds.get(env)==null) seeds.put(env, new ArrayList<>());
+                    seeds.get(env).add(np);
+                }
+                List<Map<String,Object>> bannedList = (List<Map<String,Object>>)eM.get("banned");
+                for(Map<String,Object> b : bannedList) {
+                    np = new NetworkPeer();
+                    np.fromMap(b);
+                    if(banned.get(env)==null) banned.put(env, new ArrayList<>());
+                    banned.get(env).add(np);
                 }
             }
+        } catch (IOException e) {
+            LOG.warning(e.getLocalizedMessage());
         }
-        if(properties.getProperty("onemfive.sensors.banned") != null) {
-            String i2pBannedStr = properties.getProperty("onemfive.sensors.banned");
-            if(i2pBannedStr!=null && !"".equals(i2pBannedStr)) {
-                String[] bl = i2pBannedStr.split(",");
-                NetworkPeer np;
-                String[] na;
-                for(String b : bl) {
-                    na = b.split("|");
-                    np = new NetworkPeer(na[0]);
-                    np.setAddress(na[1]);
-                    banned.add(np);
-                }
-            }
-        }
+
         if(properties.getProperty("onemfive.sensors.MinPT") != null) {
             MinPT = Integer.parseInt(properties.getProperty("onemfive.sensors.MinPT"));
         }
@@ -109,26 +128,5 @@ public class SensorsConfig {
             MinAckSRP = Integer.parseInt(properties.getProperty("onemfive.sensors.MinAckSRP"));
         }
     }
-
-    public static Sensitivity currentSensitivity = Sensitivity.HIGH; // Default
-    // ------------ Discovery ---------------
-    // Seeds
-    public static List<NetworkPeer> seeds = new ArrayList<>();
-    // Banned
-    public static List<NetworkPeer> banned = new ArrayList<>();
-    // Min Peers Tracked - the point at which Discovery process goes into 'hyper' mode.
-    public static int MinPT = 10;
-    // Max Peers Tracked - the total number of Peers to attempt to maintain knowledge of
-    public static int MaxPT = 100;
-    // Max Peers Sent - Maximum number of peers to send in a peer list (the bigger a datagram, the less chance of it getting through).
-    public static int MaxPS = 5;
-    // Max Acknowledgments Tracked
-    public static int MaxAT = 20;
-    // Update Interval - seconds between Discovery process
-    public static int UI = 60;
-    // Reliable Peer Min Acks
-    public static int MinAckRP = 20;
-    // Super Reliable Peer Min Acks
-    public static int MinAckSRP = 10000;
 
 }

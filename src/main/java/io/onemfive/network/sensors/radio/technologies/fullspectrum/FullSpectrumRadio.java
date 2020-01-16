@@ -24,10 +24,10 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.radio.technologies.gnu;
+package io.onemfive.network.sensors.radio.technologies.fullspectrum;
 
+import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.sensors.radio.BaseRadio;
-import io.onemfive.network.sensors.radio.RadioPeer;
 import io.onemfive.network.sensors.radio.RadioSession;
 
 import java.util.logging.Logger;
@@ -39,12 +39,12 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public class GNURadio extends BaseRadio {
+public class FullSpectrumRadio extends BaseRadio {
 
-    private Logger LOG = Logger.getLogger(GNURadio.class.getName());
+    private Logger LOG = Logger.getLogger(FullSpectrumRadio.class.getName());
 
     @Override
-    public RadioSession establishSession(RadioPeer peer, Boolean autoConnect) {
+    public RadioSession establishSession(NetworkPeer peer, Boolean autoConnect) {
         return null;
     }
 }

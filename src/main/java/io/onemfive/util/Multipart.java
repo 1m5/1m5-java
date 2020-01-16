@@ -185,4 +185,19 @@ public class Multipart implements JSONSerializable {
         if(m.get("charset")!=null) charset = (String)m.get("charset");
         if(m.get("boundary")!=null) boundary = (String)m.get("boundary");
     }
+
+    @Override
+    public String toJSON() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
+    }
 }

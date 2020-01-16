@@ -30,6 +30,10 @@ import io.onemfive.core.Config;
 import io.onemfive.core.Operation;
 import io.onemfive.data.ServiceMessage;
 import io.onemfive.core.notification.NotificationService;
+import io.onemfive.network.Network;
+import io.onemfive.network.NetworkPeer;
+import io.onemfive.network.Packet;
+import io.onemfive.network.Response;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.*;
 import io.onemfive.data.route.Route;
@@ -163,18 +167,17 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
             request.statusCode = ServiceMessage.REQUEST_REQUIRED;
             return false;
         }
-        NetworkPeer toPeer = request.getToPeer();
-        if(toPeer == null) {
+        if(request.getToPeer() == null) {
             LOG.warning("No Peer for I2P found in toDID while sending to I2P.");
             request.statusCode = Packet.DESTINATION_PEER_REQUIRED;
             return false;
         }
-        if(toPeer.getI2PAddress()==null) {
-            LOG.warning("I2P requires an I2P Address.");
+        if(request.getToPeer().getNetwork()!=Network.I2P) {
+            LOG.warning("Not a packet for I2P.");
             request.statusCode = Packet.DESTINATION_PEER_WRONG_NETWORK;
             return false;
         }
-        String content = JSONPretty.toPretty(JSONParser.toString(request.toMap()), 4);
+        String content = request.toJSON();
         LOG.info("Content to send: "+content);
         if(content.length() > 31500) {
             // Just warn for now
@@ -183,7 +186,7 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
         }
 
         try {
-            Destination toDestination = i2pSession.lookupDest(toPeer.getI2PAddress());
+            Destination toDestination = i2pSession.lookupDest(request.getToPeer().getDid().getPublicKey().getAddress());
             if(toDestination == null) {
                 LOG.warning("I2P Peer To Destination not found.");
                 request.statusCode = Packet.DESTINATION_PEER_NOT_FOUND;
@@ -232,8 +235,8 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
             response.statusCode = Packet.DESTINATION_PEER_REQUIRED;
             return false;
         }
-        if(toPeer.getI2PAddress()==null) {
-            LOG.warning("I2P requires an I2P Address.");
+        if(toPeer.getNetwork()!=Network.I2P) {
+            LOG.warning("Wrong network; you specified: "+toPeer.getNetwork().name());
             response.statusCode = Packet.DESTINATION_PEER_WRONG_NETWORK;
             return false;
         }
@@ -246,7 +249,7 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
         }
 
         try {
-            Destination toDestination = i2pSession.lookupDest(toPeer.getI2PAddress());
+            Destination toDestination = i2pSession.lookupDest(toPeer.getDid().getPublicKey().getAddress());
             if(toDestination == null) {
                 LOG.warning("I2P Peer To Destination not found by I2P Router.");
                 response.statusCode = Packet.DESTINATION_PEER_NOT_FOUND;
@@ -334,12 +337,10 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
                 }
             }
             Envelope e = Envelope.eventFactory(EventMessage.Type.TEXT);
-            NetworkPeer from = new NetworkPeer(Network.I2P.name());
-            from.setAddress(address);
-            from.setFingerprint(fingerprint);
-            DID did = new DID();
-            did.addPeer(from);
-            e.setDID(did);
+            NetworkPeer from = new NetworkPeer(Network.I2P);
+            from.getDid().getPublicKey().setAddress(address);
+            from.getDid().getPublicKey().setFingerprint(fingerprint);
+            e.setDID(from.getDid());
             EventMessage m = (EventMessage) e.getMessage();
             m.setName(fingerprint);
             m.setMessage(strPayload);
@@ -531,9 +532,9 @@ public class I2PSensor extends BaseSensor implements I2PSessionMuxedListener {
 
         i2pSession.addMuxedSessionListener(this, I2PSession.PROTO_ANY, I2PSession.PORT_ANY);
 
-        NetworkPeer np = new NetworkPeer(Network.I2P.name());
-        np.setAddress(address);
-        np.setFingerprint(fingerprint);
+        NetworkPeer np = new NetworkPeer(Network.I2P);
+        np.getDid().getPublicKey().setAddress(address);
+        np.getDid().getPublicKey().setFingerprint(fingerprint);
 
         if(!isTest) {
             // Publish local I2P address

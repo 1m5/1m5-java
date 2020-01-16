@@ -26,7 +26,7 @@
  */
 package io.onemfive.network.sensors.radio.discovery;
 
-import io.onemfive.network.sensors.radio.RadioPeer;
+import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.sensors.radio.RadioSensor;
 import io.onemfive.network.sensors.radio.tasks.RadioTask;
 import io.onemfive.network.sensors.radio.tasks.TaskRunner;
@@ -45,12 +45,12 @@ public class RadioPeerDiscovery extends RadioTask {
     @Override
     public boolean runTask() {
         LOG.info("Starting Radio Peer Discovery...");
-        RadioPeer localNode = sensor.getLocalNode();
+        NetworkPeer localNode = sensor.getLocalNode();
         if(localNode==null) {
-            LOG.info("Local RadioPeer not established yet. Can't run Peer Discovery.");
+            LOG.info("Local Peer not established yet. Can't run Peer Discovery.");
             return false;
         }
-        LOG.info("Completed Radio Peer Discovery.");
+        LOG.info("Completed Peer Discovery.");
         return false;
     }
 }

@@ -26,6 +26,11 @@
  */
 package io.onemfive.data.content;
 
+import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
+
+import java.util.Map;
+
 public class Text extends Content {
 
     public Text() {
@@ -46,5 +51,20 @@ public class Text extends Content {
 
     protected Text(byte[] body, String contentType, String name, boolean generateHash, boolean generateFingerprint) {
         super(body, contentType, name, generateHash, generateFingerprint);
+    }
+
+    @Override
+    public String toJSON() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
     }
 }

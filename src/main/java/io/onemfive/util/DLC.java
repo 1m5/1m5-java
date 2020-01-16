@@ -29,6 +29,7 @@ package io.onemfive.util;
 import io.onemfive.data.*;
 import io.onemfive.data.route.SimpleExternalRoute;
 import io.onemfive.data.route.SimpleRoute;
+import io.onemfive.network.NetworkPeer;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -27,6 +27,8 @@
 package io.onemfive.data.route;
 
 import io.onemfive.util.DequeStack;
+import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
 import io.onemfive.util.Stack;
 
 import java.util.Iterator;
@@ -88,7 +90,7 @@ public final class DynamicRoutingSlip extends BaseRoute implements RoutingSlip {
             Route r;
             while(i.hasNext()) {
                 r = i.next();
-
+                // TODO: Complete toMap()
             }
         }
         return m;
@@ -97,6 +99,21 @@ public final class DynamicRoutingSlip extends BaseRoute implements RoutingSlip {
     @Override
     public void fromMap(Map<String, Object> m) {
         super.fromMap(m);
+        // TODO: Complete fromMap()
+    }
 
+    @Override
+    public String toJSON() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
     }
 }

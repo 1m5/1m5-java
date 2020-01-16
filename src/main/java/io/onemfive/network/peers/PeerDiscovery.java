@@ -26,12 +26,14 @@
  */
 package io.onemfive.network.peers;
 
+import io.onemfive.network.Network;
 import io.onemfive.util.tasks.TaskRunner;
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.sensors.SensorsConfig;
 import io.onemfive.network.NetworkTask;
 import io.onemfive.network.NetworkService;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -65,9 +67,9 @@ public class PeerDiscovery extends NetworkTask {
     @Override
     public Boolean execute() {
         LOG.info("Running Peer Discovery...");
-        NetworkPeer localPeer = service.getPeerManager().getLocalPeer();
+        NetworkPeer localPeer = service.getPeerManager().getLocalPeer(Network.IMS);
         if(localPeer == null) {
-            LOG.warning("Sensors Service doesn't have local Peer yet. Can't run Peer Updater.");
+            LOG.warning("Network Service doesn't have local Peer yet. Can't run Peer Updater.");
             return false;
         }
         long totalKnown = service.getPeerManager().totalPeersByRelationship(localPeer, P2PRelationship.RelType.Known);
@@ -75,8 +77,9 @@ public class PeerDiscovery extends NetworkTask {
             LOG.info("No peers known.");
             if(SensorsConfig.seeds!=null && SensorsConfig.seeds.size() > 0) {
                 // Launch Seeds
-                for (NetworkPeer seed : SensorsConfig.seeds) {
-                    LOG.info("Sending Peer Status Request to Seed Peer:\n\tNetwork: " + seed.getNetwork() + "\n\tFingerprint: "+seed.getFingerprint()+"\n\tAddress: "+seed.getAddress());
+                List<NetworkPeer> seeds = SensorsConfig.seeds.get(SensorsConfig.env);
+                for (NetworkPeer seed : seeds) {
+                    LOG.info("Sending Peer Status Request to Seed Peer:\n\t" + seed);
 //                    service.pingOut(seed);
                     LOG.info("Sent Peer Status Request to Seed Peer.");
                 }

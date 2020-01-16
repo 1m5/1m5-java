@@ -26,6 +26,9 @@
  */
 package io.onemfive.data;
 
+import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,5 +66,20 @@ public class BaseMessage implements Message, Persistable {
     @Override
     public void fromMap(Map<String, Object> m) {
         if(m.get("errorMessages")!=null) errorMessages = (List<String>)m.get("errorMessages");
+    }
+
+    @Override
+    public String toJSON() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
     }
 }

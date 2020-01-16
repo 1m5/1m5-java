@@ -31,6 +31,7 @@ import io.onemfive.data.Hash;
 import io.onemfive.data.JSONSerializable;
 import io.onemfive.util.HashUtil;
 import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
 
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
@@ -482,8 +483,18 @@ public abstract class Content implements JSONSerializable, Serializable {
     }
 
     @Override
+    public String toJSON() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
     public String toString() {
-        return JSONParser.toString(toMap());
+        return toJSON();
     }
 
 }

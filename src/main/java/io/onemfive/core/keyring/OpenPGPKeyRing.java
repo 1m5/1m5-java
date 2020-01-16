@@ -77,7 +77,7 @@ public class OpenPGPKeyRing implements KeyRing {
      * @throws PGPException
      */
     @Override
-    public void generateKeyRingCollections(GenerateKeyRingCollectionsRequest r) throws IOException, PGPException {
+    public void generateKeyRingCollections(GenerateKeyRingCollectionsRequest r) throws PGPException {
         LOG.info("Generate Key Rings using OpenPGP request received.");
 
         File skr = new File(r.location + (r.location.endsWith("/") ? "" : "/") + r.keyRingUsername+".skr");
@@ -119,6 +119,7 @@ public class OpenPGPKeyRing implements KeyRing {
                     r.identityPublicKey.setAlias(r.keyRingUsername);
                     r.identityPublicKey.setFingerprint(Base64.getEncoder().encodeToString(identityPublicKey.getFingerprint()));
                     r.identityPublicKey.setAddress(Base64.getEncoder().encodeToString(identityPublicKey.getEncoded()));
+                    r.identityPublicKey.setBase64Encoded(true);
                     r.identityPublicKey.isIdentityKey(identityPublicKey.isMasterKey());
                     r.identityPublicKey.isEncryptionKey(identityPublicKey.isEncryptionKey());
                 }
@@ -130,6 +131,7 @@ public class OpenPGPKeyRing implements KeyRing {
                     r.encryptionPublicKey.setAlias(r.keyRingUsername);
                     r.encryptionPublicKey.setFingerprint(Base64.getEncoder().encodeToString(encryptionPublicKey.getFingerprint()));
                     r.encryptionPublicKey.setAddress(Base64.getEncoder().encodeToString(encryptionPublicKey.getEncoded()));
+                    r.encryptionPublicKey.setBase64Encoded(true);
                     r.encryptionPublicKey.isIdentityKey(encryptionPublicKey.isMasterKey());
                     r.encryptionPublicKey.isEncryptionKey(encryptionPublicKey.isEncryptionKey());
                 }

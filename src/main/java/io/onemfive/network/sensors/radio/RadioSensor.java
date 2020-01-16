@@ -35,7 +35,6 @@ import io.onemfive.network.sensors.radio.tasks.TaskRunner;
 import io.onemfive.network.sensors.radio.technologies.RadioDetection;
 import io.onemfive.network.*;
 import io.onemfive.util.DLC;
-import io.onemfive.util.JSONParser;
 
 import java.io.*;
 import java.util.*;
@@ -55,7 +54,7 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
 
     private Properties properties;
     private TaskRunner taskRunner;
-    private RadioPeer localNode;
+    private NetworkPeer localNode;
     private File localNodeFile;
     private Map<String, Radio> radios = new HashMap<>();
 
@@ -93,33 +92,32 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
     @Override
     public boolean sendOut(Packet packet) {
         LOG.info("Sending Radio Message...");
-        Envelope envelope = packet.getEnvelope();
-        NetworkRequest request = (NetworkRequest) DLC.getData(NetworkRequest.class,envelope);
-        if(request == null){
-            LOG.warning("No SensorRequest in Envelope.");
-            request.statusCode = ServiceMessage.REQUEST_REQUIRED;
-            return false;
-        }
-        NetworkPeer toPeer = request.destination.getPeer(Network.SDR.name());
-        if(toPeer == null) {
-            LOG.warning("No Peer for Radio found in toDID while sending to Radio.");
-            request.statusCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
-            return false;
-        }
-        if(!Network.SDR.name().equals((toPeer.getNetwork()))) {
-            LOG.warning("Radio requires an SDR Peer.");
-            request.statusCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
-            return false;
-        }
-        NetworkPeer fromPeer = request.origination.getPeer(Network.SDR.name());
-        LOG.info("Content to send: "+request.content);
-        if(request.content == null) {
-            LOG.warning("No content found in Envelope while sending to Radio.");
-            request.statusCode = NetworkRequest.NO_CONTENT;
-            return false;
-        }
+//        Envelope envelope = packet.getEnvelope();
+//        NetworkRequest request = (NetworkRequest) DLC.getData(NetworkRequest.class,envelope);
+//        if(request == null){
+//            LOG.warning("No SensorRequest in Envelope.");
+//            request.statusCode = ServiceMessage.REQUEST_REQUIRED;
+//            return false;
+//        }
+//        NetworkPeer toPeer = request.destination.getPeer(Network.SDR.name());
+//        if(toPeer == null) {
+//            LOG.warning("No Peer for Radio found in toDID while sending to Radio.");
+//            request.statusCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
+//            return false;
+//        }
+//        if(!Network.SDR.name().equals((toPeer.getNetwork()))) {
+//            LOG.warning("Radio requires an SDR Peer.");
+//            request.statusCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
+//            return false;
+//        }
+//        NetworkPeer fromPeer = request.origination.getPeer(Network.SDR.name());
+//        LOG.info("Content to send: "+request.content);
+//        if(request.content == null) {
+//            LOG.warning("No content found in Envelope while sending to Radio.");
+//            request.statusCode = NetworkRequest.NO_CONTENT;
+//            return false;
+//        }
 
-        RadioPeer toRPeer = (RadioPeer)toPeer;
 //        Radio radio = RadioSelector.determineBestRadio(toRPeer);
 //        if(radio==null) {
 //            LOG.warning("Unhandled issue #1 here.");
@@ -246,7 +244,7 @@ public class RadioSensor extends BaseSensor implements RadioSessionListener {
         LOG.info(statusText);
     }
 
-    public RadioPeer getLocalNode() {
+    public NetworkPeer getLocalNode() {
         return localNode;
     }
 

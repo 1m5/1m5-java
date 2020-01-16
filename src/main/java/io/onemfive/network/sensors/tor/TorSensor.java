@@ -26,7 +26,7 @@
  */
 package io.onemfive.network.sensors.tor;
 
-import io.onemfive.data.Packet;
+import io.onemfive.network.Packet;
 import io.onemfive.data.Sensitivity;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
 import io.onemfive.data.Envelope;

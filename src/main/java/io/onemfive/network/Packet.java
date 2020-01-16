@@ -24,7 +24,10 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.data;
+package io.onemfive.network;
+
+import io.onemfive.data.Envelope;
+import io.onemfive.data.ServiceMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -108,7 +111,7 @@ public class Packet extends ServiceMessage {
 
     @Override
     public Map<String, Object> toMap() {
-        Map<String, Object> m = new HashMap<>();
+        Map<String, Object> m = super.toMap();
         if(id != null) m.put("id", String.valueOf(id));
         if(envelope != null) m.put("envelope", envelope.toMap());
         if(originationPeer != null) m.put("originationPeer", originationPeer.toMap());
@@ -120,6 +123,7 @@ public class Packet extends ServiceMessage {
 
     @Override
     public void fromMap(Map<String, Object> m) {
+        super.fromMap(m);
         if(m.get("id") != null) id = (String)m.get("id");
         if(m.get("envelope") != null) {
             Map<String, Object> dm = (Map<String, Object>)m.get("envelope");
