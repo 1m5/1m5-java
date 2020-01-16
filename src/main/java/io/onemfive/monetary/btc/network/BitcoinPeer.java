@@ -26,14 +26,12 @@
  */
 package io.onemfive.monetary.btc.network;
 
-import io.onemfive.network.NetworkPeer;
-
 /**
  * TODO: Add Description
  *
  * @author objectorange
  */
-public class BitcoinPeer extends NetworkPeer {
+public class BitcoinPeer {
 
     public BitcoinPeer() {
 
