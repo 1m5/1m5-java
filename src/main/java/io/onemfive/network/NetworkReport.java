@@ -32,6 +32,10 @@ import io.onemfive.util.JSONPretty;
 
 import java.util.Map;
 
+/**
+ * Information regarding the status and health of access
+ * to the 1M5 Network.
+ */
 public class NetworkReport implements JSONSerializable {
 
 
