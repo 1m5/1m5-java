@@ -27,8 +27,10 @@
 package io.onemfive.network.peers;
 
 import io.onemfive.core.keyring.AuthNRequest;
-import io.onemfive.data.*;
+import io.onemfive.data.DID;
+import io.onemfive.data.Sensitivity;
 import io.onemfive.network.Network;
+import io.onemfive.network.NetworkNode;
 import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.Packet;
 
@@ -39,7 +41,7 @@ public interface PeerManager extends Runnable {
     Boolean init(Properties properties);
     void updateLocalAuthNPeer(AuthNRequest request);
     void updateLocalPeer(NetworkPeer networkPeer);
-    NetworkPeer getLocalPeer(Network network);
+    NetworkNode getLocalNode();
     Boolean isKnown(NetworkPeer peer);
 
     /**

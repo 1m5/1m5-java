@@ -27,14 +27,11 @@
 package io.onemfive.network.peers;
 
 import io.onemfive.core.keyring.AuthNRequest;
-import io.onemfive.network.Network;
-import io.onemfive.util.tasks.TaskRunner;
-import io.onemfive.data.DID;
+import io.onemfive.network.NetworkNode;
 import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.NetworkService;
+import io.onemfive.util.tasks.TaskRunner;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -47,11 +44,11 @@ public abstract class BasePeerManager implements PeerManager, PeerReport {
     private Properties properties;
 
     protected NetworkService service;
-    protected Map<Network,NetworkPeer> localPeers = new HashMap<>();
+    protected NetworkNode localNode;
     protected TaskRunner taskRunner;
 
     public BasePeerManager() {
-
+        localNode = new NetworkNode();
     }
 
     public BasePeerManager(TaskRunner runner) {
@@ -72,8 +69,8 @@ public abstract class BasePeerManager implements PeerManager, PeerReport {
     }
 
     @Override
-    public NetworkPeer getLocalPeer(Network network) {
-        return localPeers.get(network);
+    public NetworkNode getLocalNode() {
+        return localNode;
     }
 
     @Override
@@ -98,7 +95,7 @@ public abstract class BasePeerManager implements PeerManager, PeerReport {
 
     @Override
     public void updateLocalPeer(NetworkPeer np) {
-        localPeers.put(np.getNetwork(), np);
+        localNode.addLocalNetworkPeer(np);
         savePeer(np, true);
         LOG.info("Update local Peer: "+np);
     }

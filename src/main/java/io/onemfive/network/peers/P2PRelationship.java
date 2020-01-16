@@ -42,9 +42,6 @@ import java.util.Map;
  */
 public class P2PRelationship implements JSONSerializable {
 
-    /**
-     * K relationships are between two Network Peers of the same Network.
-     */
     public enum RelType implements RelationshipType {
         Known,
         Reliable,

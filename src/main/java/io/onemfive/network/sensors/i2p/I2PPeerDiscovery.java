@@ -24,9 +24,9 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.peers;
+package io.onemfive.network.sensors.i2p;
 
-import io.onemfive.network.Network;
+import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.sensors.SensorsConfig;
@@ -42,13 +42,13 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public class PeerDiscovery extends NetworkTask {
+public class I2PPeerDiscovery extends NetworkTask {
 
-    private Logger LOG = Logger.getLogger(PeerDiscovery.class.getName());
+    private Logger LOG = Logger.getLogger(I2PPeerDiscovery.class.getName());
     private boolean firstRun = true;
     private NetworkService service;
 
-    public PeerDiscovery(String taskName, NetworkService service, TaskRunner taskRunner, Properties properties) {
+    public I2PPeerDiscovery(String taskName, NetworkService service, TaskRunner taskRunner, Properties properties) {
         super(taskName, taskRunner, properties);
         this.service = service;
     }
@@ -67,7 +67,7 @@ public class PeerDiscovery extends NetworkTask {
     @Override
     public Boolean execute() {
         LOG.info("Running Peer Discovery...");
-        NetworkPeer localPeer = service.getPeerManager().getLocalPeer(Network.IMS);
+        NetworkPeer localPeer = service.getPeerManager().getLocalNode().getLocalNetworkPeer();
         if(localPeer == null) {
             LOG.warning("Network Service doesn't have local Peer yet. Can't run Peer Updater.");
             return false;

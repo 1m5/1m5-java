@@ -41,16 +41,16 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class PeerDiscovery extends NetworkTask {
+public class TorPeerDiscovery extends NetworkTask {
 
-    private static final Logger LOG = Logger.getLogger(PeerDiscovery.class.getName());
+    private static final Logger LOG = Logger.getLogger(TorPeerDiscovery.class.getName());
 
     private TorSensor sensor;
     private NetworkPeer localPeer;
     private Map<String, NetworkPeer> peers;
 
-    public PeerDiscovery(NetworkPeer localPeer, Map<String, NetworkPeer> peers, TorSensor sensor, TaskRunner taskRunner, Properties properties, long periodicity) {
-        super(PeerDiscovery.class.getName(), taskRunner, properties, periodicity);
+    public TorPeerDiscovery(NetworkPeer localPeer, Map<String, NetworkPeer> peers, TorSensor sensor, TaskRunner taskRunner, Properties properties, long periodicity) {
+        super(TorPeerDiscovery.class.getName(), taskRunner, properties, periodicity);
         this.localPeer = localPeer;
         this.peers = peers;
         this.sensor = sensor;

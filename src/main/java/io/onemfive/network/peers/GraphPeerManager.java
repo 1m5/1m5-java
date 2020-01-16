@@ -26,16 +26,17 @@
  */
 package io.onemfive.network.peers;
 
+import io.onemfive.data.DID;
+import io.onemfive.data.Sensitivity;
+import io.onemfive.neo4j.GraphUtil;
+import io.onemfive.neo4j.Neo4jDB;
 import io.onemfive.network.Network;
 import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.Packet;
+import io.onemfive.network.sensors.SensorsConfig;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.RandomUtil;
 import io.onemfive.util.tasks.TaskRunner;
-import io.onemfive.data.*;
-import io.onemfive.neo4j.GraphUtil;
-import io.onemfive.neo4j.Neo4jDB;
-import io.onemfive.network.sensors.SensorsConfig;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
@@ -46,9 +47,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-/**
- * TODO: Currently average latency is not network-specific nor mancon-specific; we need to add these into the mix
- */
 public class GraphPeerManager extends BasePeerManager {
 
     private static final Logger LOG = Logger.getLogger(GraphPeerManager.class.getName());
@@ -111,7 +109,7 @@ public class GraphPeerManager extends BasePeerManager {
         }
 
         LOG.info("Relationship configurations:" +
-                "\n\tonemfive.sensors.MinPT="+SensorsConfig.MinPT+": Min Peers Tracked - the point at which Discovery process goes into 'hyper' mode." +
+                "\n\tonemfive.sensors.MinPT="+ SensorsConfig.MinPT+": Min Peers Tracked - the point at which Discovery process goes into 'hyper' mode." +
                 "\n\tonemfive.sensors.MaxPT="+SensorsConfig.MaxPT+": Max Peers Tracked - the total number of Peers to attempt to maintain knowledge of." +
                 "\n\tonemfive.sensors.MaxPS="+SensorsConfig.MaxPS+": Max Peers Sent - Maximum number of peers to send in a peer list (the bigger a datagram, the less chance of it getting through)." +
                 "\n\tonemfive.sensors.MaxAT="+SensorsConfig.MaxAT+": Max Acknowledgments Tracked" +
@@ -167,12 +165,6 @@ public class GraphPeerManager extends BasePeerManager {
     }
 
     @Override
-    public NetworkPeer getLocalPeer(Network network) {
-        if(localPeers.get(network)==null) localPeers.put(network, new NetworkPeer(network));
-        return localPeers.get(network);
-    }
-
-    @Override
     public Packet buildPacket(NetworkPeer origination, NetworkPeer destination) {
         Packet p = new Packet();
         p.setId(String.valueOf(RandomUtil.nextRandomLong()));
@@ -207,7 +199,7 @@ public class GraphPeerManager extends BasePeerManager {
             return true;
         else if(autocreate) {
             LOG.info("Creating NetworkPeer in graph...");
-            long numberPeers = totalPeersByRelationship(getLocalPeer(p.getNetwork()), P2PRelationship.RelType.Known);
+            long numberPeers = totalPeersByRelationship(localNode.getLocalNetworkPeer(p.getNetwork()), P2PRelationship.RelType.Known);
             // TODO: Sensors configuration be network-specific
             if(numberPeers <= SensorsConfig.MaxPT) {
                 try (Transaction tx = db.getGraphDb().beginTx()) {
@@ -226,7 +218,7 @@ public class GraphPeerManager extends BasePeerManager {
         }
         if(!isRemoteLocal(p) && !isRelated(p, P2PRelationship.RelType.Known)) {
             LOG.info("Peer not known: relating as known.");
-            relatePeers(getLocalPeer(p.getNetwork()), p, P2PRelationship.RelType.Known);
+            relatePeers(localNode.getLocalNetworkPeer(p.getNetwork()), p, P2PRelationship.RelType.Known);
             LOG.info("Peers related as known.");
         }
         return true;
@@ -369,7 +361,8 @@ public class GraphPeerManager extends BasePeerManager {
     }
 
     public Boolean isRemoteLocal(NetworkPeer r) {
-        return localPeers.get(r.getNetwork())!=null && localPeers.get(r.getNetwork()).getDid().getPublicKey().getAddress().equals(r.getDid().getPublicKey().getAddress());
+        return localNode.getLocalNetworkPeer(r.getNetwork())!=null
+                && localNode.getLocalNetworkPeer(r.getNetwork()).getDid().getPublicKey().getAddress().equals(r.getDid().getPublicKey().getAddress());
     }
 
     public NetworkPeer findPeerByAddress(String address) {
@@ -434,8 +427,8 @@ public class GraphPeerManager extends BasePeerManager {
     }
 
     public boolean isRelated(NetworkPeer peer, P2PRelationship.RelType relType) {
-        boolean isRelated = hasRelationship(getLocalPeer(peer.getNetwork()), peer, relType);
-        LOG.info("Are Peers Related?:\n\tLocal Peer Address: "+getLocalPeer(peer.getNetwork()).getDid().getPublicKey().getAddress()
+        boolean isRelated = hasRelationship(localNode.getLocalNetworkPeer(peer.getNetwork()), peer, relType);
+        LOG.info("Are Peers Related?:\n\tLocal Peer Address: "+localNode.getLocalNetworkPeer(peer.getNetwork()).getDid().getPublicKey().getAddress()
                 +"\n\tRemote Peer Address: "+peer.getDid().getPublicKey().getAddress()+"\n\t is related: "+isRelated);
         return isRelated;
     }
@@ -569,16 +562,16 @@ public class GraphPeerManager extends BasePeerManager {
         LOG.info("Saving Remote Peer...");
         if(savePeer(remotePeer, true)) {
             LOG.info("Remote Peer saved.");
-            relatePeers(getLocalPeer(remotePeer.getNetwork()), remotePeer, P2PRelationship.RelType.Known);
+            relatePeers(localNode.getLocalNetworkPeer(remotePeer.getNetwork()), remotePeer, P2PRelationship.RelType.Known);
             LOG.info("Remote Peer related as known to local peer.");
-            long numberKnown = totalPeersByRelationship(getLocalPeer(remotePeer.getNetwork()), P2PRelationship.RelType.Known);
+            long numberKnown = totalPeersByRelationship(localNode.getLocalNetworkPeer(remotePeer.getNetwork()), P2PRelationship.RelType.Known);
             NetworkPeer remoteRelP;
             for (NetworkPeer known : remoteKnown) {
                 if (numberKnown + saved > SensorsConfig.MaxPT)
                     break;
                 LOG.info("Saving Remote Known...");
                 savePeer(known, true);
-                relatePeers(getLocalPeer(remotePeer.getNetwork()), known, P2PRelationship.RelType.Known);
+                relatePeers(localNode.getLocalNetworkPeer(remotePeer.getNetwork()), known, P2PRelationship.RelType.Known);
                 LOG.info("Remote Peer saved and related as Known to local peer.");
                 relatePeers(remotePeer, known, P2PRelationship.RelType.Known);
                 LOG.info("Remote Known Peer related as Known to Remote Peer.");
@@ -845,7 +838,7 @@ public class GraphPeerManager extends BasePeerManager {
         pCBT.getDid().getPublicKey().setAddress("bt-C");
         mgr.savePeer(pCBT, true);
 
-        long numPeers = mgr.totalPeersByRelationship(mgr.localPeers.get(Network.IMS), P2PRelationship.RelType.Known);
+        long numPeers = mgr.totalPeersByRelationship(mgr.localNode.getLocalNetworkPeer(), P2PRelationship.RelType.Known);
         LOG.info("num peers: "+numPeers);
 
         // Relate B->C

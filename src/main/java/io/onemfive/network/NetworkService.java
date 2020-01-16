@@ -32,7 +32,9 @@ import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.route.ExternalRoute;
-import io.onemfive.network.peers.PeerDiscovery;
+import io.onemfive.network.peers.BasePeerManager;
+import io.onemfive.network.peers.PeerManager;
+import io.onemfive.network.sensors.i2p.I2PPeerDiscovery;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.*;
@@ -44,8 +46,6 @@ import io.onemfive.did.AuthenticateDIDRequest;
 import io.onemfive.data.DID;
 import io.onemfive.did.DIDService;
 import io.onemfive.network.ops.NetworkOp;
-import io.onemfive.network.peers.BasePeerManager;
-import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.*;
 
 import java.io.File;
@@ -159,7 +159,7 @@ public class NetworkService extends BaseService {
                                 String toNetwork = sensor.getClass().getName();
                                 if (!fromNetwork.equals(toNetwork)) {
                                     LOG.info("Escalated sensor: " + toNetwork);
-                                    NetworkPeer newToPeer = peerManager.getRandomPeer(peerManager.getLocalPeer(sensor.getNetwork()));
+                                    NetworkPeer newToPeer = peerManager.getRandomPeer(peerManager.getLocalNode().getLocalNetworkPeer(sensor.getNetwork()));
                                     if (newToPeer == null) {
                                         LOG.warning("No other peers to route blocked request. Request is dead.");
                                     } else {
@@ -303,12 +303,12 @@ public class NetworkService extends BaseService {
                     } else {
                         LOG.warning("Packet " + packet.getClass().getName() + " not handled; ignoring.");
                     }
-                } else if(peerManager.isReachable(peerManager.getLocalPeer(packet.getDestinationPeer().getNetwork()), packet.getDestinationPeer(), envelope.getSensitivity())) {
+                } else if(peerManager.isReachable(peerManager.getLocalNode().getLocalNetworkPeer(packet.getDestinationPeer().getNetwork()), packet.getDestinationPeer(), envelope.getSensitivity())) {
                     // Destination is known and reachable therefore forward
                     packet.setToPeer(packet.getDestinationPeer());
                 } else {
                     // Forward to a random reachable peer
-                    packet.setToPeer(peerManager.getRandomReachablePeer(peerManager.getLocalPeer(packet.getDestinationPeer().getNetwork()), envelope.getSensitivity()));
+                    packet.setToPeer(peerManager.getRandomReachablePeer(peerManager.getLocalNode().getLocalNetworkPeer(packet.getDestinationPeer().getNetwork()), envelope.getSensitivity()));
                 }
             } else {
                 LOG.warning("Object " + obj.getClass().getName() + " not handled; ignoring.");
@@ -672,8 +672,8 @@ public class NetworkService extends BaseService {
             peerManager.setNetworkService(this);
             peerManager.setTaskRunner(taskRunner);
             sensorManager.setPeerManager(peerManager);
-            PeerDiscovery peerDiscovery = new PeerDiscovery("1M5PeerDiscovery", this, taskRunner, properties);
-            taskRunner.addTask(peerDiscovery);
+            I2PPeerDiscovery i2PPeerDiscovery = new I2PPeerDiscovery("1M5PeerDiscovery", this, taskRunner, properties);
+            taskRunner.addTask(i2PPeerDiscovery);
         } catch (Exception e) {
             LOG.warning("Exception caught while creating instance of Peer Manager "+sensorManagerClass);
             e.printStackTrace();
