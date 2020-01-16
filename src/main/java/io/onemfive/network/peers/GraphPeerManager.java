@@ -173,6 +173,15 @@ public class GraphPeerManager extends BasePeerManager {
     }
 
     @Override
+    public Packet buildPacket(NetworkPeer origination, NetworkPeer destination) {
+        Packet p = new Packet();
+        p.setId(String.valueOf(RandomUtil.nextRandomLong()));
+        p.setOriginationPeer(origination);
+        p.setDestinationPeer(destination);
+        return p;
+    }
+
+    @Override
     public Packet buildPacket(DID origination, DID destination) {
         Packet p = new Packet();
         p.setId(String.valueOf(RandomUtil.nextRandomLong()));
