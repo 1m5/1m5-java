@@ -29,12 +29,17 @@ package io.onemfive.data;
 import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
 
-import java.security.PrivateKey;
 import java.util.*;
 
 /**
  * Decentralized IDentification
- * Intentionally does not follow W3C spec as there are disagreements.
+ *
+ * Intentionally does not follow W3C spec as there are disagreements,
+ * particularly it models a DID as a group of public keys but
+ * 1M5 considers each key its own independent identity as grouping
+ * can be an attempt to associate identities involuntarily - that
+ * should be up to the individual in how they decide to share any
+ * knowledge of identity correlation/association.
  *
  * @author objectorange
  */
@@ -52,9 +57,9 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
     private volatile Boolean verified = false;
     private volatile Boolean authenticated = false;
     private PublicKey publicKey;
-    private PrivateKey privateKey;
 
     public DID() {
+        publicKey = new PublicKey();
     }
 
     public String getUsername() {
@@ -137,14 +142,6 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
         this.publicKey = publicKey;
     }
 
-    public PrivateKey getPrivateKey() {
-        return privateKey;
-    }
-
-    public void setPrivateKey(PrivateKey privateKey) {
-        this.privateKey = privateKey;
-    }
-
     @Override
     public void clearSensitive() {
         username = null;
@@ -159,49 +156,34 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
     @Override
     public Map<String, Object> toMap() {
         Map<String,Object> m = new HashMap<>();
-        if(username!=null)
-            m.put("username",username);
-        if(passphrase!=null)
-            m.put("passphrase",passphrase);
-        if(passphraseHash!=null)
-            m.put("passphraseHash",passphraseHash.getHash());
-        if(passphraseHashAlgorithm!=null)
-            m.put("passphraseHashAlgorithm",passphraseHashAlgorithm.getName());
-        if(passphrase2!=null)
-            m.put("passphrase2",passphrase2);
-        if(description!=null)
-            m.put("description",description);
-        if(status!=null)
-            m.put("status",status.name());
-        if(verified!=null)
-            m.put("verified",verified.toString());
-        if(authenticated!=null)
-            m.put("authenticated",authenticated.toString());
-
+        if(username!=null) m.put("username",username);
+        if(passphrase!=null) m.put("passphrase",passphrase);
+        if(passphraseHash!=null) m.put("passphraseHash",passphraseHash.getHash());
+        if(passphraseHashAlgorithm!=null) m.put("passphraseHashAlgorithm",passphraseHashAlgorithm.getName());
+        if(passphrase2!=null) m.put("passphrase2",passphrase2);
+        if(description!=null) m.put("description",description);
+        if(status!=null) m.put("status",status.name());
+        if(verified!=null) m.put("verified",verified.toString());
+        if(authenticated!=null) m.put("authenticated",authenticated.toString());
+        if(publicKey!=null) m.put("publicKey", publicKey.toMap());
         return m;
     }
 
     @Override
     public void fromMap(Map<String, Object> m) {
-        if(m.get("username")!=null)
-            username = (String)m.get("username");
-        if(m.get("passphrase")!=null)
-            passphrase = (String)m.get("passphrase");
-        if(m.get("passphraseHashAlgorithm")!=null)
-            passphraseHashAlgorithm = Hash.Algorithm.valueOf((String)m.get("passphraseHashAlgorithm"));
-        if(m.get("passphraseHash")!=null)
-            passphraseHash = new Hash(((String)m.get("passphraseHash")), passphraseHashAlgorithm);
-        if(m.get("passphrase2")!=null)
-            passphrase2 = (String)m.get("passphrase2");
-        if(m.get("description")!=null)
-            description = (String)m.get("description");
-        if(m.get("status")!=null)
-            status = Status.valueOf((String)m.get("status"));
-        if(m.get("verified")!=null)
-            verified = Boolean.parseBoolean((String)m.get("verified"));
-        if(m.get("authenticated")!=null)
-            authenticated = Boolean.parseBoolean((String)m.get("authenticated"));
-
+        if(m.get("username")!=null) username = (String)m.get("username");
+        if(m.get("passphrase")!=null) passphrase = (String)m.get("passphrase");
+        if(m.get("passphraseHashAlgorithm")!=null) passphraseHashAlgorithm = Hash.Algorithm.valueOf((String)m.get("passphraseHashAlgorithm"));
+        if(m.get("passphraseHash")!=null) passphraseHash = new Hash(((String)m.get("passphraseHash")), passphraseHashAlgorithm);
+        if(m.get("passphrase2")!=null) passphrase2 = (String)m.get("passphrase2");
+        if(m.get("description")!=null) description = (String)m.get("description");
+        if(m.get("status")!=null) status = Status.valueOf((String)m.get("status"));
+        if(m.get("verified")!=null) verified = Boolean.parseBoolean((String)m.get("verified"));
+        if(m.get("authenticated")!=null) authenticated = Boolean.parseBoolean((String)m.get("authenticated"));
+        if(m.get("publicKey")!=null) {
+            publicKey = new PublicKey();
+            publicKey.fromMap((Map<String,Object>)m.get("publicKey"));
+        }
     }
 
     @Override
