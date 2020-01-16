@@ -40,7 +40,7 @@ import java.util.Map;
  * Information on the status of a Network Peer,
  * its Services, and its access to the 1M5 Network.
  */
-public class NetworkPeerReport implements JSONSerializable {
+public class NetworkNodeReport implements JSONSerializable {
 
     public List<ServiceReport> serviceReports;
     public NetworkReport networkReport;
@@ -85,5 +85,10 @@ public class NetworkPeerReport implements JSONSerializable {
     @Override
     public void fromJSON(String json) {
         fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
     }
 }
