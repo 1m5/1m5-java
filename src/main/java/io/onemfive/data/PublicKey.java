@@ -38,10 +38,10 @@ import java.util.*;
  */
 public class PublicKey implements Addressable, JSONSerializable {
 
-    private String alias;
-    private String fingerprint;
-    private String address;
-    private String type;
+    private String alias = "";
+    private String fingerprint = "";
+    private String address = "";
+    private String type = "";
     private Boolean isIdentityKey = false;
     private Boolean isEncryptionKey = false;
     private Boolean isBase64Encoded = false;
