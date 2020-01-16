@@ -31,6 +31,7 @@ import io.onemfive.core.keyring.AuthNRequest;
 import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
+import io.onemfive.data.route.ExternalRoute;
 import io.onemfive.network.peers.PeerDiscovery;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.tasks.TaskRunner;
@@ -116,14 +117,20 @@ public class NetworkService extends BaseService {
                 Sensor sensor = null;
                 NetworkRequest request = (NetworkRequest)DLC.getData(NetworkRequest.class,e);
                 if(request == null){
-                    LOG.warning("NetworkRequest required in envelope.");
-                    return;
+                    if(r instanceof ExternalRoute) {
+                        ExternalRoute exRoute = (ExternalRoute)r;
+                        packet = peerManager.buildPacket(exRoute.getOrigination(), exRoute.getDestination());
+                    } else {
+                        LOG.warning("A Network Request or External Route must be provided.");
+                        return;
+                    }
+                } else {
+                    if (request.destination == null) {
+                        LOG.warning("Must provide a destination address when using a NetworkRequest.");
+                        return;
+                    }
+                    packet = peerManager.buildPacket(request.origination, request.destination);
                 }
-                if (request.destination == null) {
-                    LOG.warning("Must provide a destination address when using a NetworkRequest.");
-                    return;
-                }
-                packet = peerManager.buildPacket(request.origination, request.destination);
                 packet.setEnvelope(e);
                 sensor = sensorManager.selectSensor(packet);
                 if(sensor != null) {
