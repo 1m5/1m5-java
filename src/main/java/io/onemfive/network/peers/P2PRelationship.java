@@ -46,8 +46,7 @@ public class P2PRelationship implements JSONSerializable {
         Known,
         Reliable,
         SuperReliable,
-        Banned,
-        AvailableThrough
+        Banned
     }
 
     private Long totalAcks = 0L;
