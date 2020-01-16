@@ -47,6 +47,17 @@ public final class NetworkNode {
         localPeers.put(networkPeer.getNetwork(), networkPeer);
     }
 
+    public NetworkPeer getLocalNetworkPeer() {
+        return localPeers.get(Network.IMS);
+    }
+
+    public NetworkPeer getLocalNetworkPeer(Network network) {
+        if(localPeers.get(network)==null) {
+            localPeers.put(network, new NetworkPeer(network));
+        }
+        return localPeers.get(network);
+    }
+
     public void removeLocalNetworkPeer(NetworkPeer networkPeer) {
         localPeers.remove(networkPeer.getNetwork());
     }
