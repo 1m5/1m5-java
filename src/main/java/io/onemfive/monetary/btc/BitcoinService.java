@@ -56,7 +56,7 @@ public class BitcoinService extends BaseService {
 
     private BlockChain blockChain;
     private BlockStore blockStore;
-    private PeerDiscovery peerDiscovery;
+    private BitcoinPeerDiscovery peerDiscovery;
     private Wallet wallet;
 
     private BitcoinConfig config;
