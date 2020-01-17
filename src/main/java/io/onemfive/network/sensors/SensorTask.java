@@ -24,54 +24,22 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network;
+package io.onemfive.network.sensors;
 
 import io.onemfive.util.tasks.BaseTask;
 import io.onemfive.util.tasks.TaskRunner;
 
-import java.util.Properties;
-
 /**
- * A Task for the SensorsService.
+ * A Task with access to NetworkService.
  *
  * @author objectorange
  */
-public abstract class NetworkTask extends BaseTask {
+public abstract class SensorTask extends BaseTask {
 
-    protected Properties properties;
-    protected long periodicity = 60 * 60 * 1000; // 1 hour as default
-    protected long lastCompletionTime = 0L;
-    protected boolean started = false;
-    protected boolean completed = false;
-    protected boolean longRunning = false;
+    protected Sensor sensor;
 
-    public NetworkTask(String taskName, TaskRunner taskRunner) {
+    public SensorTask(String taskName, TaskRunner taskRunner, Sensor sensor) {
         super(taskName, taskRunner);
-        this.lastCompletionTime = System.currentTimeMillis();
-    }
-
-    public NetworkTask(String taskName, TaskRunner taskRunner, Properties properties) {
-        super(taskName, taskRunner);
-        this.properties = properties;
-        this.lastCompletionTime = System.currentTimeMillis();
-    }
-
-    public NetworkTask(String taskName, TaskRunner taskRunner, Properties properties, long periodicity) {
-       super(taskName, taskRunner);
-        this.properties = properties;
-        this.periodicity = periodicity;
-        this.lastCompletionTime = System.currentTimeMillis();
-    }
-
-    public Boolean isLongRunning() {return longRunning;}
-
-    public void setLastCompletionTime(long lastCompletionTime) {
-        this.lastCompletionTime = lastCompletionTime;
-    }
-
-    public Long getLastCompletionTime() { return lastCompletionTime;}
-
-    public Long getPeriodicity() {
-        return periodicity;
+        this.sensor = sensor;
     }
 }

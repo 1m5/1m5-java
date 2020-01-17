@@ -108,6 +108,8 @@ public class I2PSensor extends BaseSensor {
     private static final Integer RESTART_ATTEMPTS_UNTIL_HARD_RESTART = 3;
     private boolean isTest = false;
 
+    private CheckRouterStats checkRouterStats;
+
     public I2PSensor() {super(new NetworkPeer(Network.I2P, "I2PSensor", "jR4nd0m"));}
 
     public I2PSensor(SensorManager sensorManager) {
@@ -169,12 +171,11 @@ public class I2PSensor extends BaseSensor {
     public boolean start(Properties p) {
         // TODO: Support connecting to local I2P Router instance vs launching embedded router if desired
         LOG.info("Initializing I2P Sensor...");
-        properties = p;
-        updateStatus(SensorStatus.STARTING);
-        isTest = "true".equals(properties.getProperty("1m5.sensors.i2p.isTest"));
         // I2P Sensor Starting
         LOG.info("Loading I2P properties...");
         properties = p;
+        updateStatus(SensorStatus.STARTING);
+        isTest = "true".equals(properties.getProperty("1m5.sensors.i2p.isTest"));
         // Look for another instance installed
         if(System.getProperty("i2p.dir.base")==null) {
             // Set up I2P Directories within sensors directory
@@ -295,42 +296,45 @@ public class I2PSensor extends BaseSensor {
         LOG.info("Launching I2P Router...");
         new Thread(new RouterStarter()).start();
 
-        CountDownLatch startSignal = new CountDownLatch(1);
-        CountDownLatch doneSignal = new CountDownLatch(1);
-
-        try {
-            updateStatus(SensorStatus.WAITING);
-            LOG.info("Waiting 3 minutes for I2P Router to warm up...");
-            // TODO: Replace with wait time based on I2P router status to lower start up time
-            startSignal.await(3, TimeUnit.MINUTES);
-            LOG.info("I2P Router should be warmed up. Initializing session...");
-            establishSession(localPeer, true); // Connect with anon peer by default
-            if(routerContext.commSystem().isInStrictCountry()) {
-                LOG.warning("This peer is in a 'strict' country defined by I2P.");
-            }
-            if(routerContext.router().isHidden()) {
-                LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
-            }
-            doneSignal.countDown();
-
-            // Setup TaskRunner
-            if(taskRunner==null) {
-                taskRunner = new TaskRunner(2, 2);
-            }
-            taskRunner.addTask(new CheckRouterStats(I2PSensor.class.getSimpleName()+"."+CheckRouterStats.class.getSimpleName(), taskRunner, this));
-            new Thread(taskRunner).start();
-        } catch (InterruptedException e) {
-            LOG.warning("Start interrupted, exiting");
-            updateStatus(SensorStatus.ERROR);
-            e.printStackTrace();
-            return false;
-        } catch (Exception e) {
-            LOG.severe("Unable to start I2PSensor: "+e.getLocalizedMessage());
-            updateStatus(SensorStatus.ERROR);
-            e.printStackTrace();
-            return false;
+        // Setup TaskRunner
+        if(taskRunner==null) {
+            taskRunner = new TaskRunner(2, 2);
         }
-        LOG.info("Started.");
+        // Let's get that router status checker going
+        checkRouterStats = new CheckRouterStats(taskRunner, this);
+        checkRouterStats.setPeriodicity(3 * 1000L);
+        taskRunner.addTask(checkRouterStats);
+        new Thread(taskRunner).start();
+
+//        CountDownLatch startSignal = new CountDownLatch(1);
+//        CountDownLatch doneSignal = new CountDownLatch(1);
+
+//        try {
+//            updateStatus(SensorStatus.WAITING);
+//            LOG.info("Waiting 3 minutes for I2P Router to warm up...");
+            // TODO: Replace with wait time based on I2P router status to lower start up time
+//            startSignal.await(3, TimeUnit.MINUTES);
+//            LOG.info("I2P Router should be warmed up. Initializing session...");
+//            establishSession(localPeer, true); // Connect with anon peer by default
+//            if(routerContext.commSystem().isInStrictCountry()) {
+//                LOG.warning("This peer is in a 'strict' country defined by I2P.");
+//            }
+//            if(routerContext.router().isHidden()) {
+//                LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
+//            }
+//            doneSignal.countDown();
+//        } catch (InterruptedException e) {
+//            LOG.warning("Start interrupted, exiting");
+//            updateStatus(SensorStatus.ERROR);
+//            e.printStackTrace();
+//            return false;
+//        } catch (Exception e) {
+//            LOG.severe("Unable to start I2PSensor: "+e.getLocalizedMessage());
+//            updateStatus(SensorStatus.ERROR);
+//            e.printStackTrace();
+//            return false;
+//        }
+//        LOG.info("Started.");
         return true;
     }
 
@@ -397,6 +401,7 @@ public class I2PSensor extends BaseSensor {
             routerContext = routerContexts.get(0);
             router = routerContext.router();
             // Override hidden mode even when in I2P defined 'strict' countries
+            // TODO: Turn this back on by default but let end user change it
             router.saveConfig(Router.PROP_HIDDEN, properties.getProperty("hidden"));
             router.setKillVMOnEnd(false);
             routerContext.addShutdownTask(new RouterStopper());
@@ -438,8 +443,7 @@ public class I2PSensor extends BaseSensor {
 
 
     public void reportRouterStatus() {
-
-        switch (getRouterStatus()) {
+        switch (i2pRouterStatus) {
             case UNKNOWN:
                 LOG.info("Testing I2P Network...");
                 updateStatus(SensorStatus.NETWORK_CONNECTING);
@@ -529,6 +533,16 @@ public class I2PSensor extends BaseSensor {
                 updateStatus(SensorStatus.NETWORK_STOPPED);
             }
         }
+        if(getStatus()==SensorStatus.NETWORK_CONNECTED && getSession(localPeer) == null) {
+            // Newly connected and no sessions for local peer -> establish session
+            establishSession(localPeer, true); // Connect with local peer by default
+            if(routerContext.commSystem().isInStrictCountry()) {
+                LOG.warning("This peer is in a 'strict' country defined by I2P.");
+            }
+            if(routerContext.router().isHidden()) {
+                LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
+            }
+        }
     }
 
     private CommSystemFacade.Status getRouterStatus() {
@@ -536,11 +550,15 @@ public class I2PSensor extends BaseSensor {
     }
 
     public void checkRouterStats() {
-        if(i2pRouterStatus==null) {
-            i2pRouterStatus = getRouterStatus();
+        if(routerContext==null)
+            return; // Router not yet established
+        CommSystemFacade.Status reportedStatus = getRouterStatus();
+        if(i2pRouterStatus != reportedStatus) {
+            // Status changed
+            i2pRouterStatus = reportedStatus;
+            LOG.info("I2P Router Status changed to: "+i2pRouterStatus.name());
+            reportRouterStatus();
         }
-        reportRouterStatus();
-        LOG.info("I2P Statistics:\n\tRouter Status: "+getRouterStatus().name());
     }
 
     /**

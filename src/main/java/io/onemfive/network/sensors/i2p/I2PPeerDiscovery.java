@@ -26,8 +26,13 @@
  */
 package io.onemfive.network.sensors.i2p;
 
+import io.onemfive.data.Envelope;
 import io.onemfive.network.*;
+import io.onemfive.network.ops.PingRequestOp;
 import io.onemfive.network.peers.P2PRelationship;
+import io.onemfive.network.peers.PeerManager;
+import io.onemfive.network.sensors.SensorTask;
+import io.onemfive.util.DLC;
 import io.onemfive.util.tasks.TaskRunner;
 
 import java.util.List;
@@ -39,39 +44,27 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public class I2PPeerDiscovery extends NetworkTask {
+public class I2PPeerDiscovery extends SensorTask {
 
     private Logger LOG = Logger.getLogger(I2PPeerDiscovery.class.getName());
-    private boolean firstRun = true;
-    private NetworkService service;
-    private I2PSensor sensor;
 
-    public I2PPeerDiscovery(String taskName, I2PSensor sensor, NetworkService service, TaskRunner taskRunner, Properties properties) {
-        super(taskName, taskRunner, properties);
-        this.sensor = sensor;
-        this.service = service;
+    private NetworkPeer localPeer;
+    private PeerManager peerManager;
+
+    public I2PPeerDiscovery(String taskName, I2PSensor sensor, TaskRunner taskRunner, NetworkPeer localPeer, PeerManager peerManager) {
+        super(taskName, taskRunner, sensor);
+        this.localPeer = localPeer;
     }
 
     @Override
     public Long getPeriodicity() {
-        if(firstRun) {
-            // five minutes to give time for 1M5 Sensor Manager to warm up establishing network sessions
-            // TODO: replace with event-driven notification of 1M5 Sensor Manager status
-            return 5 * 60 * 1000L;
-        }
-        else
             return NetworkConfig.UI * 1000L; // wait for UI seconds
     }
 
     @Override
     public Boolean execute() {
         LOG.info("Running I2P Peer Discovery...");
-        NetworkPeer localI2PPeer = service.getPeerManager().getLocalNode().getLocalNetworkPeer(Network.I2P);
-        if(localI2PPeer == null) {
-            LOG.warning("Network Service doesn't have local Peer yet. Can't run Peer Updater.");
-            return false;
-        }
-        long totalKnown = service.getPeerManager().totalPeersByRelationship(localI2PPeer, P2PRelationship.RelType.Known);
+        long totalKnown = peerManager.totalPeersByRelationship(localPeer, P2PRelationship.RelType.Known);
         if(totalKnown < 1) {
             LOG.info("No I2P peers known.");
             if(NetworkConfig.seeds!=null && NetworkConfig.seeds.size() > 0) {
@@ -80,9 +73,12 @@ public class I2PPeerDiscovery extends NetworkTask {
                 for (NetworkPeer seed : seeds) {
                     if(seed.getNetwork()==Network.I2P) {
                         LOG.info("Sending Peer Status Request to Seed Peer:\n\t" + seed);
+                        Envelope e = Envelope.documentFactory();
+                        DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
                         Request request = new Request();
-                        request.setOriginationPeer(localI2PPeer);
+                        request.setOriginationPeer(localPeer);
                         request.setDestinationPeer(seed);
+                        request.setEnvelope(e);
                         sensor.sendOut(request);
                         LOG.info("Sent Peer Status Request to Seed Peer.");
                     }
@@ -93,16 +89,21 @@ public class I2PPeerDiscovery extends NetworkTask {
             }
         } else if(totalKnown < NetworkConfig.MaxPT) {
             LOG.info(totalKnown+" known peers less than Maximum Peers Tracked of "+ NetworkConfig.MaxPT+"; continuing peer discovery...");
-            NetworkPeer p = service.getPeerManager().getRandomKnownPeer(localI2PPeer);
+            NetworkPeer p = peerManager.getRandomKnownPeer(localPeer);
             if(p != null) {
                 LOG.info("Sending Peer Status Request to Known Peer...");
-//                service.pingOut(p);
+                Envelope e = Envelope.documentFactory();
+                DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
+                Request request = new Request();
+                request.setOriginationPeer(localPeer);
+                request.setDestinationPeer(p);
+                request.setEnvelope(e);
+                sensor.sendOut(request);
                 LOG.info("Sent Peer Status Request to Known Peer.");
             }
         } else {
             LOG.info("Maximum Peers Tracked of "+ NetworkConfig.MaxPT+" reached. No need to look for more.");
         }
-        firstRun = false;
         return true;
     }
 

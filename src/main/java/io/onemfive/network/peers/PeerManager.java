@@ -56,7 +56,7 @@ public class PeerManager implements Runnable {
     // Peer-to-Peer Relationship
     public static final String AVG_ACK_LATENCY_MS = "avgAckLatencyMS";
 
-    public static final String DBNAME = "1m5_peers_db";
+    public static final String DBNAME = "peers";
 
     private Properties properties;
 

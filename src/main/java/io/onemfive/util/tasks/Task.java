@@ -36,6 +36,7 @@ public interface Task extends Runnable {
     void setParams(Map<Object,Object> params);
     void addParams(Map<Object,Object> params);
     Long getPeriodicity();
+    void setPeriodicity(long periodicity);
     void setLastCompletionTime(Long lastCompletionTime);
     Long getLastCompletionTime();
     void setDelayed(Boolean delayed);

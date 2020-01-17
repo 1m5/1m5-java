@@ -26,7 +26,7 @@
  */
 package io.onemfive.network.sensors.bluetooth;
 
-import io.onemfive.network.NetworkTask;
+import io.onemfive.network.sensors.SensorTask;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryListener {
+public class BluetoothDeviceDiscovery extends SensorTask implements DiscoveryListener {
 
     private static Logger LOG = Logger.getLogger(BluetoothDeviceDiscovery.class.getName());
 
@@ -45,8 +45,8 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
     private Map<String,RemoteDevice> devices;
     private int result;
 
-    public BluetoothDeviceDiscovery(Map<String, RemoteDevice> devices, BluetoothSensor sensor, TaskRunner taskRunner, Properties properties, Long periodicity) {
-        super(BluetoothDeviceDiscovery.class.getName(), taskRunner, properties, periodicity);
+    public BluetoothDeviceDiscovery(Map<String, RemoteDevice> devices, BluetoothSensor sensor, TaskRunner taskRunner) {
+        super(BluetoothDeviceDiscovery.class.getName(), taskRunner, sensor);
         this.devices = devices;
         this.sensor = sensor;
     }

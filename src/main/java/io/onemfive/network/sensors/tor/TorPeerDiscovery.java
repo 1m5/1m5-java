@@ -27,6 +27,7 @@
 package io.onemfive.network.sensors.tor;
 
 import io.onemfive.network.*;
+import io.onemfive.network.sensors.SensorTask;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.ManCon;
@@ -38,19 +39,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class TorPeerDiscovery extends NetworkTask {
+public class TorPeerDiscovery extends SensorTask {
 
     private static final Logger LOG = Logger.getLogger(TorPeerDiscovery.class.getName());
 
-    private TorSensor sensor;
     private NetworkPeer localPeer;
     private Map<String, NetworkPeer> peers;
 
-    public TorPeerDiscovery(NetworkPeer localPeer, Map<String, NetworkPeer> peers, TorSensor sensor, TaskRunner taskRunner, Properties properties, long periodicity) {
-        super(TorPeerDiscovery.class.getName(), taskRunner, properties, periodicity);
+    public TorPeerDiscovery(NetworkPeer localPeer, Map<String, NetworkPeer> peers, TorSensor sensor, TaskRunner taskRunner) {
+        super(TorPeerDiscovery.class.getName(), taskRunner, sensor);
         this.localPeer = localPeer;
         this.peers = peers;
-        this.sensor = sensor;
     }
 
     @Override

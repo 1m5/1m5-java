@@ -33,9 +33,11 @@ import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
+import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
+import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -46,6 +48,9 @@ import java.util.logging.Logger;
 public class BluetoothSensor extends BaseSensor {
 
     private static final Logger LOG = Logger.getLogger(BluetoothSensor.class.getName());
+
+    private String bluetoothBaseDir;
+    private File bluetoothDir;
 
     private Map<String, RemoteDevice> devices = new HashMap<>();
     private Map<String, List<String>> deviceServices = new HashMap<>();
@@ -181,6 +186,58 @@ public class BluetoothSensor extends BaseSensor {
     @Override
     public boolean start(Properties properties) {
         this.properties = properties;
+        updateStatus(SensorStatus.STARTING);
+        bluetoothBaseDir = properties.getProperty("1m5.dir.sensors")+"/bluetooth";
+        bluetoothDir = new File(bluetoothBaseDir);
+        if (!bluetoothDir.exists()) {
+            if (!bluetoothDir.mkdir()) {
+                LOG.severe("Unable to create Bluetooth base directory: " + bluetoothBaseDir + "; exiting...");
+                return false;
+            }
+        }
+        properties.setProperty("bluetooth.dir.base", bluetoothBaseDir);
+        properties.setProperty("1m5.dir.sensors.bluetooth", bluetoothBaseDir);
+        // Config Directory
+        String configDir = bluetoothDir + "/config";
+        File configFolder = new File(configDir);
+        if(!configFolder.exists())
+            if(!configFolder.mkdir())
+                LOG.warning("Unable to create Bluetooth config directory: " +configDir);
+        if(configFolder.exists()) {
+            System.setProperty("bluetooth.dir.config",configDir);
+            properties.setProperty("bluetooth.dir.config",configDir);
+        }
+        // Router Directory
+        String routerDir = bluetoothDir + "/router";
+        File routerFolder = new File(routerDir);
+        if(!routerFolder.exists())
+            if(!routerFolder.mkdir())
+                LOG.warning("Unable to create Bluetooth router directory: "+routerDir);
+        if(routerFolder.exists()) {
+            System.setProperty("bluetooth.dir.router",routerDir);
+            properties.setProperty("bluetooth.dir.router",routerDir);
+        }
+        // PID Directory
+        String pidDir = bluetoothDir + "/pid";
+        File pidFolder = new File(pidDir);
+        if(!pidFolder.exists())
+            if(!pidFolder.mkdir())
+                LOG.warning("Unable to create Bluetooth PID directory: "+pidDir);
+        if(pidFolder.exists()) {
+            System.setProperty("bluetooth.dir.pid",pidDir);
+            properties.setProperty("bluetooth.dir.pid",pidDir);
+        }
+        // Log Directory
+        String logDir = bluetoothDir + "/log";
+        File logFolder = new File(logDir);
+        if(!logFolder.exists())
+            if(!logFolder.mkdir())
+                LOG.warning("Unable to create Bluetooth log directory: "+logDir);
+        if(logFolder.exists()) {
+            System.setProperty("bluetooth.dir.log",logDir);
+            properties.setProperty("bluetooth.dir.log",logDir);
+        }
+
         try {
             localPeer.getDid().getPublicKey().setAddress(LocalDevice.getLocalDevice().getBluetoothAddress());
             localPeer.getDid().setUsername(LocalDevice.getLocalDevice().getFriendlyName());
@@ -200,21 +257,24 @@ public class BluetoothSensor extends BaseSensor {
         }
 
         // run every 2 minutes
-        deviceDiscovery = new BluetoothDeviceDiscovery(devices, this, taskRunner, properties, 2 * 60 * 1000L);
+        deviceDiscovery = new BluetoothDeviceDiscovery(devices, this, taskRunner);
+        deviceDiscovery.setPeriodicity(2 * 60 * 1000L);
         deviceDiscovery.setLongRunning(true);
         taskRunner.addTask(deviceDiscovery);
 
         // run every 60 seconds
-        peerDiscovery = new BluetoothPeerDiscovery(localPeer, peers, this, taskRunner, properties, 60 * 1000L);
+        peerDiscovery = new BluetoothPeerDiscovery(localPeer, peers, this, taskRunner);
+        peerDiscovery.setPeriodicity(60 * 1000L);
         peerDiscovery.setLongRunning(true);
         taskRunner.addTask(peerDiscovery);
 
         // run every 30 seconds
-        serviceDiscovery = new ServiceDiscovery(devices, deviceServices, peers, this, taskRunner, properties, 30 * 1000L);
+        serviceDiscovery = new ServiceDiscovery(devices, deviceServices, peers, this, taskRunner);
+        serviceDiscovery.setPeriodicity(30 * 1000L);
         serviceDiscovery.setLongRunning(true);
         taskRunner.addTask(serviceDiscovery);
 
-        new Thread(taskRunner, BluetoothSensor.class.getSimpleName()+"TaskRunnerThread").start();
+//        new Thread(taskRunner, BluetoothSensor.class.getSimpleName()+"TaskRunnerThread").start();
 
         return true;
     }

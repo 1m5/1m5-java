@@ -27,12 +27,14 @@
 package io.onemfive.util.tasks;
 
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 public abstract class BaseTask implements Task {
 
     private static final Logger LOG = Logger.getLogger(BaseTask.class.getName());
 
+    protected Properties properties;
     protected final String taskName;
     protected TaskRunner taskRunner;
     protected Map<Object,Object> params;
@@ -47,6 +49,7 @@ public abstract class BaseTask implements Task {
     protected boolean successful = false;
     protected boolean stopASAP = false;
     protected boolean scheduled = false;
+    protected boolean started = false;
     protected Task.Status status = Task.Status.Ready;
 
     public BaseTask(String taskName, TaskRunner taskRunner) {
@@ -76,6 +79,10 @@ public abstract class BaseTask implements Task {
     @Override
     public Long getPeriodicity() {
         return periodicity;
+    }
+
+    public void setPeriodicity(long periodicity) {
+        this.periodicity = periodicity;
     }
 
     @Override

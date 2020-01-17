@@ -26,23 +26,13 @@
  */
 package io.onemfive.network.sensors.lifi;
 
-import io.onemfive.network.NetworkTask;
+import io.onemfive.network.sensors.SensorTask;
 import io.onemfive.util.tasks.TaskRunner;
 
-import java.util.Properties;
+public class LiFiPeerDiscovery extends SensorTask {
 
-public class LiFiPeerDiscovery extends NetworkTask {
-
-    public LiFiPeerDiscovery(TaskRunner taskRunner) {
-        super(LiFiPeerDiscovery.class.getName(), taskRunner);
-    }
-
-    public LiFiPeerDiscovery(TaskRunner taskRunner, Properties properties) {
-        super(LiFiPeerDiscovery.class.getName(), taskRunner, properties);
-    }
-
-    public LiFiPeerDiscovery(TaskRunner taskRunner, Properties properties, long periodicity) {
-        super(LiFiPeerDiscovery.class.getName(), taskRunner, properties, periodicity);
+    public LiFiPeerDiscovery(TaskRunner taskRunner, LiFiSensor sensor) {
+        super(LiFiPeerDiscovery.class.getName(), taskRunner, sensor);
     }
 
     @Override

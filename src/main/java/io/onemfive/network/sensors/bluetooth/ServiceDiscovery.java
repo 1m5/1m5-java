@@ -28,7 +28,7 @@ package io.onemfive.network.sensors.bluetooth;
 
 import io.onemfive.network.Network;
 import io.onemfive.network.NetworkPeer;
-import io.onemfive.network.NetworkTask;
+import io.onemfive.network.sensors.SensorTask;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class ServiceDiscovery extends NetworkTask implements DiscoveryListener {
+public class ServiceDiscovery extends SensorTask implements DiscoveryListener {
 
     private static final Logger LOG = Logger.getLogger(ServiceDiscovery.class.getName());
 
@@ -52,8 +52,8 @@ public class ServiceDiscovery extends NetworkTask implements DiscoveryListener {
 
     private int result;
 
-    public ServiceDiscovery(Map<String, RemoteDevice> devices, Map<String, List<String>> deviceServices, Map<String, NetworkPeer> peers, BluetoothSensor sensor, TaskRunner taskRunner, Properties properties, Long periodicity) {
-        super(ServiceDiscovery.class.getName(), taskRunner, properties, periodicity);
+    public ServiceDiscovery(Map<String, RemoteDevice> devices, Map<String, List<String>> deviceServices, Map<String, NetworkPeer> peers, BluetoothSensor sensor, TaskRunner taskRunner) {
+        super(ServiceDiscovery.class.getName(), taskRunner, sensor);
         this.devices = devices;
         this.deviceServices = deviceServices;
         this.peers = peers;

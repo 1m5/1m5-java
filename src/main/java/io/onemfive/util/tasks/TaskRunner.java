@@ -48,7 +48,8 @@ public class TaskRunner implements Runnable {
     private ThreadPoolExecutor fixedExecutor;
     private ScheduledThreadPoolExecutor scheduledExecutor;
 
-    private long periodicity = 1000; // every two seconds check to see if a task needs running
+//    private long periodicity = 1000; // every second check to see if a task needs running
+    private long periodicity = 60 * 60 * 1000; // every second check to see if a task needs running
     private List<Task> tasks = new ArrayList<>();
     private Status status = Status.Shutdown;
     private long runUntil = 0L;
@@ -113,14 +114,6 @@ public class TaskRunner implements Runnable {
         status = Status.Running;
         LOG.info("Task Runner running...");
         while(status == Status.Running) {
-            try {
-                LOG.info("Sleeping for "+(periodicity/1000)+" seconds..");
-                synchronized (this) {
-                    this.wait(periodicity);
-                }
-            } catch (InterruptedException ex) {
-            }
-            LOG.info("Awoke, begin running tasks...");
             for (final Task t : tasks) {
                 if(t.getPeriodicity() == -1) {
                     LOG.info("Flagged to not run, skp...");
@@ -132,7 +125,7 @@ public class TaskRunner implements Runnable {
                     continue;
                 }
                 if(t.getScheduled()) {
-                    LOG.info("Scheduled, skip...");
+//                    LOG.info("Scheduled, skip...");
                     continue;
                 }
                 if(t.getDelayed()) {
@@ -159,9 +152,15 @@ public class TaskRunner implements Runnable {
                         periodicity = t.getPeriodicity();
                     }
                     if (t.getFixedDelay()) {
-                        scheduledExecutor.scheduleWithFixedDelay(t, 0, t.getPeriodicity(), TimeUnit.MILLISECONDS);
+                        if(t.getDelayed())
+                            scheduledExecutor.scheduleWithFixedDelay(t, t.getDelayTimeMS(), t.getPeriodicity(), TimeUnit.MILLISECONDS);
+                        else
+                            scheduledExecutor.scheduleWithFixedDelay(t, 0, t.getPeriodicity(), TimeUnit.MILLISECONDS);
                     } else {
-                        scheduledExecutor.scheduleAtFixedRate(t, 0, t.getPeriodicity(), TimeUnit.MILLISECONDS);
+                        if(t.getDelayed())
+                            scheduledExecutor.scheduleAtFixedRate(t, t.getDelayTimeMS(), t.getPeriodicity(), TimeUnit.MILLISECONDS);
+                        else
+                            scheduledExecutor.scheduleAtFixedRate(t, 0, t.getPeriodicity(), TimeUnit.MILLISECONDS);
                     }
                     t.setScheduled(true);
                 } else if(!t.getScheduled()) {
@@ -172,9 +171,15 @@ public class TaskRunner implements Runnable {
                     }
                 }
             }
-            LOG.info("Tasks ran.");
+//            LOG.info("Tasks ran.");
             if(runUntil > 0 && runUntil < System.currentTimeMillis()) {
                 status = Status.Stopping;
+            }
+            try {
+                synchronized (this) {
+                    this.wait(periodicity);
+                }
+            } catch (InterruptedException ex) {
             }
         }
         LOG.info("Task Runner Stopped.");

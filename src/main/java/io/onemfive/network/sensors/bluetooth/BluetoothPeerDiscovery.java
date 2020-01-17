@@ -29,7 +29,7 @@ package io.onemfive.network.sensors.bluetooth;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.TextMessage;
 import io.onemfive.network.NetworkPeer;
-import io.onemfive.network.NetworkTask;
+import io.onemfive.network.sensors.SensorTask;
 import io.onemfive.network.Packet;
 import io.onemfive.network.Request;
 import io.onemfive.network.sensors.SensorSession;
@@ -40,18 +40,16 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class BluetoothPeerDiscovery extends NetworkTask {
+public class BluetoothPeerDiscovery extends SensorTask {
 
     private static final Logger LOG = Logger.getLogger(BluetoothPeerDiscovery.class.getName());
 
     private NetworkPeer localPeer;
-    private BluetoothSensor sensor;
     private Map<String, NetworkPeer> peers;
 
-    public BluetoothPeerDiscovery(NetworkPeer localPeer, Map<String, NetworkPeer> peers, BluetoothSensor sensor, TaskRunner taskRunner, Properties properties, long periodicity) {
-        super(BluetoothPeerDiscovery.class.getName(), taskRunner, properties, periodicity);
+    public BluetoothPeerDiscovery(NetworkPeer localPeer, Map<String, NetworkPeer> peers, BluetoothSensor sensor, TaskRunner taskRunner) {
+        super(BluetoothPeerDiscovery.class.getName(), taskRunner, sensor);
         this.localPeer = localPeer;
-        this.sensor = sensor;
         this.peers = peers;
     }
 
@@ -62,7 +60,7 @@ public class BluetoothPeerDiscovery extends NetworkTask {
             Collection<NetworkPeer> peersList = peers.values();
             Envelope e;
             for (NetworkPeer peer : peersList) {
-                SensorSession session = sensor.establishSession(peer, true);
+                SensorSession session = ((BluetoothSensor)sensor).establishSession(peer, true);
                 Packet packet = new Request();
                 packet.setOriginationPeer(localPeer);
                 packet.setFromPeer(localPeer);

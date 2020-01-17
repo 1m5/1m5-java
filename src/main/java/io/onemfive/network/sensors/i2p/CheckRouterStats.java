@@ -27,21 +27,17 @@
 package io.onemfive.network.sensors.i2p;
 
 import io.onemfive.util.tasks.TaskRunner;
-import io.onemfive.network.NetworkTask;
+import io.onemfive.network.sensors.SensorTask;
 
-public class CheckRouterStats extends NetworkTask {
+public class CheckRouterStats extends SensorTask {
 
-    private I2PSensor sensor;
-
-    public CheckRouterStats(String taskName, TaskRunner taskRunner, I2PSensor sensor) {
-        super(taskName, taskRunner);
-        super.periodicity = 60 * 1000L; // Every 60 seconds
-        this.sensor = sensor;
+    public CheckRouterStats(TaskRunner taskRunner, I2PSensor sensor) {
+        super(CheckRouterStats.class.getName(), taskRunner, sensor);
     }
 
     @Override
     public Boolean execute() {
-        sensor.checkRouterStats();
+        ((I2PSensor)sensor).checkRouterStats();
         return true;
     }
 }
