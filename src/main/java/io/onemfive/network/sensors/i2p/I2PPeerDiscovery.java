@@ -26,12 +26,9 @@
  */
 package io.onemfive.network.sensors.i2p;
 
+import io.onemfive.network.*;
 import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.util.tasks.TaskRunner;
-import io.onemfive.network.NetworkPeer;
-import io.onemfive.network.sensors.SensorsConfig;
-import io.onemfive.network.NetworkTask;
-import io.onemfive.network.NetworkService;
 
 import java.util.List;
 import java.util.Properties;
@@ -47,9 +44,11 @@ public class I2PPeerDiscovery extends NetworkTask {
     private Logger LOG = Logger.getLogger(I2PPeerDiscovery.class.getName());
     private boolean firstRun = true;
     private NetworkService service;
+    private I2PSensor sensor;
 
-    public I2PPeerDiscovery(String taskName, NetworkService service, TaskRunner taskRunner, Properties properties) {
+    public I2PPeerDiscovery(String taskName, I2PSensor sensor, NetworkService service, TaskRunner taskRunner, Properties properties) {
         super(taskName, taskRunner, properties);
+        this.sensor = sensor;
         this.service = service;
     }
 
@@ -61,42 +60,47 @@ public class I2PPeerDiscovery extends NetworkTask {
             return 5 * 60 * 1000L;
         }
         else
-            return SensorsConfig.UI * 1000L; // wait for UI seconds
+            return NetworkConfig.UI * 1000L; // wait for UI seconds
     }
 
     @Override
     public Boolean execute() {
-        LOG.info("Running Peer Discovery...");
-        NetworkPeer localPeer = service.getPeerManager().getLocalNode().getLocalNetworkPeer();
-        if(localPeer == null) {
+        LOG.info("Running I2P Peer Discovery...");
+        NetworkPeer localI2PPeer = service.getPeerManager().getLocalNode().getLocalNetworkPeer(Network.I2P);
+        if(localI2PPeer == null) {
             LOG.warning("Network Service doesn't have local Peer yet. Can't run Peer Updater.");
             return false;
         }
-        long totalKnown = service.getPeerManager().totalPeersByRelationship(localPeer, P2PRelationship.RelType.Known);
+        long totalKnown = service.getPeerManager().totalPeersByRelationship(localI2PPeer, P2PRelationship.RelType.Known);
         if(totalKnown < 1) {
-            LOG.info("No peers known.");
-            if(SensorsConfig.seeds!=null && SensorsConfig.seeds.size() > 0) {
+            LOG.info("No I2P peers known.");
+            if(NetworkConfig.seeds!=null && NetworkConfig.seeds.size() > 0) {
                 // Launch Seeds
-                List<NetworkPeer> seeds = SensorsConfig.seeds.get(SensorsConfig.env);
+                List<NetworkPeer> seeds = NetworkConfig.seeds.get(NetworkConfig.env);
                 for (NetworkPeer seed : seeds) {
-                    LOG.info("Sending Peer Status Request to Seed Peer:\n\t" + seed);
-//                    service.pingOut(seed);
-                    LOG.info("Sent Peer Status Request to Seed Peer.");
+                    if(seed.getNetwork()==Network.I2P) {
+                        LOG.info("Sending Peer Status Request to Seed Peer:\n\t" + seed);
+                        Request request = new Request();
+                        request.setOriginationPeer(localI2PPeer);
+                        request.setDestinationPeer(seed);
+                        sensor.sendOut(request);
+                        LOG.info("Sent Peer Status Request to Seed Peer.");
+                    }
                 }
             } else {
                 LOG.warning("No seeds available! Please provide at least one seed!");
                 return false;
             }
-        } else if(totalKnown < SensorsConfig.MaxPT) {
-            LOG.info(totalKnown+" known peers less than Maximum Peers Tracked of "+ SensorsConfig.MaxPT+"; continuing peer discovery...");
-            NetworkPeer p = service.getPeerManager().getRandomPeer(localPeer);
+        } else if(totalKnown < NetworkConfig.MaxPT) {
+            LOG.info(totalKnown+" known peers less than Maximum Peers Tracked of "+ NetworkConfig.MaxPT+"; continuing peer discovery...");
+            NetworkPeer p = service.getPeerManager().getRandomKnownPeer(localI2PPeer);
             if(p != null) {
                 LOG.info("Sending Peer Status Request to Known Peer...");
 //                service.pingOut(p);
                 LOG.info("Sent Peer Status Request to Known Peer.");
             }
         } else {
-            LOG.info("Maximum Peers Tracked of "+ SensorsConfig.MaxPT+" reached. No need to look for more.");
+            LOG.info("Maximum Peers Tracked of "+ NetworkConfig.MaxPT+" reached. No need to look for more.");
         }
         firstRun = false;
         return true;

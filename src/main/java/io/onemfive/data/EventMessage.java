@@ -40,11 +40,11 @@ public final class EventMessage extends BaseMessage {
         EMAIL,
         ERROR,
         EXCEPTION,
-        STATUS_BUS,
-        STATUS_CLIENT,
-        STATUS_DID,
-        STATUS_SENSOR,
-        STATUS_SERVICE,
+        BUS_STATUS,
+        CLIENT_STATUS,
+        PEER_STATUS,
+        SENSOR_STATUS,
+        SERVICE_STATUS,
         TEXT
     }
 

@@ -27,7 +27,7 @@
 package io.onemfive.network.peers;
 
 import io.onemfive.data.JSONSerializable;
-import io.onemfive.network.sensors.SensorsConfig;
+import io.onemfive.network.NetworkConfig;
 import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
 import org.neo4j.graphdb.RelationshipType;
@@ -70,7 +70,7 @@ public class P2PRelationship implements JSONSerializable {
             ackTimesTracked += "," + t;
         }
         int currNumberAcksTracked = ackTimesTracked.split(",").length;
-        while(currNumberAcksTracked > SensorsConfig.MaxAT) {
+        while(currNumberAcksTracked > NetworkConfig.MaxAT) {
             ackTimesTracked = ackTimesTracked.substring(ackTimesTracked.indexOf(",")+1);
             currNumberAcksTracked--;
         }

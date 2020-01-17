@@ -76,7 +76,7 @@ public final class Envelope implements Persistable, JSONSerializable {
 
     private Map<String, Object> headers;
     private Message message;
-    private Sensitivity sensitivity = Sensitivity.HIGH; // Default to I2P
+    private ManCon manCon = ManCon.HIGH;
 
     public static Envelope commandFactory() {
         return new Envelope(RandomUtil.nextRandomLong(), new CommandMessage());
@@ -116,7 +116,7 @@ public final class Envelope implements Persistable, JSONSerializable {
         e.setContentType(envelope.getContentType());
         e.setMultipart(envelope.getMultipart());
         e.setMessage(envelope.getMessage());
-        e.setSensitivity(envelope.getSensitivity());
+        e.setManCon(envelope.getManCon());
         return e;
     }
 
@@ -266,12 +266,12 @@ public final class Envelope implements Persistable, JSONSerializable {
         headers.put(HEADER_CONTENT_TYPE, contentType);
     }
 
-    public Sensitivity getSensitivity() {
-        return sensitivity;
+    public ManCon getManCon() {
+        return manCon;
     }
 
-    public void setSensitivity(Sensitivity sensitivity) {
-        this.sensitivity = sensitivity;
+    public void setManCon(ManCon manCon) {
+        this.manCon = manCon;
     }
 
     @Override
@@ -291,7 +291,7 @@ public final class Envelope implements Persistable, JSONSerializable {
         if(commandPath!=null) m.put("commandPath", commandPath);
         if(headers!=null) m.put("headers", headers);
         if(message!=null) m.put("message", message.toMap());
-        if(sensitivity!=null) m.put("sensitivity", sensitivity.name());
+        if(manCon !=null) m.put("sensitivity", manCon.name());
         return m;
     }
 
@@ -359,7 +359,7 @@ public final class Envelope implements Persistable, JSONSerializable {
                 LOG.warning(e.getLocalizedMessage());
             }
         }
-        if(m.get("sensitivity")!=null) sensitivity = Sensitivity.valueOf((String)m.get("sensitivity"));
+        if(m.get("sensitivity")!=null) manCon = ManCon.valueOf((String)m.get("sensitivity"));
     }
 
     @Override

@@ -26,15 +26,22 @@
  */
 package io.onemfive.network.sensors;
 
+import io.onemfive.network.Packet;
+import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.Envelope;
 import io.onemfive.network.Network;
 import io.onemfive.network.NetworkPeer;
-import io.onemfive.data.Sensitivity;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+import static io.onemfive.network.sensors.SensorStatus.NETWORK_CONNECTED;
+import static io.onemfive.network.sensors.SensorStatus.NETWORK_STOPPED;
 
 /**
  * A Base for common data and operations across all Sensors to provide a basic framework for them.
@@ -43,17 +50,33 @@ import java.util.Map;
  */
 public abstract class BaseSensor implements Sensor {
 
+    private static final Logger LOG = Logger.getLogger(BaseSensor.class.getName());
+
+    protected final NetworkPeer localPeer;
     protected Network network;
     protected SensorManager sensorManager;
     private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
     protected Integer restartAttempts = 0;
-    private Sensitivity sensitivity;
-    private Integer priority;
-    protected Map<String,NetworkPeer> peers = new HashMap<>();
     protected TaskRunner taskRunner;
     protected String directory;
+    protected Map<Integer, SensorSession> sessions = new HashMap<>();
+    protected Properties properties;
 
-    protected void updateStatus(SensorStatus sensorStatus) {
+    public BaseSensor(NetworkPeer localPeer) {
+        this.localPeer = localPeer;
+        this.network = localPeer.getNetwork();
+    }
+
+    public BaseSensor(SensorManager sensorManager, NetworkPeer localPeer) {
+        this.sensorManager = sensorManager;
+        this.localPeer = localPeer;
+    }
+
+    public SensorManager getSensorManager() {
+        return sensorManager;
+    }
+
+    public void updateStatus(SensorStatus sensorStatus) {
         this.sensorStatus = sensorStatus;
         // Might be null during localized testing
         if(sensorManager != null) {
@@ -61,21 +84,100 @@ public abstract class BaseSensor implements Sensor {
         }
     }
 
-    public BaseSensor() {}
+    public SensorSession getSession(NetworkPeer peer) {
+        for(SensorSession s : sessions.values()) {
+            if(s.getLocalPeer().equals(peer))
+                return s;
+        }
+        return null;
+    }
 
-    public BaseSensor(SensorManager sensorManager, Sensitivity sensitivity, Integer priority) {
-        this.sensorManager = sensorManager;
-        this.sensitivity = sensitivity;
-        this.priority = priority;
+    public SensorSession getSession(Integer sessId) {
+        return sessions.getOrDefault(sessId, null);
+    }
+
+    public abstract SensorSession establishSession(NetworkPeer peer, Boolean autoConnect);
+
+    public Boolean closeSession(Integer sessionId) {
+        SensorSession session = sessions.get(sessionId);
+        if(session==null) {
+            LOG.info("No session found in sessions map for id: "+sessionId);
+            return true;
+        } else if (session.disconnect()) {
+            sessions.remove(sessionId);
+            LOG.info("Session (id="+sessionId+") disconnected and remove from sessions map.");
+            return true;
+        } else {
+            LOG.warning("Issue with disconnection of session with id: "+sessionId);
+            return false;
+        }
+    }
+
+    public void connected(SensorSession session) {
+        LOG.info("Radio Session reporting connection.");
+        if(getStatus()!=NETWORK_CONNECTED) {
+            updateStatus(NETWORK_CONNECTED);
+            routerStatusChanged();
+        }
+    }
+
+    /**
+     * Notify the service that the session has been terminated.
+     * All registered listeners will be called.
+     *
+     * @param session session to report disconnect to
+     */
+    public void disconnected(SensorSession session) {
+        LOG.info("Radio Session reporting disconnection.");
+        if(disconnected()) {
+            updateStatus(NETWORK_STOPPED);
+            routerStatusChanged();
+        }
+    }
+
+    /**
+     * Notify the client that some throwable occurred.
+     * All registered listeners will be called.
+     *
+     * @param session session to report error occurred
+     * @param message message received describing error
+     * @param throwable throwable thrown during error
+     */
+    public void errorOccurred(SensorSession session, String message, Throwable throwable) {
+        LOG.warning("Router says: "+message+": "+throwable.getLocalizedMessage());
+        routerStatusChanged();
+    }
+
+    private void routerStatusChanged() {
+        String statusText;
+        switch (getStatus()) {
+            case NETWORK_CONNECTING:
+                statusText = "Testing Radio Network...";
+                break;
+            case NETWORK_CONNECTED:
+                statusText = "Connected to Radio Network.";
+                restartAttempts = 0; // Reset restart attempts
+                break;
+            case NETWORK_STOPPED:
+                statusText = "Disconnected from Radio Network.";
+                break;
+            default: {
+                statusText = "Unhandled Radio Network Status: "+getStatus().name();
+            }
+        }
+        LOG.info(statusText);
+    }
+
+    public Boolean disconnected() {
+        return sessions.size()==0;
+    }
+
+    public void checkRouterStats() {
+        LOG.info("RadioSensor status:\n\t"+getStatus().name());
     }
 
     @Override
     public boolean sendIn(Envelope envelope) {
-        return sensorManager.sendToBus(envelope);
-    }
-
-    @Override
-    public boolean replyIn(Envelope envelope) {
         return sensorManager.sendToBus(envelope);
     }
 
@@ -99,28 +201,8 @@ public abstract class BaseSensor implements Sensor {
     }
 
     @Override
-    public void setSensitivity(Sensitivity sensitivity) {
-        this.sensitivity = sensitivity;
-    }
-
-    @Override
-    public void setPriority(Integer priority) {
-        this.priority = priority;
-    }
-
-    @Override
     public SensorStatus getStatus() {
         return sensorStatus;
-    }
-
-    @Override
-    public Sensitivity getSensitivity() {
-        return sensitivity;
-    }
-
-    @Override
-    public Integer getPriority() {
-        return priority;
     }
 
     @Override
@@ -131,5 +213,24 @@ public abstract class BaseSensor implements Sensor {
     @Override
     public File getDirectory() {
         return sensorManager.getSensorDirectory(this.getClass().getName());
+    }
+
+    @Override
+    public boolean shutdown() {
+        boolean success = true;
+        if(sessions!=null) {
+            Collection<SensorSession> rl = sessions.values();
+            for(SensorSession r : rl) {
+                if(!r.disconnect()) {
+                    success = false;
+                }
+            }
+        }
+        return success;
+    }
+
+    @Override
+    public boolean gracefulShutdown() {
+        return shutdown();
     }
 }

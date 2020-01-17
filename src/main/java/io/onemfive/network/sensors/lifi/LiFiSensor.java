@@ -28,9 +28,8 @@ package io.onemfive.network.sensors.lifi;
 
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.*;
+import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.DLC;
-import io.onemfive.util.JSONParser;
-import io.onemfive.util.JSONPretty;
 import io.onemfive.network.*;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
@@ -46,14 +45,13 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
     private static final Logger LOG = Logger.getLogger(LiFiSensor.class.getName());
 
     private LiFiSession session;
-    private NetworkPeer localNode;
 
     public LiFiSensor() {
-        super();
+        super(new NetworkPeer(Network.LIFI));
     }
 
-    public LiFiSensor(SensorManager sensorManager, Sensitivity sensitivity, Integer priority) {
-        super(sensorManager, sensitivity, priority);
+    public LiFiSensor(SensorManager sensorManager) {
+        super(sensorManager, new NetworkPeer(Network.LIFI));
     }
 
     @Override
@@ -71,6 +69,13 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
         return new String[]{".lifi"};
     }
 
+    @Override
+    public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
+        LiFiSession session = new LiFiSession();
+
+        return session;
+    }
+
     /**
      * Sends UTF-8 content to a Destination using LiFi.
      * @param packet Packet of data for request.
@@ -81,52 +86,36 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
     public boolean sendOut(Packet packet) {
         LOG.info("Sending LiFi Message...");
         NetworkPeer toPeer = packet.getToPeer();
-        if(toPeer == null) {
-            LOG.warning("No Peer for LiFi found in toDID while sending to LiFi.");
-            packet.statusCode = NetworkRequest.DESTINATION_DID_REQUIRED;
-            return false;
-        }
-        if(!Network.LIFI.name().equals((toPeer.getNetwork()))) {
-            LOG.warning("LiFi requires a LiFiPeer.");
-            packet.statusCode = NetworkRequest.DESTINATION_DID_WRONG_NETWORK;
-            return false;
-        }
+//        if(toPeer == null) {
+//            LOG.warning("No Peer for LiFi found in toDID while sending to LiFi.");
+//            packet.statusCode = NetworkRequest.DESTINATION_DID_REQUIRED;
+//            return false;
+//        }
+//        if(!Network.LIFI.name().equals((toPeer.getNetwork()))) {
+//            LOG.warning("LiFi requires a LiFiPeer.");
+//            packet.statusCode = NetworkRequest.DESTINATION_DID_WRONG_NETWORK;
+//            return false;
+//        }
         LOG.info("Envelope to send: "+packet.getEnvelope());
-        if(packet.getEnvelope() == null) {
-            LOG.warning("No Envelope while sending to LiFi.");
-            packet.statusCode = NetworkRequest.NO_CONTENT;
-            return false;
-        }
+//        if(packet.getEnvelope() == null) {
+//            LOG.warning("No Envelope while sending to LiFi.");
+//            packet.statusCode = NetworkRequest.NO_CONTENT;
+//            return false;
+//        }
 
         if(session.send(packet)) {
             LOG.info("LiFi Message sent.");
             return true;
         } else {
             LOG.warning("LiFi Message sending failed.");
-            packet.statusCode = NetworkRequest.SENDING_FAILED;
+//            packet.statusCode = NetworkRequest.SENDING_FAILED;
             return false;
         }
-    }
-
-    /**
-     * Outgoing reply to incoming request
-     * @param packet
-     * @return
-     */
-    @Override
-    public boolean replyOut(Packet packet) {
-
-        return true;
     }
 
     @Override
     public boolean sendIn(Envelope envelope) {
         return super.sendIn(envelope);
-    }
-
-    @Override
-    public boolean replyIn(Envelope envelope) {
-        return super.replyIn(envelope);
     }
 
     /**
@@ -218,22 +207,17 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
 
         session.addSessionListener(this);
 
-        localNode = new NetworkPeer(Network.LIFI);
-//        localNode.getDid().getPublicKey().setFingerprint(fingerprint);
-//        localNode.getDid().getPublicKey().setAddress(address);
+//        localPeer.getDid().getPublicKey().setFingerprint(fingerprint);
+//        localPeer.getDid().getPublicKey().setAddress(address);
 
         // Publish local LiFi address
         LOG.info("Publishing LiFi Network Peer's DID...");
-        Envelope e = Envelope.eventFactory(EventMessage.Type.STATUS_DID);
+        Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
         EventMessage m = (EventMessage) e.getMessage();
 //        m.setName(fingerprint);
-        m.setMessage(localNode);
+        m.setMessage(localPeer);
         DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
 //        sensorManager.sendToBus(e);
-    }
-
-    public NetworkPeer getLocalNode() {
-        return localNode;
     }
 
     @Override

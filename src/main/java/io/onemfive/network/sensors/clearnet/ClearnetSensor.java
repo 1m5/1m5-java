@@ -30,9 +30,12 @@ import io.onemfive.core.Config;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.*;
+import io.onemfive.network.Network;
+import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
+import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.util.BrowserUtil;
 import io.onemfive.util.DLC;
@@ -138,16 +141,22 @@ public class ClearnetSensor extends BaseSensor {
     private Properties properties;
 
     public ClearnetSensor() {
+        super(new NetworkPeer(Network.CLEAR));
     }
 
-    public ClearnetSensor(SensorManager sensorManager, Sensitivity sensitivity, Integer priority) {
-        super(sensorManager, sensitivity, priority);
+    public ClearnetSensor(SensorManager sensorManager) {
+        super(sensorManager, new NetworkPeer(Network.CLEAR));
     }
 
     public String registerHandler(AsynchronousEnvelopeHandler handler) {
         String nextHandlerIdStr = String.valueOf(nextHandlerId++);
         handlers.put(nextHandlerIdStr, handler);
         return nextHandlerIdStr;
+    }
+
+    @Override
+    public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
+        return null;
     }
 
     @Override
@@ -367,30 +376,6 @@ public class ClearnetSensor extends BaseSensor {
                 }
             }
         }
-    }
-
-    void sendToBus(Envelope envelope) {
-        sensorManager.sendToBus(envelope);
-    }
-
-    @Override
-    public boolean replyOut(Packet packet) {
-        LOG.info("Reply to ClearnetServerSensor; forwarding to registered handler...");
-        Envelope e = packet.getEnvelope();
-        String handlerId = (String)e.getHeader(HANDLER_ID);
-        if(handlerId == null) {
-            LOG.warning("Handler id not found in Envelope header. Ensure this is placed in the Envelope header="+HANDLER_ID);
-            sensorManager.suspend(e);
-            return false;
-        }
-        AsynchronousEnvelopeHandler handler = handlers.get(handlerId);
-        if(handler == null) {
-            LOG.warning("Handler with id="+handlerId+" not registered. Please ensure it's registered prior to calling send().");
-            sensorManager.suspend(e);
-            return false;
-        }
-        handler.reply(e);
-        return true;
     }
 
     @Override
@@ -852,7 +837,7 @@ public class ClearnetSensor extends BaseSensor {
         Properties p = new Properties();
         p.setProperty("1m5.ui","true");
         p.setProperty("1m5.ui.launchOnStart","true");
-        ClearnetSensor sensor = new ClearnetSensor(null, null, null);
+        ClearnetSensor sensor = new ClearnetSensor(null);
         sensor.start(p);
     }
 }

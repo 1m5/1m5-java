@@ -86,7 +86,6 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
     private I2PSession i2pSession;
     private boolean connected = false;
     private I2PSocketManager socketManager;
-    private NetworkPeer localPeer;
     private boolean isTest = false;
 
     public I2PSensorSession(I2PSensor sensor) {
@@ -263,10 +262,6 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
         disconnect();
         socketManager.destroySocketManager();
         return true;
-    }
-
-    public NetworkPeer getLocalPeer() {
-        return localPeer;
     }
 
     @Override

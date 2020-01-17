@@ -41,22 +41,16 @@ import java.io.File;
  */
 public interface Sensor extends LifeCycle {
     void setTaskRunner(TaskRunner taskRunner);
-    boolean sendIn(Envelope envelope);
     boolean sendOut(Packet packet);
-    boolean replyIn(Envelope envelope);
-    boolean replyOut(Packet packet);
+    boolean sendIn(Envelope envelope);
     void setNetwork(Network network);
     Network getNetwork();
     SensorStatus getStatus();
     Integer getRestartAttempts();
-    Sensitivity getSensitivity();
     String[] getOperationEndsWith();
     String[] getURLBeginsWith();
     String[] getURLEndsWith();
-    // When Sensitivities are equal, priority can factor into order of evaluation
-    Integer getPriority();
     void setSensorManager(SensorManager sensorManager);
-    void setSensitivity(Sensitivity sensitivity);
-    void setPriority(Integer priority);
+    SensorManager getSensorManager();
     File getDirectory();
 }

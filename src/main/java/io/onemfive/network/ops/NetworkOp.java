@@ -26,8 +26,9 @@
  */
 package io.onemfive.network.ops;
 
+import io.onemfive.core.Operation;
 import io.onemfive.network.sensors.SensorManager;
 
-public interface NetworkOp {
+public interface NetworkOp extends Operation {
     void setSensorManager(SensorManager sensorManager);
 }

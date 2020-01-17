@@ -32,9 +32,8 @@ import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.route.ExternalRoute;
-import io.onemfive.network.peers.BasePeerManager;
+import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.peers.PeerManager;
-import io.onemfive.network.sensors.i2p.I2PPeerDiscovery;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.*;
@@ -72,7 +71,7 @@ public class NetworkService extends BaseService {
     public static final String OPERATION_RECEIVE_LOCAL_AUTHN_PEER = "receiveLocalPeer";
 
     private SensorManager sensorManager;
-    private BasePeerManager peerManager;
+    private PeerManager peerManager;
     private File sensorsDirectory;
     private Properties properties;
     private TaskRunner taskRunner;
@@ -113,37 +112,41 @@ public class NetworkService extends BaseService {
         Route r = e.getRoute();
         switch (r.getOperation()) {
             case OPERATION_SEND : {
-                Packet packet = null;
+                Request request = (Request) DLC.getData(Request.class,e);
                 Sensor sensor = null;
-                NetworkRequest request = (NetworkRequest)DLC.getData(NetworkRequest.class,e);
                 if(request == null){
                     if(r instanceof ExternalRoute) {
                         ExternalRoute exRoute = (ExternalRoute)r;
-                        packet = peerManager.buildPacket(exRoute.getOrigination(), exRoute.getDestination());
+                        request = peerManager.buildRequest(exRoute.getOrigination(), exRoute.getDestination());
                     } else {
                         LOG.warning("A Network Request or External Route must be provided.");
                         return;
                     }
                 } else {
-                    if (request.destination == null) {
+                    if (request.destinationPeer == null) {
                         LOG.warning("Must provide a destination address when using a NetworkRequest.");
                         return;
                     }
-                    packet = peerManager.buildPacket(request.origination, request.destination);
+                    request = peerManager.buildRequest(request.originationPeer, request.destinationPeer);
                 }
-                packet.setEnvelope(e);
-                sensor = sensorManager.selectSensor(packet);
+                request.setEnvelope(e);
+                if(!peerManager.isKnown(request.destinationPeer)) {
+                    request.toPeer = request.destinationPeer;
+                } else {
+                    request.toPeer = peerManager.getRandomKnownPeer();
+                }
+                sensor = sensorManager.selectSensor(request);
                 if(sensor != null) {
                     LOG.info("Sending Packet to selected Sensor...");
-                    if (!sensor.sendOut(packet)) {
+                    if (!sensor.sendOut(request)) {
                         Message m = e.getMessage();
                         boolean reroute = false;
                         if (m != null && m.getErrorMessages() != null && m.getErrorMessages().size() > 0) {
                             for (String err : m.getErrorMessages()) {
                                 LOG.warning(err);
                                 if ("BLOCKED".equals(err)) {
-                                    if (e.getSensitivity() == Sensitivity.NONE) {
-                                        LOG.info("No security required. Assuming block means the site is down.");
+                                    if (e.getManCon() == ManCon.LOW) {
+                                        LOG.info("Low security required. Assuming block means the site is down.");
                                     } else {
                                         LOG.info("Some level of security required. Re-routing through another peer.");
                                         reroute = true;
@@ -151,15 +154,16 @@ public class NetworkService extends BaseService {
                                 }
                             }
                         }
+                        // TODO: Needs re-visited
                         if (reroute || sensor.getStatus() == SensorStatus.NETWORK_BLOCKED) {
                             LOG.info("Can we reroute?");
                             String fromNetwork = sensor.getClass().getName();
-                            sensor = sensorManager.selectSensor(packet);
+                            sensor = sensorManager.selectSensor(request);
                             if (sensor != null) {
                                 String toNetwork = sensor.getClass().getName();
                                 if (!fromNetwork.equals(toNetwork)) {
                                     LOG.info("Escalated sensor: " + toNetwork);
-                                    NetworkPeer newToPeer = peerManager.getRandomPeer(peerManager.getLocalNode().getLocalNetworkPeer(sensor.getNetwork()));
+                                    NetworkPeer newToPeer = peerManager.getRandomKnownPeer(peerManager.getLocalNode().getLocalNetworkPeer(sensor.getNetwork()));
                                     if (newToPeer == null) {
                                         LOG.warning("No other peers to route blocked request. Request is dead.");
                                     } else {
@@ -167,9 +171,9 @@ public class NetworkService extends BaseService {
                                         if (m != null) {
                                             m.clearErrorMessages();
                                         }
-                                        packet.setToPeer(newToPeer);
+                                        request.setToPeer(newToPeer);
                                         // Send through escalated network
-                                        sensor.sendOut(packet);
+                                        sensor.sendOut(request);
                                     }
                                 }
                             } else {
@@ -185,19 +189,17 @@ public class NetworkService extends BaseService {
             }
             case OPERATION_REPLY : {
                 LOG.info("Replying with Envelope to requester...");
-                NetworkRequest request = (NetworkRequest)DLC.getData(NetworkRequest.class,e);
-                if(request == null){
-                    LOG.warning("NetworkRequest required in envelope.");
+                Response response = (Response) DLC.getData(Response.class,e);
+                if(response == null){
+                    LOG.warning("Response required in envelope.");
                     return;
                 }
-                if (request.destination == null) {
+                if (response.destinationPeer == null) {
                     LOG.warning("Must provide a destination address when using a NetworkRequest.");
                     return;
                 }
-                Packet packet = peerManager.buildPacket(request.destination, request.origination);
-                packet.setEnvelope(e);
-                Sensor sensor = sensorManager.selectSensor(packet);
-                sensor.replyOut(packet);
+                Sensor sensor = sensorManager.selectSensor(response);
+                sensor.sendOut(response);
                 break;
             }
             case OPERATION_UPDATE_LOCAL_PEER: {
@@ -296,19 +298,13 @@ public class NetworkService extends BaseService {
                 packet.fromMap(mp);
                 if(peerManager.isRemoteLocal(packet.getDestinationPeer())) {
                     // Packet meant for this local node
-                    if(packet instanceof Request) {
 
-                    } else if(packet instanceof Response) {
-
-                    } else {
-                        LOG.warning("Packet " + packet.getClass().getName() + " not handled; ignoring.");
-                    }
-                } else if(peerManager.isReachable(peerManager.getLocalNode().getLocalNetworkPeer(packet.getDestinationPeer().getNetwork()), packet.getDestinationPeer(), envelope.getSensitivity())) {
-                    // Destination is known and reachable therefore forward
+                } else if(peerManager.isKnown(packet.getDestinationPeer())) {
+                    // Destination is known therefore forward
                     packet.setToPeer(packet.getDestinationPeer());
                 } else {
-                    // Forward to a random reachable peer
-                    packet.setToPeer(peerManager.getRandomReachablePeer(peerManager.getLocalNode().getLocalNetworkPeer(packet.getDestinationPeer().getNetwork()), envelope.getSensitivity()));
+                    // Forward to a random reachable peer of the destination peer's network
+
                 }
             } else {
                 LOG.warning("Object " + obj.getClass().getName() + " not handled; ignoring.");
@@ -485,7 +481,7 @@ public class NetworkService extends BaseService {
                 if(currentServiceStatus == ServiceStatus.RUNNING
                         || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING
                         || currentServiceStatus == ServiceStatus.DEGRADED_RUNNING
-                        && sensorAvailable(SensorsConfig.currentSensitivity))
+                        && sensorAvailable(NetworkConfig.currentManCon))
                     updateStatus(ServiceStatus.DEGRADED_RUNNING);
                 else
                     updateStatus(ServiceStatus.BLOCKED);
@@ -562,7 +558,7 @@ public class NetworkService extends BaseService {
 
     private Boolean allSensorsWithStatus(SensorStatus sensorStatus) {
         LOG.info("Verifying all sensors with status: "+sensorStatus.name());
-        Collection<Sensor> sensors = ((SensorManagerBase)sensorManager).getRegisteredSensors().values();
+        Collection<Sensor> sensors = sensorManager.getRegisteredSensors().values();
         if(sensors.size() == 0) {
             return false;
         }
@@ -577,26 +573,15 @@ public class NetworkService extends BaseService {
 
     /**
      * Is there at least one sensor not at the supplied sensor status (e.g. not BLOCKED)
-     * at least at the provided sensitivity level (based on ordinal value)?
-     * @param minSensitivity
+     * at least at the provided ManCon level?
+     * @param minManCon
      * @return
      */
-    private Boolean sensorAvailable(Sensitivity minSensitivity) {
-        LOG.info("Verifying at least one sensor is not blocked with a minimal sensitivity of: "+minSensitivity.name());
-        Collection<Sensor> sensors = ((SensorManagerBase)sensorManager).getRegisteredSensors().values();
-        if(sensors.size() == 0) {
-            return false;
-        }
-        for(Sensor s : sensors) {
-            LOG.info(s.getClass().getName()+": status="+s.getStatus().name()+", sensitivity="+s.getSensitivity().name());
-            if(s.getStatus() != SensorStatus.NETWORK_BLOCKED
-                    && s.getStatus() != SensorStatus.ERROR
-                    && s.getSensitivity().ordinal() >= minSensitivity.ordinal()){
-                return true;
-            }
-        }
-        return false;
+    private Boolean sensorAvailable(ManCon minManCon) {
+        return sensorManager.lookupByManCon(minManCon, true) != null;
     }
+
+
 
     public SensorManager getSensorManager() {
         return sensorManager;
@@ -612,7 +597,7 @@ public class NetworkService extends BaseService {
         LOG.info("Starting...");
         updateStatus(ServiceStatus.STARTING);
         try {
-            properties = Config.loadFromClasspath("sensors.config", p, false);
+            properties = Config.loadFromClasspath("1m5-network.config", p, false);
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());
         }
@@ -624,13 +609,6 @@ public class NetworkService extends BaseService {
             return false;
         }
         LOG.info("SensorManager: "+sensorManagerClass);
-
-        String peerManagerClass = properties.getProperty(PeerManager.class.getName());
-        if(peerManagerClass == null) {
-            LOG.warning(PeerManager.class.getName()+" property required to start SensorsService.");
-            return false;
-        }
-        LOG.info("PeerManager: "+peerManagerClass);
 
         String sensorsConfig = properties.getProperty(Sensor.class.getName());
         if(sensorsConfig == null) {
@@ -651,55 +629,34 @@ public class NetworkService extends BaseService {
             LOG.warning("IOException caught while building sensors directory: \n"+e.getLocalizedMessage());
         }
 
-        SensorsConfig.update(properties);
+        NetworkConfig.update(properties);
 
         // Sensor Manager
-        try {
-            sensorManager = (SensorManager)Class.forName(sensorManagerClass).getConstructor().newInstance();
-            ((SensorManagerBase)sensorManager).setNetworkService(this);
-        } catch (Exception e) {
-            LOG.warning("Exception caught while creating instance of Sensor Manager "+sensorManagerClass);
-            e.printStackTrace();
-            return false;
-        }
+        sensorManager = new SensorManager();
+        sensorManager.setNetworkService(this);
 
         // TODO: use global TaskRunner instance
-        taskRunner = new TaskRunner();
+        taskRunner = new TaskRunner(4, 4);
 
         // Peer Manager
-        try {
-            peerManager = (BasePeerManager) Class.forName(peerManagerClass).getConstructor().newInstance();
-            peerManager.setNetworkService(this);
-            peerManager.setTaskRunner(taskRunner);
-            sensorManager.setPeerManager(peerManager);
-            I2PPeerDiscovery i2PPeerDiscovery = new I2PPeerDiscovery("1M5PeerDiscovery", this, taskRunner, properties);
-            taskRunner.addTask(i2PPeerDiscovery);
-        } catch (Exception e) {
-            LOG.warning("Exception caught while creating instance of Peer Manager "+sensorManagerClass);
-            e.printStackTrace();
-            return false;
-        }
+        peerManager = new PeerManager(taskRunner);
+        peerManager.setNetworkService(this);
+        peerManager.setTaskRunner(taskRunner);
+        sensorManager.setPeerManager(peerManager);
 
         // Sensors
         String[] sensorConfigStrings = sensorsConfig.split(":");
-        String[] sp;
         Sensor sensor = null;
         LOG.info("Building sensors configuration...");
         for(String sc : sensorConfigStrings) {
-            sp = sc.split(",");
-            String sensorClass = sp[0];
-            String sensitivity = sp[1];
-            String priorityStr = sp[2];
             try {
-                sensor = (Sensor)Class.forName(sensorClass).getConstructor().newInstance();
+                sensor = (Sensor)Class.forName(sc).getConstructor().newInstance();
             } catch (Exception e) {
-                LOG.warning("Exception caught while creating instance of Sensor "+sensorClass+" with sensitivity "+sensitivity+" and priority "+priorityStr);
+                LOG.warning("Exception caught while creating instance of Sensor "+sc);
                 e.printStackTrace();
             }
             if(sensor != null) {
                 BaseSensor baseSensor = (BaseSensor)sensor;
-                baseSensor.setSensitivity(Sensitivity.valueOf(sensitivity));
-                baseSensor.setPriority(Integer.parseInt(priorityStr));
                 baseSensor.setSensorManager(sensorManager);
                 sensorManager.registerSensor(sensor);
                 LOG.info("Registered sensor "+sensor.getClass().getName());
@@ -716,7 +673,7 @@ public class NetworkService extends BaseService {
 //            producer.send(e);
 
             // Subscribe to DID status notifications
-            SubscriptionRequest r2 = new SubscriptionRequest(EventMessage.Type.STATUS_DID, subscription);
+            SubscriptionRequest r2 = new SubscriptionRequest(EventMessage.Type.PEER_STATUS, subscription);
             Envelope e2 = Envelope.documentFactory();
             DLC.addData(SubscriptionRequest.class, r2, e2);
             DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e2);

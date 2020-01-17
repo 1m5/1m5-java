@@ -28,7 +28,7 @@ package io.onemfive.network.sensors.clearnet;
 
 import io.onemfive.data.DocumentMessage;
 import io.onemfive.data.Envelope;
-import io.onemfive.data.Sensitivity;
+import io.onemfive.data.ManCon;
 import io.onemfive.data.content.Content;
 import io.onemfive.util.DLC;
 import io.onemfive.util.JSONParser;
@@ -160,7 +160,7 @@ public class EnvelopeProxyDataHandler extends DefaultHandler implements Asynchro
         LOG.info("Parsing request into Envelope...");
         Envelope e = Envelope.documentFactory();
         // Flag as LOW for HTTP - this is required to ensure ClearnetServerSensor is selected in reply
-        e.setSensitivity(Sensitivity.LOW);
+        e.setManCon(ManCon.LOW);
         // Must set id in header for asynchronous support
         e.setHeader(ClearnetSensor.HANDLER_ID, id);
         String uri = request.getRequestURI();

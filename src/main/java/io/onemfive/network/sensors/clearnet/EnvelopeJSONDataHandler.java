@@ -196,7 +196,7 @@ public class EnvelopeJSONDataHandler extends DefaultHandler implements Asynchron
 
         Envelope e = Envelope.documentFactory();
         // Flag as LOW for HTTP - this is required to ensure ClearnetServerSensor is selected in reply
-        e.setSensitivity(Sensitivity.LOW);
+        e.setManCon(ManCon.LOW);
         // Must set id in header for asynchronous support
         e.setHeader(ClearnetSensor.HANDLER_ID, id);
         e.setHeader(ClearnetSession.class.getName(), sessionId);

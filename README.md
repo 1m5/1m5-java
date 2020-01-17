@@ -1,8 +1,8 @@
 # 1M5
-A secure open-source decentralized censorship-resistant peer-to-peer application platform with end-to-end encryption 
-and anonymity as a base layer for creating easy to build and use secure decentralized peer-to-peer 
-applications requiring no server connections that can be used around the world by any person looking 
-to protect their communications and personal data from unethical monitoring, interception, intrusion, 
+A secure open-source decentralized censorship-resistant peer-to-peer application platform with end-to-end encryption
+and anonymity as a base layer for creating easy to build and use secure decentralized peer-to-peer
+applications requiring no server connections that can be used around the world by any person looking
+to protect their communications and personal data from unethical monitoring, interception, intrusion,
 and censorship.
 
 ## Version
@@ -31,28 +31,28 @@ Paid in Bitcoin
 Please contact us at info@1m5.io for a BTC address.
 
 ## Opportunities
-[**Freedom of Speech**](https://en.wikipedia.org/wiki/Freedom_of_speech) - a principle that supports the freedom of 
-an individual or a community to articulate their  opinions and ideas without fear of retaliation, censorship, 
-or sanction. The term "freedom of expression" is sometimes used synonymously but includes any act of seeking, 
+[**Freedom of Speech**](https://en.wikipedia.org/wiki/Freedom_of_speech) - a principle that supports the freedom of
+an individual or a community to articulate their  opinions and ideas without fear of retaliation, censorship,
+or sanction. The term "freedom of expression" is sometimes used synonymously but includes any act of seeking,
 receiving, and imparting information or ideas, regardless of the medium used.
 
-[**Censorship**](https://en.wikipedia.org/wiki/Censorship) - the suppression of speech, public communication, 
-or other information, on the basis that such material is considered objectionable, harmful, sensitive, 
+[**Censorship**](https://en.wikipedia.org/wiki/Censorship) - the suppression of speech, public communication,
+or other information, on the basis that such material is considered objectionable, harmful, sensitive,
 politically incorrect or "inconvenient" as determined by government authorities or by community consensus.
 
-Constraining the free flow of information between people is a direct threat to our freedom and censorship of 
+Constraining the free flow of information between people is a direct threat to our freedom and censorship of
 communications on-line is growing world-wide.
 
 - https://internetfreedomwatch.org/timeline/
 - https://www.wired.com/2017/04/internet-censorship-is-advancing-under-trump/
-- https://rsf.org/en/news/more-100-websites-blocked-growing-wave-online-censorship 
+- https://rsf.org/en/news/more-100-websites-blocked-growing-wave-online-censorship
 
-On-line communications are censored at the point of entrance by Internet Service Providers (ISP). 
+On-line communications are censored at the point of entrance by Internet Service Providers (ISP).
 They act as gateways to the internet providing governments control over speech by having the
 ability to restrict usage and track people's usage via their leased IP addresses. In order to make tracking usage much more
 difficult, tools have come out that provide techniques called onion-/garlic-routing where the source and destinations of
 internet routes can not be determined without breaking encryption, a very expensive feat, sometimes impossible today when
-considering the encryption algorithms used. 
+considering the encryption algorithms used.
 
 Two primary tools today that support this are Tor and I2P. Tor provides a browser
 that makes it easier to use while I2P is much less known. Both are complementary in that Tor was designed for browsing
@@ -85,23 +85,23 @@ In addition:
 networks, using them intelligently as one dynamic censorship-resistant, end-to-end encrypted, anonymous mesh network.
 2. Offers access to commonly desired decentralized services in an anonymous fashion including
 self-sovereign decentralized identities (DID), Bitcoin, and other privacy preserving services.
-3. Provides easy to use APIs for developers to embed in their applications to facilitate up-take. 
+3. Provides easy to use APIs for developers to embed in their applications to facilitate up-take.
 
 ### Routing
-All requests for services, e.g. Bitcoin, require an Envelope with a sensitivity level set. This sensitivity level decides
+All requests for services, e.g. Bitcoin, require an Envelope with a manCon level set. This manCon level decides
 what base level of privacy is desired. Options are None, Low, Medium, High, Very High, Extreme, and Neo.
 All P2P communications use I2P as the default with latency expectations between 200 milliseconds and 2 seconds.
 This is the default setting in the Envelope. When making web requests, remember to set the appropriate
-sensitivity level otherwise all web requests will use the HIGH sensitivity level routing all requests through the I2P layer.
+manCon level otherwise all web requests will use the HIGH manCon level routing all requests through the I2P layer.
 
 We provide a Maneuvering Condition status to signal what level of maneuvering is likely required to prevent censorship.
-The sensitivity level in the Evelope is where you start while the MANCON is determined by blocks encountered during
+The manCon level in the Evelope is where you start while the MANCON is determined by blocks encountered during
 routing and thus how to ratchet up resistance as these blocks occur.
 
 #### NONE
 This setting means no requirements are desired even including SSL.
 
-* Web: HTTPS will be tried and if fails, will attempt HTTP if the URL is HTTP. If that fails, the request will be forwarded 
+* Web: HTTPS will be tried and if fails, will attempt HTTP if the URL is HTTP. If that fails, the request will be forwarded
 to other peers until a peer can make the request returning the result directly back to the requesting peer.
 
 #### LOW - MANCON 5
@@ -117,26 +117,26 @@ Normal censorship attempts by states on reading news (public web sites getting b
 When an HTTPS clearnet site gets blocked that has an associated Tor hidden service, that Tor hidden service will be used.
 All other routing remains unchanged.
 
-* Web: will attempt to use Tor. 
+* Web: will attempt to use Tor.
 If fails and an associated Tor hidden service is available, that hidden services will be used.
 If no Tor hidden service is associated with the site, other peers will be used to assist.
 Expect latencies of 500 milliseconds to 2 seconds.
 
 #### HIGH - MANCON 3
-Tor hidden services that have been blocked or taken down but have an associated I2P eep site, 
+Tor hidden services that have been blocked or taken down but have an associated I2P eep site,
 that I2P eep site will be accessed.
 
-Default sensitivity in Envelope.
+Default manCon in Envelope.
 
-* Web: will use an I2P peer that has access to Tor to make the request. 
+* Web: will use an I2P peer that has access to Tor to make the request.
 Expect latencies of 1-4 seconds.
 
 #### VERYHIGH - MANCON 2
-I2P eep sites getting attacked/targeted. 
-Use 1M5 mainly with I2P with high delays. 
+I2P eep sites getting attacked/targeted.
+Use 1M5 mainly with I2P with high delays.
 Only able to access information directly via I2P using a decentralized content distribution network, e.g. Inkrypt.
 
-* Web: will use an I2P peer with random delays that has access to Tor to make the request. 
+* Web: will use an I2P peer with random delays that has access to Tor to make the request.
 Expect latencies of 2-3 minutes.
 * P2P: direct comms with I2P but with random delays. Expect latencies of 2-90 seconds.
 
@@ -146,29 +146,29 @@ Use 1M5 with 1DN to route to peers with internet access.
 
 Wide-ranging latencies but strong privacy.
 
-* Web: a 1DN peer will be used to access Tor. 
+* Web: a 1DN peer will be used to access Tor.
 Expect latencies of 2-25 minutes when in large cities with many 1M5 nodes.
 * P2P: 1DN peers will be used until a peer with I2P access can route the request.
 
 #### NEO - MANCON 0
-Whistleblower with deep state top secrets or strong censorship attempts 
-(Tor Nodes blocking / deep packet inspections / I2P timing attacks / local cellular tower shutdowns) 
-in jurisdictions with no freedom of expression protections (North Korea, China, Syria, Iran): 
+Whistleblower with deep state top secrets or strong censorship attempts
+(Tor Nodes blocking / deep packet inspections / I2P timing attacks / local cellular tower shutdowns)
+in jurisdictions with no freedom of expression protections (North Korea, China, Syria, Iran):
 1M5 with 1DN to I2P with High Delays on Purism Libre Mobile and Laptops.
 
 Wide-ranging latencies but highest privacy.
 
-* Web: 1DN is used to access a peer that will then request another peer using I2P with high delays to make the Tor request. 
+* Web: 1DN is used to access a peer that will then request another peer using I2P with high delays to make the Tor request.
 Expect latencies of 2-30 minutes when in large cities with many 1M5 nodes.
 * P2P: 1DN is used to forward a message through a random number and combination of 1DN/I2P peers at random delays of up to 90 seconds
 at the I2P layer and up to 3 months at the 1M5 layer. A random number of copies (3 min 12 max) of the message are sent out.
 
 ## Design
-1M5 is composed of a Service-Oriented Architecture (SOA) design using a minimalistic service bus for micro-services, 
+1M5 is composed of a Service-Oriented Architecture (SOA) design using a minimalistic service bus for micro-services,
 a Staged Event-Driven Architecture (SEDA) design for asynchronous multi-threaded inter-service communications,
 a service registry, internal core services, and a number of Sensors for advanced intelligent interaction with peers.
 
-Key internal services include: 
+Key internal services include:
 
 * Enterprise Applications Integration (EAI) Routing service for providing data-driven inter-service routing patterns
 * Key Chain Service with key management and encryption/decryption features
@@ -190,12 +190,12 @@ Decentralized Exchange for Bitcoin/Fiat as well as other altcoins. Slated for fu
 
 ### [Inkrypt](https://inkrypt.io)
 
-#### Anonymous Decentralized Cloud 
+#### Anonymous Decentralized Cloud
 An anonymous decentralized Content Delivery Network (DCDN). Use of OpenPGP keys supported as well as
 AES 256 encryption for content.
 
 #### nLightn
-Inkrypt is building a decentralized censorship resistant network for citizen journalists 
+Inkrypt is building a decentralized censorship resistant network for citizen journalists
 to store and publish articles fighting government
 oppression of the right to free speech globally. They need censorship resistant identities
 to protect journalists from harm yet support their ability to build a reputation as a trusting
@@ -208,7 +208,7 @@ Support can be purchased with Bitcoin when availability exists. Please request s
 at: info@1m5.io
 
 ## Fund Raising
-1M5 is funded entirely through donations, support, and volunteers. 
+1M5 is funded entirely through donations, support, and volunteers.
 The following are current and potential donation sources.
 
 ### [Alex Jones](https://en.wikipedia.org/wiki/Alex_Jones)
@@ -221,10 +221,10 @@ An American radio show host pushing the boundaries on free speech in the United 
 * https://www.aclu.org/issues/national-security/privacy-and-surveillance/nsa-surveillance
 
 ### [Anonymous](https://en.wikipedia.org/wiki/Anonymous_(group))
-A decentralized international hacktivist group. 
+A decentralized international hacktivist group.
 "We are Anonymous. We are Legion. We do not forgive. We do not forget. Expect us."
-Broadly speaking, Anons oppose Internet censorship and control and the majority of their actions target governments, 
-organizations, and corporations that they accuse of censorship. 
+Broadly speaking, Anons oppose Internet censorship and control and the majority of their actions target governments,
+organizations, and corporations that they accuse of censorship.
 
 ### [Electronic Frontier Foundation](https://www.eff.org/)
 
@@ -241,17 +241,17 @@ The problem is that they only take donations via card and PayPal which is anythi
 Declare your independence with Ernest Hancock.
 
 ### [The Guardian Project](https://guardianproject.info/)
-Creates easy to use secure apps, open-source software libraries, and customized mobile devices that can 
-be used around the world by any person looking to protect their communications and personal data 
+Creates easy to use secure apps, open-source software libraries, and customized mobile devices that can
+be used around the world by any person looking to protect their communications and personal data
 from unjust intrusion, interception and monitoring.
 
 ### [Inkrypt](https://www.inkrypt.io/)
 Censorship-Resistant Decentralized Content Distribution Network with OpenPGP/AES Encryption and Anonymity as a base.
 
 ### [Purism](https://puri.sm/)
-A security and freedom-focused computer manufacturer based in San Francisco, founded in 2014 with the 
-fundamental goals of combining the philosophies of the Free Software movement with the hardware 
-manufacturing process, and to make it easy for individuals and businesses to have computers that 
+A security and freedom-focused computer manufacturer based in San Francisco, founded in 2014 with the
+fundamental goals of combining the philosophies of the Free Software movement with the hardware
+manufacturing process, and to make it easy for individuals and businesses to have computers that
 they can trust and feel safe using, i.e. making security more convenient than not.
 
 ### [ODD Reality](https://videofull.net/channel?id=UCuftdXePz6z73Wsg8Ao5lTg)
@@ -267,7 +267,7 @@ Below are some of these methods and how 1M5 and composite networks mitigate them
 #### I2P
 Design of I2P started in 2003 soon after TOR and Freenet came on the scene. It uses many of the features of onion routing
 as in TOR but also adds some enhancements which earned its routing the name of 'garlic routing'. The I2P team has identified
-threats, some specific to I2P, and mitigations. 
+threats, some specific to I2P, and mitigations.
 
 Resources
 * [Site](https://geti2p.net/en/docs/how/threat-model)
@@ -310,13 +310,13 @@ Resources
 This attack is performed by watching all messages passing between all nodes attempting to correlate messages into paths.
 
 #### I2P
-Difficult attack to initiate against I2P as all peers are sending messages frequently across the network (end-to-end and for network maintenance) 
+Difficult attack to initiate against I2P as all peers are sending messages frequently across the network (end-to-end and for network maintenance)
 and each end-to-end message changes in size and data along its path. The attacker also does not have access to the messages
 as inter-router communications are encrypted and in mutiple 'cloves' (garlic) so that two messages each 1kb in size would
 appear as one 2kb message.
 
 A bruce force attacker can induce trends by sending an unusually large payload to an I2P destination while monitoring all
-network connections eliminating all nodes that didn't receive it. The cost to mount this kind of brute force attack on 
+network connections eliminating all nodes that didn't receive it. The cost to mount this kind of brute force attack on
 I2P would be very expensive so not a high priority.
 
 Preventing a single router or group of routers from attempting to route all I2P traffic is ensured due to each router
@@ -327,7 +327,7 @@ placing limits on the number of tunnels that can be routed by a single peer.
 #### 1DN
 
 #### 1M5
-The 1M5 network is slated to provide random delays across its nodes and extended persistent delays (e.g. months), 
+The 1M5 network is slated to provide random delays across its nodes and extended persistent delays (e.g. months),
 and bandwidth throttling on streams to help combat this attack at the application layer.
 
 ### Timing
@@ -336,7 +336,7 @@ patterns, e.g. HTTP requests receive responses.
 
 #### I2P
 I2P uses unidirectional datagrams so there are no replies although this is not the case with streaming and the guaranteed
-delivery mode. 
+delivery mode.
 
 #### TOR
 
@@ -485,7 +485,7 @@ delivery mode.
 #### 1M5
 
 ### Distributed Denial of Service (DDoS)
-A network-attack in which the perpetrator seeks to make a machine or network resource unavailable to its intended users 
+A network-attack in which the perpetrator seeks to make a machine or network resource unavailable to its intended users
 by temporarily or indefinitely disrupting services of a networked host.
 
 Resources
@@ -635,7 +635,7 @@ Resources
 ##### 1M5
 
 ### Advanced Persistent Threat (APT)
-A stealthy computer network attack in which a person or group gains unauthorized access to a network and remains 
+A stealthy computer network attack in which a person or group gains unauthorized access to a network and remains
 undetected for an extended period.
 
 Resources
@@ -650,7 +650,7 @@ Resources
 #### 1M5
 
 ### Advanced Volatile Threat (AVT)
-A stealthy computer network attack in which a person or group gains unauthorized access to a network and remains 
+A stealthy computer network attack in which a person or group gains unauthorized access to a network and remains
 undetected in memory never persisting to the hard-drive circumventing investigative techniques.
 
 Resources

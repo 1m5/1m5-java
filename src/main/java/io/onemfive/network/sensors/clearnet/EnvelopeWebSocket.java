@@ -28,7 +28,7 @@ package io.onemfive.network.sensors.clearnet;
 
 import io.onemfive.data.Envelope;
 import io.onemfive.data.EventMessage;
-import io.onemfive.data.Sensitivity;
+import io.onemfive.data.ManCon;
 import io.onemfive.util.DLC;
 import io.onemfive.network.NetworkService;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
@@ -83,7 +83,7 @@ public class EnvelopeWebSocket extends WebSocketAdapter {
             LOG.info("Sending WebSocket text receieved to bus...");
             Envelope e = Envelope.eventFactory(EventMessage.Type.TEXT);
             // Flag as LOW for HTTP
-            e.setSensitivity(Sensitivity.LOW);
+            e.setManCon(ManCon.LOW);
             // Add Data
             DLC.addContent(message, e);
             // Add Route

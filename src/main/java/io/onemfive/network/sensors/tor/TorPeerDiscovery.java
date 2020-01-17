@@ -26,14 +26,11 @@
  */
 package io.onemfive.network.sensors.tor;
 
-import io.onemfive.network.NetworkPeer;
+import io.onemfive.network.*;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.Envelope;
-import io.onemfive.network.Packet;
-import io.onemfive.data.Sensitivity;
+import io.onemfive.data.ManCon;
 import io.onemfive.util.DLC;
-import io.onemfive.network.NetworkService;
-import io.onemfive.network.NetworkTask;
 import io.onemfive.network.ops.PingRequestOp;
 
 import java.util.Collection;
@@ -63,9 +60,9 @@ public class TorPeerDiscovery extends NetworkTask {
             Collection<NetworkPeer> peersList = peers.values();
             for (NetworkPeer peer : peersList) {
                 Envelope envelope = Envelope.documentFactory();
-                envelope.setSensitivity(Sensitivity.MEDIUM);
+                envelope.setManCon(ManCon.MEDIUM);
                 DLC.addExternalRoute(NetworkService.class, PingRequestOp.class.getName(), envelope, localPeer, peer);
-                Packet packet = new Packet();
+                Packet packet = new Request();
                 packet.setOriginationPeer(localPeer);
                 packet.setFromPeer(localPeer);
                 packet.setDestinationPeer(peer);

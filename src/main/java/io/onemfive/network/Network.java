@@ -26,23 +26,22 @@
  */
 package io.onemfive.network;
 
+/**
+ * In Escalating Order from least censorship resistant to most censorship resistant.
+ */
 public enum Network {
-    // Invisible Matrix Services (1M5)
+    // Invisible Matrix Services (1M5) - Internal Only
     IMS,
-    // Invisible Internet Project (I2P)
-    I2P,
-    // The Onion Router (TOR)
-    TOR,
     // Clearnet
     CLEAR,
-    // 1DN - Radio
-    RADIO_CELLULAR,
-    RADIO_WIFI,
+    // The Onion Router
+    TOR,
+    // Invisible Internet Project
+    I2P,
     RADIO_WIFI_DIRECT,
     RADIO_BLUETOOTH,
     RADIO_BLUETOOTH_LE,
     RADIO_SATELLITE,
     RADIO_FULLSPECTRUM,
-    // 1DN - Light Fidelity (LiFi)
     LIFI
 }

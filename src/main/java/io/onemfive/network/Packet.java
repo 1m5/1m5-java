@@ -29,11 +29,10 @@ package io.onemfive.network;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.ServiceMessage;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class Packet extends ServiceMessage {
+public abstract class Packet extends ServiceMessage {
 
     public static int DESTINATION_PEER_REQUIRED = 1;
     public static int DESTINATION_PEER_WRONG_NETWORK = 2;
@@ -49,12 +48,15 @@ public class Packet extends ServiceMessage {
     private String id;
     protected Envelope envelope;
 
+    protected String type;
     protected NetworkPeer originationPeer;
     protected NetworkPeer fromPeer;
     protected NetworkPeer toPeer;
     protected NetworkPeer destinationPeer;
 
-    public Packet() {}
+    public Packet() {
+        type = this.getClass().getName();
+    }
 
     public String getId() {
         return id;
@@ -112,7 +114,8 @@ public class Packet extends ServiceMessage {
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> m = super.toMap();
-        if(id != null) m.put("id", String.valueOf(id));
+        if(id != null) m.put("id", id);
+        if(type != null) m.put("type", type);
         if(envelope != null) m.put("envelope", envelope.toMap());
         if(originationPeer != null) m.put("originationPeer", originationPeer.toMap());
         if(fromPeer != null) m.put("fromPeer", fromPeer.toMap());
@@ -125,6 +128,7 @@ public class Packet extends ServiceMessage {
     public void fromMap(Map<String, Object> m) {
         super.fromMap(m);
         if(m.get("id") != null) id = (String)m.get("id");
+        if(m.get("type")!=null) type = (String)m.get("type");
         if(m.get("envelope") != null) {
             Map<String, Object> dm = (Map<String, Object>)m.get("envelope");
             envelope = new Envelope();
