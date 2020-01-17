@@ -228,7 +228,7 @@ public class KeyRingService extends BaseService {
                         r.identityPublicKey.setType("RSA2048");
                         r.identityPublicKey.isEncryptionKey(identityPublicKey.isEncryptionKey());
                         r.identityPublicKey.isIdentityKey(identityPublicKey.isMasterKey());
-                        LOG.info("Identity Public Key loaded\n\tfingerprint: " + r.identityPublicKey.getFingerprint() + "\n\taddress: " + r.identityPublicKey.getAddress());
+                        LOG.info("Identity Public Key loaded: " + r.identityPublicKey);
 
                         PGPPublicKey encryptionPublicKey = keyRing.getPublicKey(c, r.alias, false);
                         r.encryptionPublicKey = new PublicKey();
@@ -239,7 +239,7 @@ public class KeyRingService extends BaseService {
                         r.encryptionPublicKey.setType("RSA2048");
                         r.encryptionPublicKey.isEncryptionKey(encryptionPublicKey.isEncryptionKey());
                         r.encryptionPublicKey.isIdentityKey(encryptionPublicKey.isMasterKey());
-                        LOG.info("Encryption Public Key loaded\n\tfingerprint: " + r.encryptionPublicKey.getFingerprint() + "\n\taddress: " + r.encryptionPublicKey.getAddress());
+                        LOG.info("Encryption Public Key loaded: " + r.encryptionPublicKey);
                     }
                 } catch (Exception ex) {
                     r.exception = ex;

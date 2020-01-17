@@ -224,6 +224,7 @@ public class DIDService extends BaseService {
                         // first authentication is the node itself
                         LOG.info("First authn is node.");
                         nodeDID = r.did;
+                        nodeDID.setVerified(true);
                         nodeDID.setStatus(DID.Status.ACTIVE);
                         saveIdentity(r.did, false, true);
                         e.setDID(r.did);
@@ -239,6 +240,7 @@ public class DIDService extends BaseService {
                 } else if(r.statusCode == AuthenticateDIDRequest.DID_USERNAME_UNKNOWN && r.autogenerate) {
                     LOG.info("Username unknown and autogenerate is true so save DID as authenticated...");
                     r.did.setAuthenticated(true); // true because we're going to create it
+                    r.did.setVerified(true);
                     r.did.setStatus(DID.Status.ACTIVE);
                     e.setDID(r.did);
                     if(nodeDID==null) {

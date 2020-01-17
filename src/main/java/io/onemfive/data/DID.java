@@ -47,9 +47,7 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
 
     public enum Status {INACTIVE, ACTIVE, SUSPENDED, PRIVATE}
 
-    public static String ANON_USER = "Anon";
-
-    private String username = ANON_USER;
+    private String username = "Anon"; // default
     private volatile String passphrase;
     private volatile String passphrase2;
     private Hash passphraseHash;
@@ -58,7 +56,7 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
     private Status status = Status.INACTIVE;
     private volatile Boolean verified = false;
     private volatile Boolean authenticated = false;
-    private PublicKey publicKey;
+    private PublicKey publicKey = new PublicKey();
 
     public DID() {
         publicKey = new PublicKey();

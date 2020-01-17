@@ -215,11 +215,11 @@ public class PublicKey implements Addressable, JSONSerializable {
         if(isBase64Encoded!=null) m.put("isBase64Encoded",isBase64Encoded);
         if(isBase58Encoded!=null) m.put("isBase58Encoded",isBase58Encoded);
         if(isPEM!=null) m.put("isPEM",isPEM);
-        if(isHex!=null) m.put("isHes",isHex);
+        if(isHex!=null) m.put("isHex",isHex);
         if(attributes!=null && attributes.size() > 0) {
             m.put("attributes", attributes);
         }
-        if(signedAttributes!=null) {
+        if(signedAttributes!=null && signedAttributes.size() > 0) {
             m.put("signedAttributes", signedAttributes);
         }
         return m;
@@ -249,5 +249,10 @@ public class PublicKey implements Addressable, JSONSerializable {
     @Override
     public void fromJSON(String json) {
         fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
     }
 }

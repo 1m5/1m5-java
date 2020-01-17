@@ -91,8 +91,6 @@ public class I2PSensor extends BaseSensor {
 
     private static final Logger LOG = Logger.getLogger(I2PSensor.class.getName());
 
-    private static final String DEST_KEY_FILE_NAME = "local_dest.key";
-
     protected Properties properties;
 
     // I2P Router and Context
@@ -110,10 +108,10 @@ public class I2PSensor extends BaseSensor {
     private static final Integer RESTART_ATTEMPTS_UNTIL_HARD_RESTART = 3;
     private boolean isTest = false;
 
-    public I2PSensor() {super(new NetworkPeer(Network.I2P));}
+    public I2PSensor() {super(new NetworkPeer(Network.I2P, "I2PSensor", "jR4nd0m"));}
 
     public I2PSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.I2P));
+        super(sensorManager, new NetworkPeer(Network.I2P, "I2PSensor", "jR4nd0m"));
     }
 
     @Override
@@ -169,6 +167,7 @@ public class I2PSensor extends BaseSensor {
 
     @Override
     public boolean start(Properties p) {
+        // TODO: Support connecting to local I2P Router instance vs launching embedded router if desired
         LOG.info("Initializing I2P Sensor...");
         properties = p;
         updateStatus(SensorStatus.STARTING);
@@ -313,6 +312,13 @@ public class I2PSensor extends BaseSensor {
                 LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
             }
             doneSignal.countDown();
+
+            // Setup TaskRunner
+            if(taskRunner==null) {
+                taskRunner = new TaskRunner(2, 2);
+            }
+            taskRunner.addTask(new CheckRouterStats(I2PSensor.class.getSimpleName()+"."+CheckRouterStats.class.getSimpleName(), taskRunner, this));
+            new Thread(taskRunner).start();
         } catch (InterruptedException e) {
             LOG.warning("Start interrupted, exiting");
             updateStatus(SensorStatus.ERROR);

@@ -31,6 +31,7 @@ import io.onemfive.core.Notification;
 import io.onemfive.core.Operation;
 import io.onemfive.core.RequestReply;
 import io.onemfive.core.notification.NotificationService;
+import io.onemfive.data.DID;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.EventMessage;
 import io.onemfive.data.ServiceMessage;
@@ -114,8 +115,7 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
     @Override
     public boolean open(NetworkPeer peer) {
         // read the local destination key from the key file if it exists
-        localPeer = peer;
-        File destinationKeyFile = new File(sensor.getDirectory(), localPeer.getDid().getUsername());
+        File destinationKeyFile = new File(sensor.getDirectory(), peer.getDid().getUsername());
         FileReader fileReader = null;
         try {
             fileReader = new FileReader(destinationKeyFile);
@@ -211,13 +211,26 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
         Destination localDestination = i2pSession.getMyDestination();
         String address = localDestination.toBase64();
         String fingerprint = localDestination.calculateHash().toBase64();
+        String algorithm = localDestination.getPublicKey().getType().getAlgorithmName();
         LOG.info("I2PSensor Local destination key in base64: " + address);
         LOG.info("I2PSensor Local destination fingerprint (hash) in base64: " + fingerprint);
 
         i2pSession.addMuxedSessionListener(this, I2PSession.PROTO_ANY, I2PSession.PORT_ANY);
 
+        // Ensure local and network are correct
+        localPeer.setLocal(true);
+        localPeer.setNetwork(Network.I2P);
+        // Add destination to PK and update DID info
+        localPeer.getDid().setStatus(DID.Status.ACTIVE);
+        localPeer.getDid().setDescription("DID for I2PSensorSession");
+        localPeer.getDid().setAuthenticated(true);
+        localPeer.getDid().setVerified(true);
+        localPeer.getDid().getPublicKey().setAlias(String.valueOf(getId()));
+        localPeer.getDid().getPublicKey().isIdentityKey(true);
         localPeer.getDid().getPublicKey().setAddress(address);
+        localPeer.getDid().getPublicKey().setBase64Encoded(true);
         localPeer.getDid().getPublicKey().setFingerprint(fingerprint);
+        localPeer.getDid().getPublicKey().setType(algorithm);
 
         if(!isTest) {
             // Publish local I2P address
