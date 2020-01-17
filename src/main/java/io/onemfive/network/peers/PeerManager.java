@@ -139,7 +139,6 @@ public class PeerManager implements Runnable {
 
     public void updateLocalAuthNPeer(AuthNRequest r) {
         if (r.statusCode == NO_ERROR) {
-            LOG.info("Updating Local Peer: \n\taddress: "+r.identityPublicKey.getAddress()+"\n\tfingerprint: "+r.identityPublicKey.getFingerprint());
             NetworkPeer localPeer = new NetworkPeer();
             if(r.identityPublicKey.getAddress()!=null)
                 localPeer.getDid().getPublicKey().setAddress(r.identityPublicKey.getAddress());
@@ -149,8 +148,9 @@ public class PeerManager implements Runnable {
             localPeer.setLocal(true);
             localPeer.getDid().setAuthenticated(true);
             localPeer.getDid().setVerified(true);
+            LOG.info("Updating Local Peer: \n\t: "+localPeer);
             savePeer(localPeer, true);
-            LOG.info("Added returned public key to local Peer:"+localPeer);
+            LOG.info("Added returned public key to local Peer: "+localPeer);
         } else {
             LOG.warning("Error returned from AuthNRequest: " + r.statusCode);
         }
@@ -292,7 +292,7 @@ public class PeerManager implements Runnable {
     private boolean updatePeer(NetworkPeer p) throws Exception {
         LOG.info("Find and Update Peer Node...");
         boolean updated = false;
-        LOG.info("Looking up Node by Address: "+p.getDid().getPublicKey().getAddress());
+        LOG.info("Looking up Node by Address (network="+p.getNetwork().name()+"): "+p.getDid().getPublicKey().getAddress());
         try (Transaction tx = db.getGraphDb().beginTx()) {
             Node n = db.getGraphDb().findNode(PEER_LABEL, "address", p.getDid().getPublicKey().getAddress());
             if(n!=null) {
