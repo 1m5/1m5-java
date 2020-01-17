@@ -312,7 +312,7 @@ public class NetworkService extends BaseService {
         } else if(msg instanceof NetworkPeer) {
             LOG.info("Route in NetworkPeer for update...");
             peerManager.updateLocalPeer((NetworkPeer)msg);
-            LOG.info("DID with I2P Addresses saved; Sensors Service ready for requests.");
+            LOG.info("DID with I2P Addresses saved; Network Service ready for requests.");
         } else {
             LOG.warning("EnvelopeMessage message "+msg.getClass().getName()+" not handled.");
             deadLetter(envelope);
