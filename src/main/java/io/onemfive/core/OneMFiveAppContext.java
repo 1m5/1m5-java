@@ -62,6 +62,7 @@ public class OneMFiveAppContext {
     protected Set<Runnable> shutdownTasks;
     private File baseDir;
     private File configDir;
+    private File libDir;
     private File pidDir;
     private File logDir;
     private File dataDir;
@@ -196,6 +197,14 @@ public class OneMFiveAppContext {
             return;
         } else {
             overrideProps.put("1m5.dir.config",configDir.getAbsolutePath());
+        }
+
+        libDir = new SecureFile(baseDir, "lib");
+        if(!libDir.exists() && !libDir.mkdir()) {
+            LOG.severe("Unable to create lib directory in 1M5 base directory.");
+            return;
+        } else {
+            overrideProps.put("1m5.dir.lib",libDir.getAbsolutePath());
         }
 
         dataDir = new SecureFile(baseDir, "data");
