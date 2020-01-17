@@ -88,7 +88,8 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
     private I2PSocketManager socketManager;
     private boolean isTest = false;
 
-    public I2PSensorSession(I2PSensor sensor) {
+    public I2PSensorSession(I2PSensor sensor, NetworkPeer localPeer) {
+        super(localPeer);
         this.sensor = sensor;
     }
 

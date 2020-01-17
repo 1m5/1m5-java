@@ -42,8 +42,9 @@ public abstract class BaseSession implements SensorSession {
     private List<SessionListener> listeners = new ArrayList<>();
     protected NetworkPeer localPeer;
 
-    public BaseSession() {
+    public BaseSession(NetworkPeer localPeer) {
         id = RandomUtil.nextRandomInteger();
+        this.localPeer = localPeer;
     }
 
     @Override

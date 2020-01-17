@@ -26,6 +26,7 @@
  */
 package io.onemfive.network.sensors.bluetooth;
 
+import io.onemfive.network.Network;
 import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkOp;
@@ -49,7 +50,7 @@ public class BluetoothSession extends BaseSession {
     private boolean connected = false;
 
     public BluetoothSession() {
-
+        super(new NetworkPeer(Network.RADIO_BLUETOOTH));
     }
 
     @Override

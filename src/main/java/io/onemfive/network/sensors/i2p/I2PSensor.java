@@ -133,7 +133,7 @@ public class I2PSensor extends BaseSensor {
 
     @Override
     public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
-        SensorSession sensorSession = new I2PSensorSession(this);
+        SensorSession sensorSession = new I2PSensorSession(this, peer);
         sensorSession.init(properties);
         sensorSession.open(peer);
         if(autoConnect) {
@@ -305,7 +305,7 @@ public class I2PSensor extends BaseSensor {
             // TODO: Replace with wait time based on I2P router status to lower start up time
             startSignal.await(3, TimeUnit.MINUTES);
             LOG.info("I2P Router should be warmed up. Initializing session...");
-            establishSession(new NetworkPeer(Network.I2P), true); // Connect with anon peer by default
+            establishSession(localPeer, true); // Connect with anon peer by default
             if(routerContext.commSystem().isInStrictCountry()) {
                 LOG.warning("This peer is in a 'strict' country defined by I2P.");
             }

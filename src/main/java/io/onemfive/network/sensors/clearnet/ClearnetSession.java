@@ -27,27 +27,33 @@
 package io.onemfive.network.sensors.clearnet;
 
 import io.onemfive.data.DID;
+import io.onemfive.network.Network;
+import io.onemfive.network.NetworkPeer;
+import io.onemfive.network.Packet;
+import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.sensors.BaseSession;
 
 /**
  * TODO: Add Description
  *
  * @author objectorange
  */
-public class ClearnetSession {
+public class ClearnetSession extends BaseSession {
 
     public static int SESSION_INACTIVITY_INTERVAL = 60 * 60; // 60 minutes
 
-    private String id;
+    private String sessionId;
     private DID did = new DID();
     private long lastRequestTime = System.currentTimeMillis();
     private boolean authenticated = false;
 
-    public ClearnetSession(String id) {
-        this.id = id;
+    public ClearnetSession(String sessionId) {
+        super(new NetworkPeer(Network.CLEAR));
+        this.sessionId = sessionId;
     }
 
-    public String getId() {
-        return id;
+    public String getSessionId() {
+        return sessionId;
     }
 
     public DID getDid() {
@@ -68,5 +74,40 @@ public class ClearnetSession {
 
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
+    }
+
+    @Override
+    public boolean open(NetworkPeer peer) {
+        return false;
+    }
+
+    @Override
+    public boolean connect() {
+        return false;
+    }
+
+    @Override
+    public boolean disconnect() {
+        return false;
+    }
+
+    @Override
+    public boolean isConnected() {
+        return false;
+    }
+
+    @Override
+    public boolean close() {
+        return false;
+    }
+
+    @Override
+    public Boolean send(Packet packet) {
+        return null;
+    }
+
+    @Override
+    public void handleNetworkOpPacket(Packet packet, NetworkOp op) {
+
     }
 }

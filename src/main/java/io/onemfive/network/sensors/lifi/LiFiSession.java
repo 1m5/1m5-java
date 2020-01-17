@@ -26,6 +26,7 @@
  */
 package io.onemfive.network.sensors.lifi;
 
+import io.onemfive.network.Network;
 import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkOp;
@@ -40,6 +41,10 @@ public class LiFiSession extends BaseSession {
     private static final Logger LOG = Logger.getLogger(LiFiSession.class.getName());
 
     private List<LiFiSessionListener> sessionListeners = new ArrayList<>();
+
+    public LiFiSession() {
+        super(new NetworkPeer(Network.LIFI));
+    }
 
     public Boolean send(Packet packet) {
         LOG.warning("LiFISession.send(Packet) not implemented.");
