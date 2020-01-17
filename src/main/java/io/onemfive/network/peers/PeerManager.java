@@ -61,7 +61,7 @@ public class PeerManager implements Runnable {
     private Properties properties;
 
     protected NetworkService service;
-    protected NetworkNode localNode;
+    protected NetworkNode localNode = new NetworkNode();
     protected TaskRunner taskRunner;
 
     private Neo4jDB db;
@@ -827,7 +827,9 @@ public class PeerManager implements Runnable {
         mgr.init(p);
 
         // Node A
-        NetworkPeer pA = new NetworkPeer();
+        NetworkPeer pA = mgr.localNode.getLocalNetworkPeer();
+        pA.setLocal(true);
+        pA.getDid().setUsername("Alice");
         pA.getDid().getPublicKey().setAddress("1m5-A");
         mgr.savePeer(pA, true);
         NetworkPeer pAI2P = new NetworkPeer(Network.I2P);
@@ -842,6 +844,7 @@ public class PeerManager implements Runnable {
 
         // Node B
         NetworkPeer pB = new NetworkPeer();
+        pB.getDid().setUsername("Bob");
         pB.getDid().getPublicKey().setAddress("1m5-B");
         mgr.savePeer(pB, true);
         NetworkPeer pBI2P = new NetworkPeer(Network.I2P);
@@ -856,6 +859,7 @@ public class PeerManager implements Runnable {
 
         // Node C
         NetworkPeer pC = new NetworkPeer();
+        pC.getDid().setUsername("Charlie");
         pC.getDid().getPublicKey().setAddress("1m5-C");
         mgr.savePeer(pC, true);
         NetworkPeer pCI2P = new NetworkPeer(Network.I2P);
