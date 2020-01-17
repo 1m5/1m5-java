@@ -154,10 +154,10 @@ public final class TorSensor extends ClearnetSensor {
     @Override
     public boolean start(Properties properties) {
         if(super.start(properties)) {
-            LOG.info("Starting Tor Client Sensor...");
+            LOG.info("Starting Tor Sensor...");
             String sensorsDirStr = properties.getProperty("1m5.dir.sensors");
             if(sensorsDirStr==null) {
-                LOG.warning("1m5.dir.sensors property is null. Please set prior to instantiating Tor Client Sensor.");
+                LOG.warning("1m5.dir.sensors property is null. Please set prior to instantiating Tor Sensor.");
                 return false;
             }
             try {
@@ -176,7 +176,7 @@ public final class TorSensor extends ClearnetSensor {
             updateStatus(SensorStatus.NETWORK_CONNECTED);
             return true;
         } else {
-            LOG.warning("Clearnet Client Sensor failed to start. Unable to start Tor Client Sensor.");
+            LOG.warning("Clearnet Sensor failed to start. Unable to start Tor Sensor (Clearnet Sensor is its parent - Tor sets up as a proxy).");
             return false;
         }
     }
