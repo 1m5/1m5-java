@@ -108,7 +108,9 @@ public class I2PSensor extends BaseSensor {
     private static final Integer RESTART_ATTEMPTS_UNTIL_HARD_RESTART = 3;
     private boolean isTest = false;
 
+    // Tasks
     private CheckRouterStats checkRouterStats;
+    private I2PPeerDiscovery discovery;
 
     public I2PSensor() {super(new NetworkPeer(Network.I2P, "I2PSensor", "jR4nd0m"));}
 
@@ -541,6 +543,11 @@ public class I2PSensor extends BaseSensor {
             }
             if(routerContext.router().isHidden()) {
                 LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
+            }
+            if(discovery==null) {
+                discovery = new I2PPeerDiscovery(this, taskRunner, localPeer, sensorManager.getPeerManager());
+
+                taskRunner.addTask(discovery);
             }
         }
     }

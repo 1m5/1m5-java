@@ -28,9 +28,13 @@ package io.onemfive.network;
 
 import io.onemfive.core.Config;
 import io.onemfive.data.ManCon;
+import io.onemfive.util.FileUtil;
 import io.onemfive.util.JSONParser;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
@@ -79,8 +83,10 @@ public class NetworkConfig {
             }
         }
 
-        try {
-            Map<String,Object> pm = (Map<String,Object>)JSONParser.parse(Paths.get("1m5-peers.json"));
+//        try {
+            URL url = NetworkConfig.class.getResource("1m5-peers.json");
+            String json = FileUtil.readTextFile(url.getPath(), 100000, true);
+            Map<String,Object> pm = (Map<String,Object>)JSONParser.parse(json);
             List<Map<String,Object>> envScope = (List<Map<String,Object>>)pm.get("peers");
             for(Map<String,Object> eM : envScope) {
                 String env = (String)eM.get("environment");
@@ -89,7 +95,8 @@ public class NetworkConfig {
                 for(Map<String,Object> s : seedList) {
                     np = new NetworkPeer();
                     np.fromMap(s);
-                    if(seeds.get(env)==null) seeds.put(env, new ArrayList<>());
+                    if(seeds.get(env)==null)
+                        seeds.put(env, new ArrayList<>());
                     seeds.get(env).add(np);
                 }
                 List<Map<String,Object>> bannedList = (List<Map<String,Object>>)eM.get("banned");
@@ -100,9 +107,9 @@ public class NetworkConfig {
                     banned.get(env).add(np);
                 }
             }
-        } catch (IOException e) {
-            LOG.warning(e.getLocalizedMessage());
-        }
+//        } catch (IOException e) {
+//            LOG.warning(e.getLocalizedMessage());
+//        }
 
         if(properties.getProperty("onemfive.sensors.MinPT") != null) {
             MinPT = Integer.parseInt(properties.getProperty("onemfive.sensors.MinPT"));

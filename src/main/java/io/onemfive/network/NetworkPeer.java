@@ -106,7 +106,7 @@ public final class NetworkPeer implements JSONSerializable {
 
     @Override
     public void fromMap(Map<String, Object> m) {
-        if(m.get("local")!=null) local = Boolean.parseBoolean((String)m.get("local"));
+        if(m.get("local")!=null) local = (Boolean) m.get("local");
         if(m.get("network")!=null) network = Network.valueOf((String)m.get("network"));
         if(m.get("did")!=null) {
             did = new DID();

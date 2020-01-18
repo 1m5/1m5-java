@@ -362,6 +362,10 @@ public final class SensorManager {
         this.peerManager = peerManager;
     }
 
+    public PeerManager getPeerManager() {
+        return peerManager;
+    }
+
     public void registerSensor(Sensor sensor) {
         registeredSensors.put(sensor.getClass().getName(), sensor);
     }

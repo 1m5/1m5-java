@@ -36,7 +36,6 @@ import io.onemfive.util.DLC;
 import io.onemfive.util.tasks.TaskRunner;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -51,9 +50,11 @@ public class I2PPeerDiscovery extends SensorTask {
     private NetworkPeer localPeer;
     private PeerManager peerManager;
 
-    public I2PPeerDiscovery(String taskName, I2PSensor sensor, TaskRunner taskRunner, NetworkPeer localPeer, PeerManager peerManager) {
-        super(taskName, taskRunner, sensor);
+    public I2PPeerDiscovery(I2PSensor sensor, TaskRunner taskRunner, NetworkPeer localPeer, PeerManager peerManager) {
+        super(I2PPeerDiscovery.class.getName(), taskRunner, sensor);
+        this.peerManager = peerManager;
         this.localPeer = localPeer;
+        periodicity = getPeriodicity();
     }
 
     @Override
@@ -77,6 +78,7 @@ public class I2PPeerDiscovery extends SensorTask {
                         DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
                         Request request = new Request();
                         request.setOriginationPeer(localPeer);
+                        request.setFromPeer(localPeer);
                         request.setDestinationPeer(seed);
                         request.setEnvelope(e);
                         sensor.sendOut(request);
@@ -96,6 +98,7 @@ public class I2PPeerDiscovery extends SensorTask {
                 DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
                 Request request = new Request();
                 request.setOriginationPeer(localPeer);
+                request.setFromPeer(localPeer);
                 request.setDestinationPeer(p);
                 request.setEnvelope(e);
                 sensor.sendOut(request);
