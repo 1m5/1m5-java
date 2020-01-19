@@ -527,7 +527,6 @@ public class I2PSensor extends BaseSensor {
             }
             if(discovery==null) {
                 discovery = new I2PPeerDiscovery(this, taskRunner, localPeer, sensorManager.getPeerManager());
-
                 taskRunner.addTask(discovery);
             }
         }

@@ -64,20 +64,20 @@ public class Router {
     private static Properties config;
     private static boolean waiting = true;
     private static boolean running = false;
-    private static Scanner scanner;
+
     private static Status status = Status.Shutdown;
-    private static boolean useTray = false;
+//    private static boolean useTray = false;
 //    private static DesktopTray tray;
-    private static int uiPort;
-    private boolean peerDiscoveryStarted = false;
+//    private static int uiPort;
+//    private boolean peerDiscoveryStarted = false;
     private ServiceStatus networkServiceStatus = ServiceStatus.SHUTDOWN;
 
-    public static File rootDir;
-    public static File userAppDataDir;
-    public static File userAppConfigDir;
-    public static File userAppCacheDir;
+//    public static File rootDir;
+//    public static File userAppDataDir;
+//    public static File userAppConfigDir;
+//    public static File userAppCacheDir;
 
-    private static Thread routerThread;
+//    private static Thread routerThread;
 
     public static void main(String[] args) {
         // Start GUI
@@ -107,11 +107,22 @@ public class Router {
         Thread.currentThread().setName("1M5-Router-Thread");
         LOG.info("Thread name: " + Thread.currentThread().getName());
         // Start bus in separate thread
-        routerThread = Thread.currentThread();
+//        routerThread = Thread.currentThread();
 
         status = Status.Initializing;
 
-        loadLoggingProperties(p);
+        String logPropsPathStr = p.getProperty("java.util.logging.config.file");
+        if(logPropsPathStr != null) {
+            File logPropsPathFile = new File(logPropsPathStr);
+            if(logPropsPathFile.exists()) {
+                try {
+                    FileInputStream logPropsPath = new FileInputStream(logPropsPathFile);
+                    LogManager.getLogManager().readConfiguration(logPropsPath);
+                } catch (IOException e1) {
+                    LOG.warning(e1.getLocalizedMessage());
+                }
+            }
+        }
 
         try {
             config = Config.loadFromClasspath("1m5.config", p, false);
@@ -162,12 +173,12 @@ public class Router {
 
     public void shutdown() {
         status = Status.ShuttingDown;
-        LOG.info("1M5 Dapp Shutting Down...");
+        LOG.info("1M5 Router Shutting Down...");
         running = false;
     }
 
     public void exit() {
-        LOG.info("1M5 Dapp Exiting...");
+        LOG.info("1M5 Router Exiting...");
         status = Status.Exiting;
         running = false;
         waiting = false;
@@ -188,22 +199,22 @@ public class Router {
                 LOG.info("Client Status changed: "+clientStatus.name());
                 switch(clientAppManagerStatus) {
                     case INITIALIZING: {
-                        LOG.info("Router starting...");
+                        LOG.info("1M5 Router starting...");
 //                        tray.updateStatus(DesktopTray.STARTING);
                         break;
                     }
                     case READY: {
-                        LOG.info("Router connected.");
+                        LOG.info("1M5 Router connected.");
 //                        tray.updateStatus(DesktopTray.CONNECTED);
                         break;
                     }
                     case STOPPING: {
-                        LOG.info("Router stopping...");
+                        LOG.info("1M5 Router stopping...");
 //                        tray.updateStatus(DesktopTray.SHUTTINGDOWN);
                         break;
                     }
                     case STOPPED: {
-                        LOG.info("Router stopped.");
+                        LOG.info("1M5 Router stopped.");
 //                        tray.updateStatus(DesktopTray.STOPPED);
                         break;
                     }
@@ -297,20 +308,4 @@ public class Router {
         } catch (InterruptedException e) {}
     }
 
-    private static boolean loadLoggingProperties(Properties p) {
-        String logPropsPathStr = p.getProperty("java.util.logging.config.file");
-        if(logPropsPathStr != null) {
-            File logPropsPathFile = new File(logPropsPathStr);
-            if(logPropsPathFile.exists()) {
-                try {
-                    FileInputStream logPropsPath = new FileInputStream(logPropsPathFile);
-                    LogManager.getLogManager().readConfiguration(logPropsPath);
-                    return true;
-                } catch (IOException e) {
-                    LOG.warning(e.getLocalizedMessage());
-                }
-            }
-        }
-        return false;
-    }
 }

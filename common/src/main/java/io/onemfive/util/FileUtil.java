@@ -35,10 +35,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarOutputStream;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -475,6 +472,42 @@ public class FileUtil {
         throw new IOException("Unpack200 not supported");
     }
 
+    public static String readTextFileOnClasspath(ClassLoader classLoader, String path, int maxNumLines, boolean startAtBeginning) {
+        LOG.info("Loading text file "+path+"...");
+        InputStream is = null;
+        BufferedReader in;
+        try {
+            is = classLoader.getResourceAsStream(path);
+            if(is==null) {
+                LOG.warning("Unable to load file by classloader.");
+                return null;
+            }
+            in = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            List<String> lines = new ArrayList<String>(maxNumLines > 0 ? maxNumLines : 64);
+            String line = null;
+            while ( (line = in.readLine()) != null) {
+                lines.add(line);
+                if ( (maxNumLines > 0) && (lines.size() >= maxNumLines) ) {
+                    if (startAtBeginning)
+                        break;
+                    else
+                        lines.remove(0);
+                }
+            }
+            StringBuilder buf = new StringBuilder(lines.size() * 80);
+            for (int i = 0; i < lines.size(); i++) {
+                buf.append(lines.get(i)).append('\n');
+            }
+        } catch (Exception e) {
+            LOG.warning("Failed to load text file "+path);
+            return null;
+        } finally {
+            if(is!=null)
+                try { is.close();} catch (IOException e) {}
+        }
+        return in.toString();
+    }
+
     /**
      * Read in the last few lines of a (newline delimited) textfile, or null if
      * the file doesn't exist.
@@ -491,7 +524,9 @@ public class FileUtil {
      */
     public static String readTextFile(String filename, int maxNumLines, boolean startAtBeginning) {
         File f = new File(filename);
-        if (!f.exists()) return null;
+        if (!f.exists()) {
+            LOG.warning("No file exists at: "+filename);
+        }
         FileInputStream fis = null;
         BufferedReader in = null;
         try {

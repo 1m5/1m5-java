@@ -59,14 +59,14 @@ public class Config {
         return loadFromClasspath(name, null, false);
     }
 
-    public static Properties loadFromClasspath(String name, Properties inProps, boolean overrideSupplied) throws Exception {
-        LOG.info("Loading properties file "+name+"...");
+    public static Properties loadFromClasspath(String path, Properties inProps, boolean overrideSupplied) throws Exception {
+        LOG.info("Loading properties file "+path+"...");
         Properties p = new Properties();
         if(inProps != null && overrideSupplied)
             p.putAll(inProps);
         InputStream is = null;
         try {
-            is = Config.class.getClassLoader().getResourceAsStream(name);
+            is = Config.class.getClassLoader().getResourceAsStream(path);
             p.load(is);
             Enumeration propNames = p.propertyNames();
             while(propNames.hasMoreElements()){
@@ -74,7 +74,7 @@ public class Config {
                 p.put(propName, p.getProperty(propName));
             }
         } catch (Exception e) {
-            LOG.warning("Failed to load properties file "+name);
+            LOG.warning("Failed to load properties file "+path);
             throw e;
         } finally {
             if(is!=null)

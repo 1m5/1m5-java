@@ -32,6 +32,7 @@ import io.onemfive.data.NetworkPeer;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.JSONParser;
 
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Logger;
@@ -71,7 +72,7 @@ public class NetworkConfig {
 
         if(properties.getProperty("io.onemfive.network.sensitivity") != null) {
             try {
-                currentManCon = ManCon.valueOf(properties.getProperty("io.onemfive.network.sensitivity"));
+                currentManCon = ManCon.valueOf(properties.getProperty("io.onemfive.network.manCon"));
             } catch (IllegalArgumentException e) {
                 LOG.warning(e.getLocalizedMessage()+"\n\tSetting default sensitivity to: "+ ManCon.HIGH.name());
                 if(currentManCon ==null) {
@@ -80,33 +81,50 @@ public class NetworkConfig {
             }
         }
 
-//        try {
-            URL url = NetworkConfig.class.getResource("1m5-peers.json");
-            String json = FileUtil.readTextFile(url.getPath(), 100000, true);
-            Map<String,Object> pm = (Map<String,Object>)JSONParser.parse(json);
-            List<Map<String,Object>> envScope = (List<Map<String,Object>>)pm.get("peers");
-            for(Map<String,Object> eM : envScope) {
-                String env = (String)eM.get("environment");
-                NetworkPeer np;
-                List<Map<String,Object>> seedList = (List<Map<String,Object>>)eM.get("seeds");
-                for(Map<String,Object> s : seedList) {
-                    np = new NetworkPeer();
-                    np.fromMap(s);
-                    if(seeds.get(env)==null)
-                        seeds.put(env, new ArrayList<>());
-                    seeds.get(env).add(np);
-                }
-                List<Map<String,Object>> bannedList = (List<Map<String,Object>>)eM.get("banned");
-                for(Map<String,Object> b : bannedList) {
-                    np = new NetworkPeer();
-                    np.fromMap(b);
-                    if(banned.get(env)==null) banned.put(env, new ArrayList<>());
-                    banned.get(env).add(np);
-                }
+        InputStream is = NetworkConfig.class.getClassLoader().getResourceAsStream("io/onemfive/network/1m5-peers.json");
+        InputStreamReader isr = new InputStreamReader(is);
+        BufferedReader br = new BufferedReader(isr);
+        StringBuffer sb = new StringBuffer();
+        char[] buf = new char[1000];
+        try {
+            while (br.read(buf) > 0) {
+                sb.append(buf);
             }
-//        } catch (IOException e) {
-//            LOG.warning(e.getLocalizedMessage());
-//        }
+        } catch (Exception ex) {
+            LOG.warning(ex.getLocalizedMessage());
+        }
+        finally {
+            try {
+                br.close();
+                isr.close();
+                is.close();
+            } catch (IOException e) {
+                LOG.warning(e.getLocalizedMessage());
+            }
+        }
+        String json = sb.toString();
+        LOG.info(json);
+        Map<String,Object> pm = (Map<String,Object>)JSONParser.parse(json);
+        List<Map<String,Object>> envScope = (List<Map<String,Object>>)pm.get("peers");
+        for(Map<String,Object> eM : envScope) {
+            String env = (String)eM.get("environment");
+            NetworkPeer np;
+            List<Map<String,Object>> seedList = (List<Map<String,Object>>)eM.get("seeds");
+            for(Map<String,Object> s : seedList) {
+                np = new NetworkPeer();
+                np.fromMap(s);
+                if(seeds.get(env)==null)
+                    seeds.put(env, new ArrayList<>());
+                seeds.get(env).add(np);
+            }
+            List<Map<String,Object>> bannedList = (List<Map<String,Object>>)eM.get("banned");
+            for(Map<String,Object> b : bannedList) {
+                np = new NetworkPeer();
+                np.fromMap(b);
+                if(banned.get(env)==null) banned.put(env, new ArrayList<>());
+                banned.get(env).add(np);
+            }
+        }
 
         if(properties.getProperty("onemfive.sensors.MinPT") != null) {
             MinPT = Integer.parseInt(properties.getProperty("onemfive.sensors.MinPT"));

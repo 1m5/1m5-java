@@ -62,6 +62,10 @@ public class I2PPeerDiscovery extends SensorTask {
 
     @Override
     public Long getPeriodicity() {
+        long totalReliable = peerManager.totalPeersByRelationship(localPeer, P2PRelationship.RelType.Reliable);
+        if(totalReliable < 1 )
+            return 5 * 1000L; // Every five seconds until we have at least one reliable
+        else
             return NetworkConfig.UI * 1000L; // wait for UI seconds
     }
 
@@ -75,7 +79,13 @@ public class I2PPeerDiscovery extends SensorTask {
                 // Launch Seeds
                 List<NetworkPeer> seeds = NetworkConfig.seeds.get(NetworkConfig.env);
                 for (NetworkPeer seed : seeds) {
-                    if(seed.getNetwork()== Network.I2P) {
+                    if(seed.getNetwork()!= Network.I2P) {
+                        LOG.warning("Seed provided is not for I2P.");
+                    } else if(seed.getDid().getPublicKey().getAddress().isEmpty()) {
+                        LOG.warning("Seed provided does not have an address.");
+                    } else if(seed.getDid().getPublicKey().getAddress().equals(localPeer.getDid().getPublicKey().getAddress())) {
+                        LOG.info("Seed is local peer.");
+                    } else {
                         LOG.info("Sending Peer Status Request to Seed Peer:\n\t" + seed);
                         Envelope e = Envelope.documentFactory();
                         DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
@@ -83,13 +93,17 @@ public class I2PPeerDiscovery extends SensorTask {
                         request.setOriginationPeer(localPeer);
                         request.setFromPeer(localPeer);
                         request.setDestinationPeer(seed);
+                        request.setToPeer(seed);
                         request.setEnvelope(e);
-                        sensor.sendOut(request);
-                        LOG.info("Sent Peer Status Request to Seed Peer.");
+                        if(sensor.sendOut(request)) {
+                            LOG.info("Sent Peer Status Request to Seed Peer.");
+                        } else {
+                            LOG.warning("A problem occurred attempting to send out Peer Status Request.");
+                        }
                     }
                 }
             } else {
-                LOG.warning("No seeds available! Please provide at least one seed!");
+                LOG.info("No seeds provided.");
                 return false;
             }
         } else if(totalKnown < NetworkConfig.MaxPT) {
