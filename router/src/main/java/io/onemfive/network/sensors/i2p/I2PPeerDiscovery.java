@@ -27,6 +27,9 @@
 package io.onemfive.network.sensors.i2p;
 
 import io.onemfive.data.Envelope;
+import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.Request;
 import io.onemfive.network.*;
 import io.onemfive.network.ops.PingRequestOp;
 import io.onemfive.network.peers.P2PRelationship;
@@ -72,7 +75,7 @@ public class I2PPeerDiscovery extends SensorTask {
                 // Launch Seeds
                 List<NetworkPeer> seeds = NetworkConfig.seeds.get(NetworkConfig.env);
                 for (NetworkPeer seed : seeds) {
-                    if(seed.getNetwork()==Network.I2P) {
+                    if(seed.getNetwork()== Network.I2P) {
                         LOG.info("Sending Peer Status Request to Seed Peer:\n\t" + seed);
                         Envelope e = Envelope.documentFactory();
                         DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);

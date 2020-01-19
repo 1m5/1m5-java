@@ -26,8 +26,6 @@
  */
 package io.onemfive.network;
 
-import io.onemfive.network.Response;
-
 public class Ack extends Response {
 
     public Ack(String requestId) {

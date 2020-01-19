@@ -28,14 +28,11 @@ package io.onemfive.network;
 
 import io.onemfive.core.Config;
 import io.onemfive.data.ManCon;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.JSONParser;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
 

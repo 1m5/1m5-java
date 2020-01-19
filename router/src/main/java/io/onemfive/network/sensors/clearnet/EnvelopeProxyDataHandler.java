@@ -186,14 +186,14 @@ public class EnvelopeProxyDataHandler extends DefaultHandler implements Asynchro
 //        LOG.info("Incoming method: "+method);
         if(method != null) {
             switch (method.toUpperCase()) {
-                case "GET": e.setAction(Envelope.Action.VIEW);break;
-                case "POST": e.setAction(Envelope.Action.ADD);break;
-                case "PUT": e.setAction(Envelope.Action.UPDATE);break;
-                case "DELETE": e.setAction(Envelope.Action.REMOVE);break;
-                default: e.setAction(Envelope.Action.VIEW);
+                case "GET": e.setAction(Envelope.Action.GET);break;
+                case "POST": e.setAction(Envelope.Action.POST);break;
+                case "PUT": e.setAction(Envelope.Action.PUT);break;
+                case "DELETE": e.setAction(Envelope.Action.DELETE);break;
+                default: e.setAction(Envelope.Action.GET);
             }
         } else {
-            e.setAction(Envelope.Action.VIEW);
+            e.setAction(Envelope.Action.GET);
         }
 
         // Populate headers

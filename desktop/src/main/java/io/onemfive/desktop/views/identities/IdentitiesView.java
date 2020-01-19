@@ -26,17 +26,9 @@
  */
 package io.onemfive.desktop.views.identities;
 
-import io.onemfive.Router;
-import io.onemfive.core.keyring.AuthNRequest;
-import io.onemfive.core.keyring.KeyRingService;
-import io.onemfive.data.DID;
-import io.onemfive.data.Envelope;
+import io.onemfive.data.*;
 import io.onemfive.desktop.DesktopApp;
-import io.onemfive.desktop.UIService;
 import io.onemfive.desktop.views.ActivatableView;
-import io.onemfive.did.AuthenticateDIDRequest;
-import io.onemfive.did.DIDService;
-import io.onemfive.util.DLC;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -50,6 +42,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import onemfive.api.DIDAPI;
 
 import java.util.List;
 
@@ -140,44 +133,20 @@ public class IdentitiesView extends ActivatableView {
         identityLocationText.setPrefWidth(200);
         addIdentityBox.getChildren().add(identityLocationText);
 
-        Button addIdemtity = new Button("Add");
-        addIdemtity.setOnAction(new EventHandler<ActionEvent>() {
+        Button addIdentity = new Button("Add");
+        addIdentity.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 if(!identityAliasTxt.getText().isEmpty()
                         && !identityPwdText.getText().isEmpty()
                         && !identityPwd2Text.getText().isEmpty()) {
-                    Envelope e = Envelope.documentFactory();
-                    // 4. Update UI
-                    DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e);
-                    // 3. Load ordered Identities
-                    DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e);
-                    // 2. Authenticate/Save DID
-                    DID did = new DID();
-                    did.setUsername(identityAliasTxt.getText());
-                    did.setPassphrase(identityPwdText.getText());
-                    did.setPassphrase2(identityPwd2Text.getText());
-                    AuthenticateDIDRequest adr = new AuthenticateDIDRequest();
-                    adr.did = did;
-                    adr.autogenerate = true;
-                    DLC.addData(AuthenticateDIDRequest.class, adr, e);
-                    DLC.addRoute(DIDService.class, DIDService.OPERATION_AUTHENTICATE,e);
-                    // 1. Load Public Key addresses for short and full addresses
-                    AuthNRequest ar = new AuthNRequest();
-                    ar.location = identityLocationText.getText();
-                    ar.keyRingUsername = did.getUsername();
-                    ar.keyRingPassphrase = did.getPassphrase();
-                    ar.alias = did.getUsername(); // use username as default alias
-                    ar.aliasPassphrase = did.getPassphrase(); // just use same passphrase
-                    ar.autoGenerate = true;
-                    DLC.addData(AuthNRequest.class, ar, e);
-                    DLC.addRoute(KeyRingService.class, KeyRingService.OPERATION_AUTHN, e);
-                    // Send
-                    Router.sendRequest(e);
+
+                    DID did = DIDAPI.addIdentity(identityAliasTxt.getText(), identityPwdText.getText(), identityPwd2Text.getText(), identityLocationText.getText());
+                    identityAddresses.add(did.getUsername()+":"+did.getPublicKey().getFingerprint());
                 }
             }
         });
-        addIdentityBox.getChildren().add(addIdemtity);
+        addIdentityBox.getChildren().add(addIdentity);
 
         ListView<String> identitiesList = new ListView<>();
         identitiesList.setPrefSize(400, 500);
@@ -191,7 +160,15 @@ public class IdentitiesView extends ActivatableView {
             public void handle(ActionEvent actionEvent) {
                 int index = identitiesList.getSelectionModel().getSelectedIndex();
                 if(index >= 0) {
-//                    identityAddresses.remove(index);
+                    String itemStr = identityAddresses.get(index);
+                    String[] item = itemStr.split(":");
+                    boolean removed = DIDAPI.deleteIdentity(item[1]);
+                    if(removed) {
+                        identityAddresses.remove(index);
+                    } else {
+                        LOG.warning("Error removing identity.");
+                        // TODO: show error message
+                    }
                 }
             }
         });
@@ -213,45 +190,59 @@ public class IdentitiesView extends ActivatableView {
         contactsPane.getChildren().add(contactsHeader);
 
         Label contactsAliasCol = new Label("Alias");
-        contactsAliasCol.setPrefWidth(150);
+        contactsAliasCol.setPrefWidth(100);
         contactsHeader.getChildren().add(contactsAliasCol);
 
+        Label contactsFingerprintCol = new Label("Fingerprint");
+        contactsFingerprintCol.setPrefWidth(100);
+        contactsHeader.getChildren().add(contactsFingerprintCol);
+
         Label contactsAddressCol = new Label("Address");
-        contactsAddressCol.setPrefWidth(350);
+        contactsAddressCol.setPrefWidth(100);
         contactsHeader.getChildren().add(contactsAddressCol);
+
+        Label contactsDescriptionCol = new Label("Description");
+        contactsDescriptionCol.setPrefWidth(200);
+        contactsHeader.getChildren().add(contactsDescriptionCol);
 
         HBox addContactBox = new HBox();
         addContactBox.setPadding(new Insets(5));
         addContactBox.setSpacing(5);
         contactsPane.getChildren().add(addContactBox);
 
-        TextField contractAliasTxt = new TextField();
-        contractAliasTxt.setPrefWidth(150);
-        addContactBox.getChildren().add(contractAliasTxt);
+        TextField contactAliasTxt = new TextField();
+        contactAliasTxt.setPrefWidth(100);
+        addContactBox.getChildren().add(contactAliasTxt);
 
-        TextField contactAddress = new TextField();
-        contactAddress.setPrefWidth(350);
-        addContactBox.getChildren().add(contactAddress);
+        TextField contactFingerprintTxt = new TextField();
+        contactFingerprintTxt.setPrefWidth(100);
+        addContactBox.getChildren().add(contactFingerprintTxt);
+
+        TextField contactAddressTxt = new TextField();
+        contactAddressTxt.setPrefWidth(100);
+        addContactBox.getChildren().add(contactAddressTxt);
+
+        TextField contactDescriptiontxt = new TextField();
+        contactDescriptiontxt.setPrefWidth(200);
+        addContactBox.getChildren().add(contactDescriptiontxt);
 
         Button addContact = new Button("Add");
         addContact.setOnAction(actionEvent -> {
             // TODO: Add error handling for alias and address
-            if(contractAliasTxt.getText().isEmpty()) {
+            if(contactAliasTxt.getText().isEmpty()) {
                 LOG.info("Alias is required.");
                 return;
             }
-            if(contactAddress.getText().isEmpty()) {
+            if(contactFingerprintTxt.getText().isEmpty()) {
+                LOG.info("Fingerprint is required.");
+                return;
+            }
+            if(contactAddressTxt.getText().isEmpty()) {
                 LOG.info("Address is required.");
                 return;
             }
-            DID did = new DID();
-            did.setUsername(contractAliasTxt.getText());
-            did.getPublicKey().setAddress(contactAddress.getText());
-            Envelope e = Envelope.documentFactory();
-            DLC.addRoute(UIService.class, UIService.OPERATION_NOTIFY_UI, e);
-            DLC.addRoute(DIDService.class, DIDService.OPERATION_ADD_CONTACT, e);
-            DLC.addEntity(did, e);
-            Router.sendRequest(e);
+            DID contact = DIDAPI.addContact(contactAliasTxt.getText(), contactFingerprintTxt.getText(), contactAddressTxt.getText(), contactDescriptiontxt.getText());
+            contactAddresses.add(contact.getUsername()+":"+contact.getPublicKey().getFingerprint());
         });
         addContactBox.getChildren().add(addContact);
 
@@ -273,22 +264,18 @@ public class IdentitiesView extends ActivatableView {
         contactsPane.getChildren().add(deleteContact);
 
         // Get Identities
-        Envelope e1 = Envelope.documentFactory();
-        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e1);
-        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e1);
-        Router.sendRequest(e1);
+        List<DID> identities = DIDAPI.getIdentities();
+        identityAddresses.clear();
+        for(DID d : identities) {
+            identityAddresses.add(d.getUsername()+":"+d.getPublicKey().getFingerprint());
+        }
 
         // Get Contacts
-        Envelope e2 = Envelope.documentFactory();
-        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_CONTACTS, e2);
-        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_CONTACTS, e2);
-        Router.sendRequest(e2);
-
-        // Get Active Identity
-        Envelope e3 = Envelope.documentFactory();
-        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_ACTIVE_IDENTITY, e3);
-        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_ACTIVE_IDENTITY, e3);
-        Router.sendRequest(e3);
+        List<DID> contacts = DIDAPI.getContacts();
+        contactAddresses.clear();
+        for(DID d : contacts) {
+            contactAddresses.add(d.getUsername()+":"+d.getPublicKey().getFingerprint());
+        }
 
         LOG.info("Initialized.");
     }

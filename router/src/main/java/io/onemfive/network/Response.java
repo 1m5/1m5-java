@@ -26,8 +26,6 @@
  */
 package io.onemfive.network;
 
-import io.onemfive.network.Packet;
-
 import java.util.Map;
 
 public class Response extends Packet {

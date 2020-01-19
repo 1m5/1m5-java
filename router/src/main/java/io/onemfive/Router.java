@@ -121,6 +121,7 @@ public class Router {
         }
 
         LOG.info("1M5 Version: "+config.getProperty("1m5.version")+"."+config.getProperty("1m5.version.build"));
+        System.setProperty("1m5.version", config.getProperty("1m5.version")+"."+config.getProperty("1m5.version.build"));
 
         // Launch Tray
 //        tray = new DesktopTray();

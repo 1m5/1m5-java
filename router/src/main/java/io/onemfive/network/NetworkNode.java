@@ -26,6 +26,9 @@
  */
 package io.onemfive.network;
 
+import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
+
 import java.util.HashMap;
 import java.util.Map;
 

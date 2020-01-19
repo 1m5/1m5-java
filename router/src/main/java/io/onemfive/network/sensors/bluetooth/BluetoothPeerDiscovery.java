@@ -28,7 +28,7 @@ package io.onemfive.network.sensors.bluetooth;
 
 import io.onemfive.data.Envelope;
 import io.onemfive.data.TextMessage;
-import io.onemfive.network.NetworkPeer;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.sensors.SensorTask;
 import io.onemfive.network.Packet;
 import io.onemfive.network.Request;
@@ -37,7 +37,6 @@ import io.onemfive.util.tasks.TaskRunner;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 public class BluetoothPeerDiscovery extends SensorTask {

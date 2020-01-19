@@ -27,15 +27,13 @@
 package io.onemfive.network.sensors.satellite;
 
 import io.onemfive.data.Envelope;
-import io.onemfive.network.Network;
-import io.onemfive.network.NetworkPeer;
+import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Logger;
 

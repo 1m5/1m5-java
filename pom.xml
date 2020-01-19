@@ -50,10 +50,11 @@
 	</dependencies>
 
 	<modules>
+        <module>common</module>
         <module>router</module>
         <module>api</module>
-        <module>desktop</module>
         <module>cli</module>
+        <module>desktop</module>
     </modules>
 
 </project>

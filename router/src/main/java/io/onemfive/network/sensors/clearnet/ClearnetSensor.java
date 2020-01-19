@@ -30,8 +30,8 @@ import io.onemfive.core.Config;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.*;
-import io.onemfive.network.Network;
-import io.onemfive.network.NetworkPeer;
+import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
@@ -235,10 +235,10 @@ public class ClearnetSensor extends BaseSensor {
             b = b.cacheControl(cacheControl);
         b = b.headers(headers);
         switch(e.getAction()) {
-            case ADD: {b = b.post(requestBody);break;}
-            case UPDATE: {b = b.put(requestBody);break;}
-            case REMOVE: {b = (requestBody == null ? b.delete() : b.delete(requestBody));break;}
-            case VIEW: {b = b.get();break;}
+            case POST: {b = b.post(requestBody);break;}
+            case PUT: {b = b.put(requestBody);break;}
+            case DELETE: {b = (requestBody == null ? b.delete() : b.delete(requestBody));break;}
+            case GET: {b = b.get();break;}
             default: {
                 LOG.warning("Envelope.action must be set to ADD, UPDATE, REMOVE, or VIEW");
                 return false;
@@ -329,7 +329,7 @@ public class ClearnetSensor extends BaseSensor {
         if(m!=null && m.getErrorMessages()!=null && m.getErrorMessages().size()>0) {
             boolean blocked = false;
             for (String err : m.getErrorMessages()) {
-                LOG.warning("HTTP Error Message (Tor): " + err);
+                LOG.warning("HTTP Error Message: " + err);
                 if(!blocked) {
                     switch (err) {
                         case "403": {

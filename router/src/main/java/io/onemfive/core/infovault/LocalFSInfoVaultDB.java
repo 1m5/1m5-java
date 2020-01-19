@@ -103,6 +103,17 @@ public class LocalFSInfoVaultDB extends BaseInfoVaultDB {
         }
     }
 
+    public Boolean delete(String label, String key) {
+        LOG.info("Deleting content for label: "+label+" and key: "+key);
+        File path = new File(dbDir, label);
+        if(!path.exists())
+            return true;
+        File file = new File(path, key);
+        if(!file.exists())
+            return true;
+        return file.delete();
+    }
+
     public byte[] load(String label, String key) throws FileNotFoundException {
         LOG.info("Loading content for label: "+label+" and key: "+key);
         File path = null;

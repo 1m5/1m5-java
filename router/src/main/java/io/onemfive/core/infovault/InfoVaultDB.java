@@ -49,6 +49,8 @@ public interface InfoVaultDB {
 
     void save(String label, String key, byte[] content, boolean autoCreate) throws FileNotFoundException;
 
+    Boolean delete(String label, String key);
+
     byte[] load(String label, String key) throws FileNotFoundException;
 
     List<byte[]> loadRange(String label, int start, int numberEntries);

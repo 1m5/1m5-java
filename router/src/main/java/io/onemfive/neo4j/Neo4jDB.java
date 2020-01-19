@@ -74,6 +74,16 @@ public class Neo4jDB extends BaseInfoVaultDB {
         }
     }
 
+    public Boolean delete(String label, String key) {
+        try (Transaction tx = graphDb.beginTx()) {
+            Node n = graphDb.findNode(Label.label(label), "name", key);
+            if(n != null)
+                n.delete();
+            tx.success();
+        }
+        return true;
+    }
+
     public byte[] load(String label, String key) throws FileNotFoundException {
         byte[] content;
         try (Transaction tx = graphDb.beginTx()) {

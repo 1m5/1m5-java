@@ -27,6 +27,7 @@
 package io.onemfive.network;
 
 import io.onemfive.data.Envelope;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.data.ServiceMessage;
 
 import java.util.Map;

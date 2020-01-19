@@ -26,10 +26,9 @@
  */
 package io.onemfive.desktop.views.home;
 
-import io.onemfive.core.OneMFiveAppContext;
-import io.onemfive.core.locale.LanguageUtil;
-import io.onemfive.core.locale.Resources;
+import io.onemfive.desktop.DesktopApp;
 import io.onemfive.desktop.Navigation;
+import io.onemfive.desktop.Resources;
 import io.onemfive.desktop.components.AutoTooltipLabel;
 import io.onemfive.desktop.components.AutoTooltipToggleButton;
 import io.onemfive.desktop.components.Badge;
@@ -47,6 +46,9 @@ import io.onemfive.desktop.views.settings.SettingsView;
 import io.onemfive.desktop.views.support.SupportView;
 import io.onemfive.desktop.views.video.VideoView;
 import io.onemfive.desktop.views.voice.VoiceView;
+import io.onemfive.util.LanguageUtil;
+import io.onemfive.util.LocaleUtil;
+import io.onemfive.util.Res;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
@@ -109,17 +111,17 @@ public class HomeView extends InitializableView {
         if (LanguageUtil.isDefaultLanguageRTL())
             rootContainer.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
-        final ToggleButton dashboardButton = new NavButton(DashboardView.class, Resources.get("homeView.menu.dashboard").toUpperCase());
-        final ToggleButton browserButton = new NavButton(BrowserView.class, Resources.get("homeView.menu.browser").toUpperCase());
-        final ToggleButton messengerButton = new NavButton(MessengerView.class, Resources.get("homeView.menu.messenger").toUpperCase());
-        final ToggleButton calendarButton = new NavButton(CalendarView.class, Resources.get("homeView.menu.calendar").toUpperCase());
-        final ToggleButton voiceButton = new NavButton(VoiceView.class, Resources.get("homeView.menu.voice").toUpperCase());
-        final ToggleButton videoButton = new NavButton(VideoView.class, Resources.get("homeView.menu.video").toUpperCase());
-        final ToggleButton appsButton = new NavButton(AppsView.class, Resources.get("homeView.menu.apps").toUpperCase());
-        final ToggleButton identitiesButton = new NavButton(IdentitiesView.class, Resources.get("homeView.menu.identities").toUpperCase());
-        final ToggleButton daoButton = new NavButton(DaoView.class, Resources.get("homeView.menu.dao").toUpperCase());
-        final ToggleButton supportButton = new NavButton(SupportView.class, Resources.get("homeView.menu.support").toUpperCase());
-        final ToggleButton settingsButton = new NavButton(SettingsView.class, Resources.get("homeView.menu.settings").toUpperCase());
+        final ToggleButton dashboardButton = new NavButton(DashboardView.class, Res.get("homeView.menu.dashboard").toUpperCase());
+        final ToggleButton browserButton = new NavButton(BrowserView.class, Res.get("homeView.menu.browser").toUpperCase());
+        final ToggleButton messengerButton = new NavButton(MessengerView.class, Res.get("homeView.menu.messenger").toUpperCase());
+        final ToggleButton calendarButton = new NavButton(CalendarView.class, Res.get("homeView.menu.calendar").toUpperCase());
+        final ToggleButton voiceButton = new NavButton(VoiceView.class, Res.get("homeView.menu.voice").toUpperCase());
+        final ToggleButton videoButton = new NavButton(VideoView.class, Res.get("homeView.menu.video").toUpperCase());
+        final ToggleButton appsButton = new NavButton(AppsView.class, Res.get("homeView.menu.apps").toUpperCase());
+        final ToggleButton identitiesButton = new NavButton(IdentitiesView.class, Res.get("homeView.menu.identities").toUpperCase());
+        final ToggleButton daoButton = new NavButton(DaoView.class, Res.get("homeView.menu.dao").toUpperCase());
+        final ToggleButton supportButton = new NavButton(SupportView.class, Res.get("homeView.menu.support").toUpperCase());
+        final ToggleButton settingsButton = new NavButton(SettingsView.class, Res.get("homeView.menu.settings").toUpperCase());
 
 //        Badge emailButtonWithBadge = new Badge(emailButton);
 //        Badge messengerButtonWithBadge = new Badge(messengerButton);
@@ -132,8 +134,7 @@ public class HomeView extends InitializableView {
 //        Badge supportButtonWithBadge = new Badge(supportButton);
 //        Badge settingsButtonWithBadge = new Badge(settingsButton);
 
-        Locale locale = OneMFiveAppContext.getLocale();
-        DecimalFormat currencyFormat = (DecimalFormat) NumberFormat.getNumberInstance(locale);
+        DecimalFormat currencyFormat = (DecimalFormat) NumberFormat.getNumberInstance(LocaleUtil.currentLocale);
         currencyFormat.setMinimumFractionDigits(0);
         currencyFormat.setMaximumFractionDigits(2);
 
@@ -518,7 +519,7 @@ public class HomeView extends InitializableView {
 //        setBottomAnchor(blockchainSyncBox, 7d);
 
         // version
-        String version = OneMFiveAppContext.getVersion();
+        String version = System.getProperty("1m5.version");
         versionLabel = new AutoTooltipLabel();
         versionLabel.setId("footer-pane");
         versionLabel.setTextAlignment(TextAlignment.CENTER);

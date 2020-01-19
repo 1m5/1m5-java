@@ -26,17 +26,15 @@
  */
 package io.onemfive.network.sensors.tor;
 
+import io.onemfive.data.*;
 import io.onemfive.network.*;
 import io.onemfive.network.sensors.SensorTask;
 import io.onemfive.util.tasks.TaskRunner;
-import io.onemfive.data.Envelope;
-import io.onemfive.data.ManCon;
 import io.onemfive.util.DLC;
 import io.onemfive.network.ops.PingRequestOp;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 public class TorPeerDiscovery extends SensorTask {

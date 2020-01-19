@@ -28,9 +28,9 @@ package io.onemfive.network.sensors.lifi;
 
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.*;
+import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.DLC;
-import io.onemfive.network.*;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorStatus;

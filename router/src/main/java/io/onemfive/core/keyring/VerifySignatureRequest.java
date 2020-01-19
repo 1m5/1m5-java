@@ -26,6 +26,8 @@
  */
 package io.onemfive.core.keyring;
 
+import io.onemfive.data.KeyRingsRequest;
+
 public class VerifySignatureRequest extends KeyRingsRequest {
 
     public static int LOCATION_REQUIRED = 2;

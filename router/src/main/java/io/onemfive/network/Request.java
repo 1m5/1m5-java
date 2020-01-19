@@ -26,8 +26,6 @@
  */
 package io.onemfive.network;
 
-import io.onemfive.network.Packet;
-
 public class Request extends Packet {
 
 }

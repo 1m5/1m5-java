@@ -27,8 +27,9 @@
 package io.onemfive.network.sensors.fullspectrum;
 
 import io.onemfive.data.Envelope;
-import io.onemfive.data.ManCon;
-import io.onemfive.network.*;
+import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;

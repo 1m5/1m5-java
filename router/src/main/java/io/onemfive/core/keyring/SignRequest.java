@@ -26,6 +26,8 @@
  */
 package io.onemfive.core.keyring;
 
+import io.onemfive.data.KeyRingsRequest;
+
 public class SignRequest extends KeyRingsRequest {
     public static int CONTENT_TO_SIGN_REQUIRED = 2;
     public static int ALIAS_REQUIRED = 3;

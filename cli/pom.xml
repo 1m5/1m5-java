@@ -75,9 +75,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.onemfive</groupId>
-			<artifactId>router</artifactId>
+			<artifactId>api</artifactId>
 			<version>${project.version}</version>
-            <scope>provided</scope>
 		</dependency>
 	</dependencies>
 

@@ -27,8 +27,8 @@
 package io.onemfive.network.sensors.bluetooth;
 
 import io.onemfive.data.Envelope;
-import io.onemfive.network.Network;
-import io.onemfive.network.NetworkPeer;
+import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;

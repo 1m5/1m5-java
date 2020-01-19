@@ -27,12 +27,10 @@
 package io.onemfive.desktop;
 
 import dorkbox.systemTray.SystemTray;
-import io.onemfive.core.client.Client;
-import io.onemfive.util.AppThread;
-import io.onemfive.util.UncaughtExceptionHandler;
 import io.onemfive.desktop.util.ImageUtil;
 import io.onemfive.desktop.views.ViewLoader;
 import io.onemfive.desktop.views.home.HomeView;
+import io.onemfive.util.LocaleUtil;
 import javafx.application.Application;
 import javafx.event.Event;
 import javafx.scene.Scene;
@@ -40,11 +38,12 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.awt.*;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import static io.onemfive.desktop.util.Layout.*;
 
-public class DesktopApp extends Application implements UncaughtExceptionHandler {
+public class DesktopApp extends Application implements Thread.UncaughtExceptionHandler {
 
     private static final Logger LOG = Logger.getLogger(DesktopApp.class.getName());
 
@@ -60,6 +59,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
     private boolean popupOpened;
     private Scene scene;
     private boolean shutDownRequested;
+    private boolean shutdownOnException = true;
 
     public DesktopApp() {
         shutDownHandler = this::stop;
@@ -73,6 +73,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
     @Override
     public void init() throws Exception {
         LOG.info("DesktopApp initializing...\n\tThread name: " + Thread.currentThread().getName());
+        LocaleUtil.currentLocale = Locale.US; // Default - TODO: load locale from preferences
     }
 
     @Override
@@ -134,7 +135,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
     }
 
     @Override
-    public void handleUncaughtException(Throwable throwable, boolean doShutDown) {
+    public void uncaughtException(Thread thread, Throwable throwable) {
         if (!shutDownRequested) {
             if (scene == null) {
                 LOG.warning("Scene not available yet, we create a new scene. The bug might be caused by an exception in a constructor or by a circular dependency in Guice. throwable=" + throwable.toString());
@@ -144,7 +145,7 @@ public class DesktopApp extends Application implements UncaughtExceptionHandler 
                 stage.show();
             }
             try {
-                if (doShutDown)
+                if (shutdownOnException)
                     stop();
             } catch (Throwable throwable2) {
                 // If printStackTrace cause a further exception we don't pass the throwable to the Popup.

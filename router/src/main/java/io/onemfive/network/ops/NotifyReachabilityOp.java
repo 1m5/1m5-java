@@ -27,13 +27,8 @@
 package io.onemfive.network.ops;
 
 import io.onemfive.core.Notification;
-import io.onemfive.core.notification.NotificationService;
-import io.onemfive.data.EventMessage;
-import io.onemfive.network.Network;
-import io.onemfive.network.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.SensorManager;
-import io.onemfive.util.DLC;
 
 import java.util.logging.Logger;
 

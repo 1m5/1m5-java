@@ -28,7 +28,6 @@ package io.onemfive.desktop;
 
 import dorkbox.systemTray.MenuItem;
 import dorkbox.systemTray.SystemTray;
-import io.onemfive.Router;
 import io.onemfive.util.AppThread;
 import javafx.application.Platform;
 
@@ -59,7 +58,9 @@ public class DesktopTray {
     private MenuItem launchDesktopMenuItem;
     private MenuItem quitMenuItem;
 
-    public void start(Router router) {
+    private DesktopApp app;
+
+    public void start(DesktopApp app) {
         SystemTray.SWING_UI = new DesktopTrayUI();
         systemTray = SystemTray.get();
         if (systemTray == null) {
@@ -91,9 +92,13 @@ public class DesktopTray {
                     public void run() {
                         systemTray.setImage(Resources.SYS_TRAY_ICON_YELLOW);
                         updateStatus("Quitting");
-                        router.shutdown();
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                app.stop();
+                            }
+                        });
                         systemTray.shutdown();
-                        router.exit();
                     }
                 }.start();
             }

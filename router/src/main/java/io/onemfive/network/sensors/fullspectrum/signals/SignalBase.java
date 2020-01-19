@@ -27,7 +27,7 @@
 package io.onemfive.network.sensors.fullspectrum.signals;
 
 import io.onemfive.data.JSONSerializable;
-import io.onemfive.network.NetworkPeer;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.sensors.SessionListener;

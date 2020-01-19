@@ -26,8 +26,7 @@
  */
 package io.onemfive.network.sensors;
 
-import io.onemfive.network.NetworkPeer;
-import io.onemfive.network.Packet;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.util.RandomUtil;
 
 import java.util.ArrayList;

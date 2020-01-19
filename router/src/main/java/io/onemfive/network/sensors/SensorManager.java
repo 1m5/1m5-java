@@ -29,7 +29,7 @@ package io.onemfive.network.sensors;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.ManCon;
 import io.onemfive.data.route.Route;
-import io.onemfive.network.Network;
+import io.onemfive.data.Network;
 import io.onemfive.network.NetworkService;
 import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkOp;

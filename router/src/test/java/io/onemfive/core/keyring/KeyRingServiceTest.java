@@ -1,5 +1,6 @@
 package io.onemfive.core.keyring;
 
+import io.onemfive.data.AuthNRequest;
 import io.onemfive.data.ServiceMessage;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.content.Text;

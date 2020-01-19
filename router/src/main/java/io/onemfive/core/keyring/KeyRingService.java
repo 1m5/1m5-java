@@ -27,6 +27,7 @@
 package io.onemfive.core.keyring;
 
 import io.onemfive.core.*;
+import io.onemfive.data.AuthNRequest;
 import io.onemfive.util.SystemVersion;
 import io.onemfive.data.EncryptionAlgorithm;
 import io.onemfive.data.Envelope;

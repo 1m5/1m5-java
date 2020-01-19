@@ -26,7 +26,11 @@
  */
 package io.onemfive.network.peers;
 
-import io.onemfive.core.keyring.AuthNRequest;
+import io.onemfive.data.AuthNRequest;
+import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.Request;
+import io.onemfive.network.Response;
 import io.onemfive.neo4j.GraphUtil;
 import io.onemfive.neo4j.Neo4jDB;
 import io.onemfive.network.*;

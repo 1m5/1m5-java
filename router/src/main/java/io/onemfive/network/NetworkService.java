@@ -27,12 +27,11 @@
 package io.onemfive.network;
 
 import io.onemfive.core.*;
-import io.onemfive.core.keyring.AuthNRequest;
+import io.onemfive.data.AuthNRequest;
 import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.route.ExternalRoute;
-import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.tasks.TaskRunner;
@@ -41,7 +40,7 @@ import io.onemfive.data.route.Route;
 import io.onemfive.util.DLC;
 import io.onemfive.util.HashUtil;
 import io.onemfive.util.JSONParser;
-import io.onemfive.did.AuthenticateDIDRequest;
+import io.onemfive.data.AuthenticateDIDRequest;
 import io.onemfive.data.DID;
 import io.onemfive.did.DIDService;
 import io.onemfive.network.ops.NetworkOp;
@@ -123,17 +122,17 @@ public class NetworkService extends BaseService {
                         return;
                     }
                 } else {
-                    if (request.destinationPeer == null) {
+                    if (request.getDestinationPeer() == null) {
                         LOG.warning("Must provide a destination address when using a NetworkRequest.");
                         return;
                     }
-                    request = peerManager.buildRequest(request.originationPeer, request.destinationPeer);
+                    request = peerManager.buildRequest(request.getOriginationPeer(), request.getDestinationPeer());
                 }
                 request.setEnvelope(e);
-                if(!peerManager.isKnown(request.destinationPeer)) {
-                    request.toPeer = request.destinationPeer;
+                if(!peerManager.isKnown(request.getDestinationPeer())) {
+                    request.setToPeer(request.getDestinationPeer());
                 } else {
-                    request.toPeer = peerManager.getRandomKnownPeer();
+                    request.setToPeer(peerManager.getRandomKnownPeer());
                 }
                 sensor = sensorManager.selectSensor(request);
                 if(sensor != null) {
@@ -194,7 +193,7 @@ public class NetworkService extends BaseService {
                     LOG.warning("Response required in envelope.");
                     return;
                 }
-                if (response.destinationPeer == null) {
+                if (response.getDestinationPeer() == null) {
                     LOG.warning("Must provide a destination address when using a NetworkRequest.");
                     return;
                 }

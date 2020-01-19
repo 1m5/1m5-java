@@ -141,6 +141,11 @@
 	</repositories>
 
 	<dependencies>
+        <dependency>
+            <groupId>io.onemfive</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 		<!-- Crypto -->
 		<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpg-jdk15on -->
 		<dependency>

@@ -29,8 +29,6 @@ package io.onemfive.core;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.bus.ServiceBus;
 import io.onemfive.core.infovault.InfoVaultDB;
-import io.onemfive.core.infovault.InfoVaultService;
-import io.onemfive.core.infovault.LocalFSInfoVaultDB;
 import io.onemfive.util.*;
 
 import java.io.File;
@@ -158,9 +156,12 @@ public class OneMFiveAppContext {
         String version = getProperty("1m5.version");
         LOG.info("1M5 Version: "+version);
 
+        System.setProperty("1m5.userTimeZone", TimeZone.getDefault().getID());
+
         String systemTimeZone = getProperty("1m5.systemTimeZone");
         LOG.info("1M5 System Time Zone: "+systemTimeZone);
         TimeZone.setDefault(TimeZone.getTimeZone(systemTimeZone));
+        System.setProperty("1m5.systemTimeZone",systemTimeZone);
 
         String baseStr = getProperty("1m5.dir.base");
         if(baseStr!=null) {

@@ -17,6 +17,8 @@
 
 package io.onemfive;
 
+import onemfive.api.API;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,8 +37,6 @@ public class CLI {
 
     private String host;
     private int port;
-
-    private Router router;
 
     public static void main(String[] args) throws Exception {
         instance = new CLI("localhost", 2017);
@@ -66,15 +66,15 @@ public class CLI {
                 String result = "";
 
                 switch (command) {
-                    case "Start": {
+                    case "start": {
                         pl("Starting...");
 
                         pl("Running.");
                         break;
                     }
-                    case "Stop": {
+                    case "stop": {
                         pl("Stopping...");
-                        shutdown();
+
                         break;
                     }
                     default: {

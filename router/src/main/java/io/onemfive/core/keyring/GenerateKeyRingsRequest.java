@@ -26,6 +26,8 @@
  */
 package io.onemfive.core.keyring;
 
+import io.onemfive.data.KeyRingsRequest;
+
 public class GenerateKeyRingsRequest extends KeyRingsRequest {
     public static int KEYRING_USERNAME_REQUIRED = 2;
     public static int KEYRING_PASSPHRASE_REQUIRED = 3;

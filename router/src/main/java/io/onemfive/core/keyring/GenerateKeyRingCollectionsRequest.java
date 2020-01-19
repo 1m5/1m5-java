@@ -26,6 +26,7 @@
  */
 package io.onemfive.core.keyring;
 
+import io.onemfive.data.KeyRingsRequest;
 import io.onemfive.data.PublicKey;
 
 public class GenerateKeyRingCollectionsRequest extends KeyRingsRequest {
