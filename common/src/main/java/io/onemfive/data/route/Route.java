@@ -38,7 +38,6 @@ public interface Route extends JSONSerializable {
     Long getRouteId();
     String getService();
     String getOperation();
-//    Route setEnvelope(Envelope envelope);
     Route setRouted(Boolean routed);
     Boolean getRouted();
 }

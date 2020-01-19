@@ -354,7 +354,7 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
     @Override
     public void messageAvailable(I2PSession session, int msgId, long size) {
         LOG.info("Message received by I2P Sensor...");
-        byte[] msg = new byte[0];
+        byte[] msg;
         try {
             msg = session.receiveMessage(msgId);
         } catch (I2PSessionException e) {
@@ -365,7 +365,9 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
             LOG.warning("I2PSession returned a null message: msgId=" + msgId + ", size=" + size + ", " + session);
             return;
         }
-
+//        if(sensor.getStatus()==SensorStatus.NETWORK_CONNECTED) {
+//            sensor.updateStatus(SensorStatus.NETWORK_VERIFIED);
+//        }
         try {
             LOG.info("Loading I2P Datagram...");
             I2PDatagramDissector d = new I2PDatagramDissector();

@@ -27,8 +27,9 @@
 package io.onemfive.data.currency;
 
 public enum Currency {
+    ATN, // Aten
+    BSQ, // Bisq
     BTC, // Bitcoin
     KMD, // Komodo
-    PRN, // Prana
-    ATN // Aten
+    PRN // Prana
 }

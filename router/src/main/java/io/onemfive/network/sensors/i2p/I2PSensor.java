@@ -450,6 +450,7 @@ public class I2PSensor extends BaseSensor {
             case OK:
                 LOG.info("Connected to I2P Network.");
                 restartAttempts = 0; // Reset restart attempts
+
                 updateStatus(SensorStatus.NETWORK_CONNECTED);
                 break;
             case IPV4_DISABLED_IPV6_OK:

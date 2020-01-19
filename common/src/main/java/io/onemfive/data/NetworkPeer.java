@@ -95,9 +95,9 @@ public final class NetworkPeer implements JSONSerializable {
     public Map<String, Object> toMap() {
         Map<String,Object> m = new HashMap<>();
         if(local!=null)
-            m.put("local", local.toString());
+            m.put("local", local);
         if(network!=null)
-            m.put("network",network.name());
+            m.put("network", network.name());
         if(did!=null)
             m.put("did",did.toMap());
         return m;

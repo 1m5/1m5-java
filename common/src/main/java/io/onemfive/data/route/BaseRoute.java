@@ -37,17 +37,10 @@ import java.util.Random;
  */
 public abstract class BaseRoute implements Route {
 
-//    protected Envelope envelope;
     protected String service;
     protected String operation;
     protected Boolean routed = false;
     protected Long routeId = new Random(System.currentTimeMillis()).nextLong();
-
-//    @Override
-//    public Route setEnvelope(Envelope envelope) {
-//        this.envelope = envelope;
-//    }
-
 
     @Override
     public String getService() {
@@ -102,7 +95,7 @@ public abstract class BaseRoute implements Route {
     public void fromMap(Map<String, Object> m) {
         if(m.get("service")!=null) service = (String)m.get("service");
         if(m.get("operation")!=null) operation = (String)m.get("operation");
-        if(m.get("routed")!=null) routed = Boolean.parseBoolean((String)m.get("routed"));
-        if(m.get("routedId")!=null) routeId = Long.parseLong((String)m.get("routeId"));
+        if(m.get("routed")!=null) routed = (Boolean)m.get("routed");
+        if(m.get("routedId")!=null) routeId = (Long)m.get("routeId");
     }
 }
