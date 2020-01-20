@@ -44,8 +44,9 @@ public final class NetworkPeer implements JSONSerializable {
 
     private static Logger LOG = Logger.getLogger(NetworkPeer.class.getName());
 
-    protected Network network;
-    protected DID did;
+    private String id;
+    private Network network;
+    private DID did;
     protected Boolean local = false;
 
     public NetworkPeer() {
@@ -65,6 +66,14 @@ public final class NetworkPeer implements JSONSerializable {
         did = new DID();
         did.setUsername(username);
         did.setPassphrase(passphrase);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Network getNetwork() {
@@ -94,6 +103,8 @@ public final class NetworkPeer implements JSONSerializable {
     @Override
     public Map<String, Object> toMap() {
         Map<String,Object> m = new HashMap<>();
+        if(id!=null)
+            m.put("id", id);
         if(local!=null)
             m.put("local", local);
         if(network!=null)
@@ -105,6 +116,7 @@ public final class NetworkPeer implements JSONSerializable {
 
     @Override
     public void fromMap(Map<String, Object> m) {
+        if(m.get("id")!=null) id = (String)m.get("id");
         if(m.get("local")!=null) local = (Boolean) m.get("local");
         if(m.get("network")!=null) network = Network.valueOf((String)m.get("network"));
         if(m.get("did")!=null) {

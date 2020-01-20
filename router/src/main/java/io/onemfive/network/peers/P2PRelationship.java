@@ -32,8 +32,7 @@ import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
 import org.neo4j.graphdb.RelationshipType;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Relationships among Network Peers.
@@ -41,6 +40,11 @@ import java.util.Map;
  * @author objectorange
  */
 public class P2PRelationship implements JSONSerializable {
+
+    public static final String TOTAL_ACKS = "totalAcks";
+    public static final String LAST_ACK_TIME = "lastAckTime";
+    public static final String AVG_ACK_LATENCY_MS = "avgAckLatencyMS";
+    public static final String MEDIAN_ACK_LATENCY_MS = "medAckLatencyMS";
 
     public enum RelType implements RelationshipType {
         Known,
@@ -51,8 +55,7 @@ public class P2PRelationship implements JSONSerializable {
 
     private Long totalAcks = 0L;
     private Long lastAckTime = 0L;
-    private Long avgAckLatencyMS = 0L;
-    private String ackTimesTracked;
+    private LinkedList<Long> ackTimesTracked = new LinkedList<>();
 
     public void setTotalAcks(long totalAcks) {
         this.totalAcks = totalAcks;
@@ -64,61 +67,43 @@ public class P2PRelationship implements JSONSerializable {
 
     public void addAckTimeTracked(long t) {
         if(t <= 0) return; // not an ack
-        if(ackTimesTracked ==null || ackTimesTracked.isEmpty()) {
-            ackTimesTracked = String.valueOf(t);
-        } else {
-            ackTimesTracked += "," + t;
-        }
-        int currNumberAcksTracked = ackTimesTracked.split(",").length;
-        while(currNumberAcksTracked > NetworkConfig.MaxAT) {
-            ackTimesTracked = ackTimesTracked.substring(ackTimesTracked.indexOf(",")+1);
-            currNumberAcksTracked--;
+        ackTimesTracked.add(t);
+        while(ackTimesTracked.size() > NetworkConfig.MaxAT) {
+            ackTimesTracked.removeFirst();
         }
         totalAcks++;
     }
 
-    public String getAckTimesTracked() {
+    public LinkedList<Long> getAckTimesTracked() {
         return ackTimesTracked;
     }
 
-    public void setAckTimesTracked(String ackTimes) {
-        this.ackTimesTracked = ackTimes;
-    }
-
     public Long getAvgAckLatencyMS() {
-        if(ackTimesTracked !=null) {
-            String[] times = ackTimesTracked.split(",");
-            long sum = 0L;
-            long t;
-            for (String ts : times) {
-                t = Long.parseLong(ts);
-                sum += t;
-            }
-            avgAckLatencyMS = sum / times.length;
-        } else {
-            avgAckLatencyMS = 0L;
+        long sum = 0L;
+        for (long ts : ackTimesTracked) {
+            sum += ts;
         }
-        return avgAckLatencyMS;
+        return sum / ackTimesTracked.size();
     }
 
-    public void setAvgAckLatencyMS(Long avgAckLatencyMS) {
-        this.avgAckLatencyMS = avgAckLatencyMS;
-    }
-
-    public Long getLastAckTime() {
-        return lastAckTime;
+    public Long getMedAckLatencyMS() {
+        return ackTimesTracked.get(ackTimesTracked.size() / 2);
     }
 
     public void setLastAckTime(Long lastAckTime) {
         this.lastAckTime = lastAckTime;
     }
+    public Long getLastAckTime() {
+        return lastAckTime;
+    }
 
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> m = new HashMap<>();
-        if(totalAcks !=null) m.put("totalAcks", totalAcks);
-        if(avgAckLatencyMS !=null) m.put("avgAckLatencyMS", avgAckLatencyMS);
-        if(lastAckTime!=null) m.put("lastAckTime", lastAckTime);
+        if(totalAcks !=null) m.put(TOTAL_ACKS, totalAcks);
+        m.put(AVG_ACK_LATENCY_MS, getAvgAckLatencyMS());
+        m.put(MEDIAN_ACK_LATENCY_MS, getMedAckLatencyMS());
+        if(lastAckTime!=null) m.put(LAST_ACK_TIME, lastAckTime);
         if(ackTimesTracked !=null) m.put("ackTimesTracked", ackTimesTracked);
         return m;
     }
@@ -126,14 +111,13 @@ public class P2PRelationship implements JSONSerializable {
     @Override
     public void fromMap(Map<String, Object> m) {
         if(m!=null) {
-            if(m.get("totalAcks")!=null)
-                totalAcks = (Long)m.get("totalAcks");
-            if(m.get("avgAckLatencyMS")!=null)
-                avgAckLatencyMS = (Long)m.get("avgAckLatencyMS");
-            if(m.get("lastAckTime")!=null)
-                lastAckTime = (Long)m.get("lastAckTime");
-            if(m.get("ackTimesTracked")!=null)
-                ackTimesTracked = (String)m.get("ackTimesTracked");
+            if(m.get(TOTAL_ACKS)!=null)
+                totalAcks = (Long)m.get(TOTAL_ACKS);
+            if(m.get(LAST_ACK_TIME)!=null)
+                lastAckTime = (Long)m.get(LAST_ACK_TIME);
+            if(m.get("ackTimesTracked")!=null) {
+                ackTimesTracked = (LinkedList<Long>) m.get("ackTimesTracked");
+            }
         }
     }
 

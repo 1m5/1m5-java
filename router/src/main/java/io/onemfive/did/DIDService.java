@@ -52,7 +52,7 @@ import static io.onemfive.did.HashRequest.UNKNOWN_HASH_ALGORITHM;
  *
  * @author objectorange
  */
-public class DIDService extends BaseService {
+public class    DIDService extends BaseService {
 
     private static final Logger LOG = Logger.getLogger(DIDService.class.getName());
 

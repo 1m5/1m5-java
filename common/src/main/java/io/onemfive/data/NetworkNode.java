@@ -24,17 +24,15 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network;
-
-import io.onemfive.data.Network;
-import io.onemfive.data.NetworkPeer;
+package io.onemfive.data;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A node on the Network. It represents the local physical
- * machine on the 1M5 network.
+ * machine on the 1M5 network and the local peers representing
+ * that machine for each network supported.
  */
 public final class NetworkNode {
 
@@ -55,9 +53,6 @@ public final class NetworkNode {
     }
 
     public NetworkPeer getLocalNetworkPeer(Network network) {
-        if(localPeers.get(network)==null) {
-            localPeers.put(network, new NetworkPeer(network));
-        }
         return localPeers.get(network);
     }
 

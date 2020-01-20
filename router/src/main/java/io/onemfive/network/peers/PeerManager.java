@@ -28,6 +28,7 @@ package io.onemfive.network.peers;
 
 import io.onemfive.data.AuthNRequest;
 import io.onemfive.data.Network;
+import io.onemfive.data.NetworkNode;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Request;
 import io.onemfive.network.Response;
@@ -38,6 +39,8 @@ import io.onemfive.network.NetworkConfig;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.RandomUtil;
 import io.onemfive.util.tasks.TaskRunner;
+import org.neo4j.cypher.internal.compiler.v2_3.pipes.matching.TraversalPathExpander;
+import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
@@ -55,10 +58,6 @@ public class PeerManager implements Runnable {
     private static final Logger LOG = Logger.getLogger(PeerManager.class.getName());
 
     public static final Label PEER_LABEL = Label.label(NetworkPeer.class.getSimpleName());
-    public static final String PEER_LOCAL = "localPeer";
-
-    // Peer-to-Peer Relationship
-    public static final String AVG_ACK_LATENCY_MS = "avgAckLatencyMS";
 
     public static final String DBNAME = "peers";
 
@@ -143,9 +142,11 @@ public class PeerManager implements Runnable {
 
     public void updateLocalAuthNPeer(AuthNRequest r) {
         if (r.statusCode == NO_ERROR) {
-            NetworkPeer localPeer = new NetworkPeer();
-            if(r.identityPublicKey.getAddress()!=null)
+            NetworkPeer localPeer = localNode.getLocalNetworkPeer();
+            if(r.identityPublicKey.getAddress()!=null) {
+                localPeer.setId(r.identityPublicKey.getAddress());
                 localPeer.getDid().getPublicKey().setAddress(r.identityPublicKey.getAddress());
+            }
             if(r.identityPublicKey.getFingerprint()!=null)
                 localPeer.getDid().getPublicKey().setFingerprint(r.identityPublicKey.getFingerprint());
             localPeer.getDid().getPublicKey().isIdentityKey(true);
@@ -161,6 +162,8 @@ public class PeerManager implements Runnable {
     }
 
     public void updateLocalPeer(NetworkPeer np) {
+        np.setId(localNode.getLocalNetworkPeer().getId());
+        np.setLocal(true);
         localNode.addLocalNetworkPeer(np);
         savePeer(np, true);
         LOG.info("Update local Peer: "+np);
@@ -190,7 +193,7 @@ public class PeerManager implements Runnable {
     public List<NetworkPeer> findLowestLatencyPath(NetworkPeer fromPeer, NetworkPeer toPeer) {
         List<NetworkPeer> lowestLatencyPath = new ArrayList<>();
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.Known, Direction.OUTGOING), AVG_ACK_LATENCY_MS);
+            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.Known, Direction.OUTGOING), P2PRelationship.AVG_ACK_LATENCY_MS);
             Node startNode = findPeerNode(fromPeer);
             Node endNode = findPeerNode(toPeer);
             if (startNode != null && endNode != null) {
@@ -201,6 +204,62 @@ public class PeerManager implements Runnable {
                 for(Node n : path.nodes()) {
                     np = toPeer(n);
                     lowestLatencyPath.add(np);
+                }
+            }
+            tx.success();
+        } catch (Exception e) {
+            LOG.warning(e.getLocalizedMessage());
+        }
+        return lowestLatencyPath;
+    }
+
+    /**
+     * Find lowest latency path between two nodes outgoing taking into consideration:
+     *      + sensors/networks supported by each node (Relationship type)
+     *      + average latency (of the last n acks) of that network relationship
+     *      + median latency (of the last n acks) of that network relationship
+     *      + number of total acks of that network relationship (reliability)
+     *      + number of nacks of that network relationship
+     *
+     *
+     * @param fromPeer
+     * @param toPeer
+     * @param networks
+     * @return
+     */
+    public List<NetworkPeer> findLowestLatencyPathFiltered(NetworkPeer fromPeer, NetworkPeer toPeer, Network[] networks) {
+        CostEvaluator<Double> costEvaluator = new CostEvaluator<Double>() {
+            @Override
+            public Double getCost(Relationship relationship, Direction direction) {
+                Long avgAckLatencyMS = (Long) relationship.getProperty(P2PRelationship.AVG_ACK_LATENCY_MS);
+                Long medAckLatencyMS = (Long) relationship.getProperty(P2PRelationship.MEDIAN_ACK_LATENCY_MS);
+                Long totalAcks = (Long) relationship.getProperty(P2PRelationship.TOTAL_ACKS);
+                Long lastAckTime = (Long) relationship.getProperty(P2PRelationship.LAST_ACK_TIME);
+//                Long costE = (Long) relationship.getEndNode().getProperty("cost");
+                // Weigh median heavier than average yet ensure average is included to take into account extremes which are still important
+                Double score = (medAckLatencyMS * .75) + (avgAckLatencyMS * .25);
+                relationship.setProperty("score", score);
+                return score;
+            }
+        };
+        List<NetworkPeer> lowestLatencyPath = new ArrayList<>();
+        try (Transaction tx = db.getGraphDb().beginTx()) {
+            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.Known, Direction.OUTGOING), P2PRelationship.AVG_ACK_LATENCY_MS);
+//            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanderBuilder.allTypes(Direction.OUTGOING).)
+            Node startNode = findPeerNode(fromPeer);
+            Node endNode = findPeerNode(toPeer);
+            if (startNode != null && endNode != null) {
+                WeightedPath path = finder.findSinglePath(startNode, endNode);
+                double weight = path.weight();
+                LOG.info("Path weight: " + path.weight());
+                NetworkPeer np;
+                for(Node n : path.nodes()) {
+                    np = toPeer(n);
+                    lowestLatencyPath.add(np);
+//                    LOG.info("Node: " + n.getId() + "-" +  n.getProperty("cost"));
+                }
+                for (Relationship r: path.relationships()) {
+                    LOG.info("Relationship: " + r.getId() + "-" + r.getProperty("score") );
                 }
             }
             tx.success();
@@ -231,6 +290,14 @@ public class PeerManager implements Runnable {
             LOG.info("NetworkPeer to save has no Address. Skipping.");
             return false;
         }
+        if(p.getId()==null || p.getId().isEmpty()) {
+            if(p.getLocal() && localNode.getLocalNetworkPeer()!=null) {
+                p.setId(localNode.getLocalNetworkPeer().getId());
+            } else {
+                LOG.warning("NetworkPeer.id is empty. Must have an id for remote Network Peers to save.");
+                return false;
+            }
+        }
         boolean updated = false;
         try {
             updated = updatePeer(p);
@@ -241,7 +308,18 @@ public class PeerManager implements Runnable {
             return true;
         else if(autocreate) {
             LOG.info("Creating NetworkPeer in graph...");
-            long numberPeers = totalPeersByRelationship(localNode.getLocalNetworkPeer(p.getNetwork()), P2PRelationship.RelType.Known);
+            NetworkPeer localNP = localNode.getLocalNetworkPeer(p.getNetwork());
+            if(localNP==null) {
+                // No Local NP for this NP's network
+                if(p.getLocal()) {
+                    // This will be the local NP for its network
+                    localNP = p;
+                }
+            }
+            long numberPeers = 0;
+            if(localNP!=null) {
+                numberPeers = totalPeersByRelationship(localNP, P2PRelationship.RelType.Known);
+            }
             // TODO: Sensors configuration be network-specific
             if(numberPeers <= NetworkConfig.MaxPT) {
                 try (Transaction tx = db.getGraphDb().beginTx()) {
@@ -252,16 +330,16 @@ public class PeerManager implements Runnable {
                 } catch (Exception e) {
                     LOG.warning(e.getLocalizedMessage());
                 }
+                if(!isLocal(p) && !isRelated(p, P2PRelationship.RelType.Known)) {
+                    LOG.info("Peer not known: relating as known.");
+                    relatePeers(localNode.getLocalNetworkPeer(p.getNetwork()), p, P2PRelationship.RelType.Known);
+                    LOG.info("Peers related as known.");
+                }
             } else {
                 LOG.info("Not adding peer; max number of peers reached: "+ NetworkConfig.MaxPT);
             }
         } else {
             LOG.info("New Peer but autocreate is false, unable to save peer.");
-        }
-        if(!isRemoteLocal(p) && !isRelated(p, P2PRelationship.RelType.Known)) {
-            LOG.info("Peer not known: relating as known.");
-            relatePeers(localNode.getLocalNetworkPeer(p.getNetwork()), p, P2PRelationship.RelType.Known);
-            LOG.info("Peers related as known.");
         }
         return true;
     }
@@ -398,7 +476,7 @@ public class PeerManager implements Runnable {
         return count;
     }
 
-    public Boolean isRemoteLocal(NetworkPeer r) {
+    public Boolean isLocal(NetworkPeer r) {
         return localNode.getLocalNetworkPeer(r.getNetwork())!=null
                 && localNode.getLocalNetworkPeer(r.getNetwork()).getDid().getPublicKey().getAddress().equals(r.getDid().getPublicKey().getAddress());
     }

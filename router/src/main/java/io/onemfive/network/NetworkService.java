@@ -295,7 +295,7 @@ public class NetworkService extends BaseService {
                 LOG.info("Object a Packet...");
                 Packet packet = (Packet) obj;
                 packet.fromMap(mp);
-                if(peerManager.isRemoteLocal(packet.getDestinationPeer())) {
+                if(peerManager.isLocal(packet.getDestinationPeer())) {
                     // Packet meant for this local node
 
                 } else if(peerManager.isKnown(packet.getDestinationPeer())) {
