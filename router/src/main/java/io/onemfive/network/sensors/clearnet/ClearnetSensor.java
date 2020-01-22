@@ -26,7 +26,6 @@
  */
 package io.onemfive.network.sensors.clearnet;
 
-import io.onemfive.core.Config;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.*;
@@ -38,6 +37,7 @@ import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.util.BrowserUtil;
+import io.onemfive.util.Config;
 import io.onemfive.util.DLC;
 import io.onemfive.util.Multipart;
 import okhttp3.*;

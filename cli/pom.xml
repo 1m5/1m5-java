@@ -158,7 +158,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>io.onemfive.CLI</mainClass>
+							<mainClass>io.onemfive.cli.CLI</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

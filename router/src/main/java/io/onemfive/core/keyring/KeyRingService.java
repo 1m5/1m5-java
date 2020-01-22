@@ -33,6 +33,7 @@ import io.onemfive.data.EncryptionAlgorithm;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.PublicKey;
 import io.onemfive.data.route.Route;
+import io.onemfive.util.Config;
 import io.onemfive.util.DLC;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;

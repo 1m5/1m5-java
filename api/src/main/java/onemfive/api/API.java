@@ -53,6 +53,9 @@ public class API {
     private static ExecutorService executorService;
     private static boolean isInitialized = false;
 
+    private static String host = "localhost";
+    private static int port = 2017;
+
     public static Envelope send(Envelope e) {
         if(!isInitialized || !init()) {
             handleFailure(e, "Unable to initialize API.");
@@ -180,7 +183,7 @@ public class API {
      */
     public static boolean init() {
         try {
-            url = new URL("http://localhost:2017");
+            url = new URL("http://"+host+":"+port);
             LOG.info("Setting up http spec....");
             httpSpec = new ConnectionSpec
                     .Builder(ConnectionSpec.CLEARTEXT)

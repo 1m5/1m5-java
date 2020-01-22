@@ -26,7 +26,7 @@
  */
 package io.onemfive;
 
-import io.onemfive.core.Config;
+import io.onemfive.util.Config;
 import io.onemfive.core.OneMFiveAppContext;
 import io.onemfive.core.ServiceStatus;
 import io.onemfive.core.ServiceStatusObserver;
@@ -35,7 +35,6 @@ import io.onemfive.core.client.Client;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.client.ClientStatusListener;
 import io.onemfive.data.ServiceCallback;
-//import io.onemfive.desktop.DesktopTray;
 import io.onemfive.data.Envelope;
 import io.onemfive.util.DLC;
 //import io.onemfive.desktop.DesktopApp;

@@ -33,13 +33,10 @@ import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.route.ExternalRoute;
 import io.onemfive.network.peers.PeerManager;
-import io.onemfive.util.FileUtil;
+import io.onemfive.util.*;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.*;
 import io.onemfive.data.route.Route;
-import io.onemfive.util.DLC;
-import io.onemfive.util.HashUtil;
-import io.onemfive.util.JSONParser;
 import io.onemfive.data.AuthenticateDIDRequest;
 import io.onemfive.data.DID;
 import io.onemfive.did.DIDService;
@@ -579,8 +576,6 @@ public class NetworkService extends BaseService {
     private Boolean sensorAvailable(ManCon minManCon) {
         return sensorManager.lookupByManCon(minManCon, true) != null;
     }
-
-
 
     public SensorManager getSensorManager() {
         return sensorManager;

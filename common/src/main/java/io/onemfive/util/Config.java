@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.core;
+package io.onemfive.util;
 
 import java.io.*;
 import java.util.Enumeration;
@@ -85,58 +85,58 @@ public class Config {
         return p;
     }
 
-    public static Properties loadFromBase(String name) throws IOException {
-        LOG.info("Loading properties file "+name+"...");
-        Properties p = new Properties();
-        InputStream is = null;
-        String path = OneMFiveAppContext.getInstance().getBaseDir()+"/"+name;
-        LOG.info("Loading properties file from "+path+"...");
-        File folder = new File(path);
-        boolean pathExists = true;
-        if(folder.exists()) {
-            try {
-                is = new FileInputStream(path);
-                p.load(is);
-                LOG.info("Loaded properties file " + path + " with following name-value pairs:");
-                Enumeration propNames = p.propertyNames();
-                while (propNames.hasMoreElements()) {
-                    String propName = (String) propNames.nextElement();
-                    LOG.info(propName + ":" + p.getProperty(propName));
-                }
-            } catch (Exception e) {
-                LOG.warning("Failed to load properties file " + path);
-                throw e;
-            } finally {
-                if (is != null)
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                    }
-            }
-        } else {
-            try {
-                pathExists = folder.createNewFile();
-            } catch (IOException e) {
-                LOG.warning("Failed to create new file at: "+path);
-                throw(e);
-            }
-        }
-        if(!pathExists) {
-            LOG.warning("Couldn't create path: "+path);
-        }
+//    public static Properties loadFromBase(String name) throws IOException {
+//        LOG.info("Loading properties file "+name+"...");
+//        Properties p = new Properties();
+//        InputStream is = null;
+//        String path = OneMFiveAppContext.getInstance().getBaseDir()+"/"+name;
+//        LOG.info("Loading properties file from "+path+"...");
+//        File folder = new File(path);
+//        boolean pathExists = true;
+//        if(folder.exists()) {
+//            try {
+//                is = new FileInputStream(path);
+//                p.load(is);
+//                LOG.info("Loaded properties file " + path + " with following name-value pairs:");
+//                Enumeration propNames = p.propertyNames();
+//                while (propNames.hasMoreElements()) {
+//                    String propName = (String) propNames.nextElement();
+//                    LOG.info(propName + ":" + p.getProperty(propName));
+//                }
+//            } catch (Exception e) {
+//                LOG.warning("Failed to load properties file " + path);
+//                throw e;
+//            } finally {
+//                if (is != null)
+//                    try {
+//                        is.close();
+//                    } catch (IOException e) {
+//                    }
+//            }
+//        } else {
+//            try {
+//                pathExists = folder.createNewFile();
+//            } catch (IOException e) {
+//                LOG.warning("Failed to create new file at: "+path);
+//                throw(e);
+//            }
+//        }
+//        if(!pathExists) {
+//            LOG.warning("Couldn't create path: "+path);
+//        }
+//
+//        return p;
+//    }
 
-        return p;
-    }
+//    public static void saveToClasspath(String name, Properties props) throws IOException {
+//        LOG.info("Saving properties file "+name+"...");
+//        props.store(new FileWriter(name), null);
+//    }
 
-    public static void saveToClasspath(String name, Properties props) throws IOException {
-        LOG.info("Saving properties file "+name+"...");
-        props.store(new FileWriter(name), null);
-    }
-
-    public static void saveToBase(String name, Properties props) throws IOException {
-        LOG.info("Saving properties file "+name+"...");
-        String path = OneMFiveAppContext.getInstance().getBaseDir()+"/"+name;
-        props.store(new FileWriter(path), null);
-    }
+//    public static void saveToBase(String name, Properties props) throws IOException {
+//        LOG.info("Saving properties file "+name+"...");
+//        String path = OneMFiveAppContext.getInstance().getBaseDir()+"/"+name;
+//        props.store(new FileWriter(path), null);
+//    }
 
 }

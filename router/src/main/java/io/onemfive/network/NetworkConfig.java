@@ -26,7 +26,7 @@
  */
 package io.onemfive.network;
 
-import io.onemfive.core.Config;
+import io.onemfive.util.Config;
 import io.onemfive.data.ManCon;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.util.FileUtil;

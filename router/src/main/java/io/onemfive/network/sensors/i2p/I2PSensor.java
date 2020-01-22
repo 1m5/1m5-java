@@ -26,9 +26,9 @@
  */
 package io.onemfive.network.sensors.i2p;
 
-import io.onemfive.core.*;
 import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.SensorSession;
+import io.onemfive.util.Config;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.*;
 import io.onemfive.network.sensors.BaseSensor;

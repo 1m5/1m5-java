@@ -32,7 +32,7 @@ Please send donation request to info@1m5.io for a BTC address.
 
 ## Opportunities
 [**Freedom of Speech**](https://en.wikipedia.org/wiki/Freedom_of_speech) - a principle that supports the freedom of
-an individual or a community to articulate their  opinions and ideas without fear of retaliation, censorship,
+an individual or a community to articulate their opinions and ideas without fear of retaliation, censorship,
 or sanction. The term "freedom of expression" is sometimes used synonymously but includes any act of seeking,
 receiving, and imparting information or ideas, regardless of the medium used.
 
