@@ -397,12 +397,6 @@ public class ClearnetSensor extends BaseSensor {
     public boolean start(Properties p) {
         LOG.info("Starting...");
         updateStatus(SensorStatus.INITIALIZING);
-        Config.logProperties(p);
-        try {
-            properties = Config.loadFromClasspath("1m5-sensors-clearnet.config", p, false);
-        } catch (Exception e) {
-            LOG.warning(e.getLocalizedMessage());
-        }
 
         String sensorsDirStr = properties.getProperty("1m5.dir.sensors");
         if (sensorsDirStr == null) {

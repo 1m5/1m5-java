@@ -38,7 +38,7 @@ import io.onemfive.network.sensors.SensorTask;
 import io.onemfive.util.DLC;
 import io.onemfive.util.tasks.TaskRunner;
 
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -50,6 +50,25 @@ public class I2PPeerDiscovery extends SensorTask {
 
     private Logger LOG = Logger.getLogger(I2PPeerDiscovery.class.getName());
 
+    // Seeds
+    public static List<NetworkPeer> seeds = new ArrayList<>();
+    // Banned
+    public static List<NetworkPeer> banned = new ArrayList<>();
+    // Min Peers Tracked - the point at which Discovery process goes into 'hyper' mode.
+    public static int MinPT = 10;
+    // Max Peers Tracked - the total number of Peers to attempt to maintain knowledge of
+    public static int MaxPT = 100;
+    // Max Peers Sent - Maximum number of peers to send in a peer list (the bigger a datagram, the less chance of it getting through).
+    public static int MaxPS = 5;
+    // Max Acknowledgments Tracked
+    public static int MaxAT = 20;
+    // Update Interval - seconds between Discovery process
+    public static int UI = 60;
+    // Reliable Peer Min Acks
+    public static int MinAckRP = 20;
+    // Super Reliable Peer Min Acks
+    public static int MinAckSRP = 10000;
+
     private NetworkPeer localPeer;
     private PeerManager peerManager;
 
@@ -58,6 +77,15 @@ public class I2PPeerDiscovery extends SensorTask {
         this.peerManager = peerManager;
         this.localPeer = localPeer;
         periodicity = getPeriodicity();
+
+        NetworkPeer seedA = new NetworkPeer();
+        seedA.setNetwork(Network.I2P);
+        seedA.getDid().getPublicKey().setAddress("6CmEr1T5hbxrdJda4KI1oVF7TN2ifiFNao4EKd9IWQiAh5HLyh0etfIbtNnK7wrW27o1ArjuIDdsdxP1CxDeH2Rm~xHAmgGS59j20DdIeDm0zJX4seQXBjQw044d0Wo76Sb8Ap6iZJ8akiiLztiH2XKY1XXKX7ZopdZj76GdjNKbmJFs1r7vDgk2DL1GKA22JTFz89-F3RXktVGhhSMVoBqbQDQI3T73qGS20gku5nZBbOhid7XYQIxsG~k9Por-YO6OtpaGY2elIgIWhOtc0trdccemojmDCTJok-8ammddvC~FXHb2PDCq5dRRbAZWZywXYdNClm1tgXNd5ux88XpUiWHTK7Hrw9cVClJxz3PBwHlWflhAXcsK6YdBr9FmOXZw475LMEhM3Vy8vKr7v1iuWUwlMhMiJLtZ5uWqqqOae9O7QRloQYzzdr2GFIohICxQ~xtIt4bLVbIawnxpiqSKLAAcKtbWIV8skdsCUePbQeE9aRftEZ5SorK-yW8XAAAA");
+        seedA.getDid().getPublicKey().setFingerprint("aXHaBjEuP39ucGhzNuKY9EnJA~KLJrhorqBIzY6liQo=");
+        seedA.getDid().getPublicKey().setType("ElGamal/None/NoPadding");
+        seedA.getDid().getPublicKey().isIdentityKey(true);
+        seedA.getDid().getPublicKey().setBase64Encoded(true);
+        seeds.add(seedA);
     }
 
     @Override
@@ -66,18 +94,18 @@ public class I2PPeerDiscovery extends SensorTask {
         if(totalReliable < 1 )
             return 5 * 1000L; // Every five seconds until we have at least one reliable
         else
-            return NetworkConfig.UI * 1000L; // wait for UI seconds
+            return UI * 1000L; // wait for UI seconds
     }
 
     @Override
     public Boolean execute() {
         LOG.info("Running I2P Peer Discovery...");
+        started = true;
         long totalKnown = peerManager.totalPeersByRelationship(localPeer, P2PRelationship.RelType.Known);
         if(totalKnown < 1) {
             LOG.info("No I2P peers known.");
-            if(NetworkConfig.seeds!=null && NetworkConfig.seeds.size() > 0) {
+            if(seeds!=null && seeds.size() > 0) {
                 // Launch Seeds
-                List<NetworkPeer> seeds = NetworkConfig.seeds.get(NetworkConfig.env);
                 for (NetworkPeer seed : seeds) {
                     if(seed.getNetwork()!= Network.I2P) {
                         LOG.warning("Seed provided is not for I2P.");
@@ -106,8 +134,8 @@ public class I2PPeerDiscovery extends SensorTask {
                 LOG.info("No seeds provided.");
                 return false;
             }
-        } else if(totalKnown < NetworkConfig.MaxPT) {
-            LOG.info(totalKnown+" known peers less than Maximum Peers Tracked of "+ NetworkConfig.MaxPT+"; continuing peer discovery...");
+        } else if(totalKnown < MaxPT) {
+            LOG.info(totalKnown+" known peers less than Maximum Peers Tracked of "+ MaxPT+"; continuing peer discovery...");
             NetworkPeer p = peerManager.getRandomKnownPeer(localPeer);
             if(p != null) {
                 LOG.info("Sending Peer Status Request to Known Peer...");
@@ -122,8 +150,9 @@ public class I2PPeerDiscovery extends SensorTask {
                 LOG.info("Sent Peer Status Request to Known Peer.");
             }
         } else {
-            LOG.info("Maximum Peers Tracked of "+ NetworkConfig.MaxPT+" reached. No need to look for more.");
+            LOG.info("Maximum Peers Tracked of "+ MaxPT+" reached. No need to look for more.");
         }
+        started = false;
         return true;
     }
 

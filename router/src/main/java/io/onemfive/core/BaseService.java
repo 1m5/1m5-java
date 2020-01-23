@@ -27,6 +27,7 @@
 package io.onemfive.core;
 
 import io.onemfive.core.infovault.InfoVaultDB;
+import io.onemfive.core.infovault.InfoVaultService;
 import io.onemfive.data.*;
 import io.onemfive.data.route.Route;
 
@@ -46,7 +47,6 @@ public abstract class BaseService implements MessageConsumer, Service, LifeCycle
 
     protected boolean orchestrator = false;
     protected MessageProducer producer;
-    protected InfoVaultDB infoVaultDB;
     private File serviceDirectory;
     private String version;
 
@@ -213,17 +213,18 @@ public abstract class BaseService implements MessageConsumer, Service, LifeCycle
             return false;
         }
         version = p.getProperty("1m5.version");
-        infoVaultDB = OneMFiveAppContext.getInstance().getInfoVaultDB();
         String baseStr = p.getProperty("1m5.dir.base");
         File servicesFolder = new File(baseStr + "/services");
         if(!servicesFolder.exists() && !servicesFolder.mkdir()) {
             LOG.severe("Unable to create services directory: " + baseStr + "/services");
             return false;
         }
-        try {
-            p.setProperty("1m5.dir.services",servicesFolder.getCanonicalPath());
-        } catch (IOException e) {
-            LOG.warning(e.getLocalizedMessage());
+        if(p.getProperty("1m5.dir.services")==null) {
+            try {
+                p.setProperty("1m5.dir.services", servicesFolder.getCanonicalPath());
+            } catch (IOException e) {
+                LOG.warning(e.getLocalizedMessage());
+            }
         }
         String serviceDirectoryPath = null;
         try {
@@ -260,8 +261,6 @@ public abstract class BaseService implements MessageConsumer, Service, LifeCycle
 
     @Override
     public boolean shutdown() {
-        if(infoVaultDB != null && infoVaultDB.getStatus() == InfoVaultDB.Status.Running)
-            infoVaultDB.teardown();
         return true;
     }
 

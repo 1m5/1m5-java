@@ -72,6 +72,8 @@ public class NetworkService extends BaseService {
     private Properties properties;
     private TaskRunner taskRunner;
 
+    private ManCon manCon = ManCon.HIGH; // Default
+
     public NetworkService() {
         super();
     }
@@ -477,7 +479,7 @@ public class NetworkService extends BaseService {
                 if(currentServiceStatus == ServiceStatus.RUNNING
                         || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING
                         || currentServiceStatus == ServiceStatus.DEGRADED_RUNNING
-                        && sensorAvailable(NetworkConfig.currentManCon))
+                        && sensorAvailable(manCon))
                     updateStatus(ServiceStatus.DEGRADED_RUNNING);
                 else
                     updateStatus(ServiceStatus.BLOCKED);
@@ -622,8 +624,6 @@ public class NetworkService extends BaseService {
         } catch (IOException e) {
             LOG.warning("IOException caught while building sensors directory: \n"+e.getLocalizedMessage());
         }
-
-        NetworkConfig.update(properties);
 
         // Sensor Manager
         sensorManager = new SensorManager();

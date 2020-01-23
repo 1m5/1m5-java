@@ -48,14 +48,9 @@ public class OneMFiveAppContext {
     // TODO: Move configurations to its own class
 //    protected final OneMFiveConfig config;
 
-    protected final Properties overrideProps = new Properties();
-    private static Properties envProps;
+    public static final Properties config = new Properties();
 
     private ServiceBus serviceBus;
-
-    private InfoVaultDB infoVaultDB;
-
-    private volatile boolean statManagerInitialized;
 
     protected Set<Runnable> shutdownTasks;
     private File baseDir;
@@ -117,7 +112,7 @@ public class OneMFiveAppContext {
      */
     private OneMFiveAppContext(boolean doInit, Properties properties) {
         this.initialize = doInit;
-        envProps = properties;
+        config.putAll(properties);
     }
 
     public static void setLocale(Locale l) {
@@ -133,8 +128,8 @@ public class OneMFiveAppContext {
 
     public static String getVersion() {
         if(version==null) {
-            if (envProps != null && envProps.get("1m5.version") != null) {
-                version = envProps.getProperty("1m5.version");
+            if (config != null && config.get("1m5.version") != null) {
+                version = config.getProperty("1m5.version");
             } else {
                 version = "notset";
             }
@@ -146,7 +141,7 @@ public class OneMFiveAppContext {
         // set early to ensure it's not called twice
         this.configured = true;
         try {
-            overrideProps.putAll(Config.loadFromClasspath("1m5.config", envProps, false));
+            config.putAll(Config.loadFromClasspath("1m5.config", config, false));
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());
         }
@@ -178,7 +173,7 @@ public class OneMFiveAppContext {
                 return;
             }
             if(baseDir!=null) {
-                overrideProps.put("1m5.dir.base", baseDir.getAbsolutePath());
+                config.put("1m5.dir.base", baseDir.getAbsolutePath());
             } else {
                 baseDir = SystemSettings.getSystemApplicationDir("1m5", "router", true);
                 if (baseDir == null) {
@@ -186,7 +181,7 @@ public class OneMFiveAppContext {
                     return;
                 } else {
                     baseStr = baseDir.getAbsolutePath();
-                    overrideProps.put("1m5.dir.base", baseStr);
+                    config.put("1m5.dir.base", baseStr);
                 }
             }
         }
@@ -197,7 +192,7 @@ public class OneMFiveAppContext {
             LOG.severe("Unable to create config directory in 1M5 base directory.");
             return;
         } else {
-            overrideProps.put("1m5.dir.config",configDir.getAbsolutePath());
+            config.put("1m5.dir.config",configDir.getAbsolutePath());
         }
 
         libDir = new SecureFile(baseDir, "lib");
@@ -205,7 +200,7 @@ public class OneMFiveAppContext {
             LOG.severe("Unable to create lib directory in 1M5 base directory.");
             return;
         } else {
-            overrideProps.put("1m5.dir.lib",libDir.getAbsolutePath());
+            config.put("1m5.dir.lib",libDir.getAbsolutePath());
         }
 
         dataDir = new SecureFile(baseDir, "data");
@@ -213,7 +208,7 @@ public class OneMFiveAppContext {
             LOG.severe("Unable to create data directory in 1M5 base directory.");
             return;
         } else {
-            overrideProps.put("1m5.dir.data",dataDir.getAbsolutePath());
+            config.put("1m5.dir.data",dataDir.getAbsolutePath());
         }
 
         cacheDir = new SecureFile(baseDir, "cache");
@@ -221,7 +216,7 @@ public class OneMFiveAppContext {
             LOG.severe("Unable to create cache directory in 1M5 base directory.");
             return;
         } else {
-            overrideProps.put("1m5.dir.cache",cacheDir.getAbsolutePath());
+            config.put("1m5.dir.cache",cacheDir.getAbsolutePath());
         }
 
         pidDir = new SecureFile(baseDir, "pid");
@@ -229,7 +224,7 @@ public class OneMFiveAppContext {
             LOG.severe("Unable to create pid directory in 1M5 base directory.");
             return;
         } else {
-            overrideProps.put("1m5.dir.pid",pidDir.getAbsolutePath());
+            config.put("1m5.dir.pid",pidDir.getAbsolutePath());
         }
 
         logDir = new SecureFile(baseDir, "logs");
@@ -237,7 +232,7 @@ public class OneMFiveAppContext {
             LOG.severe("Unable to create logs directory in 1M5 base directory.");
             return;
         } else {
-            overrideProps.put("1m5.dir.log",logDir.getAbsolutePath());
+            config.put("1m5.dir.log",logDir.getAbsolutePath());
         }
 
         tmpDir = new SecureFile(baseDir, "tmp");
@@ -245,7 +240,7 @@ public class OneMFiveAppContext {
             LOG.severe("Unable to create tmp directory in 1M5 base directory.");
             return;
         } else {
-            overrideProps.put("1m5.dir.temp",tmpDir.getAbsolutePath());
+            config.put("1m5.dir.temp",tmpDir.getAbsolutePath());
         }
 
         servicesDir = new SecureFile(baseDir, "services");
@@ -253,7 +248,7 @@ public class OneMFiveAppContext {
             LOG.severe("Unable to create services directory in 1M5 base directory.");
             return;
         } else {
-            overrideProps.put("1m5.dir.services",servicesDir.getAbsolutePath());
+            config.put("1m5.dir.services",servicesDir.getAbsolutePath());
         }
 
         LOG.info("1M5 Directories: " +
@@ -268,7 +263,7 @@ public class OneMFiveAppContext {
 
         clientAppManager = new ClientAppManager(false);
         // Instantiate Service Bus
-        serviceBus = new ServiceBus(overrideProps, clientAppManager);
+        serviceBus = new ServiceBus(config, clientAppManager);
 
         if (initialize) {
             if (globalAppContext == null) {
@@ -279,10 +274,6 @@ public class OneMFiveAppContext {
             }
         }
         this.configured = true;
-    }
-
-    public InfoVaultDB getInfoVaultDB() {
-        return infoVaultDB;
     }
 
     public ClientAppManager getClientAppManager(Properties props) {
@@ -414,7 +405,7 @@ public class OneMFiveAppContext {
      *
      */
     public String getProperty(String propName) {
-        String rv = overrideProps.getProperty(propName);
+        String rv = config.getProperty(propName);
         if (rv != null)
             return rv;
         return System.getProperty(propName);
@@ -428,8 +419,8 @@ public class OneMFiveAppContext {
      *
      */
     public String getProperty(String propName, String defaultValue) {
-        if (overrideProps.containsKey(propName))
-            return overrideProps.getProperty(propName, defaultValue);
+        if (config.containsKey(propName))
+            return config.getProperty(propName, defaultValue);
         return System.getProperty(propName, defaultValue);
     }
 
@@ -437,7 +428,7 @@ public class OneMFiveAppContext {
      * Return an int with an int default
      */
     public int getProperty(String propName, int defaultVal) {
-        String val = overrideProps.getProperty(propName);
+        String val = config.getProperty(propName);
         if (val == null)
             val = System.getProperty(propName);
         int ival = defaultVal;
@@ -453,7 +444,7 @@ public class OneMFiveAppContext {
      * Return a long with a long default
      */
     public long getProperty(String propName, long defaultVal) {
-        String val  = overrideProps.getProperty(propName);
+        String val  = config.getProperty(propName);
         if (val == null)
             val = System.getProperty(propName);
         long rv = defaultVal;
@@ -500,8 +491,8 @@ public class OneMFiveAppContext {
     public Set<String> getPropertyNames() {
         // clone to avoid ConcurrentModificationException
         Set<String> names = new HashSet<String>((Set<String>) (Set) ((java.util.Properties) System.getProperties().clone()).keySet()); // TODO-Java6: s/keySet()/stringPropertyNames()/
-        if (overrideProps != null)
-            names.addAll((Set<String>) (Set) overrideProps.keySet()); // TODO-Java6: s/keySet()/stringPropertyNames()/
+        if (config != null)
+            names.addAll((Set<String>) (Set) config.keySet()); // TODO-Java6: s/keySet()/stringPropertyNames()/
         return names;
     }
 
@@ -516,7 +507,7 @@ public class OneMFiveAppContext {
         // clone to avoid ConcurrentModificationException
         Properties props = new Properties();
         props.putAll((java.util.Properties)System.getProperties().clone());
-        props.putAll(overrideProps);
+        props.putAll(config);
         return props;
     }
 

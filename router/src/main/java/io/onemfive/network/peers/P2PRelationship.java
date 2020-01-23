@@ -27,7 +27,6 @@
 package io.onemfive.network.peers;
 
 import io.onemfive.data.JSONSerializable;
-import io.onemfive.network.NetworkConfig;
 import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
 import org.neo4j.graphdb.RelationshipType;
@@ -45,6 +44,12 @@ public class P2PRelationship implements JSONSerializable {
     public static final String LAST_ACK_TIME = "lastAckTime";
     public static final String AVG_ACK_LATENCY_MS = "avgAckLatencyMS";
     public static final String MEDIAN_ACK_LATENCY_MS = "medAckLatencyMS";
+
+    public static final int MaxPeersTracked = 100000;
+    public static final int MaxPeersShared = 5;
+    public static final int MinAckReliablePeer = 100;
+    public static final int MinAckSuperReliablePeer = 10000;
+    public static final int MaxAcksTracked = 50;
 
     public enum RelType implements RelationshipType {
         Known,
@@ -68,7 +73,7 @@ public class P2PRelationship implements JSONSerializable {
     public void addAckTimeTracked(long t) {
         if(t <= 0) return; // not an ack
         ackTimesTracked.add(t);
-        while(ackTimesTracked.size() > NetworkConfig.MaxAT) {
+        while(ackTimesTracked.size() > MaxAcksTracked) {
             ackTimesTracked.removeFirst();
         }
         totalAcks++;

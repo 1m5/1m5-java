@@ -28,12 +28,15 @@ package io.onemfive.network.sensors.tor;
 
 import io.onemfive.data.*;
 import io.onemfive.network.*;
+import io.onemfive.network.peers.P2PRelationship;
+import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.SensorTask;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.util.DLC;
 import io.onemfive.network.ops.PingRequestOp;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -41,34 +44,57 @@ public class TorPeerDiscovery extends SensorTask {
 
     private static final Logger LOG = Logger.getLogger(TorPeerDiscovery.class.getName());
 
+    // Hidden Services
+    public static List<NetworkPeer> hiddenServices = new ArrayList<>();
+    // Banned
+    public static List<NetworkPeer> banned = new ArrayList<>();
+
     private NetworkPeer localPeer;
-    private Map<String, NetworkPeer> peers;
+    private PeerManager peerManager;
 
     public TorPeerDiscovery(NetworkPeer localPeer, Map<String, NetworkPeer> peers, TorSensor sensor, TaskRunner taskRunner) {
         super(TorPeerDiscovery.class.getName(), taskRunner, sensor);
         this.localPeer = localPeer;
-        this.peers = peers;
+
     }
 
     @Override
     public Boolean execute() {
+        LOG.info("Running Tor Peer Discovery...");
         started = true;
-        if(peers != null && peers.size() > 0) {
-            Collection<NetworkPeer> peersList = peers.values();
-            for (NetworkPeer peer : peersList) {
-                Envelope envelope = Envelope.documentFactory();
-                envelope.setManCon(ManCon.MEDIUM);
-                DLC.addExternalRoute(NetworkService.class, PingRequestOp.class.getName(), envelope, localPeer, peer);
-                Packet packet = new Request();
-                packet.setOriginationPeer(localPeer);
-                packet.setFromPeer(localPeer);
-                packet.setDestinationPeer(peer);
-                packet.setToPeer(peer);
-                packet.setEnvelope(envelope);
-                sensor.sendOut(packet);
+        long totalKnown = peerManager.totalPeersByRelationship(localPeer, P2PRelationship.RelType.Known);
+        LOG.info(totalKnown+" Tor peers known.");
+        if(hiddenServices!=null && hiddenServices.size() > 0) {
+            // Verify Tor Hidden Services Status
+            for (NetworkPeer hiddenService : hiddenServices) {
+                if(hiddenService.getNetwork()!= Network.TOR) {
+                    LOG.warning("HiddenService provided is not for TOR.");
+                } else if(hiddenService.getDid().getPublicKey().getAddress().isEmpty()) {
+                    LOG.warning("HiddenService provided does not have an address.");
+                } else if(hiddenService.getDid().getPublicKey().getAddress().equals(localPeer.getDid().getPublicKey().getAddress())) {
+                    LOG.info("HiddenService is local peer.");
+                    hiddenServices.remove(hiddenService);
+                } else {
+                    LOG.info("Sending Peer Status Request to HiddenService Peer:\n\t" + hiddenService);
+                    Envelope e = Envelope.documentFactory();
+                    DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
+                    Request request = new Request();
+                    request.setOriginationPeer(localPeer);
+                    request.setFromPeer(localPeer);
+                    request.setDestinationPeer(hiddenService);
+                    request.setToPeer(hiddenService);
+                    request.setEnvelope(e);
+                    if(sensor.sendOut(request)) {
+                        LOG.info("Sent Peer Status Request to HiddenService.");
+                    } else {
+                        LOG.warning("A problem occurred attempting to send out Peer Status Request.");
+                    }
+                }
             }
+        } else {
+            LOG.info("No hidden services provided.");
+            return false;
         }
-        lastCompletionTime = System.currentTimeMillis();
         started = false;
         return true;
     }
