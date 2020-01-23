@@ -22,13 +22,28 @@ Bouncycastle is embedded in 1M5 Core and its MIT-like license is [here](http://w
 * azad (Erbil Kaplan) - [LinkedIn](https://www.linkedin.com/in/erbil-kaplan-b8971b18/) | PGP: 2EBC 2239 E9B8 2BCA 7176 77FE FD80 A0C2 95FD EBAC
 * z0??0z
 
+## Contributions
+Contributions can be made by forking 1M5 in GitHub, making a change, and making a pull request with an explanation on what
+the change provides. If accepted, it will be merged into the main branch. If a bounty was placed on an issue that was
+fixed by the change, it will paid out at that point by requesting a crypto address from you. If many improvements are done
+over time, you may be invited to join our team. If you have a large addition you would like to make, please send the team
+a proposal via info@1m5.io and we will review and get back with you. Our team is kept semi-private with some members
+trying for complete anonymity. We respect your right to privacy whether you decide to be entirely public, completely
+anonymous, or somewhere in between. That needs to come from each individual's circumstances.
+
+If you ever see the codebase with no commits for a long period of time with no communications, please fork and continue
+the effort. Global free speech is imperative to a free humanity from those few who wish to enslave the rest under any
+guise.
+
+Also feel free to fork and go your own way if you desire. All work is in the public domain of humanity; no one
+person nor organization has any right to control speech, an inalienable individual natural right, and thus the flow
+of information which includes money.
+
 ## Bounties
-Paid in Bitcoin
+Paid in Bitcoin (BTC), Monero (XMR), or whatever crypto-currency is desired, available, and agreed upon.
 
 ## Donations
-
-### Bitcoin
-Please send donation request to info@1m5.io for a BTC address.
+Please send donation requests to info@1m5.io for an address.
 
 ## Opportunities
 [**Freedom of Speech**](https://en.wikipedia.org/wiki/Freedom_of_speech) - a principle that supports the freedom of
@@ -88,80 +103,90 @@ self-sovereign decentralized identities (DID), Bitcoin, and other privacy preser
 3. Provides easy to use APIs for developers to embed in their applications to facilitate up-take.
 
 ### Routing
-All requests for services, e.g. Bitcoin, require an Envelope with a manCon level set. This manCon level decides
-what base level of privacy is desired. Options are None, Low, Medium, High, Very High, Extreme, and Neo.
-All P2P communications use I2P as the default with latency expectations between 200 milliseconds and 2 seconds.
-This is the default setting in the Envelope. When making web requests, remember to set the appropriate
-manCon level otherwise all web requests will use the HIGH manCon level routing all requests through the I2P layer.
+We provide a Maneuvering Condition (ManCon) setting to signal what level of maneuvering is likely required to prevent censorship.
+This should be set by the end user based on their circumstances. They should also be made aware of recommended ManCon
+levels for the jurisdiction they are currently in. These ManCon levels are largely based on [Press Freedom Index](https://en.wikipedia.org/wiki/Press_Freedom_Index)
+and updated on the [ManCon page](https://1m5.io/mancon.html).
 
-We provide a Maneuvering Condition status to signal what level of maneuvering is likely required to prevent censorship.
-The manCon level in the Evelope is where you start while the MANCON is determined by blocks encountered during
-routing and thus how to ratchet up resistance as these blocks occur.
+Setting the ManCon level manually by the end user informs the codebase what based level of ManCon should be used although
+final ManCon is determined by blocks encountered during routing and thus how to ratchet up resistance as these blocks occur.
 
-#### NONE
-This setting means no requirements are desired even including SSL.
+For developers using the API, all requests for services, e.g. Bitcoin, require an Envelope with a ManCon level set. This ManCon level decides
+what base level of privacy is desired. Options are Low, Medium, High, Very High, Extreme, and Neo.
+All P2P communications use High ManCon as the default resulting in the use of I2P with latency expectations between 200 milliseconds and 2 seconds.
+This is the default setting in the Envelope.
 
-* Web: HTTPS will be tried and if fails, will attempt HTTP if the URL is HTTP. If that fails, the request will be forwarded
-to other peers until a peer can make the request returning the result directly back to the requesting peer.
+When making web requests, remember to set the appropriate ManCon level otherwise all web requests will use the HIGH ManCon
+level thereby routing all web requests through the I2P layer to 1M5 nodes with Tor enabled resulting in higher than might be
+expected latencies yet very censorship-resistant and private page views. This is the ideal setup for people in China as an example wishing
+to view web pages globally without censorship and without getting a knock on their door where Tor is getting heavily blocked.
 
 #### LOW - MANCON 5
-Open/normal SSL based communications with no expected censorship or privacy intrusion attempts.
+Open/normal SSL based communications with no expected censorship or privacy intrusion attempts is the norm.
 
-* Web: will use HTTPS. Failures will not attempt HTTP but will use other peers to assist.
-* Tor for .onion addresses
-* I2P for .i2p addresses
-* I2P is used for peer-to-peer services such as messaging
+Examples: Norway, Iceland, Costa Rica, Jamaica, Ireland
+
+* Web: I2P used for .i2p addresses and Tor for other web requests including .onion addresses. If that fails, it will be assumed that the site is down.
+* P2P (Messenger): I2P used unless found to be blocked. Then Tor will be used as a tunnel to a peer that has I2P enabled.
+If Tor blocked, will ratchet up to 1DN for assistance.
+
+Expect latencies of 500 milliseconds to 2 seconds unless 1DN is needed.
 
 #### MEDIUM - MANCON 4
 Normal censorship attempts by states on reading news (public web sites getting blocked, government shutdown of cloud cdn content).
-When an HTTPS clearnet site gets blocked that has an associated Tor hidden service, that Tor hidden service will be used.
-All other routing remains unchanged.
+Many moving towards using Tor and/or VPNs although no fear of circumventing censorship attempts.
 
-* Web: will attempt to use Tor.
-If fails and an associated Tor hidden service is available, that hidden services will be used.
-If no Tor hidden service is associated with the site, other peers will be used to assist.
-Expect latencies of 500 milliseconds to 2 seconds.
+Examples: Australia, United States, France, United Kingdom
+
+* Web: Tor will be used. If that fails, the request will be forwarded to other peers until a peer can make the request
+returning the result directly back to the requesting peer. If those fail, it will be assumed that the site is down.
+* P2P unchanged
+
+Expect latencies of 500 milliseconds to 4 seconds unless 1DN is needed.
 
 #### HIGH - MANCON 3
-Tor hidden services that have been blocked or taken down but have an associated I2P eep site,
-that I2P eep site will be accessed.
+Tor and VPNs are beginning to get blocked. Many beginning to move to I2P. Some self-censorship likely. This is the default setting for 1M5.
 
-Default manCon in Envelope.
+Examples: Brazil, Greece, Poland, Panama, Nicaragua
 
 * Web: will use an I2P peer that has access to Tor to make the request.
-Expect latencies of 1-4 seconds.
+* P2P unchanged
+
+Expect latencies of 4-10 seconds.
 
 #### VERYHIGH - MANCON 2
-I2P eep sites getting attacked/targeted.
-Use 1M5 mainly with I2P with high delays.
-Only able to access information directly via I2P using a decentralized content distribution network, e.g. Inkrypt.
+I2P is getting attacked slowing the network and people are beginning to get threatened for circumventing censorship attempts resulting in self-censorship.
 
-* Web: will use an I2P peer with random delays that has access to Tor to make the request.
-Expect latencies of 2-3 minutes.
-* P2P: direct comms with I2P but with random delays. Expect latencies of 2-90 seconds.
+Examples: Mexico, Venezuela, Russia, India, Turkey
+
+* Web: will use I2P with random delays to forward all requests to a 1M5 peer with Tor access at a lower ManCon. If both I2P and
+Tor blocked at end user, 1DN will be used to find a 1M5 peer at a lower ManCon to fulfill the request.
+* P2P: will use I2P with random delays of 4-10 seconds. If I2P gets blocked, will attempt to use Tor as a tunnel. If that is blocked,
+1DN will be used.
+
+Expect latencies of 6-16 seconds unless 1DN used which could result in very large latencies where only asynchronous messaging
+(e.g. Email) and asynchronous web requests are plausible.
 
 #### EXTREME - MANCON 1
-Local cellular service towers shutdown.
-Use 1M5 with 1DN to route to peers with internet access.
+Internet has been blocked for end user, e.g. local cellular service towers shutdown or provider turns off access and/or
+threats of imprisonment and/or death are made to induce self-censorship with actual evidence of enforcement.
 
-Wide-ranging latencies but strong privacy.
+Examples: China, North Korea, East Turkestan, Iran, Saudi Arabia, Iraq, Egypt
 
-* Web: a 1DN peer will be used to access Tor.
-Expect latencies of 2-25 minutes when in large cities with many 1M5 nodes.
+* Web: 1DN will be used to forward requests to Tor users with a lower ManCon to fulfill the request.
 * P2P: 1DN peers will be used until a peer with I2P access can route the request.
 
+Expect wide-ranging latencies.
+
 #### NEO - MANCON 0
-Whistleblower with deep state top secrets or strong censorship attempts
-(Tor Nodes blocking / deep packet inspections / I2P timing attacks / local cellular tower shutdowns)
-in jurisdictions with no freedom of expression protections (North Korea, China, Syria, Iran):
-1M5 with 1DN to I2P with High Delays on Purism Libre Mobile and Laptops.
+Whistleblower with deep state top secrets or investigative journalist with life-threatening information.
 
-Wide-ranging latencies but highest privacy.
-
-* Web: 1DN is used to access a peer that will then request another peer using I2P with high delays to make the Tor request.
-Expect latencies of 2-30 minutes when in large cities with many 1M5 nodes.
+* Web: 1DN is used to forward requests to a peer that will then request another peer using I2P with high delays to make the Tor request.
 * P2P: 1DN is used to forward a message through a random number and combination of 1DN/I2P peers at random delays of up to 90 seconds
-at the I2P layer and up to 3 months at the 1M5 layer. A random number of copies (3 min 12 max) of the message are sent out.
+at the I2P layer and up to 3 months at the 1M5 layer. A random number of copies (3 min 12 max) of the message are sent out
+with the end user having a 12 word mnemonic passphrase as the only key to the data.
+
+Wide-ranging latencies but highest privacy and censorship-resistance.
 
 ## Design
 1M5 is composed of a Service-Oriented Architecture (SOA) design using a minimalistic service bus for micro-services,
