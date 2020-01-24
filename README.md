@@ -213,6 +213,9 @@ Documentation of the Core starts [here](https://github.com/1m5/core/tree/master/
 Decentralized Exchange for Bitcoin/Fiat as well as other altcoins. [Proposal for future integration added to Bisq](https://github.com/bisq-network/proposals/issues/168).
 
 ### [Inkrypt](https://inkrypt.io)
+POC and Prototype completed using 1M5 from April 2018 to September 2019 but their team failed to obtain seed funding
+and since seem to have abandoned the project. If so, decentralized content distribution will eventually be added to 1M5
+either as an Inkrypt service if the team decides to restart in the future, or separately as an internal service.
 
 #### Anonymous Decentralized Cloud
 An anonymous decentralized Content Delivery Network (DCDN). Use of OpenPGP keys supported as well as
