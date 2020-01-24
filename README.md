@@ -255,6 +255,14 @@ Resources
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### DNS Blocking
@@ -269,6 +277,14 @@ Resources
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### DNS Poisoning
@@ -282,6 +298,14 @@ Resources
 #### TOR
 
 #### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 #### 1M5
 
@@ -305,6 +329,14 @@ placing limits on the number of tunnels that can be routed by a single peer.
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 The 1M5 network is slated to provide random delays across its nodes and extended persistent delays (e.g. months),
 and bandwidth throttling on streams to help combat this attack at the application layer.
@@ -321,6 +353,14 @@ delivery mode.
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### Intersection
@@ -330,6 +370,14 @@ delivery mode.
 #### TOR
 
 #### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 #### 1M5
 
@@ -341,6 +389,14 @@ delivery mode.
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### Partitioning
@@ -350,6 +406,14 @@ delivery mode.
 #### TOR
 
 #### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 #### 1M5
 
@@ -361,6 +425,14 @@ delivery mode.
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### Harvesting
@@ -370,6 +442,14 @@ delivery mode.
 #### TOR
 
 #### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 #### 1M5
 
@@ -381,6 +461,14 @@ delivery mode.
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### Sybil
@@ -390,6 +478,14 @@ delivery mode.
 #### TOR
 
 #### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 #### 1M5
 
@@ -401,6 +497,14 @@ delivery mode.
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### Cryptographic
@@ -410,6 +514,14 @@ delivery mode.
 #### TOR
 
 #### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 #### 1M5
 
@@ -421,6 +533,14 @@ delivery mode.
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### Central Resource
@@ -430,6 +550,14 @@ delivery mode.
 #### TOR
 
 #### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 #### 1M5
 
@@ -441,6 +569,14 @@ delivery mode.
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### Implementation (Bugs)
@@ -451,6 +587,14 @@ delivery mode.
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### Blocklists
@@ -460,6 +604,14 @@ delivery mode.
 #### TOR
 
 #### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 #### 1M5
 
@@ -478,6 +630,14 @@ Resources
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 #### Starvation
@@ -487,6 +647,14 @@ Resources
 #### TOR
 
 #### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 #### 1M5
 
@@ -498,6 +666,14 @@ Resources
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 #### Ping Flood
@@ -507,6 +683,14 @@ Resources
 ##### TOR
 
 ##### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 ##### 1M5
 
@@ -518,6 +702,14 @@ Resources
 
 ##### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 ##### 1M5
 
 #### Floodfill
@@ -527,6 +719,14 @@ Resources
 ##### TOR
 
 ##### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 ##### 1M5
 
@@ -538,6 +738,14 @@ Resources
 
 ##### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 ##### 1M5
 
 #### Twinge
@@ -547,6 +755,14 @@ Resources
 ##### TOR
 
 ##### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 ##### 1M5
 
@@ -562,6 +778,14 @@ Resources
 
 ##### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 ##### 1M5
 
 #### Layer 7
@@ -575,6 +799,14 @@ Resources
 
 ##### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 ##### 1M5
 
 #### Ping of Death
@@ -584,6 +816,14 @@ Resources
 ##### TOR
 
 ##### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 ##### 1M5
 
@@ -598,6 +838,14 @@ Resources
 
 ##### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 ##### 1M5
 
 #### Fraggle Attack
@@ -610,6 +858,14 @@ Resources
 ##### TOR
 
 ##### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 ##### 1M5
 
@@ -626,6 +882,14 @@ Resources
 
 #### 1DN
 
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
+
 #### 1M5
 
 ### Advanced Volatile Threat (AVT)
@@ -640,5 +904,13 @@ Resources
 #### TOR
 
 #### 1DN
+
+##### Bluetooth
+
+##### WiFi-Direct
+
+##### Full Spectrum Radio
+
+##### LiFi
 
 #### 1M5
