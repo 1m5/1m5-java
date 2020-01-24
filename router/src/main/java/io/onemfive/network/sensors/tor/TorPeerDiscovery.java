@@ -30,7 +30,7 @@ import io.onemfive.data.*;
 import io.onemfive.network.*;
 import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.peers.PeerManager;
-import io.onemfive.network.sensors.SensorTask;
+import io.onemfive.network.NetworkTask;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.util.DLC;
 import io.onemfive.network.ops.PingRequestOp;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class TorPeerDiscovery extends SensorTask {
+public class TorPeerDiscovery extends NetworkTask {
 
     private static final Logger LOG = Logger.getLogger(TorPeerDiscovery.class.getName());
 

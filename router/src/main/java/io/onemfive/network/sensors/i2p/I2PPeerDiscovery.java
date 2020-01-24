@@ -34,7 +34,7 @@ import io.onemfive.network.*;
 import io.onemfive.network.ops.PingRequestOp;
 import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.peers.PeerManager;
-import io.onemfive.network.sensors.SensorTask;
+import io.onemfive.network.NetworkTask;
 import io.onemfive.util.DLC;
 import io.onemfive.util.tasks.TaskRunner;
 
@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public class I2PPeerDiscovery extends SensorTask {
+public class I2PPeerDiscovery extends NetworkTask {
 
     private Logger LOG = Logger.getLogger(I2PPeerDiscovery.class.getName());
 
@@ -69,13 +69,9 @@ public class I2PPeerDiscovery extends SensorTask {
     // Super Reliable Peer Min Acks
     public static int MinAckSRP = 10000;
 
-    private NetworkPeer localPeer;
-    private PeerManager peerManager;
-
-    public I2PPeerDiscovery(I2PSensor sensor, TaskRunner taskRunner, NetworkPeer localPeer, PeerManager peerManager) {
+    public I2PPeerDiscovery(I2PSensor sensor, TaskRunner taskRunner) {
         super(I2PPeerDiscovery.class.getName(), taskRunner, sensor);
-        this.peerManager = peerManager;
-        this.localPeer = localPeer;
+
         periodicity = getPeriodicity();
 
         NetworkPeer seedA = new NetworkPeer();

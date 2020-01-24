@@ -24,8 +24,13 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors;
+package io.onemfive.network;
 
+import io.onemfive.data.NetworkNode;
+import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.peers.PeerManager;
+import io.onemfive.network.sensors.Sensor;
+import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.util.tasks.BaseTask;
 import io.onemfive.util.tasks.TaskRunner;
 
@@ -34,12 +39,20 @@ import io.onemfive.util.tasks.TaskRunner;
  *
  * @author objectorange
  */
-public abstract class SensorTask extends BaseTask {
+public abstract class NetworkTask extends BaseTask {
 
     protected Sensor sensor;
+    protected SensorManager sensorManager;
+    protected PeerManager peerManager;
+    protected NetworkNode localNode;
+    protected NetworkPeer localPeer;
 
-    public SensorTask(String taskName, TaskRunner taskRunner, Sensor sensor) {
+    public NetworkTask(String taskName, TaskRunner taskRunner, Sensor sensor) {
         super(taskName, taskRunner);
         this.sensor = sensor;
+        sensorManager = sensor.getSensorManager();
+        peerManager = sensorManager.getPeerManager();
+        localNode = peerManager.getLocalNode();
+        localPeer = localNode.getLocalNetworkPeer();
     }
 }
