@@ -565,12 +565,16 @@ public class KeyRingService extends BaseService {
 
     private void loadKeyRingImplementations(){
         keyRings.clear();
-        if(properties.getProperty(KeyRing.class.getName()) != null) {
-            String[] keyRingStrings = properties.getProperty(KeyRing.class.getName()).split(",");
-            KeyRing keyRing;
-            for(String keyRingString : keyRingStrings) {
+        KeyRing keyRing;
+        if(properties.getProperty("1m5.keyring.providers") == null) {
+            keyRing = new OpenPGPKeyRing(); // Default
+            keyRing.init(properties);
+            keyRings.put(OpenPGPKeyRing.class.getName(), keyRing);
+        } else {
+            String[] keyRingStrings = properties.getProperty("1m5.keyring.providers").split(",");
+            for (String keyRingString : keyRingStrings) {
                 try {
-                    keyRing = (KeyRing) Class.forName(keyRingString).newInstance();
+                    keyRing = (KeyRing) Class.forName(keyRingString).getConstructor().newInstance();
                     keyRing.init(properties);
                     keyRings.put(keyRingString, keyRing);
                 } catch (Exception e) {
@@ -586,11 +590,7 @@ public class KeyRingService extends BaseService {
         LOG.info("Starting...");
         updateStatus(ServiceStatus.STARTING);
 
-        try {
-            properties = Config.loadFromClasspath("keyring.config", p, false);
-        } catch (Exception e) {
-            LOG.warning(e.getLocalizedMessage());
-        }
+        properties = p;
 
         // Android apps set SpongyCastle as the default provider
         if(!SystemVersion.isAndroid()) {

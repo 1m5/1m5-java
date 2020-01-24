@@ -80,8 +80,8 @@ public final class TorSensor extends ClearnetSensor {
         boolean successful = super.sendOut(packet);
         if(successful) {
             LOG.info("Tor Sensor successful response received.");
-            // Change flag to None so Client Server Sensor will pick it back up
-            e.setManCon(ManCon.NONE);
+            // Change flag to LOW so Client Server Sensor will pick it back up
+            e.setManCon(ManCon.LOW);
             DLC.addRoute(NetworkService.class, NetworkService.OPERATION_REPLY, e);
             if(!getStatus().equals(SensorStatus.NETWORK_CONNECTED)) {
                 LOG.info("Tor Network status changed back to CONNECTED.");

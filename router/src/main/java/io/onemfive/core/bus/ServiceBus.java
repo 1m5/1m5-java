@@ -296,7 +296,7 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
         }
 
         try {
-            this.properties = Config.loadFromClasspath("bus.config", this.properties, false);
+            this.properties = Config.loadFromClasspath("1m5.config", this.properties, false);
             String maxMessagesCachedMultiplierStr = this.properties.getProperty("1m5.bus.maxMessagesCachedMultiplier");
             if(maxMessagesCachedMultiplierStr != null){
                 maxMessagesCached = Integer.parseInt(maxMessagesCachedMultiplierStr) * maxThreads;

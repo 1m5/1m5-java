@@ -195,22 +195,8 @@ public final class SensorManager {
         });
     }
 
-    public static Network[] atManCon(ManCon manCon) {
-        switch(manCon) {
-            case NONE: return new Network[]{Network.IMS};
-            case LOW: return new Network[]{Network.CLEAR};
-            case MEDIUM: return new Network[]{Network.TOR};
-            case HIGH: return new Network[]{Network.I2P};
-            case VERYHIGH: return new Network[]{Network.RADIO_WIFI_DIRECT, Network.RADIO_BLUETOOTH, Network.RADIO_BLUETOOTH_LE, Network.RADIO_SATELLITE, Network.RADIO_FULLSPECTRUM};
-            case EXTREME: return new Network[]{Network.LIFI};
-            default: LOG.warning("ManCon not yet supported: "+manCon.name());
-            return null;
-        }
-    }
-
     public static Network[] withinManCon(ManCon manCon) {
         switch(manCon) {
-            case NONE: return new Network[]{Network.IMS,Network.CLEAR,Network.TOR,Network.I2P,Network.RADIO_WIFI_DIRECT, Network.RADIO_BLUETOOTH, Network.RADIO_BLUETOOTH_LE, Network.RADIO_SATELLITE, Network.RADIO_FULLSPECTRUM,Network.LIFI};
             case LOW: return new Network[]{Network.CLEAR,Network.TOR,Network.I2P,Network.RADIO_WIFI_DIRECT, Network.RADIO_BLUETOOTH, Network.RADIO_BLUETOOTH_LE, Network.RADIO_SATELLITE, Network.RADIO_FULLSPECTRUM,Network.LIFI};
             case MEDIUM: return new Network[]{Network.TOR,Network.I2P,Network.RADIO_WIFI_DIRECT, Network.RADIO_BLUETOOTH, Network.RADIO_BLUETOOTH_LE, Network.RADIO_SATELLITE, Network.RADIO_FULLSPECTRUM,Network.LIFI};
             case HIGH: return new Network[]{Network.I2P,Network.RADIO_WIFI_DIRECT, Network.RADIO_BLUETOOTH, Network.RADIO_BLUETOOTH_LE, Network.RADIO_SATELLITE, Network.RADIO_FULLSPECTRUM,Network.LIFI};
