@@ -12,7 +12,6 @@ and censorship.
 In the interests of ensuring the 1M5 mission, all copyright automatically imposed on the 1M5 project by any and all people
 and organizations are removed and thus nullified. We believe this to be encompassed in the [Unlicense](https://unlicense.org/) statement.
 All 1M5 services and sensors are created with the Unlicense statement by default unless otherwise specified,
-e.g. 1m5-pureos is GPLv3 as that is the license preferred by Purism.
 
 Bouncycastle is embedded in 1M5 Core and its MIT-like license is [here](http://www.bouncycastle.org/licence.html).
 
