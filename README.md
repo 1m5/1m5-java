@@ -210,7 +210,7 @@ Documentation of the Core starts [here](https://github.com/1m5/core/tree/master/
 ## Integrations
 
 ### [Bisq](https://bisq.network)
-Decentralized Exchange for Bitcoin/Fiat as well as other altcoins. Slated for future work.
+Decentralized Exchange for Bitcoin/Fiat as well as other altcoins. [Proposal for future integration added to Bisq](https://github.com/bisq-network/proposals/issues/168).
 
 ### [Inkrypt](https://inkrypt.io)
 
