@@ -221,14 +221,9 @@ either as an Inkrypt service if the team decides to restart in the future, or se
 An anonymous decentralized Content Delivery Network (DCDN). Use of OpenPGP keys supported as well as
 AES 256 encryption for content.
 
-#### nLightn
-Inkrypt is building a decentralized censorship resistant network for citizen journalists
-to store and publish articles fighting government
-oppression of the right to free speech globally. They need censorship resistant identities
-to protect journalists from harm yet support their ability to build a reputation as a trusting
-source for news and to ensure that information is also not censored nor stolen yet allows
-the journalist to release portions of the information as they desire to whom they desire
-to share it with to include no one or everyone (global public).
+## Applications
+A number of applications will be ingrained within 1M5, applications that are regularly used or desired by decentralization
+advocates. These include browser, messenger/email/social networking, marketplace, activism assistance, and crypto-currency wallets.
 
 ## Support
 Support can be purchased with Bitcoin when availability exists. Please request support
@@ -330,16 +325,22 @@ placing limits on the number of tunnels that can be routed by a single peer.
 #### 1DN
 
 ##### Bluetooth
+The very limited range of Bluetooth makes
 
 ##### WiFi-Direct
+WiFi-Direct has a very limited range and few frequencies so it's not too difficult to brute force a local WiFi frequency.
 
 ##### Full Spectrum Radio
+Attempting to listen to all frequencies in the full radio spectrum attempting correlation would be extremely difficult
+unless radio triangulation is successful. If the radio is kept mobile, this attack would be extremely difficult to pull off.
 
 ##### LiFi
 
 #### 1M5
-The 1M5 network is slated to provide random delays across its nodes and extended persistent delays (e.g. months),
-and bandwidth throttling on streams to help combat this attack at the application layer.
+The 1M5 network is slated to provide random delays across its nodes, extended persistent delays (e.g. months),
+and bandwidth throttling on streams to help combat this attack at the application layer. In addition, trying to
+brute force 1M5 users will be even more difficult as the ManCon lowers in value as multiple networks are used
+per request requiring watching all messages across all participating networks trying to correlate them all.
 
 ### Timing
 Timing attacks seek to correlate messages across the network based on their latencies combined with expected behavioral
