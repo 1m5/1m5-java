@@ -235,7 +235,7 @@ Support can be purchased with Bitcoin when availability exists. Please request s
 at: info@1m5.io
 
 ## Fund Raising
-1M5 is funded entirely through donations, support, and volunteers.
+1M5 is supported entirely through gifting and volunteers. No funds from investors have been nor will be taken.
 
 ## Threats & Counter Measures
 Censorship attempts can be made in a myriad of ways and are ever changing as technology changes and attackers grow in experience.
