@@ -29,6 +29,7 @@ package io.onemfive.core;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.bus.ServiceBus;
 import io.onemfive.core.infovault.InfoVaultDB;
+import io.onemfive.data.ManCon;
 import io.onemfive.util.*;
 
 import java.io.File;
@@ -49,6 +50,7 @@ public class OneMFiveAppContext {
 //    protected final OneMFiveConfig config;
 
     public static final Properties config = new Properties();
+    public static ManCon MANCON = ManCon.HIGH;
 
     private ServiceBus serviceBus;
 
