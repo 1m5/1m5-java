@@ -236,54 +236,6 @@ at: info@1m5.io
 
 ## Fund Raising
 1M5 is funded entirely through donations, support, and volunteers.
-The following are current and potential donation sources.
-
-### [Alex Jones](https://en.wikipedia.org/wiki/Alex_Jones)
-An American radio show host pushing the boundaries on free speech in the United States.
-
-* https://www.infowars.com/
-
-### [American Civil Liberties Union (ACLU)](https://www.aclu.org/)
-
-* https://www.aclu.org/issues/national-security/privacy-and-surveillance/nsa-surveillance
-
-### [Anonymous](https://en.wikipedia.org/wiki/Anonymous_(group))
-A decentralized international hacktivist group.
-"We are Anonymous. We are Legion. We do not forgive. We do not forget. Expect us."
-Broadly speaking, Anons oppose Internet censorship and control and the majority of their actions target governments,
-organizations, and corporations that they accuse of censorship.
-
-### [Electronic Frontier Foundation](https://www.eff.org/)
-
-* https://www.eff.org/issues/privacy
-* https://ssd.eff.org/
-
-### [Freedom of the Press Foundation](https://freedom.press/)
-FPF assists with crowdfunding those projects aiming to improve on journalism tools aimed at security.
-The problem is that they only take donations via card and PayPal which is anything but anonymous.
-
-* https://freedom.press/crowdfunding/
-
-### [Freedom's Phoenix](https://www.freedomsphoenix.com/)
-Declare your independence with Ernest Hancock.
-
-### [The Guardian Project](https://guardianproject.info/)
-Creates easy to use secure apps, open-source software libraries, and customized mobile devices that can
-be used around the world by any person looking to protect their communications and personal data
-from unjust intrusion, interception and monitoring.
-
-### [Inkrypt](https://www.inkrypt.io/)
-Censorship-Resistant Decentralized Content Distribution Network with OpenPGP/AES Encryption and Anonymity as a base.
-
-### [Purism](https://puri.sm/)
-A security and freedom-focused computer manufacturer based in San Francisco, founded in 2014 with the
-fundamental goals of combining the philosophies of the Free Software movement with the hardware
-manufacturing process, and to make it easy for individuals and businesses to have computers that
-they can trust and feel safe using, i.e. making security more convenient than not.
-
-### [ODD Reality](https://videofull.net/channel?id=UCuftdXePz6z73Wsg8Ao5lTg)
-
-### [Russell Brand](https://www.russellbrand.com/)
 
 ## Threats & Counter Measures
 Censorship attempts can be made in a myriad of ways and are ever changing as technology changes and attackers grow in experience.
