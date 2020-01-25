@@ -32,16 +32,15 @@ package io.onemfive.data;
 public enum Network {
     // Invisible Matrix Services (1M5) - Internal Only
     IMS,
-    // Clearnet
-    CLEAR,
+    HTTPS,
     // The Onion Router
     TOR,
     // Invisible Internet Project
     I2P,
-    RADIO_WIFI_DIRECT,
-    RADIO_BLUETOOTH,
-    RADIO_BLUETOOTH_LE,
-    RADIO_SATELLITE,
-    RADIO_FULLSPECTRUM,
-    LIFI
+    Bluetooth,
+    BluetoothLE,
+    WiFiDirect,
+    Satellite,
+    FSRadio,
+    LiFi
 }

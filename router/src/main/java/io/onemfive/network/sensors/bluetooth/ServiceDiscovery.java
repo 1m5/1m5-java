@@ -28,7 +28,7 @@ package io.onemfive.network.sensors.bluetooth;
 
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.sensors.SensorTask;
+import io.onemfive.network.NetworkTask;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class ServiceDiscovery extends SensorTask implements DiscoveryListener {
+public class ServiceDiscovery extends NetworkTask implements DiscoveryListener {
 
     private static final Logger LOG = Logger.getLogger(ServiceDiscovery.class.getName());
 
@@ -134,7 +134,7 @@ public class ServiceDiscovery extends SensorTask implements DiscoveryListener {
 //                if("1M5".equals(serviceName.getValue())) {
                     NetworkPeer peer;
                     if(peers.get(currentDevice.getBluetoothAddress())==null) {
-                        peer = new NetworkPeer(Network.RADIO_BLUETOOTH);
+                        peer = new NetworkPeer(Network.Bluetooth);
                         peer.getDid().getPublicKey().setAddress(currentDevice.getBluetoothAddress());
                         peer.getDid().getPublicKey().addAttribute("url", url);
                         peer.setLocal(false);

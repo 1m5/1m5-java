@@ -26,16 +26,15 @@
  */
 package io.onemfive.network.sensors.bluetooth;
 
-import io.onemfive.network.sensors.SensorTask;
+import io.onemfive.network.NetworkTask;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Logger;
 
-public class BluetoothDeviceDiscovery extends SensorTask implements DiscoveryListener {
+public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryListener {
 
     private static Logger LOG = Logger.getLogger(BluetoothDeviceDiscovery.class.getName());
 

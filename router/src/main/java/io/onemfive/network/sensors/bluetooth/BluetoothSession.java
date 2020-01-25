@@ -50,7 +50,7 @@ public class BluetoothSession extends BaseSession {
     private boolean connected = false;
 
     public BluetoothSession() {
-        super(new NetworkPeer(Network.RADIO_BLUETOOTH));
+        super(new NetworkPeer(Network.Bluetooth));
     }
 
     @Override

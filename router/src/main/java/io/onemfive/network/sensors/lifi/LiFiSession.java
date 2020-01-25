@@ -43,7 +43,7 @@ public class LiFiSession extends BaseSession {
     private List<LiFiSessionListener> sessionListeners = new ArrayList<>();
 
     public LiFiSession() {
-        super(new NetworkPeer(Network.LIFI));
+        super(new NetworkPeer(Network.LiFi));
     }
 
     public Boolean send(Packet packet) {

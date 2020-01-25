@@ -29,6 +29,7 @@ package io.onemfive.network.sensors.lifi;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.*;
 import io.onemfive.network.Packet;
+import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.DLC;
 import io.onemfive.network.sensors.BaseSensor;
@@ -47,11 +48,11 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
     private LiFiSession session;
 
     public LiFiSensor() {
-        super(new NetworkPeer(Network.LIFI));
+        super(new NetworkPeer(Network.LiFi));
     }
 
     public LiFiSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.LIFI));
+        super(sensorManager, new NetworkPeer(Network.LiFi));
     }
 
     @Override

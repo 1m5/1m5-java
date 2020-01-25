@@ -2,9 +2,19 @@ package io.onemfive.core;
 
 import io.onemfive.core.client.Client;
 import io.onemfive.core.client.ClientAppManager;
+import io.onemfive.core.infovault.InfoVaultDB;
+import io.onemfive.data.DID;
+import io.onemfive.data.Envelope;
+import io.onemfive.data.ServiceCallback;
+import io.onemfive.did.DIDService;
+import io.onemfive.util.DLC;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -13,6 +23,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @author objectorange
  */
+// TODO: Complete the test to remove ignore
+@Ignore
 public class CoreTest {
 
     private static OneMFiveAppContext oneMFiveAppContext;
@@ -23,17 +35,17 @@ public class CoreTest {
 
     @BeforeClass
     public static void startUp() {
-//        oneMFiveAppContext = OneMFiveAppContext.getInstance();
-//        clientAppManager = oneMFiveAppContext.getClientAppManager(null);
-//        client = clientAppManager.getClient(true);
-//        // NOTE: Don't forget to increase latch number for each asynchronous assertion
-//        lock = new CountDownLatch(1);
-//        // Allow startup
-//        try {
-//            Thread.sleep(3000);
-//        } catch (InterruptedException e) {
-//
-//        }
+        oneMFiveAppContext = OneMFiveAppContext.getInstance();
+        clientAppManager = oneMFiveAppContext.getClientAppManager(null);
+        client = clientAppManager.getClient(true);
+        // NOTE: Don't forget to increase latch number for each asynchronous assertion
+        lock = new CountDownLatch(1);
+        // Allow startup
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+
+        }
     }
 
     public void testBus() {
@@ -66,7 +78,7 @@ public class CoreTest {
 //        DLC.addRoute(DIDService.class, DIDService.OPERATION_CREATE, e);
 //        client.request(e, cb);
 //    }
-
+//
 //    @Test
 //    public void testDIDAuthN() {
 //        DID did = null;

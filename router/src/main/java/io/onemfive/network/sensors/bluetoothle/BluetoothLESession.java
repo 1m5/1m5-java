@@ -35,7 +35,7 @@ import io.onemfive.network.sensors.BaseSession;
 public class BluetoothLESession extends BaseSession {
 
     public BluetoothLESession() {
-        super(new NetworkPeer(Network.RADIO_BLUETOOTH_LE));
+        super(new NetworkPeer(Network.BluetoothLE));
     }
 
     @Override

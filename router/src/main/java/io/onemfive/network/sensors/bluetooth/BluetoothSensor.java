@@ -30,6 +30,7 @@ import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
+import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -61,11 +62,11 @@ public class BluetoothSensor extends BaseSensor {
     private BluetoothPeerDiscovery peerDiscovery;
 
     public BluetoothSensor() {
-        super(new NetworkPeer(Network.RADIO_BLUETOOTH));
+        super(new NetworkPeer(Network.Bluetooth));
     }
 
     public BluetoothSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.RADIO_BLUETOOTH));
+        super(sensorManager, new NetworkPeer(Network.Bluetooth));
     }
 
     @Override

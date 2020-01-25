@@ -27,6 +27,7 @@
 package io.onemfive.network.sensors.i2p;
 
 import io.onemfive.network.Packet;
+import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.Config;
 import io.onemfive.util.tasks.TaskRunner;
@@ -527,7 +528,7 @@ public class I2PSensor extends BaseSensor {
                 LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
             }
             if(discovery==null) {
-                discovery = new I2PPeerDiscovery(this, taskRunner, localPeer, sensorManager.getPeerManager());
+                discovery = new I2PPeerDiscovery(this, taskRunner);
                 taskRunner.addTask(discovery);
             }
         }

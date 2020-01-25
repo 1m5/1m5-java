@@ -78,6 +78,8 @@ public final class Envelope implements Persistable, JSONSerializable {
     private Map<String, Object> headers;
     private Message message;
     private ManCon manCon = ManCon.HIGH;
+    private Long minDelay = 0L;
+    private Long maxDelay = 0L;
 
     public static Envelope commandFactory() {
         return new Envelope(RandomUtil.nextRandomLong(), new CommandMessage());
@@ -275,6 +277,22 @@ public final class Envelope implements Persistable, JSONSerializable {
         this.manCon = manCon;
     }
 
+    public Long getMinDelay() {
+        return minDelay;
+    }
+
+    public void setMinDelay(Long minDelay) {
+        this.minDelay = minDelay;
+    }
+
+    public Long getMaxDelay() {
+        return maxDelay;
+    }
+
+    public void setMaxDelay(Long maxDelay) {
+        this.maxDelay = maxDelay;
+    }
+
     @Override
     public Map<String, Object> toMap() {
         Map<String,Object> m = new HashMap<>();
@@ -292,7 +310,9 @@ public final class Envelope implements Persistable, JSONSerializable {
         if(commandPath!=null) m.put("commandPath", commandPath);
         if(headers!=null) m.put("headers", headers);
         if(message!=null) m.put("message", message.toMap());
-        if(manCon !=null) m.put("sensitivity", manCon.name());
+        if(manCon !=null) m.put("manCon", manCon.name());
+        if(minDelay != null) m.put("minDelay", minDelay);
+        if(maxDelay != null) m.put("maxDelay", maxDelay);
         return m;
     }
 
@@ -328,8 +348,8 @@ public final class Envelope implements Persistable, JSONSerializable {
             did = new DID();
             did.fromMap(m);
         }
-        if(m.get("client")!=null) client = Long.parseLong((String)m.get("client"));
-        if(m.get("replyToClient")!=null) replyToClient = Boolean.parseBoolean((String)m.get("replyToClient"));
+        if(m.get("client")!=null) client = (Long)m.get("client");
+        if(m.get("replyToClient")!=null) replyToClient = (Boolean)m.get("replyToClient");
         if(m.get("clientReplyAction")!=null) clientReplyAction = (String)m.get("clientReplyAction");
         try {
             if(m.get("url")!=null) url = new URL((String)m.get("url"));
@@ -360,7 +380,9 @@ public final class Envelope implements Persistable, JSONSerializable {
                 LOG.warning(e.getLocalizedMessage());
             }
         }
-        if(m.get("sensitivity")!=null) manCon = ManCon.valueOf((String)m.get("sensitivity"));
+        if(m.get("manCon")!=null) manCon = ManCon.valueOf((String)m.get("manCon"));
+        if(m.get("minDelay")!=null) minDelay = (Long)m.get("minDelay");
+        if(m.get("maxDelay")!=null) maxDelay = (Long)m.get("maxDelay");
     }
 
     @Override

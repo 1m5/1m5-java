@@ -479,7 +479,7 @@ public class NetworkService extends BaseService {
                 if(currentServiceStatus == ServiceStatus.RUNNING
                         || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING
                         || currentServiceStatus == ServiceStatus.DEGRADED_RUNNING
-                        && sensorAvailable(manCon))
+                        && sensorManager.availableSensorConnected(manCon))
                     updateStatus(ServiceStatus.DEGRADED_RUNNING);
                 else
                     updateStatus(ServiceStatus.BLOCKED);
@@ -567,16 +567,6 @@ public class NetworkService extends BaseService {
             }
         }
         return true;
-    }
-
-    /**
-     * Is there at least one sensor not at the supplied sensor status (e.g. not BLOCKED)
-     * at least at the provided ManCon level?
-     * @param minManCon
-     * @return
-     */
-    private Boolean sensorAvailable(ManCon minManCon) {
-        return sensorManager.lookupByManCon(minManCon, true) != null;
     }
 
     public SensorManager getSensorManager() {

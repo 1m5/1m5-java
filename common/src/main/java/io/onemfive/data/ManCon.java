@@ -26,22 +26,11 @@
  */
 package io.onemfive.data;
 
-public enum ManCon { // with default sensors chosen
-
-    NEO(0), // Intelligent Combination of Tor, I2P, and 1DN - MANCON 0
-    EXTREME(1), // LiFi (1DN) - MANCON 1
-    VERYHIGH(2), // Radio (1DN) - MANCON 2
-    HIGH(3), // I2P - MANCON 3
-    MEDIUM(4), // Tor - MANCON 4
-    LOW(5); // HTTPS - MANCON 5
-
-    private final int val;
-
-    ManCon(int v) {
-        val = v;
-    }
-
-    public int getVal() {
-        return val;
-    }
+public enum ManCon {
+    NEO, // MANCON 0
+    EXTREME, // MANCON 1
+    VERYHIGH, // MANCON 2
+    HIGH, // MANCON 3
+    MEDIUM, // MANCON 4
+    LOW // MANCON 5
 }

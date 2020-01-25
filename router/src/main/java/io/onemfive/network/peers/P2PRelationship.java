@@ -27,6 +27,7 @@
 package io.onemfive.network.peers;
 
 import io.onemfive.data.JSONSerializable;
+import io.onemfive.data.Network;
 import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
 import org.neo4j.graphdb.RelationshipType;
@@ -45,17 +46,20 @@ public class P2PRelationship implements JSONSerializable {
     public static final String AVG_ACK_LATENCY_MS = "avgAckLatencyMS";
     public static final String MEDIAN_ACK_LATENCY_MS = "medAckLatencyMS";
 
-    public static final int MaxPeersTracked = 100000;
-    public static final int MaxPeersShared = 5;
-    public static final int MinAckReliablePeer = 100;
-    public static final int MinAckSuperReliablePeer = 10000;
-    public static final int MaxAcksTracked = 50;
-
+    /**
+     * Relationship Type is based on what Network was used to establish it.
+     */
     public enum RelType implements RelationshipType {
-        Known,
-        Reliable,
-        SuperReliable,
-        Banned
+        HTTPS,
+        TOR,
+        I2P,
+        Bluetooth,
+        BluetoothLE,
+        WiFiDirect,
+        Satellite,
+        FSRadio,
+        LiFi,
+        IMS
     }
 
     private Long totalAcks = 0L;
@@ -70,10 +74,10 @@ public class P2PRelationship implements JSONSerializable {
         return totalAcks;
     }
 
-    public void addAckTimeTracked(long t) {
+    public void addAckTimeTracked(long t, int maxAcksTracked) {
         if(t <= 0) return; // not an ack
         ackTimesTracked.add(t);
-        while(ackTimesTracked.size() > MaxAcksTracked) {
+        while(ackTimesTracked.size() > maxAcksTracked) {
             ackTimesTracked.removeFirst();
         }
         totalAcks++;
@@ -92,6 +96,7 @@ public class P2PRelationship implements JSONSerializable {
     }
 
     public Long getMedAckLatencyMS() {
+        ackTimesTracked.sort((t1, t2) -> (int)(t1 - t2));
         return ackTimesTracked.get(ackTimesTracked.size() / 2);
     }
 
@@ -100,6 +105,42 @@ public class P2PRelationship implements JSONSerializable {
     }
     public Long getLastAckTime() {
         return lastAckTime;
+    }
+
+    public Boolean isReliable() {
+        return totalAcks > 100
+                && getAvgAckLatencyMS() < 6000
+                && getMedAckLatencyMS() < 6000;
+    }
+
+    public Boolean isSuperReliable() {
+        return totalAcks > 10000
+                && getAvgAckLatencyMS() < 4000
+                && getMedAckLatencyMS() < 4000;
+    }
+
+    public Boolean isRealTime() {
+        return getAvgAckLatencyMS() < 1000 && getMedAckLatencyMS() < 1000;
+    }
+
+    public Boolean belowMaxLatency(Long maxLatency) {
+        return getAvgAckLatencyMS() < maxLatency && getMedAckLatencyMS() < maxLatency;
+    }
+
+    public static P2PRelationship.RelType networkToRelationship(Network network) {
+        switch (network) {
+            case HTTPS: return P2PRelationship.RelType.HTTPS;
+            case TOR: return P2PRelationship.RelType.TOR;
+            case I2P: return P2PRelationship.RelType.I2P;
+            case Bluetooth: return P2PRelationship.RelType.Bluetooth;
+            case BluetoothLE: return P2PRelationship.RelType.BluetoothLE;
+            case WiFiDirect: return P2PRelationship.RelType.WiFiDirect;
+            case Satellite: return P2PRelationship.RelType.Satellite;
+            case FSRadio: return P2PRelationship.RelType.FSRadio;
+            case LiFi: return P2PRelationship.RelType.LiFi;
+            case IMS: return P2PRelationship.RelType.IMS;
+            default: return null;
+        }
     }
 
     @Override

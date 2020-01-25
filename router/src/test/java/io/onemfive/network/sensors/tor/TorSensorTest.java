@@ -24,7 +24,11 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.dam;
+package io.onemfive.network.sensors.tor;
 
-public class DAMService {
+import org.junit.Ignore;
+
+// TODO: Complete the test to remove ignore
+@Ignore
+public class TorSensorTest {
 }

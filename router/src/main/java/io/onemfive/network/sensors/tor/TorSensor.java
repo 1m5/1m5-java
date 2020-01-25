@@ -28,6 +28,7 @@ package io.onemfive.network.sensors.tor;
 
 import io.onemfive.network.Packet;
 import io.onemfive.data.ManCon;
+import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Message;

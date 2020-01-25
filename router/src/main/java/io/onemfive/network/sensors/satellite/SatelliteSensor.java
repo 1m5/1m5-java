@@ -30,6 +30,7 @@ import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
+import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -44,11 +45,11 @@ public class SatelliteSensor extends BaseSensor {
     public static Logger LOG = Logger.getLogger(SatelliteSensor.class.getName());
 
     public SatelliteSensor() {
-        super(new NetworkPeer(Network.RADIO_SATELLITE));
+        super(new NetworkPeer(Network.Satellite));
     }
 
     public SatelliteSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.RADIO_SATELLITE));
+        super(sensorManager, new NetworkPeer(Network.Satellite));
     }
 
     @Override

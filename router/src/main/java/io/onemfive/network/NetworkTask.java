@@ -45,7 +45,6 @@ public abstract class NetworkTask extends BaseTask {
     protected SensorManager sensorManager;
     protected PeerManager peerManager;
     protected NetworkNode localNode;
-    protected NetworkPeer localPeer;
 
     public NetworkTask(String taskName, TaskRunner taskRunner, Sensor sensor) {
         super(taskName, taskRunner);
@@ -53,6 +52,5 @@ public abstract class NetworkTask extends BaseTask {
         sensorManager = sensor.getSensorManager();
         peerManager = sensorManager.getPeerManager();
         localNode = peerManager.getLocalNode();
-        localPeer = localNode.getLocalNetworkPeer();
     }
 }

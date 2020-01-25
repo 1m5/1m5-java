@@ -30,6 +30,7 @@ import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
+import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -50,11 +51,11 @@ public class FullSpectrumRadioSensor extends BaseSensor {
     private Logger LOG = Logger.getLogger(FullSpectrumRadioSensor.class.getName());
 
     public FullSpectrumRadioSensor() {
-        super(new NetworkPeer(Network.RADIO_FULLSPECTRUM));
+        super(new NetworkPeer(Network.FSRadio));
     }
 
     public FullSpectrumRadioSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.RADIO_FULLSPECTRUM));
+        super(sensorManager, new NetworkPeer(Network.FSRadio));
     }
 
     @Override

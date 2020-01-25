@@ -32,6 +32,7 @@ import io.onemfive.data.*;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
+import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -141,11 +142,11 @@ public class ClearnetSensor extends BaseSensor {
     private Properties properties;
 
     public ClearnetSensor() {
-        super(new NetworkPeer(Network.CLEAR));
+        super(new NetworkPeer(Network.HTTPS));
     }
 
     public ClearnetSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.CLEAR));
+        super(sensorManager, new NetworkPeer(Network.HTTPS));
     }
 
     public String registerHandler(AsynchronousEnvelopeHandler handler) {

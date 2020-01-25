@@ -49,12 +49,8 @@ public class TorPeerDiscovery extends NetworkTask {
     // Banned
     public static List<NetworkPeer> banned = new ArrayList<>();
 
-    private NetworkPeer localPeer;
-    private PeerManager peerManager;
-
-    public TorPeerDiscovery(NetworkPeer localPeer, Map<String, NetworkPeer> peers, TorSensor sensor, TaskRunner taskRunner) {
+    public TorPeerDiscovery(TorSensor sensor, TaskRunner taskRunner) {
         super(TorPeerDiscovery.class.getName(), taskRunner, sensor);
-        this.localPeer = localPeer;
 
     }
 
@@ -62,7 +58,7 @@ public class TorPeerDiscovery extends NetworkTask {
     public Boolean execute() {
         LOG.info("Running Tor Peer Discovery...");
         started = true;
-        long totalKnown = peerManager.totalPeersByRelationship(localPeer, P2PRelationship.RelType.Known);
+        long totalKnown = peerManager.totalPeersByRelationship(localNode.getLocalNetworkPeer(Network.TOR), P2PRelationship.RelType.TOR);
         LOG.info(totalKnown+" Tor peers known.");
         if(hiddenServices!=null && hiddenServices.size() > 0) {
             // Verify Tor Hidden Services Status
@@ -71,7 +67,7 @@ public class TorPeerDiscovery extends NetworkTask {
                     LOG.warning("HiddenService provided is not for TOR.");
                 } else if(hiddenService.getDid().getPublicKey().getAddress().isEmpty()) {
                     LOG.warning("HiddenService provided does not have an address.");
-                } else if(hiddenService.getDid().getPublicKey().getAddress().equals(localPeer.getDid().getPublicKey().getAddress())) {
+                } else if(hiddenService.getDid().getPublicKey().getAddress().equals(localNode.getLocalNetworkPeer(Network.TOR).getDid().getPublicKey().getAddress())) {
                     LOG.info("HiddenService is local peer.");
                     hiddenServices.remove(hiddenService);
                 } else {
@@ -79,8 +75,8 @@ public class TorPeerDiscovery extends NetworkTask {
                     Envelope e = Envelope.documentFactory();
                     DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
                     Request request = new Request();
-                    request.setOriginationPeer(localPeer);
-                    request.setFromPeer(localPeer);
+                    request.setOriginationPeer(localNode.getLocalNetworkPeer(Network.TOR));
+                    request.setFromPeer(localNode.getLocalNetworkPeer(Network.TOR));
                     request.setDestinationPeer(hiddenService);
                     request.setToPeer(hiddenService);
                     request.setEnvelope(e);
