@@ -27,6 +27,7 @@
 package io.onemfive.network.sensors.bluetoothle;
 
 import io.onemfive.data.Envelope;
+import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.peers.P2PRelationship;
@@ -43,12 +44,10 @@ public class BluetoothLESensor extends BaseSensor {
 
     private static Logger LOG = Logger.getLogger(BluetoothLESensor.class.getName());
 
-    public BluetoothLESensor(NetworkPeer localPeer) {
-        super(localPeer);
-    }
+    public BluetoothLESensor() {super(new NetworkPeer(Network.BluetoothLE, BluetoothLESensor.class.getSimpleName(), "l34m3"));}
 
-    public BluetoothLESensor(SensorManager sensorManager, NetworkPeer localPeer) {
-        super(sensorManager, localPeer);
+    public BluetoothLESensor(SensorManager sensorManager) {
+        super(sensorManager, new NetworkPeer(Network.BluetoothLE, BluetoothLESensor.class.getSimpleName(), "l34m3"));
     }
 
     @Override

@@ -61,6 +61,7 @@ public class DesktopTray {
     private DesktopApp app;
 
     public void start(DesktopApp app) {
+        this.app = app;
         SystemTray.SWING_UI = new DesktopTrayUI();
         systemTray = SystemTray.get();
         if (systemTray == null) {

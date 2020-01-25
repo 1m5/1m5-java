@@ -55,6 +55,8 @@ public abstract class BaseService implements MessageConsumer, Service, LifeCycle
     private List<ServiceStatusListener> serviceStatusListeners = new ArrayList<>();
     private List<ServiceStatusObserver> serviceStatusObservers = new ArrayList<>();
 
+    protected Properties config;
+
     public BaseService() {
 
     }

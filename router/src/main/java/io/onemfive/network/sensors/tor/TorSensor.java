@@ -26,12 +26,12 @@
  */
 package io.onemfive.network.sensors.tor;
 
+import io.onemfive.data.*;
 import io.onemfive.network.Packet;
-import io.onemfive.data.ManCon;
 import io.onemfive.network.peers.P2PRelationship;
+import io.onemfive.network.sensors.SensorManager;
+import io.onemfive.network.sensors.bluetoothle.BluetoothLESensor;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
-import io.onemfive.data.Envelope;
-import io.onemfive.data.Message;
 import io.onemfive.util.DLC;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.NetworkService;
@@ -54,6 +54,13 @@ public final class TorSensor extends ClearnetSensor {
     private static final Logger LOG = Logger.getLogger(TorSensor.class.getName());
 
     public TorSensor() {
+        super(new NetworkPeer(Network.TOR, TorSensor.class.getSimpleName(), "USNSux"));
+        // Setup local Tor instance as proxy for Tor Client
+        proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1",9050));
+    }
+
+    public TorSensor(SensorManager sensorManager) {
+        super(sensorManager, new NetworkPeer(Network.TOR, TorSensor.class.getSimpleName(), "USNSux"));
         // Setup local Tor instance as proxy for Tor Client
         proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1",9050));
     }

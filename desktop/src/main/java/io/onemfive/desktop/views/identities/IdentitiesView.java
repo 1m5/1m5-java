@@ -26,9 +26,14 @@
  */
 package io.onemfive.desktop.views.identities;
 
+import io.onemfive.Router;
+import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.data.*;
 import io.onemfive.desktop.DesktopApp;
+import io.onemfive.desktop.UIService;
 import io.onemfive.desktop.views.ActivatableView;
+import io.onemfive.did.DIDService;
+import io.onemfive.util.DLC;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -42,7 +47,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import onemfive.api.DIDAPI;
 
 import java.util.List;
 
@@ -140,9 +144,33 @@ public class IdentitiesView extends ActivatableView {
                 if(!identityAliasTxt.getText().isEmpty()
                         && !identityPwdText.getText().isEmpty()
                         && !identityPwd2Text.getText().isEmpty()) {
-
-                    DID did = DIDAPI.addIdentity(identityAliasTxt.getText(), identityPwdText.getText(), identityPwd2Text.getText(), identityLocationText.getText());
-                    identityAddresses.add(did.getUsername()+":"+did.getPublicKey().getFingerprint());
+                    Envelope e = Envelope.documentFactory();
+                    // 4. Update UI
+                    DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e);
+                    // 3. Load ordered Identities
+                    DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e);
+                    // 2. Authenticate/Save DID
+                    DID did = new DID();
+                    did.setUsername(identityAliasTxt.getText());
+                    did.setPassphrase(identityPwdText.getText());
+                    did.setPassphrase2(identityPwd2Text.getText());
+                    AuthenticateDIDRequest adr = new AuthenticateDIDRequest();
+                    adr.did = did;
+                    adr.autogenerate = true;
+                    DLC.addData(AuthenticateDIDRequest.class, adr, e);
+                    DLC.addRoute(DIDService.class, DIDService.OPERATION_AUTHENTICATE,e);
+                    // 1. Load Public Key addresses for short and full addresses
+                    AuthNRequest ar = new AuthNRequest();
+                    ar.location = identityLocationText.getText();
+                    ar.keyRingUsername = did.getUsername();
+                    ar.keyRingPassphrase = did.getPassphrase();
+                    ar.alias = did.getUsername(); // use username as default alias
+                    ar.aliasPassphrase = did.getPassphrase(); // just use same passphrase
+                    ar.autoGenerate = true;
+                    DLC.addData(AuthNRequest.class, ar, e);
+                    DLC.addRoute(KeyRingService.class, KeyRingService.OPERATION_AUTHN, e);
+                    // Send
+                    Router.sendRequest(e);
                 }
             }
         });
@@ -162,13 +190,7 @@ public class IdentitiesView extends ActivatableView {
                 if(index >= 0) {
                     String itemStr = identityAddresses.get(index);
                     String[] item = itemStr.split(":");
-                    boolean removed = DIDAPI.deleteIdentity(item[1]);
-                    if(removed) {
-                        identityAddresses.remove(index);
-                    } else {
-                        LOG.warning("Error removing identity.");
-                        // TODO: show error message
-                    }
+
                 }
             }
         });
@@ -241,8 +263,14 @@ public class IdentitiesView extends ActivatableView {
                 LOG.info("Address is required.");
                 return;
             }
-            DID contact = DIDAPI.addContact(contactAliasTxt.getText(), contactFingerprintTxt.getText(), contactAddressTxt.getText(), contactDescriptiontxt.getText());
-            contactAddresses.add(contact.getUsername()+":"+contact.getPublicKey().getFingerprint());
+            DID did = new DID();
+            did.setUsername(contactAliasTxt.getText());
+            did.getPublicKey().setAddress(contactAddressTxt.getText());
+            Envelope e = Envelope.documentFactory();
+            DLC.addRoute(UIService.class, UIService.OPERATION_NOTIFY_UI, e);
+            DLC.addRoute(DIDService.class, DIDService.OPERATION_ADD_CONTACT, e);
+            DLC.addEntity(did, e);
+            Router.sendRequest(e);
         });
         addContactBox.getChildren().add(addContact);
 
@@ -264,18 +292,22 @@ public class IdentitiesView extends ActivatableView {
         contactsPane.getChildren().add(deleteContact);
 
         // Get Identities
-        List<DID> identities = DIDAPI.getIdentities();
-        identityAddresses.clear();
-        for(DID d : identities) {
-            identityAddresses.add(d.getUsername()+":"+d.getPublicKey().getFingerprint());
-        }
+        Envelope e1 = Envelope.documentFactory();
+        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e1);
+        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e1);
+        Router.sendRequest(e1);
 
         // Get Contacts
-        List<DID> contacts = DIDAPI.getContacts();
-        contactAddresses.clear();
-        for(DID d : contacts) {
-            contactAddresses.add(d.getUsername()+":"+d.getPublicKey().getFingerprint());
-        }
+        Envelope e2 = Envelope.documentFactory();
+        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_CONTACTS, e2);
+        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_CONTACTS, e2);
+        Router.sendRequest(e2);
+
+        // Get Active Identity
+        Envelope e3 = Envelope.documentFactory();
+        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_ACTIVE_IDENTITY, e3);
+        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_ACTIVE_IDENTITY, e3);
+        Router.sendRequest(e3);
 
         LOG.info("Initialized.");
     }

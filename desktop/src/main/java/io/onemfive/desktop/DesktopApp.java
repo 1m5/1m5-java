@@ -27,9 +27,16 @@
 package io.onemfive.desktop;
 
 import dorkbox.systemTray.SystemTray;
+import io.onemfive.Router;
+import io.onemfive.core.ServiceStatus;
+import io.onemfive.core.ServiceStatusObserver;
+import io.onemfive.core.admin.AdminService;
+import io.onemfive.data.Envelope;
 import io.onemfive.desktop.util.ImageUtil;
 import io.onemfive.desktop.views.ViewLoader;
 import io.onemfive.desktop.views.home.HomeView;
+import io.onemfive.util.AppThread;
+import io.onemfive.util.DLC;
 import io.onemfive.util.LocaleUtil;
 import javafx.application.Application;
 import javafx.event.Event;
@@ -38,7 +45,8 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.awt.*;
-import java.util.Locale;
+import java.util.*;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static io.onemfive.desktop.util.Layout.*;
@@ -60,6 +68,10 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
     private Scene scene;
     private boolean shutDownRequested;
     private boolean shutdownOnException = true;
+    private ServiceStatus uiServiceStatus = ServiceStatus.NOT_INITIALIZED;
+
+    private static DesktopTray tray;
+    private static Router router;
 
     public DesktopApp() {
         shutDownHandler = this::stop;
@@ -71,9 +83,40 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
     }
 
     @Override
-    public void init() throws Exception {
+    public void init() {
         LOG.info("DesktopApp initializing...\n\tThread name: " + Thread.currentThread().getName());
         LocaleUtil.currentLocale = Locale.US; // Default - TODO: load locale from preferences
+        // Launch Tray
+        tray = new DesktopTray();
+        final DesktopApp desktopApp = this;
+        Thread trayThread = new Thread(() -> tray.start(desktopApp));
+        trayThread.setDaemon(true);
+        trayThread.start();
+        // Launch Router
+        String[] args = {};
+        router = new Router();
+        AppThread routerThread = new AppThread(() -> router.start(args));
+        routerThread.setDaemon(true);
+        routerThread.start();
+
+        // Register UIService
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, List<ServiceStatusObserver>> observers = new HashMap<>();
+                observers.put(UIService.class.getName(), Arrays.asList(new ServiceStatusObserver() {
+                    @Override
+                    public void statusUpdated(ServiceStatus serviceStatus) {
+                        uiServiceStatus = serviceStatus;
+                    }
+                }));
+                Envelope e = Envelope.documentFactory();
+                DLC.addData(ServiceStatusObserver.class, observers, e);
+                DLC.addEntity(Arrays.asList(UIService.class),e);
+                DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES, e);
+                Router.sendRequest(e);
+            }
+        }).start();
     }
 
     @Override
@@ -114,7 +157,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
 
         // make the UI visible
 //        stage.show();
-//        show();
+        show();
     }
 
     @Override

@@ -145,8 +145,16 @@ public class ClearnetSensor extends BaseSensor {
         super(new NetworkPeer(Network.HTTPS));
     }
 
+    public ClearnetSensor(NetworkPeer np) {
+        super(np);
+    }
+
     public ClearnetSensor(SensorManager sensorManager) {
         super(sensorManager, new NetworkPeer(Network.HTTPS));
+    }
+
+    public ClearnetSensor(SensorManager sensorManager, NetworkPeer np) {
+        super(sensorManager, np);
     }
 
     public String registerHandler(AsynchronousEnvelopeHandler handler) {
@@ -398,6 +406,7 @@ public class ClearnetSensor extends BaseSensor {
     public boolean start(Properties p) {
         LOG.info("Starting...");
         updateStatus(SensorStatus.INITIALIZING);
+        properties = p;
 
         String sensorsDirStr = properties.getProperty("1m5.dir.sensors");
         if (sensorsDirStr == null) {
@@ -828,11 +837,4 @@ public class ClearnetSensor extends BaseSensor {
         return shutdown();
     }
 
-    public static void main(String[] args) {
-        Properties p = new Properties();
-        p.setProperty("1m5.ui","true");
-        p.setProperty("1m5.ui.launchOnStart","true");
-        ClearnetSensor sensor = new ClearnetSensor(null);
-        sensor.start(p);
-    }
 }

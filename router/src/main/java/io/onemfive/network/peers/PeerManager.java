@@ -105,7 +105,7 @@ public class PeerManager implements Runnable {
         }
         db.setLocation(baseDir);
         db.setName(DBNAME);
-        if ("true".equals(properties.getProperty("onemfive.network.db.cleanOnRestart"))) {
+        if ("true".equals(properties.getProperty("1m5.peers.db.cleanOnRestart"))) {
             FileUtil.rmdir(db.getLocation(), false);
             LOG.info("Cleaned " + DBNAME);
         }

@@ -38,6 +38,8 @@ import io.onemfive.network.sensors.SensorSession;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import static io.onemfive.network.sensors.SensorStatus.NETWORK_CONNECTED;
+
 
 /**
  * Wrapper for GNU Radio.
@@ -169,7 +171,8 @@ public class FullSpectrumRadioSensor extends BaseSensor {
 
     @Override
     public boolean start(Properties properties) {
-        return false;
+        updateStatus(NETWORK_CONNECTED);
+        return true;
     }
 
     @Override

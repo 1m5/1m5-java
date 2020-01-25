@@ -295,17 +295,6 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
                 this.properties.putAll(properties);
         }
 
-        try {
-            this.properties = Config.loadFromClasspath("1m5.config", this.properties, false);
-            String maxMessagesCachedMultiplierStr = this.properties.getProperty("1m5.bus.maxMessagesCachedMultiplier");
-            if(maxMessagesCachedMultiplierStr != null){
-                maxMessagesCached = Integer.parseInt(maxMessagesCachedMultiplierStr) * maxThreads;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOG.warning("Failed to load bus.config in ServiceBus.");
-        }
-
         // TODO: should we init the pool before the channel?
         channel = new MessageChannel(maxMessagesCached);
         channel.start(properties);
@@ -336,29 +325,20 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
         NetworkService networkService = new NetworkService(this, this);
         registeredServices.put(NetworkService.class.getName(), networkService);
 
-        // Additional Services should be registered by client via Admin Service
+        BisqService bisqService = new BisqService(this, this);
+        registeredServices.put(BisqService.class.getName(), bisqService);
+
+        BitcoinService bitcoinService = new BitcoinService(this, this);
+        registeredServices.put(BitcoinService.class.getName(), bitcoinService);
+
+        KomodoService komodoService = new KomodoService(this, this);
+        registeredServices.put(KomodoService.class.getName(), komodoService);
+
+        MoneroService moneroService = new MoneroService(this, this);
+        registeredServices.put(MoneroService.class.getName(), moneroService);
+
         AdminService adminService = new AdminService(this, this);
         registeredServices.put(AdminService.class.getName(), adminService);
-
-        if("true".equals(properties.getProperty("1m5.bsq.enabled"))) {
-            BisqService bisqService = new BisqService(this, this);
-            registeredServices.put(BisqService.class.getName(), bisqService);
-        }
-
-        if("true".equals(properties.getProperty("1m5.btc.enabled"))) {
-            BitcoinService bitcoinService = new BitcoinService(this, this);
-            registeredServices.put(BitcoinService.class.getName(), bitcoinService);
-        }
-
-        if("true".equals(properties.getProperty("1m5.kmd.enabled"))) {
-            KomodoService komodoService = new KomodoService(this, this);
-            registeredServices.put(KomodoService.class.getName(), komodoService);
-        }
-
-        if("true".equals(properties.getProperty("1m5.xmr.enabled"))) {
-            MoneroService moneroService = new MoneroService(this, this);
-            registeredServices.put(MoneroService.class.getName(), moneroService);
-        }
 
         // Start Registered Services
         for(final String serviceName : registeredServices.keySet()) {

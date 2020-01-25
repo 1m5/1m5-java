@@ -35,6 +35,7 @@ import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.bluetooth.BluetoothSensor;
 import io.onemfive.network.sensors.bluetoothle.BluetoothLESensor;
 import io.onemfive.network.sensors.bluetoothle.BluetoothLESession;
+import io.onemfive.network.sensors.clearnet.ClearnetSensor;
 import io.onemfive.network.sensors.fullspectrum.FullSpectrumRadioSensor;
 import io.onemfive.network.sensors.i2p.I2PSensor;
 import io.onemfive.network.sensors.lifi.LiFiSensor;
@@ -124,15 +125,25 @@ public final class SensorManager {
     );
 
     public boolean init(final Properties properties) {
-        // TODO: Add loop with checks
+        registeredSensors.put(ClearnetSensor.class.getName(), new ClearnetSensor(this));
+        registeredSensors.put(TorSensor.class.getName(), new TorSensor(this));
+        registeredSensors.put(I2PSensor.class.getName(), new I2PSensor(this));
+        registeredSensors.put(BluetoothSensor.class.getName(), new BluetoothSensor(this));
+        registeredSensors.put(BluetoothLESession.class.getName(), new BluetoothLESensor(this));
+        registeredSensors.put(WiFiDirectSensor.class.getName(), new WiFiDirectSensor(this));
+        registeredSensors.put(SatelliteSensor.class.getName(), new SatelliteSensor(this));
+        registeredSensors.put(FullSpectrumRadioSensor.class.getName(), new FullSpectrumRadioSensor(this));
+        registeredSensors.put(LiFiSensor.class.getName(), new LiFiSensor(this));
         Collection<Sensor> sensors = registeredSensors.values();
         for(final Sensor s : sensors) {
             LOG.info("Launching sensor "+s.getClass().getName());
             new AppThread(new Runnable() {
                 @Override
                 public void run() {
-                    s.start(properties);
-                    activeSensors.put(s.getClass().getName(),s);
+                    if(s.start(properties))
+                        activeSensors.put(s.getClass().getName(),s);
+                    else
+                        LOG.warning(s.getClass().getName()+" failed to start.");
                 }
             }).start();
         }

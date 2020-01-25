@@ -223,6 +223,7 @@ public class SatelliteSensor extends BaseSensor {
 
     @Override
     public boolean start(Properties properties) {
+        updateStatus(NETWORK_CONNECTED);
         return true;
     }
 

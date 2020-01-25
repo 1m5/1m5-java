@@ -88,16 +88,6 @@ public class BitcoinService extends BaseService {
     public boolean start(Properties p) {
         LOG.info("Starting....");
         updateStatus(ServiceStatus.STARTING);
-        // BitcoinConfig initialization; network property values are: main | test | dev
-        if(!p.containsKey("io.onemfive.ext.bitcoin.network")) {
-            LOG.severe("io.onemfive.ext.bitcoin.network parameter is required.");
-            return false;
-        }
-        config = BitcoinConfig.getConfig(p.getProperty("io.onemfive.ext.bitcoin.network"));
-        if(config==null) {
-            LOG.severe("BitcoinConfig not instantiated; start failed.");
-            return false;
-        }
 
         updateStatus(ServiceStatus.RUNNING);
         LOG.info("Started.");

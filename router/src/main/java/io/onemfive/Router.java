@@ -37,7 +37,6 @@ import io.onemfive.core.client.ClientStatusListener;
 import io.onemfive.data.ServiceCallback;
 import io.onemfive.data.Envelope;
 import io.onemfive.util.DLC;
-//import io.onemfive.desktop.DesktopApp;
 import io.onemfive.network.NetworkService;
 
 import java.io.File;
@@ -59,12 +58,11 @@ public class Router {
     private static ClientAppManager manager;
     private static ClientAppManager.Status clientAppManagerStatus;
     private static Client client;
-//    private static DesktopApp desktopApp;
     private static Properties config;
     private static boolean waiting = true;
     private static boolean running = false;
 
-    private static Status status = Status.Shutdown;
+    public static Status status = Status.Shutdown;
 //    private static boolean useTray = false;
 //    private static DesktopTray tray;
 //    private static int uiPort;
@@ -76,39 +74,26 @@ public class Router {
 //    public static File userAppConfigDir;
 //    public static File userAppCacheDir;
 
-//    private static Thread routerThread;
-
     public static void main(String[] args) {
-        // Start GUI
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Application.launch(DesktopApp.class);
-//            }
-//        }).start();
+        instance.start(args);
+    }
+
+    public void start(String[] args) {
+        LOG.info("Welcome to 1M5. Initializing...");
+        Thread.currentThread().setName("1M5-Router-Thread");
+        LOG.info("Thread name: " + Thread.currentThread().getName());
+
+        status = Status.Initializing;
+
         Properties p = new Properties();
         String[] parts;
         for(String arg : args) {
             LOG.info("JVM Arg: "+arg);
-            parts = arg.split("=");
-            p.setProperty(parts[0],parts[1]);
+            if(arg.contains("=")) {
+                parts = arg.split("=");
+                p.setProperty(parts[0], parts[1]);
+            }
         }
-        try {
-            init(p);
-        } catch (Exception e) {
-            System.out.print(e.getLocalizedMessage());
-            System.exit(-1);
-        }
-    }
-
-    public static Router init(Properties p) throws Exception {
-        LOG.info("Welcome to 1M5. Initializing...");
-        Thread.currentThread().setName("1M5-Router-Thread");
-        LOG.info("Thread name: " + Thread.currentThread().getName());
-        // Start bus in separate thread
-//        routerThread = Thread.currentThread();
-
-        status = Status.Initializing;
 
         String logPropsPathStr = p.getProperty("java.util.logging.config.file");
         if(logPropsPathStr != null) {
@@ -138,16 +123,96 @@ public class Router {
 //        tray.start(instance);
 //        DesktopApp.setDappTray(tray);
         status = Status.Initialized;
-        instance.start();
-        return instance;
-    }
-
-    public void start() {
         try {
             status = Status.Starting;
 //            tray.updateStatus(DesktopTray.STARTING);
             // launch router
-            instance.launch();
+            oneMFiveAppContext = OneMFiveAppContext.getInstance(config);
+            // Getting ClientAppManager starts 1M5 Bus
+            manager = oneMFiveAppContext.getClientAppManager(config);
+            manager.setShutdownOnLastUnregister(true);
+            client = manager.getClient(true);
+
+            ClientStatusListener clientStatusListener = new ClientStatusListener() {
+                @Override
+                public void clientStatusChanged(ClientAppManager.Status clientStatus) {
+                    clientAppManagerStatus = clientStatus;
+                    LOG.info("Client Status changed: "+clientStatus.name());
+                    switch(clientAppManagerStatus) {
+                        case INITIALIZING: {
+                            LOG.info("1M5 Router starting...");
+    //                        tray.updateStatus(DesktopTray.STARTING);
+                            break;
+                        }
+                        case READY: {
+                            LOG.info("1M5 Router connected.");
+    //                        tray.updateStatus(DesktopTray.CONNECTED);
+                            break;
+                        }
+                        case STOPPING: {
+                            LOG.info("1M5 Router stopping...");
+    //                        tray.updateStatus(DesktopTray.SHUTTINGDOWN);
+                            break;
+                        }
+                        case STOPPED: {
+                            LOG.info("1M5 Router stopped.");
+    //                        tray.updateStatus(DesktopTray.STOPPED);
+                            break;
+                        }
+                    }
+                }
+            };
+            client.registerClientStatusListener(clientStatusListener);
+            final Thread mainThread = Thread.currentThread();
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    manager.unregister(client);
+                    try {
+                        mainThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            // wait a second to let the bus and internal services start
+            waitABit(1000);
+
+            // Initialize and configure 1M5
+            Envelope e = Envelope.documentFactory();
+
+            // Setup Service Status Observer
+            Map<String, List<ServiceStatusObserver>> serviceStatusObservers = new HashMap<>();
+            List<ServiceStatusObserver> networkServiceStatusObservers = new ArrayList<>();
+            serviceStatusObservers.put(NetworkService.class.getName(), networkServiceStatusObservers);
+            ServiceStatusObserver networkServiceStatusObserver = new ServiceStatusObserver() {
+                @Override
+                public void statusUpdated(ServiceStatus serviceStatus) {
+                    if(instance.networkServiceStatus != ServiceStatus.RUNNING && serviceStatus == ServiceStatus.RUNNING) {
+                        LOG.info("1M5 Network Service reporting Running. Connecting to 1M5 Network...");
+                    }
+                    instance.networkServiceStatus = serviceStatus;
+                    if(serviceStatus == ServiceStatus.RUNNING) {
+    //                    tray.updateStatus(DesktopTray.CONNECTED);
+                    } else if(serviceStatus == ServiceStatus.PARTIALLY_RUNNING) {
+                        LOG.info("1M5 Network Service reporting Partially Running. Updating status to Reconnecting...");
+    //                    tray.updateStatus(DesktopTray.RECONNECTING);
+                    } else if(serviceStatus == ServiceStatus.DEGRADED_RUNNING) {
+                        LOG.info("1M5 Network Service reporting Degraded Running. Updating status to Reconnecting...");
+    //                    tray.updateStatus(DesktopTray.DEGRADED);
+                    } else if(serviceStatus == ServiceStatus.BLOCKED) {
+                        LOG.info("1M5 Network Service reporting Degraded Running. Updating status to Blocked.");
+    //                    tray.updateStatus(DesktopTray.BLOCKED);
+                    }
+                }
+            };
+            networkServiceStatusObservers.add(networkServiceStatusObserver);
+
+            DLC.addData(ServiceStatusObserver.class, serviceStatusObservers, e);
+
+            // Register Services
+            DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES,e);
+            client.request(e);
             running = true;
             status = Status.Running;
             // Check periodically to see if 1M5 stopped
@@ -174,103 +239,6 @@ public class Router {
         status = Status.ShuttingDown;
         LOG.info("1M5 Router Shutting Down...");
         running = false;
-    }
-
-    public void exit() {
-        LOG.info("1M5 Router Exiting...");
-        status = Status.Exiting;
-        running = false;
-        waiting = false;
-        System.exit(0);
-    }
-
-    private void launch() throws Exception {
-        oneMFiveAppContext = OneMFiveAppContext.getInstance(config);
-        // Getting ClientAppManager starts 1M5 Bus
-        manager = oneMFiveAppContext.getClientAppManager(config);
-        manager.setShutdownOnLastUnregister(true);
-        client = manager.getClient(true);
-
-        ClientStatusListener clientStatusListener = new ClientStatusListener() {
-            @Override
-            public void clientStatusChanged(ClientAppManager.Status clientStatus) {
-                clientAppManagerStatus = clientStatus;
-                LOG.info("Client Status changed: "+clientStatus.name());
-                switch(clientAppManagerStatus) {
-                    case INITIALIZING: {
-                        LOG.info("1M5 Router starting...");
-//                        tray.updateStatus(DesktopTray.STARTING);
-                        break;
-                    }
-                    case READY: {
-                        LOG.info("1M5 Router connected.");
-//                        tray.updateStatus(DesktopTray.CONNECTED);
-                        break;
-                    }
-                    case STOPPING: {
-                        LOG.info("1M5 Router stopping...");
-//                        tray.updateStatus(DesktopTray.SHUTTINGDOWN);
-                        break;
-                    }
-                    case STOPPED: {
-                        LOG.info("1M5 Router stopped.");
-//                        tray.updateStatus(DesktopTray.STOPPED);
-                        break;
-                    }
-                }
-            }
-        };
-        client.registerClientStatusListener(clientStatusListener);
-        final Thread mainThread = Thread.currentThread();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                manager.unregister(client);
-                try {
-                    mainThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        // wait a second to let the bus and internal services start
-        waitABit(1000);
-
-        // Initialize and configure 1M5
-        Envelope e = Envelope.documentFactory();
-
-        // Setup Service Status Observer
-        Map<String, List<ServiceStatusObserver>> serviceStatusObservers = new HashMap<>();
-        List<ServiceStatusObserver> networkServiceStatusObservers = new ArrayList<>();
-        serviceStatusObservers.put(NetworkService.class.getName(), networkServiceStatusObservers);
-        ServiceStatusObserver networkServiceStatusObserver = new ServiceStatusObserver() {
-            @Override
-            public void statusUpdated(ServiceStatus serviceStatus) {
-                if(networkServiceStatus != ServiceStatus.RUNNING && serviceStatus == ServiceStatus.RUNNING) {
-                    LOG.info("1M5 Network Service reporting Running. Connecting to 1M5 Network...");
-                }
-                networkServiceStatus = serviceStatus;
-                if(serviceStatus == ServiceStatus.RUNNING) {
-//                    tray.updateStatus(DesktopTray.CONNECTED);
-                } else if(serviceStatus == ServiceStatus.PARTIALLY_RUNNING) {
-                    LOG.info("1M5 Network Service reporting Partially Running. Updating status to Reconnecting...");
-//                    tray.updateStatus(DesktopTray.RECONNECTING);
-                } else if(serviceStatus == ServiceStatus.DEGRADED_RUNNING) {
-                    LOG.info("1M5 Network Service reporting Degraded Running. Updating status to Reconnecting...");
-//                    tray.updateStatus(DesktopTray.DEGRADED);
-                } else if(serviceStatus == ServiceStatus.BLOCKED) {
-                    LOG.info("1M5 Network Service reporting Degraded Running. Updating status to Blocked.");
-//                    tray.updateStatus(DesktopTray.BLOCKED);
-                }
-            }
-        };
-        networkServiceStatusObservers.add(networkServiceStatusObserver);
-
-        DLC.addData(ServiceStatusObserver.class, serviceStatusObservers, e);
-
-        // Register Services
-        DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES,e);
-        client.request(e);
     }
 
     public static void sendRequest(Envelope e) {

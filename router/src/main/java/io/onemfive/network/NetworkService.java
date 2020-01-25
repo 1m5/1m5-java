@@ -582,26 +582,7 @@ public class NetworkService extends BaseService {
         super.start(p);
         LOG.info("Starting...");
         updateStatus(ServiceStatus.STARTING);
-        try {
-            properties = Config.loadFromClasspath("1m5-network.config", p, false);
-        } catch (Exception e) {
-            LOG.warning(e.getLocalizedMessage());
-        }
-
-        // Parameters
-        String sensorManagerClass = properties.getProperty(SensorManager.class.getName());
-        if(sensorManagerClass == null) {
-            LOG.warning(SensorManager.class.getName()+" property required to start SensorsService.");
-            return false;
-        }
-        LOG.info("SensorManager: "+sensorManagerClass);
-
-        String sensorsConfig = properties.getProperty(Sensor.class.getName());
-        if(sensorsConfig == null) {
-            LOG.warning(Sensor.class.getName()+" property required to start SensorsService.");
-            return false;
-        }
-        LOG.info("sensorsConfig: "+sensorsConfig);
+        properties = p;
 
         // Directories
         try {
@@ -627,25 +608,6 @@ public class NetworkService extends BaseService {
         peerManager.setNetworkService(this);
         peerManager.setTaskRunner(taskRunner);
         sensorManager.setPeerManager(peerManager);
-
-        // Sensors
-        String[] sensorConfigStrings = sensorsConfig.split(":");
-        Sensor sensor = null;
-        LOG.info("Building sensors configuration...");
-        for(String sc : sensorConfigStrings) {
-            try {
-                sensor = (Sensor)Class.forName(sc).getConstructor().newInstance();
-            } catch (Exception e) {
-                LOG.warning("Exception caught while creating instance of Sensor "+sc);
-                e.printStackTrace();
-            }
-            if(sensor != null) {
-                BaseSensor baseSensor = (BaseSensor)sensor;
-                baseSensor.setSensorManager(sensorManager);
-                sensorManager.registerSensor(sensor);
-                LOG.info("Registered sensor "+sensor.getClass().getName());
-            }
-        }
         if(sensorManager.init(properties) && peerManager.init(properties)) {
             Subscription subscription = this::routeIn;
 
