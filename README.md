@@ -30,6 +30,13 @@ a proposal via info@1m5.io and we will review and get back with you. Our team is
 trying for complete anonymity. We respect your right to privacy whether you decide to be entirely public, completely
 anonymous, or somewhere in between. That needs to come from each individual's circumstances.
 
+Good recommendations on maintainability can be found [here](http://www.squarebox.com/download/javatips.html). Try to
+minimize external libraries and definitely no Spring or Google libraries, no injection...keep it simple
+and minimize the number of objects to only those that add benefit. Use the simplest form of Java for the job,
+very little use of generics, lambdas, threading, etc. Try to make it easily maintainable by an intermediate Java programmer.
+Hopefully the Service Bus + Envelope + Routes framework will hold up overtime although improvements
+still need to be made here, especially around having to use the DLC class for data access within the Envelope.
+
 If you ever see the codebase with no commits for a long period of time with no communications, please fork and continue
 the effort. Global free speech is imperative to a free humanity from those few who wish to enslave the rest under any
 guise.
