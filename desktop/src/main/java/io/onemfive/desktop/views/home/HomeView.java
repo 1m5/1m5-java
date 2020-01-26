@@ -113,16 +113,25 @@ public class HomeView extends InitializableView {
             rootContainer.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
         final ToggleButton dashboardButton = new NavButton(DashboardView.class, Res.get("homeView.menu.dashboard").toUpperCase());
+        dashboardButton.disableProperty().setValue(true);
         final ToggleButton browserButton = new NavButton(BrowserView.class, Res.get("homeView.menu.browser").toUpperCase());
         final ToggleButton messengerButton = new NavButton(MessengerView.class, Res.get("homeView.menu.messenger").toUpperCase());
+        messengerButton.disableProperty().setValue(true);
         final ToggleButton calendarButton = new NavButton(CalendarView.class, Res.get("homeView.menu.calendar").toUpperCase());
+        calendarButton.disableProperty().setValue(true);
         final ToggleButton voiceButton = new NavButton(VoiceView.class, Res.get("homeView.menu.voice").toUpperCase());
+        voiceButton.disableProperty().setValue(true);
         final ToggleButton videoButton = new NavButton(VideoView.class, Res.get("homeView.menu.video").toUpperCase());
+        videoButton.disableProperty().setValue(true);
         final ToggleButton appsButton = new NavButton(AppsView.class, Res.get("homeView.menu.apps").toUpperCase());
+        appsButton.disableProperty().setValue(true);
         final ToggleButton identitiesButton = new NavButton(IdentitiesView.class, Res.get("homeView.menu.identities").toUpperCase());
         final ToggleButton supportButton = new NavButton(SupportView.class, Res.get("homeView.menu.support").toUpperCase());
+        supportButton.disableProperty().setValue(true);
         final ToggleButton settingsButton = new NavButton(SettingsView.class, Res.get("homeView.menu.settings").toUpperCase());
+        settingsButton.disableProperty().setValue(true);
         final ToggleButton manconButton = new NavButton(ManConView.class, Res.get("homeView.menu.mancon").toUpperCase());
+        manconButton.disableProperty().setValue(true);
 
 //        Badge dashboardButtonWithBadge = new Badge(dashboardButton);
 //        Badge messengerButtonWithBadge = new Badge(messengerButton);
