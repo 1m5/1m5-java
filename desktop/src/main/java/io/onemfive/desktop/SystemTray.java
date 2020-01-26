@@ -105,15 +105,15 @@ public class SystemTray {
         popupMenu.addSeparator();
         popupMenu.add(quitItem);
         try {
-            trayIcon = new TrayIcon(ImageIO.read(Resources.SYS_TRAY_ICON_WHITE));
+            trayIcon = new TrayIcon(ImageIO.read(Resources.ICON_WHITE));
 
-            whiteIcon = ImageIO.read(Resources.SYS_TRAY_ICON_WHITE).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
-            yellowIcon = ImageIO.read(Resources.SYS_TRAY_ICON_YELLOW).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
-            orangeIcon = ImageIO.read(Resources.SYS_TRAY_ICON_ORANGE).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
-            redIcon = ImageIO.read(Resources.SYS_TRAY_ICON_RED).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
-            blueIcon = ImageIO.read(Resources.SYS_TRAY_ICON_BLUE).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
-            greenIcon = ImageIO.read(Resources.SYS_TRAY_ICON_GREEN).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
-            grayIcon = ImageIO.read(Resources.SYS_TRAY_ICON_GRAY).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
+            whiteIcon = ImageIO.read(Resources.ICON_WHITE).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
+            yellowIcon = ImageIO.read(Resources.ICON_YELLOW).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
+            orangeIcon = ImageIO.read(Resources.ICON_ORANGE).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
+            redIcon = ImageIO.read(Resources.ICON_RED).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
+            blueIcon = ImageIO.read(Resources.ICON_BLUE).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
+            greenIcon = ImageIO.read(Resources.ICON_GREEN).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
+            grayIcon = ImageIO.read(Resources.ICON_GRAY).getScaledInstance(trayIcon.getSize().width, -1, Image.SCALE_SMOOTH);
 
             // On Windows and Linux the icon needs to be resized
             // On macOS we get the correct size from the provided image

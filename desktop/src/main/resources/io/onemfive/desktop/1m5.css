@@ -25,6 +25,12 @@ bg color of non edit textFields: fafafa
 */
 
 .root {
+    -ims-black: #191919
+    -ims-white: #f4f1ec
+    -ims-electric-blue: #2646ea
+    -ims-purple-light: #8072ba
+    -ims-purple-dark: #5d528a
+    -ims-grey: #666
     -bs-very-dark-grey3: #444; /* 3 usages */
     -bs-grey: #666666; /* 8 usages */
     -bs-medium-grey: #AAAAAA; /* 8 usages */
@@ -685,7 +691,7 @@ bg color of non edit textFields: fafafa
 /* Splash */
 
 #splash {
-    -fx-background-color: -bs-rd-white;
+    -fx-background-color: -ims-black;
 }
 
 /* Main UI */
@@ -700,7 +706,7 @@ bg color of non edit textFields: fafafa
 #footer-pane {
     -fx-background-color: -bs-bg-grey;
     -fx-font-size: 0.923em;
-    -fx-text-fill: -bs-rd-font-dark;
+    -fx-text-fill: -ims-black;
 }
 
 #footer-pane-line {

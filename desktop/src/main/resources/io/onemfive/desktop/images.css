@@ -1,7 +1,36 @@
 /* splash screen */
 /*noinspection CssUnknownTarget*/
 #image-splash-logo {
-    -fx-image: url("images/logo_splash.png");
+    -fx-image: url("images/1m5_50_black.png");
+}
+
+/* Icons */
+#image-icon-blue {
+    -fx-image: url("images/icons/icon_blue.png");
+}
+
+#image-icon-gray {
+    -fx-image: url("images/icons/icon_gray.png");
+}
+
+#image-icon-green {
+    -fx-image: url("images/icons/icon_green.png");
+}
+
+#image-icon-orange {
+    -fx-image: url("images/icons/icon_orange.png");
+}
+
+#image-icon-red {
+    -fx-image: url("images/icons/icon_red.png");
+}
+
+#image-icon-white {
+    -fx-image: url("images/icons/icon_white.png");
+}
+
+#image-icon-yellow {
+    -fx-image: url("images/icons/icon_yellow.png");
 }
 
 /* shared*/

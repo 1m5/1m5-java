@@ -26,7 +26,6 @@
  */
 package io.onemfive.desktop.views.home;
 
-import io.onemfive.desktop.DesktopApp;
 import io.onemfive.desktop.Navigation;
 import io.onemfive.desktop.Resources;
 import io.onemfive.desktop.components.AutoTooltipLabel;
@@ -55,6 +54,8 @@ import javafx.geometry.NodeOrientation;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -62,7 +63,6 @@ import javafx.scene.text.TextAlignment;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Locale;
 
 import static javafx.scene.layout.AnchorPane.*;
 
@@ -331,16 +331,16 @@ public class HomeView extends InitializableView {
             }
         });
 
-//        VBox splashScreen = createSplashScreen();
-
-//        rootContainer.getChildren().addAll(baseApplicationContainer, splashScreen);
-        rootContainer.getChildren().addAll(baseApplicationContainer);
+        VBox splashScreen = createSplashScreen();
+        rootContainer.getChildren().addAll(baseApplicationContainer, splashScreen);
+//        rootContainer.getChildren().addAll(baseApplicationContainer);
 
 //        model.getShowAppScreen().addListener((ov, oldValue, newValue) -> {
 //            if (newValue) {
 //                navigation.navigateToPreviousVisitedView();
 //
 //                transitionUtil.fadeOutAndRemove(splashScreen, 1500, actionEvent -> disposeSplashScreen());
+//                transitionUtil.fadeOutAndRemove(splashScreen, 1500);
 //            }
 //        });
 
@@ -463,6 +463,142 @@ public class HomeView extends InitializableView {
 //        }
 //        return res;
 //    }
+
+    private VBox createSplashScreen() {
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setSpacing(10);
+        vBox.setId("splash");
+
+        ImageView logo = new ImageView();
+        logo.setId("image-splash-logo");
+
+        // createBitcoinInfoBox
+//        btcSplashInfo = new AutoTooltipLabel();
+//        btcSplashInfo.textProperty().bind(model.getBtcInfo());
+//        walletServiceErrorMsgListener = (ov, oldValue, newValue) -> {
+//            btcSplashInfo.setId("splash-error-state-msg");
+//            btcSplashInfo.getStyleClass().add("error-text");
+//        };
+//        model.getWalletServiceErrorMsg().addListener(walletServiceErrorMsgListener);
+//
+//        btcSyncIndicator = new JFXProgressBar();
+//        btcSyncIndicator.setPrefWidth(305);
+//        btcSyncIndicator.progressProperty().bind(model.getCombinedSyncProgress());
+//
+//        ImageView btcSyncIcon = new ImageView();
+//        btcSyncIcon.setVisible(false);
+//        btcSyncIcon.setManaged(false);
+//
+//        btcSyncIconIdListener = (ov, oldValue, newValue) -> {
+//            btcSyncIcon.setId(newValue);
+//            btcSyncIcon.setVisible(true);
+//            btcSyncIcon.setManaged(true);
+//
+//            btcSyncIndicator.setVisible(false);
+//            btcSyncIndicator.setManaged(false);
+//        };
+//        model.getBtcSplashSyncIconId().addListener(btcSyncIconIdListener);
+//
+//
+//        HBox blockchainSyncBox = new HBox();
+//        blockchainSyncBox.setSpacing(10);
+//        blockchainSyncBox.setAlignment(Pos.CENTER);
+//        blockchainSyncBox.setPadding(new Insets(40, 0, 0, 0));
+//        blockchainSyncBox.setPrefHeight(50);
+//        blockchainSyncBox.getChildren().addAll(btcSplashInfo, btcSyncIcon);
+
+
+        // create P2PNetworkBox
+//        splashP2PNetworkLabel = new AutoTooltipLabel();
+//        splashP2PNetworkLabel.setWrapText(true);
+//        splashP2PNetworkLabel.setMaxWidth(500);
+//        splashP2PNetworkLabel.setTextAlignment(TextAlignment.CENTER);
+//        splashP2PNetworkLabel.getStyleClass().add("sub-info");
+//        splashP2PNetworkLabel.textProperty().bind(model.getP2PNetworkInfo());
+//
+//        Button showTorNetworkSettingsButton = new AutoTooltipButton(Res.get("settings.net.openTorSettingsButton"));
+//        showTorNetworkSettingsButton.setVisible(false);
+//        showTorNetworkSettingsButton.setManaged(false);
+//        showTorNetworkSettingsButton.setOnAction(e -> model.getTorNetworkSettingsWindow().show());
+//
+//        splashP2PNetworkBusyAnimation = new BusyAnimation(false);
+//
+//        splashP2PNetworkErrorMsgListener = (ov, oldValue, newValue) -> {
+//            if (newValue != null) {
+//                splashP2PNetworkLabel.setId("splash-error-state-msg");
+//                splashP2PNetworkLabel.getStyleClass().remove("sub-info");
+//                splashP2PNetworkLabel.getStyleClass().add("error-text");
+//                splashP2PNetworkBusyAnimation.setDisable(true);
+//                splashP2PNetworkBusyAnimation.stop();
+//                showTorNetworkSettingsButton.setVisible(true);
+//                showTorNetworkSettingsButton.setManaged(true);
+//                if (model.getUseTorForBTC().get()) {
+//                    // If using tor for BTC, hide the BTC status since tor is not working
+//                    btcSyncIndicator.setVisible(false);
+//                    btcSplashInfo.setVisible(false);
+//                }
+//            } else if (model.getSplashP2PNetworkAnimationVisible().get()) {
+//                splashP2PNetworkBusyAnimation.setDisable(false);
+//                splashP2PNetworkBusyAnimation.play();
+//            }
+//        };
+//        model.getP2pNetworkWarnMsg().addListener(splashP2PNetworkErrorMsgListener);
+
+//        ImageView splashP2PNetworkIcon = new ImageView();
+//        splashP2PNetworkIcon.setId("image-connection-tor");
+//        splashP2PNetworkIcon.setVisible(false);
+//        splashP2PNetworkIcon.setManaged(false);
+//        HBox.setMargin(splashP2PNetworkIcon, new Insets(0, 0, 5, 0));
+//
+//        Timer showTorNetworkSettingsTimer = UserThread.runAfter(() -> {
+//            showTorNetworkSettingsButton.setVisible(true);
+//            showTorNetworkSettingsButton.setManaged(true);
+//        }, SHOW_TOR_SETTINGS_DELAY_SEC);
+//
+//        splashP2PNetworkIconIdListener = (ov, oldValue, newValue) -> {
+//            splashP2PNetworkIcon.setId(newValue);
+//            splashP2PNetworkIcon.setVisible(true);
+//            splashP2PNetworkIcon.setManaged(true);
+//
+//            // if we can connect in 10 sec. we know that tor is working
+//            showTorNetworkSettingsTimer.stop();
+//        };
+//        model.getP2PNetworkIconId().addListener(splashP2PNetworkIconIdListener);
+//
+//        splashP2PNetworkVisibleListener = (ov, oldValue, newValue) -> {
+//            splashP2PNetworkBusyAnimation.setDisable(!newValue);
+//            if (newValue) splashP2PNetworkBusyAnimation.play();
+//        };
+//
+//        model.getSplashP2PNetworkAnimationVisible().addListener(splashP2PNetworkVisibleListener);
+//
+//        HBox splashP2PNetworkBox = new HBox();
+//        splashP2PNetworkBox.setSpacing(10);
+//        splashP2PNetworkBox.setAlignment(Pos.CENTER);
+//        splashP2PNetworkBox.setPrefHeight(40);
+//        splashP2PNetworkBox.getChildren().addAll(splashP2PNetworkLabel, splashP2PNetworkBusyAnimation, splashP2PNetworkIcon, showTorNetworkSettingsButton);
+//
+//        vBox.getChildren().addAll(logo, blockchainSyncBox, btcSyncIndicator, splashP2PNetworkBox);
+        vBox.getChildren().add(logo);
+        return vBox;
+    }
+
+    private void disposeSplashScreen() {
+//        model.getWalletServiceErrorMsg().removeListener(walletServiceErrorMsgListener);
+//        model.getBtcSplashSyncIconId().removeListener(btcSyncIconIdListener);
+//
+//        model.getP2pNetworkWarnMsg().removeListener(splashP2PNetworkErrorMsgListener);
+//        model.getP2PNetworkIconId().removeListener(splashP2PNetworkIconIdListener);
+//        model.getSplashP2PNetworkAnimationVisible().removeListener(splashP2PNetworkVisibleListener);
+//
+//        btcSplashInfo.textProperty().unbind();
+//        btcSyncIndicator.progressProperty().unbind();
+//
+//        splashP2PNetworkLabel.textProperty().unbind();
+//
+//        model.onSplashScreenRemoved();
+    }
 
     private AnchorPane createFooter() {
         // line

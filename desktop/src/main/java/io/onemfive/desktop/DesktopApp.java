@@ -49,6 +49,7 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static io.onemfive.desktop.CssTheme.CSS_THEME_DARK;
 import static io.onemfive.desktop.util.Layout.*;
 
 public class DesktopApp extends Application implements Thread.UncaughtExceptionHandler {
@@ -113,9 +114,6 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
         LOG.info("DesktopApp starting...\n\tThread name: " + Thread.currentThread().getName());
         this.stage = stage;
         stage.setTitle("1M5");
-        // Launch Tray
-        systemTray = new SystemTray(stage, this::stop);
-        systemTrayInitialized = systemTray.init();
 
         HomeView homeView = (HomeView) ViewLoader.load(HomeView.class, true);
         Rectangle maxWindowBounds = new Rectangle();
@@ -134,10 +132,11 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
                 INITIAL_WINDOW_HEIGHT;
         scene = new Scene((StackPane)homeView.getRoot(), width, height);
 
-        CssTheme.loadSceneStyles(scene, 0);
+        CssTheme.loadSceneStyles(scene, CSS_THEME_DARK);
 
-        // configure the system tray
-//        SystemTray.create(stage, shutDownHandler);
+        // Launch Tray
+//        systemTray = new SystemTray(stage, this::stop);
+//        systemTrayInitialized = systemTray.init();
 
         stage.setOnCloseRequest(Event::consume);
 
