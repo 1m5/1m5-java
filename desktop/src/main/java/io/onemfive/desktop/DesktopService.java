@@ -40,19 +40,19 @@ import javafx.application.Platform;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class UIService extends BaseService {
+public class DesktopService extends BaseService {
 
-    private static final Logger LOG = Logger.getLogger(UIService.class.getName());
+    private static final Logger LOG = Logger.getLogger(DesktopService.class.getName());
 
     public static final String OPERATION_NOTIFY_UI = "NOTIFY_UI";
     public static final String OPERATION_UPDATE_ACTIVE_IDENTITY = "UPDATE_ACTIVE_IDENTITY";
     public static final String OPERATION_UPDATE_CONTACTS = "UPDATE_CONTACTS";
     public static final String OPERATION_UPDATE_IDENTITIES = "UPDATE_IDENTITIES";
 
-    public UIService() {
+    public DesktopService() {
     }
 
-    public UIService(MessageProducer producer, ServiceStatusListener listener) {
+    public DesktopService(MessageProducer producer, ServiceStatusListener listener) {
         super(producer, listener);
     }
 

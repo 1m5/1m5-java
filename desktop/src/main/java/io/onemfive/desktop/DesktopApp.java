@@ -26,7 +26,6 @@
  */
 package io.onemfive.desktop;
 
-import dorkbox.systemTray.SystemTray;
 import io.onemfive.Router;
 import io.onemfive.core.ServiceStatus;
 import io.onemfive.core.ServiceStatusObserver;
@@ -39,6 +38,7 @@ import io.onemfive.util.AppThread;
 import io.onemfive.util.DLC;
 import io.onemfive.util.LocaleUtil;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -55,8 +55,8 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
 
     private static final Logger LOG = Logger.getLogger(DesktopApp.class.getName());
 
-    private static DesktopTray desktopTray;
     private static SystemTray systemTray;
+    private static boolean systemTrayInitialized = false;
 
     private static Runnable shutDownHandler;
 
@@ -70,28 +70,17 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
     private boolean shutdownOnException = true;
     private ServiceStatus uiServiceStatus = ServiceStatus.NOT_INITIALIZED;
 
-    private static DesktopTray tray;
     private static Router router;
 
     public DesktopApp() {
         shutDownHandler = this::stop;
     }
 
-    public static void setDappTray(DesktopTray tray) {
-        desktopTray = tray;
-        systemTray = desktopTray.systemTray;
-    }
-
     @Override
     public void init() {
         LOG.info("DesktopApp initializing...\n\tThread name: " + Thread.currentThread().getName());
         LocaleUtil.currentLocale = Locale.US; // Default - TODO: load locale from preferences
-        // Launch Tray
-        tray = new DesktopTray();
-        final DesktopApp desktopApp = this;
-        Thread trayThread = new Thread(() -> tray.start(desktopApp));
-        trayThread.setDaemon(true);
-        trayThread.start();
+
         // Launch Router
         String[] args = {};
         router = new Router();
@@ -104,7 +93,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
             @Override
             public void run() {
                 Map<String, List<ServiceStatusObserver>> observers = new HashMap<>();
-                observers.put(UIService.class.getName(), Arrays.asList(new ServiceStatusObserver() {
+                observers.put(DesktopService.class.getName(), Arrays.asList(new ServiceStatusObserver() {
                     @Override
                     public void statusUpdated(ServiceStatus serviceStatus) {
                         uiServiceStatus = serviceStatus;
@@ -112,7 +101,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
                 }));
                 Envelope e = Envelope.documentFactory();
                 DLC.addData(ServiceStatusObserver.class, observers, e);
-                DLC.addEntity(Arrays.asList(UIService.class),e);
+                DLC.addEntity(Arrays.asList(DesktopService.class),e);
                 DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES, e);
                 Router.sendRequest(e);
             }
@@ -124,6 +113,10 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
         LOG.info("DesktopApp starting...\n\tThread name: " + Thread.currentThread().getName());
         this.stage = stage;
         stage.setTitle("1M5");
+        // Launch Tray
+        systemTray = new SystemTray(stage, this::stop);
+        systemTrayInitialized = systemTray.init();
+
         HomeView homeView = (HomeView) ViewLoader.load(HomeView.class, true);
         Rectangle maxWindowBounds = new Rectangle();
         try {
@@ -156,8 +149,8 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
         stage.getIcons().add(ImageUtil.getApplicationIconImage());
 
         // make the UI visible
-//        stage.show();
-        show();
+        if(!systemTrayInitialized)
+            show();
     }
 
     @Override
@@ -175,6 +168,10 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
 //            }, 200, TimeUnit.MILLISECONDS);
             shutDownRequested = true;
         }
+    }
+
+    public static void execute(Runnable runnable) {
+        Platform.runLater(runnable);
     }
 
     @Override

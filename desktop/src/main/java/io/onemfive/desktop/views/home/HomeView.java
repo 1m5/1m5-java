@@ -38,7 +38,6 @@ import io.onemfive.desktop.views.*;
 import io.onemfive.desktop.views.apps.AppsView;
 import io.onemfive.desktop.views.browser.BrowserView;
 import io.onemfive.desktop.views.calendar.CalendarView;
-import io.onemfive.desktop.views.dao.DaoView;
 import io.onemfive.desktop.views.dashboard.DashboardView;
 import io.onemfive.desktop.views.identities.IdentitiesView;
 import io.onemfive.desktop.views.messenger.MessengerView;
@@ -119,7 +118,6 @@ public class HomeView extends InitializableView {
         final ToggleButton videoButton = new NavButton(VideoView.class, Res.get("homeView.menu.video").toUpperCase());
         final ToggleButton appsButton = new NavButton(AppsView.class, Res.get("homeView.menu.apps").toUpperCase());
         final ToggleButton identitiesButton = new NavButton(IdentitiesView.class, Res.get("homeView.menu.identities").toUpperCase());
-        final ToggleButton daoButton = new NavButton(DaoView.class, Res.get("homeView.menu.dao").toUpperCase());
         final ToggleButton supportButton = new NavButton(SupportView.class, Res.get("homeView.menu.support").toUpperCase());
         final ToggleButton settingsButton = new NavButton(SettingsView.class, Res.get("homeView.menu.settings").toUpperCase());
 
@@ -129,7 +127,6 @@ public class HomeView extends InitializableView {
 //        Badge voiceButtonWithBadge = new Badge(voiceButton);
 //        Badge videoButtonWithBadge = new Badge(videoButton);
 //        Badge appsButtonWithBadge = new Badge(appsButton);
-//        Badge daoButtonWithBadge = new Badge(daoButton);
 //        daoButtonWithBadge.getStyleClass().add("new");
 //        Badge supportButtonWithBadge = new Badge(supportButton);
 //        Badge settingsButtonWithBadge = new Badge(settingsButton);
@@ -157,8 +154,6 @@ public class HomeView extends InitializableView {
                         appsButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT9, keyEvent)) {
                         identitiesButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT0, keyEvent)) {
-                        daoButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.MINUS, keyEvent)) {
                         supportButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.EQUALS, keyEvent)) {
@@ -255,7 +250,6 @@ public class HomeView extends InitializableView {
                 dashboardButton, getNavigationSeparator(),
                 identitiesButton, getNavigationSeparator(),
                 appsButton, getNavigationSeparator(),
-                daoButton, getNavigationSeparator(),
                 supportButton, getNavigationSeparator(),
                 settingsButton);
 

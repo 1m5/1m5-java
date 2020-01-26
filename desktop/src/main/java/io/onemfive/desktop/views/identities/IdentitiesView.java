@@ -30,7 +30,7 @@ import io.onemfive.Router;
 import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.data.*;
 import io.onemfive.desktop.DesktopApp;
-import io.onemfive.desktop.UIService;
+import io.onemfive.desktop.DesktopService;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.did.DIDService;
 import io.onemfive.util.DLC;
@@ -146,7 +146,7 @@ public class IdentitiesView extends ActivatableView {
                         && !identityPwd2Text.getText().isEmpty()) {
                     Envelope e = Envelope.documentFactory();
                     // 4. Update UI
-                    DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e);
+                    DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_IDENTITIES, e);
                     // 3. Load ordered Identities
                     DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e);
                     // 2. Authenticate/Save DID
@@ -267,7 +267,7 @@ public class IdentitiesView extends ActivatableView {
             did.setUsername(contactAliasTxt.getText());
             did.getPublicKey().setAddress(contactAddressTxt.getText());
             Envelope e = Envelope.documentFactory();
-            DLC.addRoute(UIService.class, UIService.OPERATION_NOTIFY_UI, e);
+            DLC.addRoute(DesktopService.class, DesktopService.OPERATION_NOTIFY_UI, e);
             DLC.addRoute(DIDService.class, DIDService.OPERATION_ADD_CONTACT, e);
             DLC.addEntity(did, e);
             Router.sendRequest(e);
@@ -293,19 +293,19 @@ public class IdentitiesView extends ActivatableView {
 
         // Get Identities
         Envelope e1 = Envelope.documentFactory();
-        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_IDENTITIES, e1);
+        DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_IDENTITIES, e1);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e1);
         Router.sendRequest(e1);
 
         // Get Contacts
         Envelope e2 = Envelope.documentFactory();
-        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_CONTACTS, e2);
+        DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_CONTACTS, e2);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_CONTACTS, e2);
         Router.sendRequest(e2);
 
         // Get Active Identity
         Envelope e3 = Envelope.documentFactory();
-        DLC.addRoute(UIService.class, UIService.OPERATION_UPDATE_ACTIVE_IDENTITY, e3);
+        DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_ACTIVE_IDENTITY, e3);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_ACTIVE_IDENTITY, e3);
         Router.sendRequest(e3);
 

@@ -28,14 +28,13 @@ package io.onemfive.desktop.util;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.util.logging.Logger;
 
 public class ImageUtil {
-    private static final Logger log = LoggerFactory.getLogger(ImageUtil.class);
+    private static final Logger LOG = Logger.getLogger(ImageUtil.class.getName());
 
     public static final String REMOVE_ICON = "image-remove";
 
@@ -46,7 +45,7 @@ public class ImageUtil {
     }
 
     public static Image getApplicationIconImage () {
-        return getImageByUrl("/io/onemfive/desktop/images/icon_white.png");
+        return getImageByUrl("/io/onemfive/desktop/images/icons/black/favicon-96x96.png");
     }
 
     private static Image getImageByUrl(String url) {
