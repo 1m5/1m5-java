@@ -28,21 +28,21 @@ package io.onemfive.desktop;
 
 import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.ViewPath;;
+import io.onemfive.desktop.views.browser.BrowserView;
 import io.onemfive.desktop.views.home.HomeView;
-import io.onemfive.desktop.views.messenger.MessengerView;
 
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class Navigation {
 
-    private static final ViewPath DEFAULT_VIEW_PATH = ViewPath.to(HomeView.class, MessengerView.class);
+    private static final ViewPath DEFAULT_VIEW_PATH = ViewPath.to(HomeView.class, BrowserView.class);
 
     public interface Listener {
+
         void onNavigationRequested(ViewPath path);
 
-        default void onNavigationRequested(ViewPath path, Object data) {
-        }
+        default void onNavigationRequested(ViewPath path, Object data) {}
     }
 
     // New listeners can be added during iteration so we use CopyOnWriteArrayList to

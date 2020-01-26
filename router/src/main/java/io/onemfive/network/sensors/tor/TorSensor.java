@@ -28,9 +28,7 @@ package io.onemfive.network.sensors.tor;
 
 import io.onemfive.data.*;
 import io.onemfive.network.Packet;
-import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.sensors.SensorManager;
-import io.onemfive.network.sensors.bluetoothle.BluetoothLESensor;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
 import io.onemfive.util.DLC;
 import io.onemfive.network.sensors.SensorStatus;

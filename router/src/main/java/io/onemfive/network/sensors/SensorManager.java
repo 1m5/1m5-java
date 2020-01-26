@@ -33,8 +33,6 @@ import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.bluetooth.BluetoothSensor;
-import io.onemfive.network.sensors.bluetoothle.BluetoothLESensor;
-import io.onemfive.network.sensors.bluetoothle.BluetoothLESession;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
 import io.onemfive.network.sensors.fullspectrum.FullSpectrumRadioSensor;
 import io.onemfive.network.sensors.i2p.I2PSensor;
@@ -97,7 +95,6 @@ public final class SensorManager {
             TorSensor.class.getName(),
             I2PSensor.class.getName(),
             BluetoothSensor.class.getName(),
-            BluetoothLESensor.class.getName(),
             WiFiDirectSensor.class.getName(),
             SatelliteSensor.class.getName(),
             FullSpectrumRadioSensor.class.getName(),
@@ -108,7 +105,6 @@ public final class SensorManager {
             I2PSensor.class.getName(),
             TorSensor.class.getName(),
             BluetoothSensor.class.getName(),
-            BluetoothLESensor.class.getName(),
             WiFiDirectSensor.class.getName(),
             SatelliteSensor.class.getName(),
             FullSpectrumRadioSensor.class.getName(),
@@ -117,7 +113,6 @@ public final class SensorManager {
 
     public static List<String> idnSensorEscalation = Arrays.asList(
             BluetoothSensor.class.getName(),
-            BluetoothLESensor.class.getName(),
             WiFiDirectSensor.class.getName(),
             SatelliteSensor.class.getName(),
             FullSpectrumRadioSensor.class.getName(),
@@ -129,7 +124,6 @@ public final class SensorManager {
         registeredSensors.put(TorSensor.class.getName(), new TorSensor(this));
         registeredSensors.put(I2PSensor.class.getName(), new I2PSensor(this));
         registeredSensors.put(BluetoothSensor.class.getName(), new BluetoothSensor(this));
-        registeredSensors.put(BluetoothLESession.class.getName(), new BluetoothLESensor(this));
         registeredSensors.put(WiFiDirectSensor.class.getName(), new WiFiDirectSensor(this));
         registeredSensors.put(SatelliteSensor.class.getName(), new SatelliteSensor(this));
         registeredSensors.put(FullSpectrumRadioSensor.class.getName(), new FullSpectrumRadioSensor(this));
@@ -278,7 +272,6 @@ public final class SensorManager {
                 if(SensorStatus.NETWORK_CONNECTED == getSensorStatus(TorSensor.class.getName())
                         || SensorStatus.NETWORK_CONNECTED == getSensorStatus(I2PSensor.class.getName())
                         || SensorStatus.NETWORK_CONNECTED == getSensorStatus(BluetoothSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(BluetoothLESession.class.getName())
                         || SensorStatus.NETWORK_CONNECTED == getSensorStatus(WiFiDirectSensor.class.getName())
                         || SensorStatus.NETWORK_CONNECTED == getSensorStatus(SatelliteSensor.class.getName())
                         || SensorStatus.NETWORK_CONNECTED == getSensorStatus(FullSpectrumRadioSensor.class.getName())
@@ -289,7 +282,6 @@ public final class SensorManager {
             case EXTREME: {}
             case NEO: {
                 if(SensorStatus.NETWORK_CONNECTED == getSensorStatus(BluetoothSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(BluetoothLESession.class.getName())
                         || SensorStatus.NETWORK_CONNECTED == getSensorStatus(WiFiDirectSensor.class.getName())
                         || SensorStatus.NETWORK_CONNECTED == getSensorStatus(SatelliteSensor.class.getName())
                         || SensorStatus.NETWORK_CONNECTED == getSensorStatus(FullSpectrumRadioSensor.class.getName())

@@ -32,6 +32,7 @@ import io.onemfive.desktop.components.AutoTooltipLabel;
 import io.onemfive.desktop.components.AutoTooltipToggleButton;
 import io.onemfive.desktop.components.Badge;
 import io.onemfive.desktop.util.KeystrokeUtil;
+import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.util.Transitions;
 import io.onemfive.desktop.views.*;
 import io.onemfive.desktop.views.apps.AppsView;

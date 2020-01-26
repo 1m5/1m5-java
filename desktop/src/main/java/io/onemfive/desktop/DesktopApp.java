@@ -39,9 +39,11 @@ import io.onemfive.util.LocaleUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.awt.*;
 import java.util.*;
@@ -114,7 +116,6 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
     public void start(Stage stage) {
         LOG.info("DesktopApp starting...\n\tThread name: " + Thread.currentThread().getName());
         this.stage = stage;
-        stage.setTitle("1M5");
 
         HomeView homeView = (HomeView) MVC.loadView(HomeView.class, true);
         Rectangle maxWindowBounds = new Rectangle();
