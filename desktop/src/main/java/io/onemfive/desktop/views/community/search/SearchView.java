@@ -24,37 +24,16 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.personal;
+package io.onemfive.desktop.views.community.search;
 
-import io.onemfive.desktop.Navigation;
 import io.onemfive.desktop.views.InitializableView;
-import io.onemfive.util.Res;
-import javafx.beans.value.ChangeListener;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.input.KeyEvent;
 
-public class PersonalView extends InitializableView {
-
-    private TabPane pane;
-    @FXML
-    private Tab agoraTab, calendarTab, dashboardTab, identitiesTab, walletTab;
-
-    private Navigation.Listener navigationListener;
-    private ChangeListener<Tab> tabChangeListener;
-    private EventHandler<KeyEvent> keyEventEventHandler;
+public class SearchView extends InitializableView {
 
     @Override
     protected void initialize() {
         LOG.info("Initializing...");
-        pane = (TabPane)root;
-        agoraTab.setText(Res.get("personalView.tabs.agora").toUpperCase());
-        calendarTab.setText(Res.get("personalView.tabs.calendar").toUpperCase());
-        dashboardTab.setText(Res.get("personalView.tabs.dashboard").toUpperCase());
-        identitiesTab.setText(Res.get("personalView.tabs.identities").toUpperCase());
-        walletTab.setText(Res.get("personalView.tabs.wallet").toUpperCase());
+
         LOG.info("Initialized.");
     }
 }

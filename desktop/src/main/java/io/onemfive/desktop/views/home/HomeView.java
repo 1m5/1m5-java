@@ -106,40 +106,25 @@ public class HomeView extends InitializableView {
             rootContainer.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
         final ToggleButton personalButton = new NavButton(PersonalView.class, Res.get("homeView.menu.personal").toUpperCase());
+
         final ToggleButton communityButton = new NavButton(CommunityView.class, Res.get("homeView.menu.community").toUpperCase());
+//        communityButton.disableProperty().setValue(true);
         final ToggleButton commonsButton = new NavButton(CommonsView.class, Res.get("homeView.menu.commons").toUpperCase());
+//        commonsButton.disableProperty().setValue(true);
 
-//        final ToggleButton dashboardButton = new NavButton(DashboardView.class, Res.get("homeView.menu.dashboard").toUpperCase());
-//        dashboardButton.disableProperty().setValue(true);
-//        final ToggleButton browserButton = new NavButton(BrowserView.class, Res.get("homeView.menu.browser").toUpperCase());
-//        final ToggleButton agoraButton = new NavButton(BrowserView.class, Res.get("homeView.menu.agora").toUpperCase());
-//        final ToggleButton socialButton = new NavButton(SocialView.class, Res.get("homeView.menu.social").toUpperCase());
-//        socialButton.disableProperty().setValue(true);
-//        final ToggleButton identitiesButton = new NavButton(IdentitiesView.class, Res.get("homeView.menu.identities").toUpperCase());
-//        final ToggleButton calendarButton = new NavButton(CalendarView.class, Res.get("homeView.menu.calendar").toUpperCase());
-//        calendarButton.disableProperty().setValue(true);
-
-//        final ToggleButton appsButton = new NavButton(AppsView.class, Res.get("homeView.menu.apps").toUpperCase());
-//        appsButton.disableProperty().setValue(true);
         final ToggleButton supportButton = new NavButton(SupportView.class, Res.get("homeView.menu.support").toUpperCase());
-        supportButton.disableProperty().setValue(true);
+//        supportButton.disableProperty().setValue(true);
         final ToggleButton settingsButton = new NavButton(SettingsView.class, Res.get("homeView.menu.settings").toUpperCase());
-        settingsButton.disableProperty().setValue(true);
-//        final ToggleButton actButton = new NavButton(ManConView.class, Res.get("homeView.menu.act").toUpperCase());
-//        actButton.disableProperty().setValue(true);
+//        settingsButton.disableProperty().setValue(true);
         final ToggleButton manconButton = new NavButton(ManConView.class, Res.get("homeView.menu.mancon").toUpperCase());
-        manconButton.disableProperty().setValue(true);
+//        manconButton.disableProperty().setValue(true);
 
-//        Badge browserButtonWithBadge = new Badge(browserButton);
-//        Badge socialButtonWithBadge = new Badge(socialButton);
-//        Badge calendarButtonWithBadge = new Badge(calendarButton);
-
-//        Badge dashboardButtonWithBadge = new Badge(dashboardButton);
-//        Badge appsButtonWithBadge = new Badge(appsButton);
-//        Badge identitiesButtonWithBadge = new Badge(identitiesButton);
-//        Badge supportButtonWithBadge = new Badge(supportButton);
-//        Badge settingsButtonWithBadge = new Badge(settingsButton);
-//        Badge manconButtonWithBadge = new Badge(manconButton);
+        Badge personalButtonWithBadge = new Badge(personalButton);
+        Badge communityButtonWithBadge = new Badge(communityButton);
+        Badge commonsButtonWithBadge = new Badge(commonsButton);
+        Badge supportButtonWithBadge = new Badge(supportButton);
+        Badge settingsButtonWithBadge = new Badge(settingsButton);
+        Badge manconButtonWithBadge = new Badge(manconButton);
 
         DecimalFormat currencyFormat = (DecimalFormat) NumberFormat.getNumberInstance(LocaleUtil.currentLocale);
         currencyFormat.setMinimumFractionDigits(0);
@@ -155,11 +140,11 @@ public class HomeView extends InitializableView {
                         communityButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT3, keyEvent)) {
                         commonsButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT7, keyEvent)) {
+                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT4, keyEvent)) {
                         supportButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT8, keyEvent)) {
+                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT5, keyEvent)) {
                         settingsButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT0, keyEvent)) {
+                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT6, keyEvent)) {
                         manconButton.fire();
                     }
                 });
