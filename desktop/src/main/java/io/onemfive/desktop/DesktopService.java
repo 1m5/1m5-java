@@ -32,7 +32,6 @@ import io.onemfive.core.ServiceStatusListener;
 import io.onemfive.data.DID;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.route.Route;
-import io.onemfive.desktop.views.ViewLoader;
 import io.onemfive.desktop.views.identities.IdentitiesView;
 import io.onemfive.util.DLC;
 import javafx.application.Platform;
@@ -82,7 +81,7 @@ public class DesktopService extends BaseService {
                 if(activeIdentity!=null) {
                     Platform.runLater(() -> {
                         LOG.info("Updating IdentitiesView active DID...");
-                        IdentitiesView v = (IdentitiesView)ViewLoader.load(IdentitiesView.class, true);
+                        IdentitiesView v = (IdentitiesView)MVC.loadView(IdentitiesView.class, true);
                         v.updateActiveDID(activeIdentity);
                     });
                 }
@@ -94,7 +93,7 @@ public class DesktopService extends BaseService {
                 if(contacts!=null) {
                     Platform.runLater(() -> {
                         LOG.info("Updating IdentitiesView contacts...");
-                        IdentitiesView v = (IdentitiesView)ViewLoader.load(IdentitiesView.class, true);
+                        IdentitiesView v = (IdentitiesView)MVC.loadView(IdentitiesView.class, true);
                         v.updateContacts(contacts);
                     });
                 }
@@ -106,7 +105,7 @@ public class DesktopService extends BaseService {
                 if(identities!=null) {
                     Platform.runLater(() -> {
                         LOG.info("Updating IdentitiesView identities...");
-                        IdentitiesView v = (IdentitiesView)ViewLoader.load(IdentitiesView.class, true);
+                        IdentitiesView v = (IdentitiesView)MVC.loadView(IdentitiesView.class, true);
                         v.updateIdentities(identities);
                     });
                 }

@@ -24,17 +24,16 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.user;
+package io.onemfive.desktop.views.mancon;
 
-public class Preferences {
+import io.onemfive.desktop.views.InitializableView;
 
-    private boolean useAnimations = true;
+public class ManConView extends InitializableView {
 
-    public boolean isUseAnimations() {
-        return useAnimations;
-    }
+    @Override
+    protected void initialize() {
+        LOG.info("Initializing...");
 
-    public void setUseAnimations(boolean useAnimations) {
-        this.useAnimations = useAnimations;
+        LOG.info("Initialized.");
     }
 }

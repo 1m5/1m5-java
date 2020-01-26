@@ -26,6 +26,8 @@
  */
 package io.onemfive.desktop.util;
 
+import io.onemfive.desktop.MVC;
+import io.onemfive.desktop.user.Preferences;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -42,20 +44,14 @@ import javafx.event.EventHandler;
 
 import javafx.util.Duration;
 
-public class TransitionUtil {
+public class Transitions {
 
     public final static int DEFAULT_DURATION = 600;
 
-//    private final Preferences preferences;
     private Timeline removeEffectTimeLine;
 
-//    public Transitions(Preferences preferences) {
-//        this.preferences = preferences;
-//    }
-
     private int getDuration(int duration) {
-//        return preferences.isUseAnimations() ? duration : 1;
-        return 1;
+        return "true".equals(MVC.preferences.getProperty("useAnimations")) ? duration : 1;
     }
 
     // Fade

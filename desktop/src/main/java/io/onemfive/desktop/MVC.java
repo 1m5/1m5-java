@@ -24,8 +24,10 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views;
+package io.onemfive.desktop;
 
+import io.onemfive.desktop.views.BaseView;
+import io.onemfive.desktop.views.View;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 
@@ -33,22 +35,29 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
-public class ViewLoader {
+public class MVC {
 
-    private static final Logger LOG = Logger.getLogger(ViewLoader.class.getName());
-    private static final HashMap<Object, BaseView> cache = new HashMap<>();
+    private static final Logger LOG = Logger.getLogger(MVC.class.getName());
 
-    public static View load(Class<? extends View> viewClass) {
+    public static final Properties preferences = new Properties();
+    public static final Navigation navigation = new Navigation();
+    public static final Map<String,Object> model = new HashMap<>();
+
+    private static final HashMap<Object, BaseView> viewCache = new HashMap<>();
+
+    public static View loadView(Class<? extends View> viewClass) {
         // Caching on by default
-        return load(viewClass, true);
+        return loadView(viewClass, true);
     }
 
-    public static View load(Class<? extends View> viewClass, boolean useCache) {
+    public static View loadView(Class<? extends View> viewClass, boolean useCache) {
         BaseView view = null;
-        if (cache.containsKey(viewClass) && useCache) {
-            view = cache.get(viewClass);
+        if (viewCache.containsKey(viewClass) && useCache) {
+            view = viewCache.get(viewClass);
         } else {
             URL loc = viewClass.getResource(viewClass.getSimpleName()+".fxml");
             try {
@@ -58,7 +67,7 @@ public class ViewLoader {
                         view = (BaseView)Class.forName(viewClass.getName()).getConstructor().newInstance();
                         view.setRoot(n);
                         if(useCache) {
-                            cache.put(viewClass, view);
+                            viewCache.put(viewClass, view);
                         }
                     } catch (InstantiationException e) {
                         LOG.warning(e.getLocalizedMessage());

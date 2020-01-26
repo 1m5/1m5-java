@@ -32,7 +32,6 @@ import io.onemfive.core.ServiceStatusObserver;
 import io.onemfive.core.admin.AdminService;
 import io.onemfive.data.Envelope;
 import io.onemfive.desktop.util.ImageUtil;
-import io.onemfive.desktop.views.ViewLoader;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.util.AppThread;
 import io.onemfive.util.DLC;
@@ -81,7 +80,6 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
     public void init() {
         LOG.info("DesktopApp initializing...\n\tThread name: " + Thread.currentThread().getName());
         LocaleUtil.currentLocale = Locale.US; // Default - TODO: load locale from preferences
-
         // Launch Router
         String[] args = {};
         router = new Router();
@@ -107,6 +105,9 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
                 Router.sendRequest(e);
             }
         }).start();
+
+        // Setup Preferences
+        MVC.preferences.put("useAnimations","true");
     }
 
     @Override
@@ -115,7 +116,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
         this.stage = stage;
         stage.setTitle("1M5");
 
-        HomeView homeView = (HomeView) ViewLoader.load(HomeView.class, true);
+        HomeView homeView = (HomeView) MVC.loadView(HomeView.class, true);
         Rectangle maxWindowBounds = new Rectangle();
         try {
             maxWindowBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();

@@ -26,7 +26,7 @@
  */
 package io.onemfive.desktop.views;
 
-import io.onemfive.desktop.Navigation;
+import io.onemfive.desktop.util.Transitions;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 
@@ -38,8 +38,7 @@ public abstract class BaseView implements View {
 
     @FXML
     protected Node root;
-    protected Navigation navigation;
-    protected Navigation.Listener navigationListener;
+    protected Transitions transitions;
 
     public BaseView() {}
 
@@ -48,18 +47,8 @@ public abstract class BaseView implements View {
         return root;
     }
 
-    @Override
     public void setRoot(Node root) {
         this.root = root;
     }
 
-    @Override
-    public void setNavigation(Navigation navigation) {
-        this.navigation = navigation;
-    }
-
-    @Override
-    public Navigation getNavigation() {
-        return navigation;
-    }
 }

@@ -26,19 +26,20 @@
  */
 package io.onemfive.desktop.views.home;
 
+import io.onemfive.desktop.MVC;
 import io.onemfive.desktop.Navigation;
-import io.onemfive.desktop.Resources;
 import io.onemfive.desktop.components.AutoTooltipLabel;
 import io.onemfive.desktop.components.AutoTooltipToggleButton;
 import io.onemfive.desktop.components.Badge;
 import io.onemfive.desktop.util.KeystrokeUtil;
-import io.onemfive.desktop.util.TransitionUtil;
+import io.onemfive.desktop.util.Transitions;
 import io.onemfive.desktop.views.*;
 import io.onemfive.desktop.views.apps.AppsView;
 import io.onemfive.desktop.views.browser.BrowserView;
 import io.onemfive.desktop.views.calendar.CalendarView;
 import io.onemfive.desktop.views.dashboard.DashboardView;
 import io.onemfive.desktop.views.identities.IdentitiesView;
+import io.onemfive.desktop.views.mancon.ManConView;
 import io.onemfive.desktop.views.messenger.MessengerView;
 import io.onemfive.desktop.views.settings.SettingsView;
 import io.onemfive.desktop.views.support.SupportView;
@@ -54,7 +55,6 @@ import javafx.geometry.NodeOrientation;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -69,14 +69,15 @@ import static javafx.scene.layout.AnchorPane.*;
 public class HomeView extends InitializableView {
 
     private StackPane rootContainer;
-    private TransitionUtil transitionUtil;
-    private Navigation navigation = new Navigation();
     private Label versionLabel;
     private Runnable onUiReadyHandler;
     private final ToggleGroup navButtons = new ToggleGroup();
+    private Transitions transitions = new Transitions();
 
-    public void setTransitionUtil(TransitionUtil transitionUtil) {
-        this.transitionUtil = transitionUtil;
+    public HomeView() {}
+
+    public void setTransitions(Transitions transitions) {
+        this.transitions = transitions;
     }
 
     public void setOnUiReadyHandler(Runnable onUiReadyHandler) {
@@ -88,19 +89,19 @@ public class HomeView extends InitializableView {
     }
 
     public void blurLight() {
-        transitionUtil.blur(rootContainer, TransitionUtil.DEFAULT_DURATION, -0.6, false, 5);
+        transitions.blur(rootContainer, Transitions.DEFAULT_DURATION, -0.6, false, 5);
     }
 
     public void blurUltraLight() {
-        transitionUtil.blur(rootContainer, TransitionUtil.DEFAULT_DURATION, -0.6, false, 2);
+        transitions.blur(rootContainer, Transitions.DEFAULT_DURATION, -0.6, false, 2);
     }
 
     public void darken() {
-        transitionUtil.darken(rootContainer, TransitionUtil.DEFAULT_DURATION, false);
+        transitions.darken(rootContainer, Transitions.DEFAULT_DURATION, false);
     }
 
     public void removeEffect() {
-        transitionUtil.removeEffect(rootContainer);
+        transitions.removeEffect(rootContainer);
     }
 
     @Override
@@ -120,16 +121,18 @@ public class HomeView extends InitializableView {
         final ToggleButton identitiesButton = new NavButton(IdentitiesView.class, Res.get("homeView.menu.identities").toUpperCase());
         final ToggleButton supportButton = new NavButton(SupportView.class, Res.get("homeView.menu.support").toUpperCase());
         final ToggleButton settingsButton = new NavButton(SettingsView.class, Res.get("homeView.menu.settings").toUpperCase());
+        final ToggleButton manconButton = new NavButton(ManConView.class, Res.get("homeView.menu.mancon").toUpperCase());
 
-//        Badge emailButtonWithBadge = new Badge(emailButton);
+//        Badge dashboardButtonWithBadge = new Badge(dashboardButton);
 //        Badge messengerButtonWithBadge = new Badge(messengerButton);
 //        Badge calendarButtonWithBadge = new Badge(calendarButton);
 //        Badge voiceButtonWithBadge = new Badge(voiceButton);
 //        Badge videoButtonWithBadge = new Badge(videoButton);
 //        Badge appsButtonWithBadge = new Badge(appsButton);
-//        daoButtonWithBadge.getStyleClass().add("new");
+//        Badge identitiesButtonWithBadge = new Badge(identitiesButton);
 //        Badge supportButtonWithBadge = new Badge(supportButton);
 //        Badge settingsButtonWithBadge = new Badge(settingsButton);
+//        Badge manconButtonWithBadge = new Badge(manconButton);
 
         DecimalFormat currencyFormat = (DecimalFormat) NumberFormat.getNumberInstance(LocaleUtil.currentLocale);
         currencyFormat.setMinimumFractionDigits(0);
@@ -157,8 +160,9 @@ public class HomeView extends InitializableView {
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.MINUS, keyEvent)) {
                         supportButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.EQUALS, keyEvent)) {
-                        if (settingsButton.isVisible())
-                            settingsButton.fire();
+                        settingsButton.fire();
+                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.BACK_SLASH, keyEvent)) {
+                        manconButton.fire();
                     }
                 });
             }
@@ -251,7 +255,8 @@ public class HomeView extends InitializableView {
                 identitiesButton, getNavigationSeparator(),
                 appsButton, getNavigationSeparator(),
                 supportButton, getNavigationSeparator(),
-                settingsButton);
+                settingsButton, getNavigationSeparator(),
+                manconButton);
 
         secondaryNav.getStyleClass().add("nav-secondary");
         secondaryNav.setAlignment(Pos.CENTER);
@@ -311,12 +316,12 @@ public class HomeView extends InitializableView {
 //        setupBadge(supportButtonWithBadge, model.getNumSupportResponses(), model.getShowSupportResponses());
 //        setupBadge(settingsButtonWithBadge, model.getNumSettingsNotifications(), model.getShowNumSettingsNotifications());
 
-        navigation.addListener(viewPath -> {
+        MVC.navigation.addListener(viewPath -> {
             if (viewPath.size() != 2 || viewPath.indexOf(HomeView.class) != 0)
                 return;
 
             Class<? extends View> viewClass = viewPath.tip();
-            View view = ViewLoader.load(viewClass);
+            View view = MVC.loadView(viewClass);
             contentContainer.getChildren().setAll(view.getRoot());
 
             try {
@@ -340,7 +345,7 @@ public class HomeView extends InitializableView {
 //                navigation.navigateToPreviousVisitedView();
 //
 //                transitionUtil.fadeOutAndRemove(splashScreen, 1500, actionEvent -> disposeSplashScreen());
-//                transitionUtil.fadeOutAndRemove(splashScreen, 1500);
+                transitions.fadeOutAndRemove(splashScreen, 5000);
 //            }
 //        });
 
@@ -655,9 +660,9 @@ public class HomeView extends InitializableView {
         versionLabel.setTextAlignment(TextAlignment.CENTER);
         versionLabel.setAlignment(Pos.BASELINE_CENTER);
         versionLabel.setText("v" + version);
-        rootContainer.widthProperty().addListener((ov, oldValue, newValue) -> {
-            versionLabel.setLayoutX(((double) newValue - versionLabel.getWidth()) / 2);
-        });
+//        rootContainer.widthProperty().addListener((ov, oldValue, newValue) -> {
+//            versionLabel.setLayoutX(((double) newValue - versionLabel.getWidth()) / 2);
+//        });
         setBottomAnchor(versionLabel, 7d);
 //        model.getNewVersionAvailableProperty().addListener((observable, oldValue, newValue) -> {
 //            versionLabel.getStyleClass().removeAll("version-new", "version");
@@ -672,7 +677,7 @@ public class HomeView extends InitializableView {
 //            }
 //        });
 
-        // P2P Network
+        // P2P Networks
 //        Label p2PNetworkLabel = new AutoTooltipLabel();
 //        p2PNetworkLabel.setId("footer-pane");
 //        p2PNetworkLabel.textProperty().bind(model.getP2PNetworkInfo());
@@ -713,6 +718,38 @@ public class HomeView extends InitializableView {
 //            setMaxHeight(30);
 //        }};
 
+        // Tor Network
+        Label torNetworkLabel = new AutoTooltipLabel();
+        torNetworkLabel.setId("footer-pane");
+
+        // I2P Network
+        Label i2pNetworkLabel = new AutoTooltipLabel();
+        i2pNetworkLabel.setId("footer-pane");
+
+        // Bluetooth Network
+        Label bluetoothNetworkLabel = new AutoTooltipLabel();
+        bluetoothNetworkLabel.setId("footer-pane");
+
+        // Bluetooth LE Network
+        Label bluetoothLENetworkLabel = new AutoTooltipLabel();
+        bluetoothLENetworkLabel.setId("footer-pane");
+
+        // WiFi-Direct Network
+        Label wifiDirectNetworkLabel = new AutoTooltipLabel();
+        wifiDirectNetworkLabel.setId("footer-pane");
+
+        // Satellite Network
+        Label satelliteNetworkLabel = new AutoTooltipLabel();
+        satelliteNetworkLabel.setId("footer-pane");
+
+        // Full Spectrum Radio Network
+        Label fsRadioNetworkLabel = new AutoTooltipLabel();
+        fsRadioNetworkLabel.setId("footer-pane");
+
+        // LiFi Network
+        Label lifiNetworkLabel = new AutoTooltipLabel();
+        lifiNetworkLabel.setId("footer-pane");
+
         return new AnchorPane(separator, versionLabel) {{
             setId("footer-pane");
             setMinHeight(30);
@@ -751,7 +788,7 @@ public class HomeView extends InitializableView {
 
             this.selectedProperty().addListener((ov, oldValue, newValue) -> this.setMouseTransparent(newValue));
 
-            this.setOnAction(e -> navigation.navigateTo(HomeView.class, viewClass));
+            this.setOnAction(e -> MVC.navigation.navigateTo(HomeView.class, viewClass));
         }
 
     }
