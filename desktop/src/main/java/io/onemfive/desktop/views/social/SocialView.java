@@ -24,11 +24,11 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.video;
+package io.onemfive.desktop.views.social;
 
 import io.onemfive.desktop.views.InitializableView;
 
-public class VideoView extends InitializableView {
+public class SocialView extends InitializableView {
 
     @Override
     protected void initialize() {
@@ -36,4 +36,5 @@ public class VideoView extends InitializableView {
 
         LOG.info("Initialized.");
     }
+
 }

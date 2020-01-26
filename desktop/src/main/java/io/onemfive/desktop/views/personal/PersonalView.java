@@ -24,11 +24,11 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.voice;
+package io.onemfive.desktop.views.personal;
 
 import io.onemfive.desktop.views.InitializableView;
 
-public class VoiceView extends InitializableView {
+public class PersonalView extends InitializableView {
 
     @Override
     protected void initialize() {

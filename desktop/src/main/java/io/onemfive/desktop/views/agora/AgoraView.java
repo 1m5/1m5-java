@@ -24,11 +24,11 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.messenger;
+package io.onemfive.desktop.views.agora;
 
 import io.onemfive.desktop.views.InitializableView;
 
-public class MessengerView extends InitializableView {
+public class AgoraView extends InitializableView {
 
     @Override
     protected void initialize() {

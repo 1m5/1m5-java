@@ -27,25 +27,24 @@
 package io.onemfive.desktop.views.home;
 
 import io.onemfive.desktop.MVC;
-import io.onemfive.desktop.Navigation;
 import io.onemfive.desktop.components.AutoTooltipLabel;
 import io.onemfive.desktop.components.AutoTooltipToggleButton;
 import io.onemfive.desktop.components.Badge;
 import io.onemfive.desktop.util.KeystrokeUtil;
-import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.util.Transitions;
 import io.onemfive.desktop.views.*;
 import io.onemfive.desktop.views.apps.AppsView;
 import io.onemfive.desktop.views.browser.BrowserView;
 import io.onemfive.desktop.views.calendar.CalendarView;
+import io.onemfive.desktop.views.commons.CommonsView;
+import io.onemfive.desktop.views.community.CommunityView;
 import io.onemfive.desktop.views.dashboard.DashboardView;
 import io.onemfive.desktop.views.identities.IdentitiesView;
 import io.onemfive.desktop.views.mancon.ManConView;
-import io.onemfive.desktop.views.messenger.MessengerView;
+import io.onemfive.desktop.views.personal.PersonalView;
 import io.onemfive.desktop.views.settings.SettingsView;
+import io.onemfive.desktop.views.social.SocialView;
 import io.onemfive.desktop.views.support.SupportView;
-import io.onemfive.desktop.views.video.VideoView;
-import io.onemfive.desktop.views.voice.VoiceView;
 import io.onemfive.util.LanguageUtil;
 import io.onemfive.util.LocaleUtil;
 import io.onemfive.util.Res;
@@ -112,32 +111,36 @@ public class HomeView extends InitializableView {
         if (LanguageUtil.isDefaultLanguageRTL())
             rootContainer.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
-        final ToggleButton dashboardButton = new NavButton(DashboardView.class, Res.get("homeView.menu.dashboard").toUpperCase());
-        dashboardButton.disableProperty().setValue(true);
-        final ToggleButton browserButton = new NavButton(BrowserView.class, Res.get("homeView.menu.browser").toUpperCase());
-        final ToggleButton messengerButton = new NavButton(MessengerView.class, Res.get("homeView.menu.messenger").toUpperCase());
-        messengerButton.disableProperty().setValue(true);
-        final ToggleButton calendarButton = new NavButton(CalendarView.class, Res.get("homeView.menu.calendar").toUpperCase());
-        calendarButton.disableProperty().setValue(true);
-        final ToggleButton voiceButton = new NavButton(VoiceView.class, Res.get("homeView.menu.voice").toUpperCase());
-        voiceButton.disableProperty().setValue(true);
-        final ToggleButton videoButton = new NavButton(VideoView.class, Res.get("homeView.menu.video").toUpperCase());
-        videoButton.disableProperty().setValue(true);
-        final ToggleButton appsButton = new NavButton(AppsView.class, Res.get("homeView.menu.apps").toUpperCase());
-        appsButton.disableProperty().setValue(true);
-        final ToggleButton identitiesButton = new NavButton(IdentitiesView.class, Res.get("homeView.menu.identities").toUpperCase());
+        final ToggleButton personalButton = new NavButton(PersonalView.class, Res.get("homeView.menu.personal").toUpperCase());
+        final ToggleButton communityButton = new NavButton(CommunityView.class, Res.get("homeView.menu.community").toUpperCase());
+        final ToggleButton commonsButton = new NavButton(CommonsView.class, Res.get("homeView.menu.commons").toUpperCase());
+
+//        final ToggleButton dashboardButton = new NavButton(DashboardView.class, Res.get("homeView.menu.dashboard").toUpperCase());
+//        dashboardButton.disableProperty().setValue(true);
+//        final ToggleButton browserButton = new NavButton(BrowserView.class, Res.get("homeView.menu.browser").toUpperCase());
+//        final ToggleButton agoraButton = new NavButton(BrowserView.class, Res.get("homeView.menu.agora").toUpperCase());
+//        final ToggleButton socialButton = new NavButton(SocialView.class, Res.get("homeView.menu.social").toUpperCase());
+//        socialButton.disableProperty().setValue(true);
+//        final ToggleButton identitiesButton = new NavButton(IdentitiesView.class, Res.get("homeView.menu.identities").toUpperCase());
+//        final ToggleButton calendarButton = new NavButton(CalendarView.class, Res.get("homeView.menu.calendar").toUpperCase());
+//        calendarButton.disableProperty().setValue(true);
+
+//        final ToggleButton appsButton = new NavButton(AppsView.class, Res.get("homeView.menu.apps").toUpperCase());
+//        appsButton.disableProperty().setValue(true);
         final ToggleButton supportButton = new NavButton(SupportView.class, Res.get("homeView.menu.support").toUpperCase());
         supportButton.disableProperty().setValue(true);
         final ToggleButton settingsButton = new NavButton(SettingsView.class, Res.get("homeView.menu.settings").toUpperCase());
         settingsButton.disableProperty().setValue(true);
+//        final ToggleButton actButton = new NavButton(ManConView.class, Res.get("homeView.menu.act").toUpperCase());
+//        actButton.disableProperty().setValue(true);
         final ToggleButton manconButton = new NavButton(ManConView.class, Res.get("homeView.menu.mancon").toUpperCase());
         manconButton.disableProperty().setValue(true);
 
-//        Badge dashboardButtonWithBadge = new Badge(dashboardButton);
-//        Badge messengerButtonWithBadge = new Badge(messengerButton);
+//        Badge browserButtonWithBadge = new Badge(browserButton);
+//        Badge socialButtonWithBadge = new Badge(socialButton);
 //        Badge calendarButtonWithBadge = new Badge(calendarButton);
-//        Badge voiceButtonWithBadge = new Badge(voiceButton);
-//        Badge videoButtonWithBadge = new Badge(videoButton);
+
+//        Badge dashboardButtonWithBadge = new Badge(dashboardButton);
 //        Badge appsButtonWithBadge = new Badge(appsButton);
 //        Badge identitiesButtonWithBadge = new Badge(identitiesButton);
 //        Badge supportButtonWithBadge = new Badge(supportButton);
@@ -151,27 +154,18 @@ public class HomeView extends InitializableView {
         root.sceneProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 newValue.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
+
                     if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT1, keyEvent)) {
-                        dashboardButton.fire();
+                        personalButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT2, keyEvent)) {
-                        browserButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT4, keyEvent)) {
-                        messengerButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT5, keyEvent)) {
-                        calendarButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT6, keyEvent)) {
-                        voiceButton.fire();
+                        communityButton.fire();
+                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT3, keyEvent)) {
+                        commonsButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT7, keyEvent)) {
-                        videoButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT8, keyEvent)) {
-                        appsButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT9, keyEvent)) {
-                        identitiesButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.MINUS, keyEvent)) {
                         supportButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.EQUALS, keyEvent)) {
+                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT8, keyEvent)) {
                         settingsButton.fire();
-                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.BACK_SLASH, keyEvent)) {
+                    } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT0, keyEvent)) {
                         manconButton.fire();
                     }
                 });
@@ -246,31 +240,27 @@ public class HomeView extends InitializableView {
 //                emailButtonWithBadge, getNavigationSeparator(), messengerButtonWithBadge, getNavigationSeparator(), calendarButtonWithBadge);
 
         HBox primaryNav = new HBox(
-                messengerButton, getNavigationSeparator(),
-                browserButton, getNavigationSeparator(),
-                videoButton, getNavigationSeparator(),
-                voiceButton, getNavigationSeparator(),
-                calendarButton);
+                personalButton, getNavigationSeparator(),
+                communityButton, getNavigationSeparator(),
+                commonsButton);
 
-        primaryNav.setAlignment(Pos.CENTER_LEFT);
+        primaryNav.setAlignment(Pos.BOTTOM_LEFT);
         primaryNav.getStyleClass().add("nav-primary");
-        HBox.setHgrow(primaryNav, Priority.SOMETIMES);
+        HBox.setHgrow(primaryNav, Priority.NEVER);
 
 //        HBox secondaryNav = new HBox(voiceButtonWithBadge, getNavigationSpacer(), videoButtonWithBadge,
 //                getNavigationSpacer(), appsButtonWithBadge, getNavigationSpacer(), daoButtonWithBadge,
 //                getNavigationSeparator(), identitiesButton, getNavigationSeparator(), supportButtonWithBadge,
 //                getNavigationSeparator(), settingsButtonWithBadge);
         HBox secondaryNav = new HBox(
-                dashboardButton, getNavigationSeparator(),
-                identitiesButton, getNavigationSeparator(),
-                appsButton, getNavigationSeparator(),
                 supportButton, getNavigationSeparator(),
                 settingsButton, getNavigationSeparator(),
                 manconButton);
 
         secondaryNav.getStyleClass().add("nav-secondary");
-        secondaryNav.setAlignment(Pos.CENTER);
-        HBox.setHgrow(secondaryNav, Priority.SOMETIMES);
+        HBox.setHgrow(secondaryNav, Priority.NEVER);
+        secondaryNav.setAlignment(Pos.BOTTOM_RIGHT);
+
 
 //        HBox priceAndBalance = new HBox(marketPriceBox.second, getNavigationSeparator(), availableBalanceBox.second,
 //                getNavigationSeparator(), reservedBalanceBox.second, getNavigationSeparator(), lockedBalanceBox.second);
@@ -302,7 +292,7 @@ public class HomeView extends InitializableView {
             getStyleClass().add("content-pane");
             setLeftAnchor(this, 0d);
             setRightAnchor(this, 0d);
-            setTopAnchor(this, 40d);
+            setTopAnchor(this, 36d);
             setBottomAnchor(this, 0d);
         }};
 
