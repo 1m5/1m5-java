@@ -350,6 +350,8 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
                         BaseService service = registeredServices.get(serviceName);
                         if (service.start(props)) {
                             runningServices.put(serviceName, service);
+                        } else {
+                            LOG.warning(serviceName+" failed to start.");
                         }
                     }
                 }, serviceName + "-StartupThread").start();
