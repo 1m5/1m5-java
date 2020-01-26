@@ -3,9 +3,29 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.scene.text.Text?>
-<StackPane xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
-           fx:id="root"
-           fx:controller="io.onemfive.desktop.views.commons.CommonsView">
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<TabPane xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:id="root"
+         fx:controller="io.onemfive.desktop.views.commons.CommonsView"
+         AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+         AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
 
-</StackPane>
+    <Tab fx:id="dashboardTab" closable="false">
+
+    </Tab>
+
+    <Tab fx:id="browserTab" closable="false">
+
+    </Tab>
+
+    <Tab fx:id="topicsTab" closable="false">
+
+    </Tab>
+
+    <Tab fx:id="agoraTab" closable="false">
+
+    </Tab>
+
+</TabPane>

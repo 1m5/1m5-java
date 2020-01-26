@@ -26,14 +26,36 @@
  */
 package io.onemfive.desktop.views.community;
 
+import io.onemfive.desktop.Navigation;
 import io.onemfive.desktop.views.InitializableView;
+import io.onemfive.util.Res;
+import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.input.KeyEvent;
 
 public class CommunityView extends InitializableView {
+
+    private TabPane pane;
+    @FXML
+    private Tab agoraTab, calendarTab, dashboardTab, searchTab, socialTab, walletTab;
+
+    private Navigation.Listener navigationListener;
+    private ChangeListener<Tab> tabChangeListener;
+    private EventHandler<KeyEvent> keyEventEventHandler;
 
     @Override
     protected void initialize() {
         LOG.info("Initializing...");
-
+        pane = (TabPane)root;
+        agoraTab.setText(Res.get("communityView.tabs.agora").toUpperCase());
+        calendarTab.setText(Res.get("communityView.tabs.calendar").toUpperCase());
+        dashboardTab.setText(Res.get("communityView.tabs.dashboard").toUpperCase());
+        socialTab.setText(Res.get("communityView.tabs.social").toUpperCase());
+        searchTab.setText(Res.get("communityView.tabs.search").toUpperCase());
+        walletTab.setText(Res.get("communityView.tabs.wallet").toUpperCase());
         LOG.info("Initialized.");
     }
 }

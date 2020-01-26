@@ -26,14 +26,34 @@
  */
 package io.onemfive.desktop.views.commons;
 
+import io.onemfive.desktop.Navigation;
 import io.onemfive.desktop.views.InitializableView;
+import io.onemfive.util.Res;
+import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.input.KeyEvent;
 
 public class CommonsView extends InitializableView {
+
+    private TabPane pane;
+    @FXML
+    private Tab agoraTab, browserTab, dashboardTab, topicsTab;
+
+    private Navigation.Listener navigationListener;
+    private ChangeListener<Tab> tabChangeListener;
+    private EventHandler<KeyEvent> keyEventEventHandler;
 
     @Override
     protected void initialize() {
         LOG.info("Initializing...");
-
+        pane = (TabPane)root;
+        agoraTab.setText(Res.get("commonsView.tabs.agora").toUpperCase());
+        browserTab.setText(Res.get("commonsView.tabs.browser").toUpperCase());
+        dashboardTab.setText(Res.get("commonsView.tabs.dashboard").toUpperCase());
+        topicsTab.setText(Res.get("commonsView.tabs.topics").toUpperCase());
         LOG.info("Initialized.");
     }
 }
