@@ -34,6 +34,7 @@ import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -45,7 +46,7 @@ import java.util.logging.Logger;
  */
 public abstract class Content implements JSONSerializable, Serializable {
 
-    private Logger LOG = Logger.getLogger(Content.class.getName());
+    private static Logger LOG = Logger.getLogger(Content.class.getName());
 
     // Required
     protected String type;
@@ -477,8 +478,15 @@ public abstract class Content implements JSONSerializable, Serializable {
     public static Content newInstance(Map<String,Object> m) throws InstantiationException, ClassNotFoundException, IllegalAccessException {
         if(m.get("type")==null) throw new InstantiationException("type required in supplied map.");
         String type = (String)m.get("type");
-        Content content = (Content)Class.forName(type).newInstance();
-        content.fromMap(m);
+        Content content = null;
+        try {
+            content = (Content)Class.forName(type).getConstructor().newInstance();
+            content.fromMap(m);
+        } catch (InvocationTargetException e) {
+            LOG.warning(e.getLocalizedMessage());
+        } catch (NoSuchMethodException e) {
+            LOG.warning(e.getLocalizedMessage());
+        }
         return content;
     }
 

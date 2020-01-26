@@ -26,7 +26,7 @@
  */
 package io.onemfive.desktop;
 
-import io.onemfive.Router;
+import io.onemfive.Platform;
 import io.onemfive.core.ServiceStatus;
 import io.onemfive.core.ServiceStatusObserver;
 import io.onemfive.core.admin.AdminService;
@@ -36,20 +36,14 @@ import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.util.AppThread;
 import io.onemfive.util.DLC;
 import io.onemfive.util.LocaleUtil;
-import io.onemfive.util.Res;
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static io.onemfive.desktop.CssTheme.CSS_THEME_DARK;
@@ -74,7 +68,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
     private boolean shutdownOnException = true;
     private ServiceStatus uiServiceStatus = ServiceStatus.NOT_INITIALIZED;
 
-    private static Router router;
+    private static Platform platform;
 
     public DesktopApp() {
         shutDownHandler = this::stop;
@@ -86,8 +80,8 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
         LocaleUtil.currentLocale = Locale.US; // Default - TODO: load locale from preferences
         // Launch Router
         String[] args = {};
-        router = new Router();
-        AppThread routerThread = new AppThread(() -> router.start(args));
+        platform = new Platform();
+        AppThread routerThread = new AppThread(() -> platform.start(args));
         routerThread.setDaemon(true);
         routerThread.start();
 
@@ -106,7 +100,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
                 DLC.addData(ServiceStatusObserver.class, observers, e);
                 DLC.addEntity(Arrays.asList(DesktopService.class),e);
                 DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES, e);
-                Router.sendRequest(e);
+                Platform.sendRequest(e);
             }
         }).start();
 
@@ -172,13 +166,13 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
 //                });
 //            }, 200, TimeUnit.MILLISECONDS);
             shutDownRequested = true;
-            Router.stop();
-            Platform.exit();
+            Platform.stop();
+            javafx.application.Platform.exit();
         }
     }
 
     public static void execute(Runnable runnable) {
-        Platform.runLater(runnable);
+        javafx.application.Platform.runLater(runnable);
     }
 
     @Override

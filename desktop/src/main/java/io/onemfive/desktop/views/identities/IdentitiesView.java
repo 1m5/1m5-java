@@ -26,7 +26,7 @@
  */
 package io.onemfive.desktop.views.identities;
 
-import io.onemfive.Router;
+import io.onemfive.Platform;
 import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.data.*;
 import io.onemfive.desktop.DesktopApp;
@@ -170,7 +170,7 @@ public class IdentitiesView extends ActivatableView {
                     DLC.addData(AuthNRequest.class, ar, e);
                     DLC.addRoute(KeyRingService.class, KeyRingService.OPERATION_AUTHN, e);
                     // Send
-                    Router.sendRequest(e);
+                    Platform.sendRequest(e);
                 }
             }
         });
@@ -270,7 +270,7 @@ public class IdentitiesView extends ActivatableView {
             DLC.addRoute(DesktopService.class, DesktopService.OPERATION_NOTIFY_UI, e);
             DLC.addRoute(DIDService.class, DIDService.OPERATION_ADD_CONTACT, e);
             DLC.addEntity(did, e);
-            Router.sendRequest(e);
+            Platform.sendRequest(e);
         });
         addContactBox.getChildren().add(addContact);
 
@@ -295,19 +295,19 @@ public class IdentitiesView extends ActivatableView {
         Envelope e1 = Envelope.documentFactory();
         DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_IDENTITIES, e1);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e1);
-        Router.sendRequest(e1);
+        Platform.sendRequest(e1);
 
         // Get Contacts
         Envelope e2 = Envelope.documentFactory();
         DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_CONTACTS, e2);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_CONTACTS, e2);
-        Router.sendRequest(e2);
+        Platform.sendRequest(e2);
 
         // Get Active Identity
         Envelope e3 = Envelope.documentFactory();
         DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_ACTIVE_IDENTITY, e3);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_ACTIVE_IDENTITY, e3);
-        Router.sendRequest(e3);
+        Platform.sendRequest(e3);
 
         LOG.info("Initialized.");
     }

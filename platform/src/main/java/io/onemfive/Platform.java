@@ -46,13 +46,13 @@ import java.util.*;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-public class Router {
+public class Platform {
 
-    private static final Logger LOG = Logger.getLogger(Router.class.getName());
+    private static final Logger LOG = Logger.getLogger(Platform.class.getName());
 
     public enum Status {Shutdown, Initializing, Initialized, Starting, Running, ShuttingDown, Errored, Exiting}
 
-    private static final Router instance = new Router();
+    private static final Platform instance = new Platform();
 
     private static OneMFiveAppContext oneMFiveAppContext;
     private static ClientAppManager manager;

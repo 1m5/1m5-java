@@ -51,7 +51,7 @@
 
 	<modules>
         <module>common</module>
-        <module>router</module>
+        <module>platform</module>
         <module>api</module>
         <module>cli</module>
         <module>desktop</module>

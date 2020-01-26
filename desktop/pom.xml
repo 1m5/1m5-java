@@ -80,7 +80,7 @@
         </dependency>
         <dependency>
             <groupId>io.onemfive</groupId>
-            <artifactId>router</artifactId>
+            <artifactId>platform</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
