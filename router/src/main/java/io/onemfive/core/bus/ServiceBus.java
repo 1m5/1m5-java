@@ -417,10 +417,8 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
     public boolean gracefulShutdown() {
         updateStatus(Status.Stopping);
         spin.set(false);
-        pool.shutdown();
-        channel.shutdown(); // TODO: Should we teardown channel before pool?
         for(final String serviceName : runningServices.keySet()) {
-            new AppThread(new Runnable() {
+            Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     BaseService service = runningServices.get(serviceName);
@@ -428,8 +426,12 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
                         runningServices.remove(serviceName);
                     }
                 }
-            }, serviceName+"-GracefulShutdownThread").start();
+            }, serviceName+"-GracefulShutdownThread");
+            t.setDaemon(true);
+            t.start();
         }
+        channel.shutdown();
+        pool.shutdown();
         return true;
     }
 

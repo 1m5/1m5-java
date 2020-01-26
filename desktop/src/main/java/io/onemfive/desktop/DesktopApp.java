@@ -36,6 +36,7 @@ import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.util.AppThread;
 import io.onemfive.util.DLC;
 import io.onemfive.util.LocaleUtil;
+import io.onemfive.util.Res;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -48,6 +49,7 @@ import javafx.stage.WindowEvent;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static io.onemfive.desktop.CssTheme.CSS_THEME_DARK;
@@ -140,10 +142,12 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
 //        systemTray = new SystemTray(stage, this::stop);
 //        systemTrayInitialized = systemTray.init();
 
-        stage.setOnCloseRequest(Event::consume);
-
         // configure the primary stage
-        stage.setTitle("1M5");
+        stage.setOnCloseRequest(event -> {
+            event.consume();
+            stop();
+        });
+        stage.setTitle("1M5 - Invisible Matrix Services");
         stage.setScene(scene);
         stage.setMinWidth(MIN_WINDOW_WIDTH);
         stage.setMinHeight(MIN_WINDOW_HEIGHT);
@@ -168,6 +172,8 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
 //                });
 //            }, 200, TimeUnit.MILLISECONDS);
             shutDownRequested = true;
+            Router.stop();
+            Platform.exit();
         }
     }
 

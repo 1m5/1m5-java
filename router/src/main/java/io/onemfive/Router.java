@@ -59,20 +59,10 @@ public class Router {
     private static ClientAppManager.Status clientAppManagerStatus;
     private static Client client;
     private static Properties config;
-    private static boolean waiting = true;
     private static boolean running = false;
 
     public static Status status = Status.Shutdown;
-//    private static boolean useTray = false;
-//    private static DesktopTray tray;
-//    private static int uiPort;
-//    private boolean peerDiscoveryStarted = false;
     private ServiceStatus networkServiceStatus = ServiceStatus.SHUTDOWN;
-
-//    public static File rootDir;
-//    public static File userAppDataDir;
-//    public static File userAppConfigDir;
-//    public static File userAppCacheDir;
 
     public static void main(String[] args) {
         instance.start(args);
@@ -229,10 +219,15 @@ public class Router {
                 LOG.severe("1M5 Dapp Errored on Shutdown.");
             }
             OneMFiveAppContext.clearGlobalContext(); // Make sure we don't use the old context when restarting
+            System.exit(0);
         } catch (Exception e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
         }
+    }
+
+    public static void stop() {
+        instance.shutdown();
     }
 
     public void shutdown() {
