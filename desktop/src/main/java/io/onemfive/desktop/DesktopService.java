@@ -32,7 +32,7 @@ import io.onemfive.core.ServiceStatusListener;
 import io.onemfive.data.DID;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.route.Route;
-import io.onemfive.desktop.views.identities.IdentitiesView;
+import io.onemfive.desktop.views.personal.identities.IdentitiesView;
 import io.onemfive.util.DLC;
 import javafx.application.Platform;
 

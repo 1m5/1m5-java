@@ -28,7 +28,7 @@ package io.onemfive.desktop;
 
 import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.ViewPath;;
-import io.onemfive.desktop.views.browser.BrowserView;
+import io.onemfive.desktop.views.commons.browser.BrowserView;
 import io.onemfive.desktop.views.home.HomeView;
 
 import java.util.ArrayList;
