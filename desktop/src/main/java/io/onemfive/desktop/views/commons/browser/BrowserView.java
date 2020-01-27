@@ -26,6 +26,9 @@
  */
 package io.onemfive.desktop.views.commons.browser;
 
+import io.onemfive.desktop.Resources;
+import io.onemfive.desktop.util.KeystrokeUtil;
+import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.InitializableView;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -34,9 +37,12 @@ import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -44,12 +50,19 @@ import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
+import org.apache.commons.lang3.StringUtils;
 
-public class BrowserView extends InitializableView {
+import java.net.URL;
+
+public class BrowserView extends ActivatableView {
+
+    private Scene scene;
 
     private final WebView webView = new WebView();
     private final WebEngine engine = webView.getEngine();
     private final WebHistory history = engine.getHistory();
+
+    private EventHandler<KeyEvent> keyEventEventHandler;
 
     @Override
     protected void initialize() {
@@ -70,7 +83,7 @@ public class BrowserView extends InitializableView {
         vBox.getChildren().add(nav);
 
         TextField url = new TextField();
-        url.setText("https://1m5.io");
+        url.setText("1m5://1m5.1m5");
         HBox.setHgrow(url, Priority.ALWAYS);
         nav.getChildren().add(url);
 
@@ -78,9 +91,20 @@ public class BrowserView extends InitializableView {
         go.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                LOG.info("Go: "+url.getText());
-                engine.load(url.getText());
-                LOG.info(url.getText()+" loaded");
+                String path = url.getText();
+                LOG.info("Go: "+path);
+                URL newURL;
+                if(path.startsWith("1m5:")) {
+                    path = path.substring("1m5://".length(), path.indexOf(".1m5"));
+                    newURL = Resources.class.getResource("/web/"+path);
+                    path = newURL.toString();
+                    if(!path.endsWith(".html") || !path.endsWith(".htm")) {
+                        path += "/index.html";
+                    }
+                }
+                engine.load(path);
+                url.setText(url.getText());
+                LOG.info(path+" loaded");
             }
         });
         nav.getChildren().add(go);
@@ -91,7 +115,7 @@ public class BrowserView extends InitializableView {
             public void handle(ActionEvent actionEvent) {
                 LOG.info("Refresh: "+url.getText());
                 engine.reload();
-                LOG.info(url.getText()+" resfreshed");
+                LOG.info(url.getText()+" refreshed");
             }
         });
         nav.getChildren().add(refresh);
@@ -132,28 +156,53 @@ public class BrowserView extends InitializableView {
                     @Override
                     public void changed(ObservableValue ov, Worker.State oldState, Worker.State newState) {
                         if (newState == Worker.State.SUCCEEDED) {
-                            url.setText(engine.getLocation());
+                            String loc = engine.getLocation();
+                            if(!loc.startsWith("file:")) {
+                                url.setText(loc);
+                            }
                         }
                     }
                 });
-        engine.load("https://1m5.io");
+
+        engine.load(Resources.WEB_INDEX.toExternalForm());
 
         history.getEntries().addListener(new ListChangeListener<WebHistory.Entry>() {
-             @Override
-             public void onChanged(Change<? extends WebHistory.Entry> c) {
-                 c.next();
-                 for (WebHistory.Entry e : c.getRemoved()) {
-                     LOG.info(e.getUrl());
-                 }
-                 for (WebHistory.Entry e : c.getAddedSubList()) {
-                     LOG.info(e.getUrl());
+                 @Override
+                 public void onChanged(Change<? extends WebHistory.Entry> c) {
+                     c.next();
+                     for (WebHistory.Entry e : c.getRemoved()) {
+                         LOG.info(e.getUrl());
+                     }
+                     for (WebHistory.Entry e : c.getAddedSubList()) {
+                         LOG.info(e.getUrl());
+                     }
                  }
              }
-            }
         );
         history.go(0);
+
+        keyEventEventHandler = keyEvent -> {
+            if(KeystrokeUtil.isAltOrCtrlPressed(KeyCode.ENTER, keyEvent)) {
+                refresh.fire();
+            } else if(keyEvent.getCode()==KeyCode.ENTER) {
+                go.fire();
+            }
+        };
 
         LOG.info("Initialized.");
     }
 
+    @Override
+    protected void activate() {
+        if (root.getScene() != null) {
+            scene = root.getScene();
+            scene.addEventHandler(KeyEvent.KEY_RELEASED, keyEventEventHandler);
+        }
+    }
+
+    @Override
+    protected void deactivate() {
+        if (scene != null)
+            scene.removeEventHandler(KeyEvent.KEY_RELEASED, keyEventEventHandler);
+    }
 }

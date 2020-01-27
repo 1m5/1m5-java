@@ -29,6 +29,7 @@ package io.onemfive.desktop;
 import java.net.URL;
 
 public class Resources {
+    public static final URL WEB_INDEX = Resources.class.getResource("/web/1m5/index.html");
     public static final URL ICON_BLUE = Resources.class.getResource("/io/onemfive/desktop/images/icons/icon_blue.png");
     public static final URL ICON_GRAY = Resources.class.getResource("/io/onemfive/desktop/images/icons/icon_gray.png");
     public static final URL ICON_GREEN = Resources.class.getResource("/io/onemfive/desktop/images/icons/icon_green.png");

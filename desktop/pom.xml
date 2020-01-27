@@ -122,18 +122,32 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 				<includes>
+                    <include>**/*.pdf</include>
                     <include>**/*.json</include>
 					<include>**/*.xml</include>
 					<include>**/*.yml</include>
+                    <include>**/*.css</include>
+                    <include>**/*.js</include>
+                    <include>**/*.map</include>
 					<include>**/*.properties</include>
 					<include>**/*.config</include>
 					<include>**/*.txt</include>
 					<include>**/*.crt</include>
 					<include>**/*.png</include>
+                    <include>**/*.ico</include>
+                    <include>**/*.svg</include>
+                    <include>**/*.gif</include>
+                    <include>**/*.jpg</include>
+                    <include>**/*.jpeg</include>
 					<include>**/*.fxml</include>
 					<include>**/*.css</include>
 					<include>**/*.ttf</include>
 					<include>**/*.otf</include>
+                    <include>**/*.woff</include>
+                    <include>**/*.woff2</include>
+                    <include>**/*.eot</include>
+                    <include>**/*.html</include>
+                    <include>**/*.md</include>
 				</includes>
 			</resource>
 		</resources>
