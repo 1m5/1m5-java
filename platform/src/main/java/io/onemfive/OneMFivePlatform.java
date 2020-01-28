@@ -46,13 +46,13 @@ import java.util.*;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-public class Platform {
+public class OneMFivePlatform {
 
-    private static final Logger LOG = Logger.getLogger(Platform.class.getName());
+    private static final Logger LOG = Logger.getLogger(OneMFivePlatform.class.getName());
 
     public enum Status {Shutdown, Initializing, Initialized, Starting, Running, ShuttingDown, Errored, Exiting}
 
-    private static final Platform instance = new Platform();
+    private static final OneMFivePlatform instance = new OneMFivePlatform();
 
     private static OneMFiveAppContext oneMFiveAppContext;
     private static ClientAppManager manager;

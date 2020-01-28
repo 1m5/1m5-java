@@ -26,7 +26,7 @@
  */
 package io.onemfive.desktop.views.community.social;
 
-import io.onemfive.Platform;
+import io.onemfive.OneMFivePlatform;
 import io.onemfive.data.DID;
 import io.onemfive.data.Envelope;
 import io.onemfive.desktop.DesktopApp;
@@ -145,7 +145,7 @@ public class SocialView extends InitializableView {
             DLC.addRoute(DesktopService.class, DesktopService.OPERATION_NOTIFY_UI, e);
             DLC.addRoute(DIDService.class, DIDService.OPERATION_ADD_CONTACT, e);
             DLC.addEntity(did, e);
-            Platform.sendRequest(e);
+            OneMFivePlatform.sendRequest(e);
         });
         addContactBox.getChildren().add(addContact);
 
@@ -170,7 +170,7 @@ public class SocialView extends InitializableView {
         Envelope e2 = Envelope.documentFactory();
         DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_CONTACTS, e2);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_CONTACTS, e2);
-        Platform.sendRequest(e2);
+        OneMFivePlatform.sendRequest(e2);
 
         LOG.info("Initialized.");
     }

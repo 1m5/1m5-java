@@ -26,7 +26,7 @@
  */
 package io.onemfive.desktop.views.personal.identities;
 
-import io.onemfive.Platform;
+import io.onemfive.OneMFivePlatform;
 import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.data.*;
 import io.onemfive.desktop.DesktopApp;
@@ -170,7 +170,7 @@ public class IdentitiesView extends ActivatableView {
                     DLC.addData(AuthNRequest.class, ar, e);
                     DLC.addRoute(KeyRingService.class, KeyRingService.OPERATION_AUTHN, e);
                     // Send
-                    Platform.sendRequest(e);
+                    OneMFivePlatform.sendRequest(e);
                 }
             }
         });
@@ -295,7 +295,7 @@ public class IdentitiesView extends ActivatableView {
         Envelope e1 = Envelope.documentFactory();
         DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_IDENTITIES, e1);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_IDENTITIES, e1);
-        Platform.sendRequest(e1);
+        OneMFivePlatform.sendRequest(e1);
 
         // Get Contacts
 //        Envelope e2 = Envelope.documentFactory();
@@ -307,7 +307,7 @@ public class IdentitiesView extends ActivatableView {
         Envelope e3 = Envelope.documentFactory();
         DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_ACTIVE_IDENTITY, e3);
         DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_ACTIVE_IDENTITY, e3);
-        Platform.sendRequest(e3);
+        OneMFivePlatform.sendRequest(e3);
 
         LOG.info("Initialized.");
     }

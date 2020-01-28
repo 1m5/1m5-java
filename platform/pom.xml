@@ -213,7 +213,7 @@
 <!--                <artifactId>javafx-maven-plugin</artifactId>-->
 <!--                <version>0.0.4</version>-->
 <!--                <configuration>-->
-<!--                    <mainClass>io.onemfive.Platform</mainClass>-->
+<!--                    <mainClass>io.onemfive.OneMFivePlatform</mainClass>-->
 <!--                </configuration>-->
 <!--            </plugin>-->
 			<plugin>
@@ -229,7 +229,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>io.onemfive.Platform</mainClass>
+							<mainClass>io.onemfive.OneMFivePlatform</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

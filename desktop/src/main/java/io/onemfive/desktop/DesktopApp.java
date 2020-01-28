@@ -26,7 +26,7 @@
  */
 package io.onemfive.desktop;
 
-import io.onemfive.Platform;
+import io.onemfive.OneMFivePlatform;
 import io.onemfive.core.ServiceStatus;
 import io.onemfive.core.ServiceStatusObserver;
 import io.onemfive.core.admin.AdminService;
@@ -68,7 +68,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
     private boolean shutdownOnException = true;
     private ServiceStatus uiServiceStatus = ServiceStatus.NOT_INITIALIZED;
 
-    private static Platform platform;
+    private static OneMFivePlatform oneMFivePlatform;
 
     public DesktopApp() {
         shutDownHandler = this::stop;
@@ -80,8 +80,8 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
         LocaleUtil.currentLocale = Locale.US; // Default - TODO: load locale from preferences
         // Launch Router
         String[] args = {};
-        platform = new Platform();
-        AppThread routerThread = new AppThread(() -> platform.start(args));
+        oneMFivePlatform = new OneMFivePlatform();
+        AppThread routerThread = new AppThread(() -> oneMFivePlatform.start(args));
         routerThread.setDaemon(true);
         routerThread.start();
 
@@ -100,7 +100,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
                 DLC.addData(ServiceStatusObserver.class, observers, e);
                 DLC.addEntity(Arrays.asList(DesktopService.class),e);
                 DLC.addRoute(AdminService.class, AdminService.OPERATION_REGISTER_SERVICES, e);
-                Platform.sendRequest(e);
+                OneMFivePlatform.sendRequest(e);
             }
         }).start();
 
@@ -167,7 +167,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
 //                });
 //            }, 200, TimeUnit.MILLISECONDS);
             shutDownRequested = true;
-            Platform.stop();
+            OneMFivePlatform.stop();
             javafx.application.Platform.exit();
         }
     }
