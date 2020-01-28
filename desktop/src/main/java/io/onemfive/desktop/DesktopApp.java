@@ -132,8 +132,8 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
                 INITIAL_WINDOW_HEIGHT;
         scene = new Scene((StackPane)homeView.getRoot(), width, height);
 
-//        CssTheme.loadSceneStyles(scene, CSS_THEME_LIGHT);
-        CssTheme.loadSceneStyles(scene, CSS_THEME_DARK);
+        CssTheme.loadSceneStyles(scene, CSS_THEME_LIGHT);
+//        CssTheme.loadSceneStyles(scene, CSS_THEME_DARK);
 
         // Launch Tray
 //        systemTray = new SystemTray(stage, this::stop);

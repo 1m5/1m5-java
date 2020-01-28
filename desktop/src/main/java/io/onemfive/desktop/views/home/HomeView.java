@@ -298,15 +298,6 @@ public class HomeView extends InitializableView {
         networkStatusHBox.setSpacing(9);
         networkStatusHBox.getStyleClass().add("nav-tertiary");
 
-//        HBox navPane = new HBox(primaryNav, secondaryNav,
-//                priceAndBalance) {{
-//            setLeftAnchor(this, 0d);
-//            setRightAnchor(this, 0d);
-//            setTopAnchor(this, 0d);
-//            setPadding(new Insets(0, 0, 0, 0));
-//            getStyleClass().add("top-navigation");
-//        }};
-
         HBox navPane = new HBox(primaryNav, secondaryNav, networkStatusHBox) {{
             setLeftAnchor(this, 0d);
             setRightAnchor(this, 0d);
