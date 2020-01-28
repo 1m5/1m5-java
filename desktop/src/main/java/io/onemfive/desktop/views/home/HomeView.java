@@ -327,7 +327,6 @@ public class HomeView extends InitializableView {
             getStyleClass().add("top-navigation");
         }};
         navPane.setAlignment(Pos.CENTER);
-        navPane.setVisible(false);
 
         AnchorPane contentContainer = new AnchorPane() {{
             getStyleClass().add("content-pane");
@@ -391,11 +390,12 @@ public class HomeView extends InitializableView {
                 transitions.fadeOutAndRemove(splashScreen, 3500, new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
-                        navPane.setVisible(true);
+//                        navPane.setVisible(true);
                         // Default to Personal Dashboard
                         personalButton.fire();
                     }
                 });
+        transitions.fadeIn(baseApplicationContainer, 3500);
 //            }
 //        });
 
