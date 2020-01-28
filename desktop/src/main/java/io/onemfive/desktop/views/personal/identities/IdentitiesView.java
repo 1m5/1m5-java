@@ -78,18 +78,18 @@ public class IdentitiesView extends ActivatableView {
     @Override
     protected void initialize() {
         LOG.info("Initializing...");
-        StackPane rootContainer = (StackPane)root;
+        StackPane pane = (StackPane)root;
 
         HBox basePlane = new HBox();
         basePlane.setPadding(new Insets(5));
         basePlane.setSpacing(5);
-        rootContainer.getChildren().add(basePlane);
+        pane.getChildren().add(basePlane);
 
         // My Identities
         VBox identitiesPane = new VBox();
         identitiesPane.setPadding(new Insets(5));
         identitiesPane.setSpacing(5);
-        identitiesPane.setPrefWidth((DesktopApp.width/2)-10);
+        identitiesPane.setPrefWidth(DesktopApp.WIDTH-10);
         basePlane.getChildren().add(identitiesPane);
 
         Text myIdentitiesText = new Text("My Identities");
@@ -101,19 +101,19 @@ public class IdentitiesView extends ActivatableView {
         identitiesPane.getChildren().add(identitiesHeader);
 
         Label identityAliasCol = new Label("Alias");
-        identityAliasCol.setPrefWidth(100);
+        identityAliasCol.setPrefWidth(200);
         identitiesHeader.getChildren().add(identityAliasCol);
 
         Label identityPwdCol = new Label("Password");
-        identityPwdCol.setPrefWidth(100);
+        identityPwdCol.setPrefWidth(200);
         identitiesHeader.getChildren().add(identityPwdCol);
 
         Label identityPwd2Col = new Label("Password Again");
-        identityPwd2Col.setPrefWidth(100);
+        identityPwd2Col.setPrefWidth(200);
         identitiesHeader.getChildren().add(identityPwd2Col);
 
         Label identityLocationCol = new Label("Location");
-        identityLocationCol.setPrefWidth(200);
+        identityLocationCol.setPrefWidth(400);
         identitiesHeader.getChildren().add(identityLocationCol);
 
         HBox addIdentityBox = new HBox();
@@ -122,19 +122,19 @@ public class IdentitiesView extends ActivatableView {
         identitiesPane.getChildren().add(addIdentityBox);
 
         TextField identityAliasTxt = new TextField();
-        identityAliasTxt.setPrefWidth(100);
+        identityAliasTxt.setPrefWidth(200);
         addIdentityBox.getChildren().add(identityAliasTxt);
 
         TextField identityPwdText = new TextField();
-        identityPwdText.setPrefWidth(100);
+        identityPwdText.setPrefWidth(200);
         addIdentityBox.getChildren().add(identityPwdText);
 
         TextField identityPwd2Text = new TextField();
-        identityPwd2Text.setPrefWidth(100);
+        identityPwd2Text.setPrefWidth(200);
         addIdentityBox.getChildren().add(identityPwd2Text);
 
         TextField identityLocationText = new TextField();
-        identityLocationText.setPrefWidth(200);
+        identityLocationText.setPrefWidth(400);
         addIdentityBox.getChildren().add(identityLocationText);
 
         Button addIdentity = new Button("Add");
@@ -177,7 +177,7 @@ public class IdentitiesView extends ActivatableView {
         addIdentityBox.getChildren().add(addIdentity);
 
         ListView<String> identitiesList = new ListView<>();
-        identitiesList.setPrefSize(400, 500);
+        identitiesList.setPrefSize(800, 500);
         identitiesList.setItems(identityAddresses);
         identitiesList.setEditable(true);
         identitiesPane.getChildren().add(identitiesList);
@@ -196,100 +196,100 @@ public class IdentitiesView extends ActivatableView {
         });
         identitiesPane.getChildren().add(deleteIdentity);
 
-        // My Contacts
-        VBox contactsPane = new VBox();
-        contactsPane.setPadding(new Insets(5));
-        contactsPane.setSpacing(5);
-        contactsPane.setPrefWidth((DesktopApp.width/2)-10);
-        basePlane.getChildren().add(contactsPane);
-
-        Text myContactsText = new Text("My Contacts");
-        contactsPane.getChildren().add(myContactsText);
-
-        HBox contactsHeader = new HBox();
-        contactsHeader.setPadding(new Insets(5));
-        contactsHeader.setSpacing(5);
-        contactsPane.getChildren().add(contactsHeader);
-
-        Label contactsAliasCol = new Label("Alias");
-        contactsAliasCol.setPrefWidth(100);
-        contactsHeader.getChildren().add(contactsAliasCol);
-
-        Label contactsFingerprintCol = new Label("Fingerprint");
-        contactsFingerprintCol.setPrefWidth(100);
-        contactsHeader.getChildren().add(contactsFingerprintCol);
-
-        Label contactsAddressCol = new Label("Address");
-        contactsAddressCol.setPrefWidth(100);
-        contactsHeader.getChildren().add(contactsAddressCol);
-
-        Label contactsDescriptionCol = new Label("Description");
-        contactsDescriptionCol.setPrefWidth(200);
-        contactsHeader.getChildren().add(contactsDescriptionCol);
-
-        HBox addContactBox = new HBox();
-        addContactBox.setPadding(new Insets(5));
-        addContactBox.setSpacing(5);
-        contactsPane.getChildren().add(addContactBox);
-
-        TextField contactAliasTxt = new TextField();
-        contactAliasTxt.setPrefWidth(100);
-        addContactBox.getChildren().add(contactAliasTxt);
-
-        TextField contactFingerprintTxt = new TextField();
-        contactFingerprintTxt.setPrefWidth(100);
-        addContactBox.getChildren().add(contactFingerprintTxt);
-
-        TextField contactAddressTxt = new TextField();
-        contactAddressTxt.setPrefWidth(100);
-        addContactBox.getChildren().add(contactAddressTxt);
-
-        TextField contactDescriptiontxt = new TextField();
-        contactDescriptiontxt.setPrefWidth(200);
-        addContactBox.getChildren().add(contactDescriptiontxt);
-
-        Button addContact = new Button("Add");
-        addContact.setOnAction(actionEvent -> {
-            // TODO: Add error handling for alias and address
-            if(contactAliasTxt.getText().isEmpty()) {
-                LOG.info("Alias is required.");
-                return;
-            }
-            if(contactFingerprintTxt.getText().isEmpty()) {
-                LOG.info("Fingerprint is required.");
-                return;
-            }
-            if(contactAddressTxt.getText().isEmpty()) {
-                LOG.info("Address is required.");
-                return;
-            }
-            DID did = new DID();
-            did.setUsername(contactAliasTxt.getText());
-            did.getPublicKey().setAddress(contactAddressTxt.getText());
-            Envelope e = Envelope.documentFactory();
-            DLC.addRoute(DesktopService.class, DesktopService.OPERATION_NOTIFY_UI, e);
-            DLC.addRoute(DIDService.class, DIDService.OPERATION_ADD_CONTACT, e);
-            DLC.addEntity(did, e);
-            Platform.sendRequest(e);
-        });
-        addContactBox.getChildren().add(addContact);
-
-        ListView<String> contactsList = new ListView<>();
-        contactsList.setPrefSize(400,500);
-        contactsList.setItems(contactAddresses);
-        contactsPane.getChildren().add(contactsList);
-
-        Button deleteContact = new Button("Delete");
-        deleteContact.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                int index = contactsList.getSelectionModel().getSelectedIndex();
-                if(index >= 0) {
-
-                }
-            }
-        });
-        contactsPane.getChildren().add(deleteContact);
+//        // My Contacts
+//        VBox contactsPane = new VBox();
+//        contactsPane.setPadding(new Insets(5));
+//        contactsPane.setSpacing(5);
+//        contactsPane.setPrefWidth((DesktopApp.WIDTH /2)-10);
+//        basePlane.getChildren().add(contactsPane);
+//
+//        Text myContactsText = new Text("My Contacts");
+//        contactsPane.getChildren().add(myContactsText);
+//
+//        HBox contactsHeader = new HBox();
+//        contactsHeader.setPadding(new Insets(5));
+//        contactsHeader.setSpacing(5);
+//        contactsPane.getChildren().add(contactsHeader);
+//
+//        Label contactsAliasCol = new Label("Alias");
+//        contactsAliasCol.setPrefWidth(100);
+//        contactsHeader.getChildren().add(contactsAliasCol);
+//
+//        Label contactsFingerprintCol = new Label("Fingerprint");
+//        contactsFingerprintCol.setPrefWidth(100);
+//        contactsHeader.getChildren().add(contactsFingerprintCol);
+//
+//        Label contactsAddressCol = new Label("Address");
+//        contactsAddressCol.setPrefWidth(100);
+//        contactsHeader.getChildren().add(contactsAddressCol);
+//
+//        Label contactsDescriptionCol = new Label("Description");
+//        contactsDescriptionCol.setPrefWidth(200);
+//        contactsHeader.getChildren().add(contactsDescriptionCol);
+//
+//        HBox addContactBox = new HBox();
+//        addContactBox.setPadding(new Insets(5));
+//        addContactBox.setSpacing(5);
+//        contactsPane.getChildren().add(addContactBox);
+//
+//        TextField contactAliasTxt = new TextField();
+//        contactAliasTxt.setPrefWidth(100);
+//        addContactBox.getChildren().add(contactAliasTxt);
+//
+//        TextField contactFingerprintTxt = new TextField();
+//        contactFingerprintTxt.setPrefWidth(100);
+//        addContactBox.getChildren().add(contactFingerprintTxt);
+//
+//        TextField contactAddressTxt = new TextField();
+//        contactAddressTxt.setPrefWidth(100);
+//        addContactBox.getChildren().add(contactAddressTxt);
+//
+//        TextField contactDescriptiontxt = new TextField();
+//        contactDescriptiontxt.setPrefWidth(200);
+//        addContactBox.getChildren().add(contactDescriptiontxt);
+//
+//        Button addContact = new Button("Add");
+//        addContact.setOnAction(actionEvent -> {
+//            // TODO: Add error handling for alias and address
+//            if(contactAliasTxt.getText().isEmpty()) {
+//                LOG.info("Alias is required.");
+//                return;
+//            }
+//            if(contactFingerprintTxt.getText().isEmpty()) {
+//                LOG.info("Fingerprint is required.");
+//                return;
+//            }
+//            if(contactAddressTxt.getText().isEmpty()) {
+//                LOG.info("Address is required.");
+//                return;
+//            }
+//            DID did = new DID();
+//            did.setUsername(contactAliasTxt.getText());
+//            did.getPublicKey().setAddress(contactAddressTxt.getText());
+//            Envelope e = Envelope.documentFactory();
+//            DLC.addRoute(DesktopService.class, DesktopService.OPERATION_NOTIFY_UI, e);
+//            DLC.addRoute(DIDService.class, DIDService.OPERATION_ADD_CONTACT, e);
+//            DLC.addEntity(did, e);
+//            Platform.sendRequest(e);
+//        });
+//        addContactBox.getChildren().add(addContact);
+//
+//        ListView<String> contactsList = new ListView<>();
+//        contactsList.setPrefSize(400,500);
+//        contactsList.setItems(contactAddresses);
+//        contactsPane.getChildren().add(contactsList);
+//
+//        Button deleteContact = new Button("Delete");
+//        deleteContact.setOnAction(new EventHandler<ActionEvent>() {
+//            @Override
+//            public void handle(ActionEvent actionEvent) {
+//                int index = contactsList.getSelectionModel().getSelectedIndex();
+//                if(index >= 0) {
+//
+//                }
+//            }
+//        });
+//        contactsPane.getChildren().add(deleteContact);
 
         // Get Identities
         Envelope e1 = Envelope.documentFactory();
@@ -298,10 +298,10 @@ public class IdentitiesView extends ActivatableView {
         Platform.sendRequest(e1);
 
         // Get Contacts
-        Envelope e2 = Envelope.documentFactory();
-        DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_CONTACTS, e2);
-        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_CONTACTS, e2);
-        Platform.sendRequest(e2);
+//        Envelope e2 = Envelope.documentFactory();
+//        DLC.addRoute(DesktopService.class, DesktopService.OPERATION_UPDATE_CONTACTS, e2);
+//        DLC.addRoute(DIDService.class, DIDService.OPERATION_GET_CONTACTS, e2);
+//        Platform.sendRequest(e2);
 
         // Get Active Identity
         Envelope e3 = Envelope.documentFactory();

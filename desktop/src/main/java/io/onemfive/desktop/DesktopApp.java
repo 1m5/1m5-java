@@ -42,12 +42,10 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.awt.*;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static io.onemfive.desktop.CssTheme.CSS_THEME_DARK;
 import static io.onemfive.desktop.CssTheme.CSS_THEME_LIGHT;
 import static io.onemfive.desktop.util.Layout.*;
 
@@ -60,8 +58,8 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
 
     private static Runnable shutDownHandler;
 
-    public static double width;
-    public static double height;
+    public static double WIDTH;
+    public static double HEIGHT;
 
     private static Stage stage;
     private boolean popupOpened;
@@ -124,13 +122,13 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
             // Just ignore the exception and continue, which means the window will use the minimum window size below
             // since we are unable to determine if we can use a larger size
         }
-        width = maxWindowBounds.width < INITIAL_WINDOW_WIDTH ?
+        WIDTH = maxWindowBounds.width < INITIAL_WINDOW_WIDTH ?
                 Math.max(maxWindowBounds.width, MIN_WINDOW_WIDTH) :
                 INITIAL_WINDOW_WIDTH;
-        height = maxWindowBounds.height < INITIAL_WINDOW_HEIGHT ?
+        HEIGHT = maxWindowBounds.height < INITIAL_WINDOW_HEIGHT ?
                 Math.max(maxWindowBounds.height, MIN_WINDOW_HEIGHT) :
                 INITIAL_WINDOW_HEIGHT;
-        scene = new Scene((StackPane)homeView.getRoot(), width, height);
+        scene = new Scene((StackPane)homeView.getRoot(), WIDTH, HEIGHT);
 
         CssTheme.loadSceneStyles(scene, CSS_THEME_LIGHT);
 //        CssTheme.loadSceneStyles(scene, CSS_THEME_DARK);

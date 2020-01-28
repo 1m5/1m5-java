@@ -30,6 +30,7 @@ import com.jfoenix.controls.JFXComboBox;
 import io.onemfive.core.OneMFiveAppContext;
 import io.onemfive.data.ManCon;
 import io.onemfive.data.Tuple2;
+import io.onemfive.desktop.DesktopApp;
 import io.onemfive.desktop.MVC;
 import io.onemfive.desktop.Resources;
 import io.onemfive.desktop.components.AutoTooltipLabel;
@@ -377,8 +378,8 @@ public class HomeView extends InitializableView {
         });
 
         VBox splashScreen = createSplashScreen();
-        splashScreen.setMinHeight(MIN_WINDOW_HEIGHT);
-        splashScreen.setMinWidth(MIN_WINDOW_WIDTH);
+        splashScreen.setMinHeight(DesktopApp.HEIGHT);
+        splashScreen.setMinWidth(DesktopApp.WIDTH);
         rootContainer.getChildren().addAll(baseApplicationContainer, splashScreen);
 //        rootContainer.getChildren().addAll(baseApplicationContainer);
 
