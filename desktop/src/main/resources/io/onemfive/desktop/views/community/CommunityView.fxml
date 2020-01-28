@@ -5,12 +5,13 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
-<TabPane xmlns="http://javafx.com/javafx"
-         xmlns:fx="http://javafx.com/fxml"
-         fx:id="root"
-         fx:controller="io.onemfive.desktop.views.community.CommunityView"
-         AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
-         AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+<?import com.jfoenix.controls.JFXTabPane?>
+<JFXTabPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:id="root"
+            fx:controller="io.onemfive.desktop.views.community.CommunityView"
+            AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+            AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
 
     <Tab fx:id="dashboardTab" closable="false">
 
@@ -36,4 +37,4 @@
 
     </Tab>
 
-</TabPane>
+</JFXTabPane>

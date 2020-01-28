@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import static io.onemfive.desktop.CssTheme.CSS_THEME_DARK;
+import static io.onemfive.desktop.CssTheme.CSS_THEME_LIGHT;
 import static io.onemfive.desktop.util.Layout.*;
 
 public class DesktopApp extends Application implements Thread.UncaughtExceptionHandler {
@@ -131,6 +132,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
                 INITIAL_WINDOW_HEIGHT;
         scene = new Scene((StackPane)homeView.getRoot(), width, height);
 
+//        CssTheme.loadSceneStyles(scene, CSS_THEME_LIGHT);
         CssTheme.loadSceneStyles(scene, CSS_THEME_DARK);
 
         // Launch Tray

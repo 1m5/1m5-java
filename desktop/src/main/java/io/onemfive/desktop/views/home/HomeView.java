@@ -26,6 +26,8 @@
  */
 package io.onemfive.desktop.views.home;
 
+import com.jfoenix.controls.JFXComboBox;
+import io.onemfive.core.OneMFiveAppContext;
 import io.onemfive.data.ManCon;
 import io.onemfive.data.Tuple2;
 import io.onemfive.desktop.MVC;
@@ -170,8 +172,11 @@ public class HomeView extends InitializableView {
             selectedManConComboBoxItemProperty.setValue(newValue);
         });
         ChangeListener<ManConComboBoxItem> selectedManConItemListener = (observable, oldValue, newValue) -> {
-            if (newValue != null)
+            if (newValue != null) {
                 manConComboBox.getSelectionModel().select(newValue);
+                OneMFiveAppContext.MANCON = newValue.manConLevel;
+                LOG.info("ManCon new value: "+newValue.manConLevel.name());
+            }
         };
         selectedManConComboBoxItemProperty.addListener(selectedManConItemListener);
         manConComboBox.setItems(manConComboBoxItems);
@@ -183,6 +188,7 @@ public class HomeView extends InitializableView {
                 new ManConComboBoxItem(ManCon.MEDIUM),
                 new ManConComboBoxItem(ManCon.LOW)
         ));
+        manConComboBox.getSelectionModel().select(OneMFiveAppContext.MANCON.ordinal());
 
 //        Tuple2<Image, VBox> i2pSensorStatusBox = getI2PStatusBox(Res.get("homeView.sensor.i2p.status"));
 //        i2pSensorStatusBox.first.textProperty().bind(model.getAvailableBalance());
@@ -266,9 +272,9 @@ public class HomeView extends InitializableView {
                 communityButton, getNavigationSeparator(),
                 commonsButton);
 
-        primaryNav.setAlignment(Pos.BOTTOM_LEFT);
+        primaryNav.setAlignment(Pos.CENTER_LEFT);
         primaryNav.getStyleClass().add("nav-primary");
-        HBox.setHgrow(primaryNav, Priority.NEVER);
+        HBox.setHgrow(primaryNav, Priority.SOMETIMES);
 
 //        HBox secondaryNav = new HBox(voiceButtonWithBadge, getNavigationSpacer(), videoButtonWithBadge,
 //                getNavigationSpacer(), appsButtonWithBadge, getNavigationSpacer(), daoButtonWithBadge,
@@ -280,8 +286,8 @@ public class HomeView extends InitializableView {
                 manconButton);
 
         secondaryNav.getStyleClass().add("nav-secondary");
-        HBox.setHgrow(secondaryNav, Priority.NEVER);
-        secondaryNav.setAlignment(Pos.BOTTOM_RIGHT);
+        HBox.setHgrow(secondaryNav, Priority.SOMETIMES);
+        secondaryNav.setAlignment(Pos.CENTER);
 
 
         HBox networkStatusHBox = new HBox(
@@ -289,8 +295,8 @@ public class HomeView extends InitializableView {
         networkStatusHBox.setMaxHeight(41);
 
         networkStatusHBox.setAlignment(Pos.CENTER);
-        networkStatusHBox.setSpacing(11);
-        networkStatusHBox.getStyleClass().add("nav-price-balance");
+        networkStatusHBox.setSpacing(9);
+        networkStatusHBox.getStyleClass().add("nav-tertiary");
 
 //        HBox navPane = new HBox(primaryNav, secondaryNav,
 //                priceAndBalance) {{
@@ -314,7 +320,7 @@ public class HomeView extends InitializableView {
             getStyleClass().add("content-pane");
             setLeftAnchor(this, 0d);
             setRightAnchor(this, 0d);
-            setTopAnchor(this, 36d);
+            setTopAnchor(this, 57d);
             setBottomAnchor(this, 0d);
         }};
 
@@ -392,9 +398,9 @@ public class HomeView extends InitializableView {
 
     private Tuple2<ComboBox<ManConComboBoxItem>, VBox> getManConBox() {
         VBox manConVBox = new VBox();
-        manConVBox.setAlignment(Pos.CENTER_LEFT);
+        manConVBox.setAlignment(Pos.CENTER);
 
-        ComboBox<ManConComboBoxItem> manConComboBox = new ComboBox<>();
+        ComboBox<ManConComboBoxItem> manConComboBox = new JFXComboBox<>();
         manConComboBox.setVisibleRowCount(6);
         manConComboBox.setFocusTraversable(false);
         manConComboBox.setId("mancon-combo");

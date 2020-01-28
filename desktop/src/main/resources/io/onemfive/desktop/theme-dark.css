@@ -17,7 +17,7 @@
     -fx-selection-bar-non-focused: #2a7e2e;
     -fx-default-button: derive(-fx-accent, 95%);
 
-    /* main colors */
+    /* bisq main colors */
     -bs-color-primary: #25b135;
     -bs-color-primary-dark: #2ea33c;
     -bs-text-color: #dadada;
@@ -66,14 +66,14 @@
     -bs-rd-green-dark: #3EA34A;
 
     /* other element styling */
-     -bs-rd-nav-selected: #222222;
-     -bs-rd-nav-deselected: rgba(255, 255, 255, 0.85);
-     -bs-rd-nav-background: #212121;
-     -bs-rd-nav-primary-background: #666666;
-     -bs-rd-nav-primary-border: #AAAAAA;
-     -bs-rd-nav-border: #535353;
-     -bs-rd-nav-border-color: rgba(255, 255, 255, 0.31);
-     -bs-rd-tab-border: #535353;
+    -bs-rd-nav-selected: #25b135;
+    -bs-rd-nav-deselected: #1d1d21;
+    -bs-rd-nav-background: #2ea33c;
+    -bs-rd-nav-primary-background: #25b135;
+    -bs-rd-nav-primary-border: #44a750;
+    -bs-rd-nav-border: #29292a;
+    -bs-rd-nav-border-color: rgba(46, 46, 49, 0.31);
+    -bs-rd-tab-border: #111;
 
     -bs-tab-content-area: #111;
     -bs-content-pane-bg-top: #222226;
