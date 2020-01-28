@@ -398,21 +398,13 @@ public class HomeView extends InitializableView {
         manConComboBox.setVisibleRowCount(6);
         manConComboBox.setFocusTraversable(false);
         manConComboBox.setId("mancon-combo");
-        manConComboBox.setPadding(new Insets(0, -4, -4, 0));
+        manConComboBox.setPadding(new Insets(0, 0, 0, 0));
         manConComboBox.setCellFactory(p -> getManConComboBoxListCell());
         ListCell<ManConComboBoxItem> buttonCell = getManConComboBoxListCell();
         buttonCell.setId("mancon-combo");
         manConComboBox.setButtonCell(buttonCell);
 
-        Label manConLabel = new Label();
-        manConLabel.setText(Res.get("homeView.menu.mancon"));
-        final Tooltip tooltip = new Tooltip(Res.get("homeView.menu.mancon.tooltip"));
-        manConLabel.setTooltip(tooltip);
-
-        manConLabel.getStyleClass().add("-ims-font-mancon-label");
-        manConLabel.setPadding(new Insets(-2, 0, 4, 9));
-
-        manConVBox.getChildren().addAll(manConComboBox, manConLabel);
+        manConVBox.getChildren().addAll(manConComboBox);
 
         return new Tuple2<>(manConComboBox, manConVBox);
     }
@@ -426,7 +418,7 @@ public class HomeView extends InitializableView {
                     setGraphic(null);
                 } else {
                     ImageView iconImageView = new ImageView(new Image(Resources.getManConIcon(this.getIndex()).toString()));
-                    iconImageView.setFitHeight(57);
+                    iconImageView.setFitHeight(25);
                     iconImageView.setPreserveRatio(true);
                     setGraphic(iconImageView);
                 }
@@ -780,15 +772,12 @@ public class HomeView extends InitializableView {
     }
 
     private class ManConComboBoxItem {
-
         public final ManCon manConLevel;
         public final ImageView manConImageView;
-        public final StringProperty displayStringProperty = new SimpleStringProperty();
 
         public ManConComboBoxItem(ManCon manConLevel) {
             this.manConLevel = manConLevel;
             this.manConImageView = new ImageView(new Image(Resources.getManConIcon(manConLevel).toString()));
-            this.displayStringProperty.setValue(manConLevel.name());
         }
 
     }
