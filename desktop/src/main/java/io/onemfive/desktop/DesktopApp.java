@@ -144,7 +144,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
             event.consume();
             stop();
         });
-        stage.setTitle("1M5 - Invisible Matrix Services");
+        stage.setTitle("1M5");
         stage.setScene(scene);
         stage.setMinWidth(MIN_WINDOW_WIDTH);
         stage.setMinHeight(MIN_WINDOW_HEIGHT);
