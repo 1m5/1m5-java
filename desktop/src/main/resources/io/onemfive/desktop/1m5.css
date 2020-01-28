@@ -559,7 +559,7 @@ bg color of non edit textFields: fafafa
 /* Splash */
 
 #splash {
-    -fx-background-color: -ims-black;
+    -fx-background-color: -bs-background-color;
 }
 
 /* Main UI */

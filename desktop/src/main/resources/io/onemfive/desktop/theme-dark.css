@@ -268,3 +268,7 @@
 .scroll-bar:horizontal:focused {
     -fx-background-color: transparent, -bs-color-gray-4, -bs-color-gray-4;
 }
+
+#image-splash-logo {
+    -fx-image: url("images/1m5_50_black.png");
+}

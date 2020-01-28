@@ -44,14 +44,6 @@ public class Resources {
     public static final URL ICON_WHITE = Resources.class.getResource("/io/onemfive/desktop/images/icons/icon_white.png");
     public static final URL ICON_YELLOW = Resources.class.getResource("/io/onemfive/desktop/images/icons/icon_yellow.png");
 
-    public static final URL ICON_TOR = Resources.class.getResource("/io/onemfive/desktop/images/network/tor-64.png");
-    public static final URL ICON_I2P = Resources.class.getResource("/io/onemfive/desktop/images/network/i2p-orig.png");
-    public static final URL ICON_BT = Resources.class.getResource("/io/onemfive/desktop/images/network/bluetooth-black-50.png");
-    public static final URL ICON_WIFI = Resources.class.getResource("/io/onemfive/desktop/images/network/wifi-black-24.png");
-    public static final URL ICON_SATELLITE = Resources.class.getResource("/io/onemfive/desktop/images/network/satellite-black-64.png");
-    public static final URL ICON_RADIO = Resources.class.getResource("/io/onemfive/desktop/images/network/radio-black-64.png");
-    public static final URL ICON_LIFI = Resources.class.getResource("/io/onemfive/desktop/images/network/lifi-black.png");
-
     public static URL getManConIcon(ManCon manCon) {
         switch (manCon) {
             case LOW: return ICON_GREEN;

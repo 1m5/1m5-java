@@ -1,10 +1,10 @@
 .root {
     -ims-black: #191919;
     -ims-white: #f4f1ec;
-    -ims-purple-grey-light: #8072ba;
-    -ims-purple-grey-darker: #7361bd;
-    -ims-grey: #666;
-    -ims-grey-lighter: #999;
+    -ims-purple-gray-light: #8072ba;
+    -ims-purple-gray-dark: #7361bd;
+    -ims-gray: #666;
+    -ims-gray-lighter: #999;
 
     -bs-color-primary: #25b135;
     -bs-color-primary-dark: #2ea33c;
@@ -47,12 +47,15 @@
     -bs-bg-green: #99ba9c;
     -bs-rd-green: #25B135;
     -bs-rd-green-dark: #3EA34A;
-    -bs-rd-nav-selected: #25b135;
+/*    -bs-rd-nav-selected: #25b135; */
+    -bs-rd-nav-selected: -ims-purple-gray-dark;
     -bs-rd-nav-deselected: rgba(255, 255, 255, 0.59);
-    -bs-rd-nav-background: #2ea33c;
-    -bs-rd-nav-primary-background: #25b135;
-/*    -bs-rd-nav-primary-background: -ims-purple-grey-light; */
-    -bs-rd-nav-primary-border: #189e27;
+/*    -bs-rd-nav-background: #2ea33c; */
+    -bs-rd-nav-background: -ims-purple-gray-dark;
+/*    -bs-rd-nav-primary-background: #25b135; */
+    -bs-rd-nav-primary-background: -ims-purple-gray-light;
+/*    -bs-rd-nav-primary-border: #189e27; */
+    -bs-rd-nav-primary-border: -ims-purple-gray-light;
     -bs-rd-nav-border: #535353;
     -bs-rd-nav-border-color: rgba(255, 255, 255, 0.31);
     -bs-rd-tab-border: #e2e0e0;
@@ -77,7 +80,8 @@
     -bs-text-color-transparent: rgba(0, 0, 0, 0.2);
     -bs-color-gray-line: #979797;
     -bs-rd-separator: #dbdbdb;
-    -bs-rd-separator-dark: #d5e0d6;
+/*    -bs-rd-separator-dark: #d5e0d6; */
+    -bs-rd-separator-dark: -ims-purple-gray-dark;
     -bs-rd-error-red: #dd0000;
     -bs-rd-message-bubble: #0086c6;
     -bs-toggle-selected: #7b7b7b;
@@ -110,3 +114,34 @@
     -bs-progress-bar-track: #e0e0e0;
 }
 
+#image-splash-logo {
+    -fx-image: url("images/1m5_50_white.png");
+}
+
+#image-tor-icon {
+    -fx-image: url("images/network/tor-black-64.png");
+}
+
+#image-i2p-icon {
+    -fx-image: url("images/network/i2p-orig.png");
+}
+
+#image-bluetooth-icon {
+    -fx-image: url("images/network/bluetooth-black-50.png");
+}
+
+#image-wifi-icon {
+    -fx-image: url("images/network/wifi-black-24.png");
+}
+
+#image-satellite-icon {
+    -fx-image: url("images/network/satellite-black-64.png");
+}
+
+#image-radio-icon {
+    -fx-image: url("images/network/radio-black-64.png");
+}
+
+#image-lifi-icon {
+    -fx-image: url("images/network/lifi-black.png");
+}
