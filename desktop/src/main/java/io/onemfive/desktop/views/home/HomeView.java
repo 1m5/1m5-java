@@ -300,7 +300,7 @@ public class HomeView extends InitializableView {
 
 
         HBox networkStatusHBox = new HBox(
-                manConBox.second, getNavigationSeparator(),
+                manConBox.second,
                 torSensorStatusBox.second, getNavigationSeparator(),
                 i2pSensorStatusBox.second, getNavigationSeparator(),
                 btSensorStatusBox.second, getNavigationSeparator(),
@@ -386,6 +386,8 @@ public class HomeView extends InitializableView {
 
         // Delay a bit to give time for rendering the splash screen
 //        UserThread.execute(() -> onUiReadyHandler.run());
+        // Default to Personal Dashboard
+        personalButton.fire();
         LOG.info("Initialized.");
     }
 
