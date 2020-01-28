@@ -48,6 +48,7 @@ import javafx.scene.control.TabPane;
 import java.util.Map;
 
 /**
+ * Communities hard-capped to 150 people based on Dunbar's Number.
  * https://en.wikipedia.org/wiki/Dunbar%27s_number
  */
 public class CommunityView extends ActivatableView {
