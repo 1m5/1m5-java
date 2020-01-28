@@ -29,7 +29,6 @@ package io.onemfive.desktop.views.commons.browser;
 import io.onemfive.desktop.Resources;
 import io.onemfive.desktop.util.KeystrokeUtil;
 import io.onemfive.desktop.views.ActivatableView;
-import io.onemfive.desktop.views.InitializableView;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -50,7 +49,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 
@@ -164,7 +162,7 @@ public class BrowserView extends ActivatableView {
                     }
                 });
 
-        engine.load(Resources.WEB_INDEX.toExternalForm());
+        engine.load(Resources.IMS_WEB_INDEX.toExternalForm());
 
         history.getEntries().addListener(new ListChangeListener<WebHistory.Entry>() {
                  @Override

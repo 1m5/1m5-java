@@ -31,6 +31,9 @@ bg color of non edit textFields: fafafa
     -ims-purple-light: #8072ba;
     -ims-purple-dark: #5d528a;
     -ims-grey: #666;
+
+    -ims-font-mancon-label: -ims-black;
+
     -bs-very-dark-grey3: #444; /* 3 usages */
     -bs-grey: #666666; /* 8 usages */
     -bs-medium-grey: #AAAAAA; /* 8 usages */
@@ -87,7 +90,6 @@ bg color of non edit textFields: fafafa
     -bs-rd-grey: #373737;
     -fx-accent: -bs-rd-green; /* 18 usages */
 
-    /* TODO: refactor all colors to use derive from base colors, to enable easy re-coloring */
     -bs-rd-white: #ffffff; /* 30 usages */
     -bs-rd-white-transparent: rgba(255, 255, 255, 0.31);
     -bs-rd-grey-light: #D8D8D8;
@@ -789,12 +791,18 @@ bg color of non edit textFields: fafafa
     -fx-fill: -bs-rd-nav-selected;
 }
 
-.nav-balance-display {
+.nav-mancon-level-label {
+    -fx-font-size: 0.769em;
+    -fx-alignment: center-left;
+    -fx-text-fill: -bs-rd-font-mancon-label;
+}
+
+.nav-sensor-status-display {
     -fx-alignment: center-left;
     -fx-text-fill: -bs-rd-font-balance;
 }
 
-.nav-balance-label {
+.nav-sensor-status-label {
     -fx-font-size: 0.769em;
     -fx-alignment: center-left;
     -fx-text-fill: -bs-rd-font-balance-label;

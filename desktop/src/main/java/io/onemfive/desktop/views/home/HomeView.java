@@ -26,7 +26,10 @@
  */
 package io.onemfive.desktop.views.home;
 
+import io.onemfive.data.ManCon;
+import io.onemfive.data.Tuple2;
 import io.onemfive.desktop.MVC;
+import io.onemfive.desktop.Resources;
 import io.onemfive.desktop.components.AutoTooltipLabel;
 import io.onemfive.desktop.components.AutoTooltipToggleButton;
 import io.onemfive.desktop.components.Badge;
@@ -42,13 +45,16 @@ import io.onemfive.desktop.views.support.SupportView;
 import io.onemfive.util.LanguageUtil;
 import io.onemfive.util.LocaleUtil;
 import io.onemfive.util.Res;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -57,6 +63,7 @@ import javafx.scene.text.TextAlignment;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
 
 import static javafx.scene.layout.AnchorPane.*;
 
@@ -67,6 +74,10 @@ public class HomeView extends InitializableView {
     private Runnable onUiReadyHandler;
     private final ToggleGroup navButtons = new ToggleGroup();
     private Transitions transitions = new Transitions();
+
+    private ComboBox<ManConComboBoxItem> manConComboBox;
+    private final ObservableList<ManConComboBoxItem> manConComboBoxItems = FXCollections.observableArrayList();
+    private final ObjectProperty<ManConComboBoxItem> selectedManConComboBoxItemProperty = new SimpleObjectProperty<>();
 
     public HomeView() {}
 
@@ -152,24 +163,31 @@ public class HomeView extends InitializableView {
         });
 
 
-//        Tuple2<ComboBox<PriceFeedComboBoxItem>, VBox> marketPriceBox = getMarketPriceBox();
-//        ComboBox<PriceFeedComboBoxItem> priceComboBox = marketPriceBox.first;
-//
-//        priceComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//            model.setPriceFeedComboBoxItem(newValue);
-//        });
-//        ChangeListener<PriceFeedComboBoxItem> selectedPriceFeedItemListener = (observable, oldValue, newValue) -> {
-//            if (newValue != null)
-//                priceComboBox.getSelectionModel().select(newValue);
-//
-//        };
-//        model.getSelectedPriceFeedComboBoxItemProperty().addListener(selectedPriceFeedItemListener);
-//        priceComboBox.setItems(model.getPriceFeedComboBoxItems());
-//
-//        Tuple2<Label, VBox> availableBalanceBox = getBalanceBox(Res.get("mainView.balance.available"));
-//        availableBalanceBox.first.textProperty().bind(model.getAvailableBalance());
-//        availableBalanceBox.first.setPrefWidth(100);
-//        availableBalanceBox.first.tooltipProperty().bind(new ObjectBinding<>() {
+        Tuple2<ComboBox<ManConComboBoxItem>, VBox> manConBox = getManConBox();
+        manConComboBox = manConBox.first;
+
+        manConComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            selectedManConComboBoxItemProperty.setValue(newValue);
+        });
+        ChangeListener<ManConComboBoxItem> selectedManConItemListener = (observable, oldValue, newValue) -> {
+            if (newValue != null)
+                manConComboBox.getSelectionModel().select(newValue);
+        };
+        selectedManConComboBoxItemProperty.addListener(selectedManConItemListener);
+        manConComboBox.setItems(manConComboBoxItems);
+        manConComboBoxItems.addAll(Arrays.asList(
+                new ManConComboBoxItem(ManCon.NEO),
+                new ManConComboBoxItem(ManCon.EXTREME),
+                new ManConComboBoxItem(ManCon.VERYHIGH),
+                new ManConComboBoxItem(ManCon.HIGH),
+                new ManConComboBoxItem(ManCon.MEDIUM),
+                new ManConComboBoxItem(ManCon.LOW)
+        ));
+
+//        Tuple2<Image, VBox> i2pSensorStatusBox = getI2PStatusBox(Res.get("homeView.sensor.i2p.status"));
+//        i2pSensorStatusBox.first.textProperty().bind(model.getAvailableBalance());
+//        i2pSensorStatusBox.first.setPrefWidth(100);
+//        i2pSensorStatusBox.first.tooltipProperty().bind(new ObjectBinding<>() {
 //            {
 //                bind(model.getAvailableBalance());
 //                bind(model.getMarketPrice());
@@ -177,7 +195,7 @@ public class HomeView extends InitializableView {
 //
 //            @Override
 //            protected Tooltip computeValue() {
-//                String tooltipText = Res.get("mainView.balance.available");
+//                String tooltipText = Res.get("homeView.balance.available");
 //                try {
 //                    double availableBalance = Double.parseDouble(
 //                            model.getAvailableBalance().getValue().replace("BTC", ""));
@@ -190,7 +208,7 @@ public class HomeView extends InitializableView {
 //                return new Tooltip(tooltipText);
 //            }
 //        });
-//
+
 //        Tuple2<Label, VBox> reservedBalanceBox = getBalanceBox(Res.get("mainView.balance.reserved.short"));
 //        reservedBalanceBox.first.textProperty().bind(model.getReservedBalance());
 //        reservedBalanceBox.first.tooltipProperty().bind(new ObjectBinding<>() {
@@ -208,6 +226,31 @@ public class HomeView extends InitializableView {
 //                    double marketPrice = Double.parseDouble(model.getMarketPrice().getValue());
 //                    tooltipText += "\n" + currencyFormat.format(reservedBalance * marketPrice) +
 //                            " " + model.getPreferences().getPreferredTradeCurrency().getCode();
+//                } catch (NullPointerException | NumberFormatException e) {
+//                    // Either the balance or market price is not available yet
+//                }
+//                return new Tooltip(tooltipText);
+//            }
+//        });
+//
+//        Tuple2<Label, VBox> lockedBalanceBox = getBalanceBox(Res.get("mainView.balance.locked.short"));
+//        lockedBalanceBox.first.textProperty().bind(model.getLockedBalance());
+//        lockedBalanceBox.first.tooltipProperty().bind(new ObjectBinding<>() {
+//            {
+//                bind(model.getLockedBalance());
+//                bind(model.getMarketPrice());
+//            }
+//
+//            @Override
+//            protected Tooltip computeValue() {
+//                String tooltipText = Res.get("mainView.balance.locked");
+//                try {
+//                    String preferredTradeCurrency = model.getPreferences().getPreferredTradeCurrency().getCode();
+//                    double lockedBalance = Double.parseDouble(
+//                            model.getLockedBalance().getValue().replace("BTC", ""));
+//                    double marketPrice = Double.parseDouble(model.getMarketPrice(preferredTradeCurrency).getValue());
+//                    tooltipText += "\n" + currencyFormat.format(lockedBalance * marketPrice) +
+//                            " " + preferredTradeCurrency;
 //                } catch (NullPointerException | NumberFormatException e) {
 //                    // Either the balance or market price is not available yet
 //                }
@@ -241,13 +284,13 @@ public class HomeView extends InitializableView {
         secondaryNav.setAlignment(Pos.BOTTOM_RIGHT);
 
 
-//        HBox priceAndBalance = new HBox(marketPriceBox.second, getNavigationSeparator(), availableBalanceBox.second,
-//                getNavigationSeparator(), reservedBalanceBox.second, getNavigationSeparator(), lockedBalanceBox.second);
-//        priceAndBalance.setMaxHeight(41);
-//
-//        priceAndBalance.setAlignment(Pos.CENTER);
-//        priceAndBalance.setSpacing(11);
-//        priceAndBalance.getStyleClass().add("nav-price-balance");
+        HBox networkStatusHBox = new HBox(
+                manConBox.second);
+        networkStatusHBox.setMaxHeight(41);
+
+        networkStatusHBox.setAlignment(Pos.CENTER);
+        networkStatusHBox.setSpacing(11);
+        networkStatusHBox.getStyleClass().add("nav-price-balance");
 
 //        HBox navPane = new HBox(primaryNav, secondaryNav,
 //                priceAndBalance) {{
@@ -258,7 +301,7 @@ public class HomeView extends InitializableView {
 //            getStyleClass().add("top-navigation");
 //        }};
 
-        HBox navPane = new HBox(primaryNav, secondaryNav) {{
+        HBox navPane = new HBox(primaryNav, secondaryNav, networkStatusHBox) {{
             setLeftAnchor(this, 0d);
             setRightAnchor(this, 0d);
             setTopAnchor(this, 0d);
@@ -347,86 +390,54 @@ public class HomeView extends InitializableView {
         return spacer;
     }
 
-//    private Tuple2<Label, VBox> getBalanceBox(String text) {
-//        Label balanceDisplay = new Label();
-//        balanceDisplay.getStyleClass().add("nav-balance-display");
-//
-//        Label label = new Label(text);
-//        label.getStyleClass().add("nav-balance-label");
-//        label.maxWidthProperty().bind(balanceDisplay.widthProperty());
-//        label.setPadding(new Insets(0, 0, 0, 0));
-//        VBox vBox = new VBox();
-//        vBox.setAlignment(Pos.CENTER_LEFT);
-//        vBox.getChildren().addAll(balanceDisplay, label);
-//        return new Tuple2<>(balanceDisplay, vBox);
-//    }
-//
-//    private ListCell<PriceFeedComboBoxItem> getPriceFeedComboBoxListCell() {
-//        return new ListCell<PriceFeedComboBoxItem>() {
-//            @Override
-//            protected void updateItem(PriceFeedComboBoxItem item, boolean empty) {
-//                super.updateItem(item, empty);
-//
-//                if (!empty && item != null) {
-//                    textProperty().bind(item.displayStringProperty);
-//                } else {
-//                    textProperty().unbind();
-//                }
-//            }
-//        };
-//    }
-//
-//    private Tuple2<ComboBox<PriceFeedComboBoxItem>, VBox> getMarketPriceBox() {
-//
-//        VBox marketPriceBox = new VBox();
-//        marketPriceBox.setAlignment(Pos.CENTER_LEFT);
-//
-//        ComboBox<PriceFeedComboBoxItem> priceComboBox = new JFXComboBox<>();
-//        priceComboBox.setVisibleRowCount(12);
-//        priceComboBox.setFocusTraversable(false);
-//        priceComboBox.setId("price-feed-combo");
-//        priceComboBox.setPadding(new Insets(0, 0, -4, 0));
-//        priceComboBox.setCellFactory(p -> getPriceFeedComboBoxListCell());
-//        ListCell<PriceFeedComboBoxItem> buttonCell = getPriceFeedComboBoxListCell();
-//        buttonCell.setId("price-feed-combo");
-//        priceComboBox.setButtonCell(buttonCell);
-//
-//        Label marketPriceLabel = new Label();
-//
-//        updateMarketPriceLabel(marketPriceLabel);
-//
-//        marketPriceLabel.getStyleClass().add("nav-balance-label");
-//        marketPriceLabel.setPadding(new Insets(-2, 0, 4, 9));
-//
-//        marketPriceBox.getChildren().addAll(priceComboBox, marketPriceLabel);
-//
-//        model.getMarketPriceUpdated().addListener((observable, oldValue, newValue) -> {
-//            updateMarketPriceLabel(marketPriceLabel);
-//        });
-//
-//        return new Tuple2<>(priceComboBox, marketPriceBox);
-//    }
-//
+    private Tuple2<ComboBox<ManConComboBoxItem>, VBox> getManConBox() {
+        VBox manConVBox = new VBox();
+        manConVBox.setAlignment(Pos.CENTER_LEFT);
+
+        ComboBox<ManConComboBoxItem> manConComboBox = new ComboBox<>();
+        manConComboBox.setVisibleRowCount(6);
+        manConComboBox.setFocusTraversable(false);
+        manConComboBox.setId("mancon-combo");
+        manConComboBox.setPadding(new Insets(0, -4, -4, 0));
+        manConComboBox.setCellFactory(p -> getManConComboBoxListCell());
+        ListCell<ManConComboBoxItem> buttonCell = getManConComboBoxListCell();
+        buttonCell.setId("mancon-combo");
+        manConComboBox.setButtonCell(buttonCell);
+
+        Label manConLabel = new Label();
+        manConLabel.setText(Res.get("homeView.menu.mancon"));
+        final Tooltip tooltip = new Tooltip(Res.get("homeView.menu.mancon.tooltip"));
+        manConLabel.setTooltip(tooltip);
+
+        manConLabel.getStyleClass().add("-ims-font-mancon-label");
+        manConLabel.setPadding(new Insets(-2, 0, 4, 9));
+
+        manConVBox.getChildren().addAll(manConComboBox, manConLabel);
+
+        return new Tuple2<>(manConComboBox, manConVBox);
+    }
+
+    private ListCell<ManConComboBoxItem> getManConComboBoxListCell() {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(ManConComboBoxItem item, boolean empty) {
+                super.updateItem(item, empty);
+                if(item == null || empty) {
+                    setGraphic(null);
+                } else {
+                    ImageView iconImageView = new ImageView(new Image(Resources.getManConIcon(this.getIndex()).toString()));
+                    iconImageView.setFitHeight(57);
+                    iconImageView.setPreserveRatio(true);
+                    setGraphic(iconImageView);
+                }
+            }
+        };
+    }
+
 //    private String getPriceProvider() {
 //        return model.getIsFiatCurrencyPriceFeedSelected().get() ? "BitcoinAverage" : "Poloniex";
 //    }
 //
-//    private void updateMarketPriceLabel(Label label) {
-//        if (model.getIsPriceAvailable().get()) {
-//            if (model.getIsExternallyProvidedPrice().get()) {
-//                label.setText(Res.get("mainView.marketPriceWithProvider.label", getPriceProvider()));
-//                label.setTooltip(new Tooltip(getPriceProviderTooltipString()));
-//            } else {
-//                label.setText(Res.get("mainView.marketPrice.bisqInternalPrice"));
-//                final Tooltip tooltip = new Tooltip(Res.get("mainView.marketPrice.tooltip.bisqInternalPrice"));
-//                tooltip.getStyleClass().add("market-price-tooltip");
-//                label.setTooltip(tooltip);
-//            }
-//        } else {
-//            label.setText("");
-//            label.setTooltip(null);
-//        }
-//    }
 //
 //    private String getPriceProviderTooltipString() {
 //
@@ -709,10 +720,6 @@ public class HomeView extends InitializableView {
         Label bluetoothNetworkLabel = new AutoTooltipLabel();
         bluetoothNetworkLabel.setId("footer-pane");
 
-        // Bluetooth LE Network
-        Label bluetoothLENetworkLabel = new AutoTooltipLabel();
-        bluetoothLENetworkLabel.setId("footer-pane");
-
         // WiFi-Direct Network
         Label wifiDirectNetworkLabel = new AutoTooltipLabel();
         wifiDirectNetworkLabel.setId("footer-pane");
@@ -768,6 +775,20 @@ public class HomeView extends InitializableView {
             this.selectedProperty().addListener((ov, oldValue, newValue) -> this.setMouseTransparent(newValue));
 
             this.setOnAction(e -> MVC.navigation.navigateTo(HomeView.class, viewClass));
+        }
+
+    }
+
+    private class ManConComboBoxItem {
+
+        public final ManCon manConLevel;
+        public final ImageView manConImageView;
+        public final StringProperty displayStringProperty = new SimpleStringProperty();
+
+        public ManConComboBoxItem(ManCon manConLevel) {
+            this.manConLevel = manConLevel;
+            this.manConImageView = new ImageView(new Image(Resources.getManConIcon(manConLevel).toString()));
+            this.displayStringProperty.setValue(manConLevel.name());
         }
 
     }

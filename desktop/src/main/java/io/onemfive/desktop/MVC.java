@@ -28,6 +28,7 @@ package io.onemfive.desktop;
 
 import io.onemfive.desktop.views.BaseView;
 import io.onemfive.desktop.views.View;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 
@@ -87,4 +88,5 @@ public class MVC {
         }
         return view;
     }
+
 }
