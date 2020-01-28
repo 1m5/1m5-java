@@ -198,8 +198,8 @@ bg color of non edit textFields: fafafa
 }
 
 .jfx-combo-box {
-    -jfx-focus-color: -bs-color-primary;
-    -jfx-unfocus-color: -bs-color-gray-line;
+    -jfx-focus-color: -bs-color-primary-dark;
+    -jfx-unfocus-color: -bs-background-color;
     -fx-background-color: -bs-background-color;
 }
 
@@ -246,8 +246,8 @@ bg color of non edit textFields: fafafa
 }
 
 .jfx-text-field {
-    -jfx-focus-color: -bs-rd-green;
-    -fx-background-color: -bs-rd-white;
+    -jfx-focus-color: -bs-color-primary;
+    -fx-background-color: -bs-background-color;
     -fx-background-radius: 3 3 0 0;
     -fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em;
 }

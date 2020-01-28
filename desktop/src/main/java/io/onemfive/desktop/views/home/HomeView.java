@@ -52,6 +52,8 @@ import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Orientation;
@@ -300,7 +302,7 @@ public class HomeView extends InitializableView {
 
 
         HBox networkStatusHBox = new HBox(
-                manConBox.second,
+                manConBox.second, getNavigationSeparator(),
                 torSensorStatusBox.second, getNavigationSeparator(),
                 i2pSensorStatusBox.second, getNavigationSeparator(),
                 btSensorStatusBox.second, getNavigationSeparator(),
@@ -380,14 +382,18 @@ public class HomeView extends InitializableView {
 //                navigation.navigateToPreviousVisitedView();
 //
 //                transitionUtil.fadeOutAndRemove(splashScreen, 1500, actionEvent -> disposeSplashScreen());
-                transitions.fadeOutAndRemove(splashScreen, 5000);
+                transitions.fadeOutAndRemove(splashScreen, 3500, new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent actionEvent) {
+                        // Default to Personal Dashboard
+                        personalButton.fire();
+                    }
+                });
 //            }
 //        });
 
         // Delay a bit to give time for rendering the splash screen
 //        UserThread.execute(() -> onUiReadyHandler.run());
-        // Default to Personal Dashboard
-        personalButton.fire();
         LOG.info("Initialized.");
     }
 

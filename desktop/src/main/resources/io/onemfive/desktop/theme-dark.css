@@ -3,8 +3,6 @@
     -ims-white: #f4f1ec;
     -ims-purple-grey-light: #8072ba;
     -ims-purple-grey-darker: #7361bd;
-    -ims-grey: #666;
-    -ims-grey-lighter: #999;
 
     /* javafx main color palette */
     -fx-base: #29292a;
@@ -16,11 +14,11 @@
     -fx-text-fill: #dadada;
 
     /* javafx elements */
-    -fx-accent: #25b135;
+    -fx-accent: -bs-color-primary-dark;
     -fx-box-border: #1d1d21;
     -fx-focus-color: #2ea33c;
     -fx-faint-focus-color: #0f87c3;
-    -fx-selection-bar: #1a6e1e;
+    -fx-selection-bar: -bs-color-primary;
     -fx-selection-bar-non-focused: #2a7e2e;
     -fx-default-button: derive(-fx-accent, 95%);
 
