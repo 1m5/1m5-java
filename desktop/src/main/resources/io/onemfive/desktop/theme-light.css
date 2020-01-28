@@ -1,4 +1,11 @@
 .root {
+    -ims-black: #191919;
+    -ims-white: #f4f1ec;
+    -ims-purple-grey-light: #8072ba;
+    -ims-purple-grey-darker: #7361bd;
+    -ims-grey: #666;
+    -ims-grey-lighter: #999;
+
     -bs-color-primary: #25b135;
     -bs-color-primary-dark: #2ea33c;
     -bs-text-color: #000000;
@@ -102,3 +109,4 @@
     -fx-default-button: derive(-fx-accent, 95%);
     -bs-progress-bar-track: #e0e0e0;
 }
+

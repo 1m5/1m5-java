@@ -47,6 +47,9 @@ import javafx.scene.control.TabPane;
 
 import java.util.Map;
 
+/**
+ * https://en.wikipedia.org/wiki/Dunbar%27s_number
+ */
 public class CommunityView extends ActivatableView {
 
     private Scene scene;

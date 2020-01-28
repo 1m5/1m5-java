@@ -47,6 +47,7 @@ import io.onemfive.desktop.views.support.SupportView;
 import io.onemfive.util.LanguageUtil;
 import io.onemfive.util.LocaleUtil;
 import io.onemfive.util.Res;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -63,6 +64,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.TextAlignment;
 
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -190,7 +192,14 @@ public class HomeView extends InitializableView {
         ));
         manConComboBox.getSelectionModel().select(OneMFiveAppContext.MANCON.ordinal());
 
-//        Tuple2<Image, VBox> i2pSensorStatusBox = getI2PStatusBox(Res.get("homeView.sensor.i2p.status"));
+        Tuple2<ImageView, VBox> torSensorStatusBox = getStatusBox(Resources.ICON_TOR, 25);
+        Tuple2<ImageView, VBox> i2pSensorStatusBox = getStatusBox(Resources.ICON_I2P, 32);
+        Tuple2<ImageView, VBox> btSensorStatusBox = getStatusBox(Resources.ICON_BT, 32);
+        Tuple2<ImageView, VBox> wifiSensorStatusBox = getStatusBox(Resources.ICON_WIFI, 32);
+        Tuple2<ImageView, VBox> satelliteSensorStatusBox = getStatusBox(Resources.ICON_SATELLITE, 32);
+        Tuple2<ImageView, VBox> radioSensorStatusBox = getStatusBox(Resources.ICON_RADIO, 32);
+        Tuple2<ImageView, VBox> lifiSensorStatusBox = getStatusBox(Resources.ICON_LIFI, 32);
+
 //        i2pSensorStatusBox.first.textProperty().bind(model.getAvailableBalance());
 //        i2pSensorStatusBox.first.setPrefWidth(100);
 //        i2pSensorStatusBox.first.tooltipProperty().bind(new ObjectBinding<>() {
@@ -291,7 +300,14 @@ public class HomeView extends InitializableView {
 
 
         HBox networkStatusHBox = new HBox(
-                manConBox.second);
+                manConBox.second, getNavigationSeparator(),
+                torSensorStatusBox.second, getNavigationSeparator(),
+                i2pSensorStatusBox.second, getNavigationSeparator(),
+                btSensorStatusBox.second, getNavigationSeparator(),
+                wifiSensorStatusBox.second, getNavigationSeparator(),
+                satelliteSensorStatusBox.second, getNavigationSeparator(),
+                radioSensorStatusBox.second, getNavigationSeparator(),
+                lifiSensorStatusBox.second);
         networkStatusHBox.setMaxHeight(41);
 
         networkStatusHBox.setAlignment(Pos.CENTER);
@@ -421,6 +437,17 @@ public class HomeView extends InitializableView {
                 }
             }
         };
+    }
+
+    private Tuple2<ImageView, VBox> getStatusBox(URL statusImageURL, int fitHeight) {
+        ImageView statusImageView = new ImageView(new Image(statusImageURL.toString()));
+        statusImageView.setFitHeight(fitHeight);
+        statusImageView.setPreserveRatio(true);
+
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER_LEFT);
+        vBox.getChildren().addAll(statusImageView);
+        return new Tuple2<>(statusImageView, vBox);
     }
 
 //    private String getPriceProvider() {

@@ -24,14 +24,6 @@ lower gradient color on tab: dddddd
 bg color of non edit textFields: fafafa
 */
 
-.root {
-    -ims-black: #191919;
-    -ims-white: #f4f1ec;
-    -ims-purple-grey-light: #8072ba;
-    -ims-purple-grey-darker: #7361bd
-    -ims-grey: #666;
-    -ims-grey-lighter: #999;
-}
 
 /********************************************************************************************************************
  *                                                                                                                  *
@@ -157,14 +149,14 @@ bg color of non edit textFields: fafafa
 
 .jfx-button, .action-button {
     -fx-background-color: -bs-rd-grey-light;
-    -fx-text-fill: -bs-rd-font-dark-grey;
+    -fx-text-fill: -bs-rd-font-dark-gray;
     -fx-font-size: 0.923em;
     -fx-font-weight: normal;
     -fx-background-radius: 2px;
     -fx-pref-height: 32;
     -fx-min-height: -fx-pref-height;
     -fx-padding: 0 40 0 40;
-    -fx-effect: dropshadow(gaussian, -bs-rd-black-transparent, 2, 0, 0, 0, 1);
+    -fx-effect: dropshadow(gaussian, -bs-text-color-transparent, 2, 0, 0, 0, 1);
     -fx-cursor: hand;
 }
 
@@ -206,13 +198,13 @@ bg color of non edit textFields: fafafa
 }
 
 .jfx-combo-box {
-    -jfx-focus-color: -bs-rd-green;
-    -jfx-unfocus-color: -bs-rd-grey-line;
-    -fx-background-color: -bs-rd-white;
+    -jfx-focus-color: -bs-color-primary;
+    -jfx-unfocus-color: -bs-color-gray-line;
+    -fx-background-color: -bs-background-color;
 }
 
 .jfx-combo-box > .list-cell {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
     -fx-font-family: "IBM Plex Sans Medium";
 }
 
@@ -494,25 +486,25 @@ bg color of non edit textFields: fafafa
 }
 
 .scroll-bar:horizontal .thumb {
-    -fx-background-color: -bs-rd-grey-background-darker;
+    -fx-background-color: -bs-color-gray-2;
     -fx-background-insets: 2 0 2 0;
     -fx-background-radius: 3;
 }
 
 .scroll-bar:vertical .thumb {
-    -fx-background-color: -bs-rd-grey-background-darker;
+    -fx-background-color: -bs-color-gray-2;
     -fx-background-insets: 0 2 0 2;
     -fx-background-radius: 3;
 }
 
 .scroll-bar:horizontal .thumb:hover,
 .scroll-bar:vertical .thumb:hover {
-    -fx-background-color: -bs-rd-grey-background-darker-2;
+    -fx-background-color: -bs-color-gray-ccc;
 }
 
 .scroll-bar:horizontal .thumb:pressed,
 .scroll-bar:vertical .thumb:pressed {
-    -fx-background-color: -bs-rd-grey-background-darkest;
+    -fx-background-color: -bs-color-gray-ddd;
 }
 
 .scroll-bar:vertical .increment-button,
@@ -572,21 +564,21 @@ bg color of non edit textFields: fafafa
 
 /* Main UI */
 #base-content-container {
-    -fx-background-color: -bs-bg-grey;
+    -fx-background-color: -bs-background-gray;
 }
 
 .content-pane {
-    -fx-background-color: linear-gradient(-bs-rd-grey-background 0%, -bs-rd-grey-background-bottom 100%);
+    -fx-background-color: linear-gradient(-bs-content-pane-bg-top 0%, -bs-content-pane-bg-bottom 100%);
 }
 
 #footer-pane {
-    -fx-background-color: -bs-bg-grey;
+    -fx-background-color: -bs-footer-pane-background;
     -fx-font-size: 0.923em;
     -fx-text-fill: -ims-black;
 }
 
 #footer-pane-line {
-    -fx-background: -bs-bg-grey2;
+    -fx-background: -bs-footer-pane-line;
 }
 
 #headline-label {
@@ -624,7 +616,7 @@ bg color of non edit textFields: fafafa
 .nav-tertiary {
     -fx-background-color: -bs-color-gray-background;
     -fx-background-radius: 3;
-    -fx-effect: innershadow(gaussian, -bs-rd-black-transparent, 3, 0, 0, 1);
+    -fx-effect: innershadow(gaussian, -bs-text-color-transparent, 3, 0, 0, 1);
     -fx-pref-height: 41;
     -fx-padding: 0 10 0 0;
 }
@@ -655,10 +647,14 @@ bg color of non edit textFields: fafafa
     -fx-fill: -bs-rd-nav-deselected;
 }
 
+.nav-button-japanese .text {
+    -fx-font-size: 1em;
+}
+
 .nav-button:selected {
-    -fx-background-color: -ims-white;
+    -fx-background-color: -bs-background-color;
     -fx-border-radius: 4;
-    -fx-effect: dropshadow(gaussian, -bs-rd-black-transparent, 4, 0, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, -bs-text-color-transparent, 4, 0, 0, 0, 2);
 }
 
 .nav-button:selected .text {
@@ -681,7 +677,7 @@ bg color of non edit textFields: fafafa
     -fx-font-weight: bold;
     -fx-alignment: center;
     -fx-font-size: 0.846em;
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: -bs-background-color;
 }
 
 .text-field {
@@ -694,7 +690,7 @@ bg color of non edit textFields: fafafa
 
 #label-url {
     -fx-cursor: hand;
-    -fx-text-fill: -bs-blue;
+    -fx-text-fill: -bs-color-blue-0;
     -fx-underline: true;
 }
 
@@ -729,11 +725,11 @@ bg color of non edit textFields: fafafa
 }
 
 .copy-icon-disputes {
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: -bs-background-color;
 }
 
 .copy-icon:hover {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
 }
 
 .received-funds-icon {
@@ -745,7 +741,7 @@ bg color of non edit textFields: fafafa
 }
 
 .version {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
     -fx-underline: false;
     -fx-cursor: null;
 }
@@ -757,13 +753,13 @@ bg color of non edit textFields: fafafa
 }
 
 .opaque-icon {
-    -fx-fill: -bs-rd-grey-light;
+    -fx-fill: -bs-color-gray-bbb;
     -fx-opacity: 1;
 }
 
 .opaque-icon-character {
     -fx-font-size: 3em;
-    -fx-text-fill: -bs-rd-grey-light;
+    -fx-text-fill: -bs-color-gray-bbb;
     -fx-padding: 24 2 0 2;
 }
 
@@ -772,38 +768,50 @@ bg color of non edit textFields: fafafa
     -fx-padding: 27 2 0 2;
 }
 
+.close-icon {
+    -fx-fill: -bs-text-color;
+}
+
+.close-icon:hover {
+    -fx-fill: -fx-accent;
+}
+
+.tooltip-icon {
+    -fx-fill: -bs-text-color;
+}
+
 /*******************************************************************************
  *                                                                             *
  * Tooltip                                                                     *
  *                                                                             *
  ******************************************************************************/
-
 .tooltip {
-    -fx-background: -bs-rd-white;
-    -fx-text-fill: -bs-rd-black;
-    -fx-background-color: -bs-rd-white;
+    -fx-background: -bs-background-color;
+    -fx-text-fill: -bs-text-color;
+    -fx-background-color: -bs-background-color;
     -fx-background-radius: 6px;
     -fx-background-insets: 0;
     -fx-padding: 0.667em 0.75em 0.667em 0.75em; /* 10px */
-    -fx-effect: dropshadow(three-pass-box, -bs-rd-black-transparent, 10, 0.0, 0, 3);
+    -fx-effect: dropshadow(three-pass-box, -bs-text-color-transparent, 10, 0, 0, 3);
     -fx-font-size: 0.85em;
 }
 
 /* Same style like non editable textfield. But textfield spans a whole column in a grid, so we use generally
 textfield */
 #label-with-background {
-    -fx-background-color: -bs-bg-light;
+    -fx-background-color: -bs-color-gray-fafa;
     -fx-border-radius: 4;
     -fx-padding: 4 4 4 4;
 }
 
 #funds-confidence {
-    -fx-progress-color: -bs-dim-grey;
+    -fx-progress-color: -bs-color-gray-dim;
     -fx-max-width: 20;
     -fx-max-height: 20;
 }
 
 .hyperlink,
+.hyperlink.force-underline .text,
 .hyperlink:hover,
 .hyperlink:visited,
 .hyperlink:hover:visited,
@@ -812,6 +820,7 @@ textfield */
     -fx-border-width: 0px;
     -fx-underline: true;
     -fx-text-fill: -bs-rd-font-dark;
+    -fx-fill: -bs-rd-font-dark;
 }
 
 .hyperlink.no-underline {
@@ -819,7 +828,8 @@ textfield */
 }
 
 .hyperlink:hover {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
+    -fx-fill: -bs-text-color;
 }
 
 .hyperlink:hover,
@@ -828,12 +838,17 @@ textfield */
     -fx-underline: false;
 }
 
+.hyperlink.highlight,
+.hyperlink.highlight .text.hyperlink.no-underline {
+    -fx-text-fill: -fx-accent;
+    -fx-fill: -fx-accent;
+}
+
 /*******************************************************************************
  *                                                                             *
  * Table                                                                       *
  *                                                                             *
  ******************************************************************************/
-
 .table-view .table-cell {
     -fx-alignment: center-left;
     -fx-padding: 2 0 2 0;
@@ -880,7 +895,7 @@ textfield */
 }
 
 .table-view .filler {
-    -fx-background-color: -bs-rd-grey-very-light;
+    -fx-background-color: -bs-color-gray-0;
 }
 
 .table-view {
@@ -895,7 +910,7 @@ textfield */
 }
 
 .table-view .column-header {
-    -fx-background-color: -bs-rd-grey-very-light;
+    -fx-background-color: -bs-color-gray-0;
     -fx-padding: 0;
 }
 
@@ -904,7 +919,7 @@ textfield */
 }
 
 .table-view .text {
-    -fx-fill: -bs-rd-black;
+    -fx-fill: -bs-text-color;
 }
 
 /* horizontal scrollbars are never needed and are flickering at scaling so lets turn them off */
@@ -924,14 +939,14 @@ textfield */
 }
 
 .offer-table .table-row-cell {
-    -fx-border-color: -bs-rd-white;
-    -fx-table-cell-border-color: -bs-rd-white;
+    -fx-border-color: -bs-background-color;
+    -fx-table-cell-border-color: -bs-background-color;
 }
 
 .table-row-cell {
     -fx-border-width: 0 0 1 0;
-    -fx-border-color: -bs-very-light-grey;
-    -fx-table-cell-border-color: -bs-rd-white;
+    -fx-border-color: -bs-color-gray-0;
+    -fx-table-cell-border-color: -bs-background-color;
 }
 
 .table-row-cell:selected {
@@ -941,16 +956,16 @@ textfield */
 
 .table-row-cell:empty {
     -fx-border-width: 0;
-    -fx-background-color: -bs-rd-white;
+    -fx-background-color: -bs-background-color;
     -fx-table-cell-border-color: transparent;
 }
 
 .table-view .table-row-cell:selected .table-row-cell:row-selection .table-row-cell:cell-selection .text {
-    -fx-fill: -bs-rd-black;
+    -fx-fill: -bs-text-color;
 }
 
 .table-view .table-row-cell:selected .button .text {
-    -fx-fill: -bs-rd-black;
+    -fx-fill: -bs-text-color;
 }
 
 .table-view .table-row-cell .copy-icon .text,
@@ -959,15 +974,15 @@ textfield */
 }
 
 .table-view .table-row-cell:selected .copy-icon .text {
-    -fx-fill: -bs-rd-black;
+    -fx-fill: -bs-text-color;
 }
 
 .table-view .table-row-cell:selected .copy-icon .text:hover {
-    -fx-fill: -bs-rd-black;
+    -fx-fill: -bs-text-color;
 }
 
 .table-view .table-row-cell:selected .hyperlink .text {
-    -fx-fill: -bs-rd-black;
+    -fx-fill: -bs-text-color;
     -fx-border-style: none;
     -fx-border-width: 0px;
 }
@@ -980,7 +995,7 @@ textfield */
 
 .table-view .table-row-cell .hyperlink .text:hover,
 .table-view .table-row-cell:selected .hyperlink .text:hover {
-    -fx-fill: -bs-rd-black;
+    -fx-fill: -bs-text-color;
     -fx-border-style: none;
     -fx-border-width: 0px;
 }
@@ -1009,7 +1024,7 @@ textfield */
  ******************************************************************************/
 
 #non-clickable-icon {
-    -fx-text-fill: -bs-medium-grey;
+    -fx-text-fill: -bs-color-gray-4;
 }
 
 .delete-icon {
@@ -1022,8 +1037,8 @@ textfield */
 }
 
 .delete:hover {
-    -fx-text-fill: -bs-rd-black;
-    -fx-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
+    -fx-fill: -bs-text-color;
 }
 
 /*******************************************************************************
@@ -1031,7 +1046,6 @@ textfield */
  * Images                                                                      *
  *                                                                             *
  ******************************************************************************/
-
 .qr-code {
     -fx-cursor: hand;
 }
@@ -1041,9 +1055,8 @@ textfield */
  * Textarea                                                                    *
  *                                                                             *
  ******************************************************************************/
-
 .text-area {
-    -fx-border-color: -bs-bg-grey;
+    -fx-border-color: -bs-background-gray;
 }
 
 /*******************************************************************************
@@ -1051,7 +1064,6 @@ textfield */
  * Tab pane                                                                    *
  *                                                                             *
  ******************************************************************************/
-
 .jfx-tab-pane {
     -fx-padding: 0;
     -jfx-disable-animation: true;
@@ -1086,7 +1098,7 @@ textfield */
 }
 
 .jfx-tab-pane .tab-header-background {
-    -fx-background-color: -bs-rd-grey-background;
+    -fx-background-color: -bs-color-gray-background;
     -fx-border-width: 0 0 1 0;
     -fx-border-color: -bs-rd-tab-border;
 }
@@ -1137,7 +1149,6 @@ textfield */
 }
 
 /* scroll-pane */
-
 .scroll-pane {
     -fx-background-insets: 0;
     -fx-padding: 0;
@@ -1157,17 +1168,16 @@ textfield */
 }
 
 /* Account */
-
 #content-pane-top {
-    -fx-background-color: -bs-light-grey2,
-    linear-gradient(-bs-light-grey2 0%, -bs-light-grey3 100%),
-    linear-gradient(-bs-bg-grey3 0%, -bs-bg-grey 100%);
+    -fx-background-color: -bs-color-gray-2,
+    linear-gradient(-bs-color-gray-2 0%, -bs-color-gray-3 100%),
+    linear-gradient(-bs-color-gray-2 0%, -bs-background-gray 100%);
     -fx-background-insets: 0 0 0 0, 0, 1;
 }
 
 #info-icon-label {
     -fx-font-size: 1.231em;
-    -fx-text-fill: -bs-very-dark-grey3;
+    -fx-text-fill: -bs-color-gray-13;
 }
 
 /* OfferPayload book */
@@ -1179,7 +1189,7 @@ textfield */
 #direction-icon-label {
     -fx-font-weight: bold;
     -fx-font-size: 1.231em;
-    -fx-text-fill: -bs-grey;
+    -fx-text-fill: -bs-color-gray-6;
 }
 
 #input-description-label {
@@ -1196,7 +1206,7 @@ textfield */
 #toggle-price-left {
     -fx-border-radius: 4 0 0 4;
     -fx-padding: 4 4 4 4;
-    -fx-border-color: -bs-medium-grey;
+    -fx-border-color: -bs-color-gray-4;
     -fx-border-style: solid none solid solid;
     -fx-border-insets: 0 -2 0 0;
     -fx-background-insets: 0 -2 0 0;
@@ -1206,7 +1216,7 @@ textfield */
 #toggle-price-right {
     -fx-border-radius: 0 4 4 0;
     -fx-padding: 4 4 4 4;
-    -fx-border-color: -bs-medium-grey;
+    -fx-border-color: -bs-color-gray-4;
     -fx-border-style: solid solid solid none;
     -fx-border-insets: 0 0 0 -2;
     -fx-background-insets: 0 0 0 -2;
@@ -1214,11 +1224,11 @@ textfield */
 }
 
 #totals-separator {
-    -fx-background: -bs-medium-grey;
+    -fx-background: -bs-color-gray-4;
 }
 
 #payment-info {
-    -fx-background-color: -bs-content-bg-grey;
+    -fx-background-color: -bs-content-background-gray;
 }
 
 .toggle-button-active {
@@ -1226,7 +1236,7 @@ textfield */
 }
 
 .toggle-button-inactive {
-    -fx-background-color: -bs-very-light-grey;
+    -fx-background-color: -bs-color-gray-1;
 }
 
 #trade-fee-textfield {
@@ -1236,15 +1246,21 @@ textfield */
 
 /* Open Offer */
 .offer-disabled .label {
-    -fx-text-fill: -bs-light-grey;
+    -fx-text-fill: -bs-color-gray-3;
 }
 
 /* OfferBook */
-
 .table-title {
     -fx-font-size: 1.077em;
     -fx-font-family: "IBM Plex Sans Medium";
     -fx-alignment: center-left;
+}
+
+.combo-box-editor-bold {
+    -fx-font-weight: bold;
+    -fx-padding: 5 8 5 8 !important;
+    -fx-text-fill: -bs-text-color;
+    -fx-font-family: "IBM Plex Sans Medium";
 }
 
 .currency-label-small {
@@ -1258,45 +1274,44 @@ textfield */
 .offer-label-small {
     -fx-font-size: 0.692em;
     -fx-alignment: center-right;
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
 }
 
 .currency-label-selected {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
     -fx-font-family: "IBM Plex Sans Medium";
 }
 
 .currency-label {
     -fx-font-size: 1.077em;
-    -fx-text-fill: -bs-rd-font-dark-grey;
+    -fx-text-fill: -bs-rd-font-dark-gray;
     -fx-alignment: center-left;
     -fx-pref-height: 35px;
 }
 
 /* Offer */
-
 .percentage-label {
     -fx-alignment: center;
 }
 
 .offer-separator {
-    -fx-background: -bs-grey;
+    -fx-background: -bs-color-gray-6;
 }
 
 #address-text-field {
     -fx-cursor: hand;
     -fx-text-fill: -fx-accent;
-    -fx-prompt-text-fill: -bs-rd-black;
+    -fx-prompt-text-fill: -bs-text-color;
 }
 
 #address-text-field:hover {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
 }
 
 /* Account setup */
 #wizard-item-background-deactivated {
-    -fx-body-color: linear-gradient(to bottom, -bs-content-bg-grey, -bs-very-light-grey);
-    -fx-outer-border: linear-gradient(to bottom, -bs-bg-grey, -bs-light-grey);
+    -fx-body-color: linear-gradient(to bottom, -bs-content-background-gray, -bs-color-gray-aaa);
+    -fx-outer-border: linear-gradient(to bottom, -bs-background-gray, -bs-color-gray-3);
     -fx-background-color: -fx-shadow-highlight-color,
     -fx-outer-border,
     -fx-inner-border,
@@ -1306,8 +1321,8 @@ textfield */
 }
 
 #wizard-item-background-active {
-    -fx-body-color: linear-gradient(to bottom, -bs-bg-grey5, -bs-bg-grey6);
-    -fx-outer-border: linear-gradient(to bottom, -bs-bg-blue1, -bs-bg-blue2);
+    -fx-body-color: linear-gradient(to bottom, -bs-bg-gray-5, -bs-color-gray-6);
+    -fx-outer-border: linear-gradient(to bottom, -bs-color-blue-1, -bs-color-blue-2);
     -fx-background-color: -fx-shadow-highlight-color,
     -fx-outer-border,
     -fx-inner-border,
@@ -1317,8 +1332,8 @@ textfield */
 }
 
 #wizard-item-background-completed {
-    -fx-body-color: linear-gradient(to bottom, -bs-content-bg-grey, -bs-very-light-grey);
-    -fx-outer-border: linear-gradient(to bottom, -bs-bg-green, -bs-bg-green2);
+    -fx-body-color: linear-gradient(to bottom, -bs-content-background-gray, -bs-color-gray-aaa);
+    -fx-outer-border: linear-gradient(to bottom, -bs-bg-green, -bs-color-green-2);
     -fx-background-color: -fx-shadow-highlight-color,
     -fx-outer-border,
     -fx-inner-border,
@@ -1328,10 +1343,9 @@ textfield */
 }
 
 /* Account settings */
-
 #account-settings-item-background-disabled {
-    -fx-body-color: linear-gradient(to bottom, -bs-content-bg-grey, -bs-very-light-grey);
-    -fx-outer-border: linear-gradient(to bottom, -bs-bg-grey, -bs-light-grey);
+    -fx-body-color: linear-gradient(to bottom, -bs-content-background-gray, -bs-color-gray-1);
+    -fx-outer-border: linear-gradient(to bottom, -bs-background-gray, -bs-color-gray-3);
     -fx-background-color: -fx-shadow-highlight-color,
     -fx-outer-border,
     -fx-inner-border,
@@ -1341,8 +1355,8 @@ textfield */
 }
 
 #account-settings-item-background-active {
-    -fx-body-color: linear-gradient(to bottom, -bs-content-bg-grey, -bs-very-light-grey);
-    -fx-outer-border: linear-gradient(to bottom, -bs-bg-grey, -bs-light-grey);
+    -fx-body-color: linear-gradient(to bottom, -bs-content-background-gray, -bs-color-gray-1);
+    -fx-outer-border: linear-gradient(to bottom, -bs-background-gray, -bs-color-gray-3);
     -fx-background-color: -fx-shadow-highlight-color,
     -fx-outer-border,
     -fx-inner-border,
@@ -1352,8 +1366,8 @@ textfield */
 }
 
 #account-settings-item-background-selected {
-    -fx-body-color: linear-gradient(to bottom, -bs-bg-grey5, -bs-bg-grey6);
-    -fx-outer-border: linear-gradient(to bottom, -bs-bg-blue1, -bs-bg-blue2);
+    -fx-body-color: linear-gradient(to bottom, -bs-color-gray-5, -bs-color-gray-1);
+    -fx-outer-border: linear-gradient(to bottom, -bs-color-blue-1, -bs-color-blue-2);
     -fx-background-color: -fx-shadow-highlight-color,
     -fx-outer-border,
     -fx-inner-border,
@@ -1362,27 +1376,50 @@ textfield */
     -fx-background-radius: 3px, 3px, 2px, 1px;
 }
 
-/* Pending trayes */
-
+/* Pending trades */
 #trade-wizard-item-background-disabled {
     -fx-text-fill: -bs-rd-font-light;
 }
 
 #trade-wizard-item-background-active {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
     -fx-font-family: "IBM Plex Sans Medium";
 }
 
 .trade-step-label {
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: -bs-background-color;
 }
 
 .trade-step-disabled-bg {
-    -fx-fill: -bs-rd-grey-background-darker-2;
+    -fx-fill: -bs-color-gray-ccc;
 }
 
 .trade-step-active-bg {
-    -fx-fill: -bs-rd-green-dark;
+    -fx-fill: -bs-color-primary-dark;
+}
+
+.trade-msg-state-undefined {
+    -fx-text-fill: -bs-yellow;
+}
+
+.trade-msg-state-sent {
+    -fx-text-fill: -bs-yellow-light;
+}
+
+.trade-msg-state-arrived {
+    -fx-text-fill: -bs-turquoise;
+}
+
+.trade-msg-state-stored {
+    -fx-text-fill: -bs-color-blue-4;
+}
+
+.trade-msg-state-acknowledged {
+    -fx-text-fill: -bs-color-primary;
+}
+
+.trade-msg-state-failed {
+    -fx-text-fill: -bs-rd-error-red;
 }
 
 #open-support-button {
@@ -1393,22 +1430,21 @@ textfield */
 
 #open-dispute-button {
     -fx-font-weight: bold;
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: -bs-background-color;
     -fx-font-size: 1.077em;
     -fx-background-color: -bs-rd-error-red;
 }
 
 /* TitledGroupBg */
-
 .titled-group-bg-label, .titled-group-bg-label-active {
     -fx-font-size: 1.077em;
     -fx-font-family: "IBM Plex Sans Medium";
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
     -fx-background-color: transparent;
 }
 
 .titled-group-bg, .titled-group-bg-active {
-    -fx-body-color: -bs-rd-grey-background;
+    -fx-body-color: -bs-color-gray-background;
     -fx-border-color: -bs-rd-separator;
     -fx-border-width: 0 0 1 0;
     -fx-background-color: transparent;
@@ -1421,7 +1457,7 @@ textfield */
 
 /* TableGroupHeadline */
 #table-group-headline {
-    -fx-background-color: -bs-content-bg-grey;
+    -fx-background-color: -bs-content-background-gray;
     -fx-background-insets: 10 0 -1 0, 0, 1, 2;
     -fx-background-radius: 3px, 3px, 2px, 1px;
 }
@@ -1445,7 +1481,7 @@ textfield */
     -fx-highlight-text-fill: -fx-text-inner-color;
     -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
     -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
-    linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -bs-very-light-grey);
+    linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -bs-color-gray-1);
     -fx-background-insets: 0, 1;
     -fx-background-radius: 3, 2;
     -fx-padding: 0.333333em 0.583em 0.333333em 0.583em; /* 4 7 4 7 */
@@ -1453,23 +1489,23 @@ textfield */
 
 /* message-list-view*/
 #message-list-view.list-view:focused > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected {
-    -fx-background-color: -bs-rd-white;
+    -fx-background-color: -bs-background-color;
 }
 
 #message-list-view.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
-    -fx-background-color: -bs-rd-white;
+    -fx-background-color: -bs-background-color;
 }
 
 #message-list-view.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled {
-    -fx-background-color: -bs-rd-white;
+    -fx-background-color: -bs-background-color;
 }
 
 #message-list-view.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected {
-    -fx-background-color: -bs-rd-white;
+    -fx-background-color: -bs-background-color;
 }
 
 #message-list-view.list-view:focused > .virtual-flow > .clipped-container > .sheet > .list-cell {
-    -fx-background-color: -bs-rd-white;
+    -fx-background-color: -bs-background-color;
 }
 
 #message-list-view.list-cell {
@@ -1490,7 +1526,7 @@ textfield */
 
 /* bubble */
 #message-bubble-green {
-    -fx-background-color: -bs-rd-green;
+    -fx-background-color: -bs-color-primary;
     -fx-background-radius: 10 10 10 10;
 }
 
@@ -1500,17 +1536,17 @@ textfield */
 }
 
 #message-bubble-grey {
-    -fx-background-color: -bs-light-grey;
+    -fx-background-color: -bs-color-gray-3;
     -fx-background-radius: 10 10 10 10;
 }
 
 .attachment-icon {
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: -bs-background-color;
     -fx-cursor: hand;
 }
 
 .attachment-icon-black {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
     -fx-cursor: hand;
 }
 
@@ -1519,12 +1555,11 @@ textfield */
  * Grid pane                                                                   *
  *                                                                             *
  ******************************************************************************/
-
 .grid-pane {
-    -fx-background-color: -bs-content-bg-grey;
+    -fx-background-color: -bs-content-background-gray;
     -fx-background-radius: 5;
     -fx-effect: null;
-    -fx-effect: dropshadow(gaussian, -bs-dark-grey, 10, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, -bs-color-gray-10, 10, 0, 0, 0);
     -fx-background-insets: 10;
 }
 
@@ -1533,34 +1568,38 @@ textfield */
  * Market overview                                                                                                  *
  *                                                                                                                  *
  ********************************************************************************************************************/
+.chart-pane {
+    -fx-background-color: -bs-background-color;
+}
 
-#charts .chart-legend {
+#charts .chart-legend, #charts-dao .chart-legend {
     -fx-font-size: 1.077em;
     -fx-alignment: center;
 }
 
-#charts .axis, #price-chart .axis, #volume-chart .axis {
+#charts .axis, #price-chart .axis, #volume-chart .axis, #charts-dao .axis {
     -fx-tick-label-fill: -bs-rd-font-lighter;
     -fx-tick-label-font-size: 0.769em;
+    -fx-font-size: 0.880em;
 }
 
-#charts .chart-plot-background {
-    -fx-background-color: -bs-rd-white;
+#charts .chart-plot-background, #charts-dao .chart-plot-background {
+    -fx-background-color: -bs-background-color;
 }
 
 #charts .default-color0.chart-area-symbol {
-    -fx-background-color: -bs-sell, -bs-rd-white;
+    -fx-background-color: -bs-sell, -bs-background-color;
 }
 
-#charts .default-color1.chart-area-symbol {
-    -fx-background-color: -bs-buy, -bs-rd-white;
+#charts .default-color1.chart-area-symbol, #charts-dao .default-color0.chart-area-symbol {
+    -fx-background-color: -bs-buy, -bs-background-color;
 }
 
 #charts .default-color0.chart-series-area-line {
     -fx-stroke: -bs-sell;
 }
 
-#charts .default-color1.chart-series-area-line {
+#charts .default-color1.chart-series-area-line, #charts-dao .default-color0.chart-series-area-line {
     -fx-stroke: -bs-buy;
 }
 
@@ -1568,29 +1607,32 @@ textfield */
     -fx-fill: -bs-sell-transparent;
 }
 
-#charts .default-color1.chart-series-area-fill {
+#charts .default-color1.chart-series-area-fill, #charts-dao .default-color0.chart-series-area-fill {
     -fx-fill: -bs-buy-transparent;
+}
+.chart-vertical-grid-lines {
+    -fx-stroke: transparent;
 }
 
 #charts .axis-label {
     -fx-font-size: 0.769em;
     -fx-alignment: center-left;
 }
+
 /********************************************************************************************************************
  *                                                                                                                  *
  * Highlight buttons                                                                                                  *
  *                                                                                                                  *
  ********************************************************************************************************************/
-
 #buy-button-big {
     -fx-font-size: 1em;
     -fx-background-color: -bs-buy;
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: white;
 }
 
 #buy-button {
     -fx-background-color: -bs-buy;
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: white;
 }
 
 #buy-button-big:hover, #buy-button:hover,
@@ -1600,13 +1642,13 @@ textfield */
 
 #sell-button-big {
     -fx-background-color: -bs-sell;
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: white;
     -fx-font-size: 1em;
 }
 
 #sell-button {
     -fx-background-color: -bs-sell;
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: white;
 }
 
 #sell-button-big:hover, #sell-button:hover,
@@ -1616,13 +1658,13 @@ textfield */
 
 #sell-button-big.grey-style, #buy-button-big.grey-style,
 #sell-button.grey-style, #buy-button.grey-style {
-    -fx-background-color: -bs-rd-grey-light;
-    -fx-text-fill: -bs-rd-font-dark-grey;
+    -fx-background-color: -bs-color-gray-bbb;
+    -fx-text-fill: -bs-rd-font-dark-gray;
 }
 
 .action-button:disabled, #sell-button:disabled, #buy-button:disabled {
-    -fx-background-color: -bs-rd-grey-very-light;
-    -fx-text-fill: -bs-rd-font-dark-grey;
+    -fx-background-color: -bs-color-gray-0;
+    -fx-text-fill: -bs-rd-font-dark-gray;
 }
 
 /********************************************************************************************************************
@@ -1630,7 +1672,6 @@ textfield */
  * Popups                                                                                                           *
  *                                                                                                                  *
  ********************************************************************************************************************/
-
 .popup-headline {
     -fx-font-size: 1.538em;
     -fx-text-fill: -bs-rd-font-dark;
@@ -1638,7 +1679,7 @@ textfield */
 
 .popup-headline-information {
     -fx-font-size: 1.538em;
-    -fx-text-fill: -bs-rd-green;
+    -fx-text-fill: -bs-color-primary;
 }
 
 .popup-headline-warning {
@@ -1647,7 +1688,7 @@ textfield */
 }
 
 .popup-icon-information {
-    -fx-text-fill: -bs-rd-green;
+    -fx-text-fill: -bs-color-primary;
 }
 
 .popup-icon-warning {
@@ -1657,37 +1698,37 @@ textfield */
 .popup-bg, .notification-popup-bg, .peer-info-popup-bg {
     -fx-font-size: 1.077em;
     -fx-text-fill: -bs-rd-font-dark;
-    -fx-background-color: -bs-rd-white;
+    -fx-background-color: -bs-background-color;
     -fx-background-radius: 0;
     -fx-background-insets: 44;
-    -fx-effect: dropshadow(gaussian, -bs-rd-black-transparent-dark, 44, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, -bs-text-color-transparent-dark, 44, 0, 0, 0);
 }
 
 .popup-bg-top {
     -fx-font-size: 1.077em;
     -fx-text-fill: -bs-rd-font-dark;
-    -fx-background-color: -bs-rd-white;
+    -fx-background-color: -bs-background-color;
     -fx-background-radius: 0;
     -fx-background-insets: 44;
-    -fx-effect: dropshadow(gaussian, -bs-rd-black-transparent-dark, 44, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, -bs-text-color-transparent-dark, 44, 0, 0, 0);
 }
 
 .notification-popup-headline, peer-info-popup-headline {
     -fx-font-size: 1.077em;
     /*-fx-font-weight: bold;*/
-    -fx-text-fill: -bs-rd-green;
+    -fx-text-fill: -bs-color-primary;
 }
 
 .notification-popup-bg {
     -fx-font-size: 0.846em;
     -fx-background-insets: 44;
-    -fx-effect: dropshadow(gaussian, -bs-rd-black-transparent-dark, 44, 0, -1, 3);
+    -fx-effect: dropshadow(gaussian, -bs-text-color-transparent-dark, 44, 0, -1, 3);
 }
 
 .peer-info-popup-bg {
     -fx-font-size: 0.846em;
     -fx-background-insets: 44;
-    -fx-effect: dropshadow(gaussian, -bs-rd-black-transparent-dark, 44, 0, -1, 3);
+    -fx-effect: dropshadow(gaussian, -bs-text-color-transparent-dark, 44, 0, -1, 3);
 }
 
 #price-feed-combo {
@@ -1695,12 +1736,12 @@ textfield */
 }
 
 #price-feed-combo > .list-cell {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
     -fx-font-family: "IBM Plex Sans";
 }
 
 #invert-market-price {
-    -fx-text-fill: -bs-very-dark-grey2;
+    -fx-text-fill: -bs-color-gray-11;
 }
 
 #popup-qr-code-info {
@@ -1711,7 +1752,7 @@ textfield */
     -fx-font-weight: bold;
     -fx-alignment: center;
     -fx-font-size: 0.769em;
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: -bs-background-color;
 }
 
 #toggle-left {
@@ -1720,8 +1761,8 @@ textfield */
     -fx-border-style: solid;
     -fx-border-width: 0 1 0 0;
     -fx-background-radius: 4 0 0 4;
-    -fx-background-color: -bs-rd-white;
-    -fx-effect: dropshadow(gaussian, -bs-rd-black-transparent, 4, 0, 0, 0, 2);
+    -fx-background-color: -bs-background-color;
+    -fx-effect: dropshadow(gaussian, -bs-text-color-transparent, 4, 0, 0, 0, 2);
 }
 
 #toggle-center {
@@ -1732,12 +1773,12 @@ textfield */
     -fx-border-insets: 0;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
-    -fx-background-color: -bs-rd-white;
-    -fx-effect: dropshadow(gaussian, -bs-rd-black-transparent, 4, 0, 0, 0, 2);
+    -fx-background-color: -bs-background-color;
+    -fx-effect: dropshadow(gaussian, -bs-text-color-transparent, 4, 0, 0, 0, 2);
 }
 
 #toggle-center:selected, #toggle-left:selected, #toggle-right:selected {
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: -bs-background-color;
     -fx-background-color: -bs-toggle-selected;
 }
 
@@ -1745,8 +1786,8 @@ textfield */
     -fx-border-radius: 0 4 4 0;
     -fx-border-width: 0;
     -fx-background-radius: 0 4 4 0;
-    -fx-background-color: -bs-rd-white;
-    -fx-effect: dropshadow(gaussian, -bs-rd-black-transparent, 4, 0, 0, 0, 2);
+    -fx-background-color: -bs-background-color;
+    -fx-effect: dropshadow(gaussian, -bs-text-color-transparent, 4, 0, 0, 0, 2);
 }
 
 #toggle-left:hover, #toggle-right:hover, #toggle-center:hover {
@@ -1758,17 +1799,16 @@ textfield */
  * Arbitration                                                                                                      *
  *                                                                                                                  *
  ********************************************************************************************************************/
-
 .message {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-text-color;
 }
 
 .my-message {
-    -fx-text-fill: -bs-rd-white;
+    -fx-text-fill: -bs-background-color;
 }
 
 .message-header {
-    -fx-text-fill: -bs-light-grey;
+    -fx-text-fill: -bs-color-gray-3;
     -fx-font-size: 0.846em;
 }
 
@@ -1783,30 +1823,29 @@ textfield */
  * DAO                                                                                                              *
  *                                                                                                                  *
  ********************************************************************************************************************/
-
 .dao-tx-type-trade-fee-icon,
 .dao-tx-type-trade-fee-icon:hover {
-    -fx-text-fill: #689f43;
+    -fx-text-fill: -bs-color-green-2;
 }
 
 .dao-tx-type-unverified-icon,
 .dao-tx-type-unverified-icon:hover {
-    -fx-text-fill: #ffac00;
+    -fx-text-fill: -bs-yellow;
 }
 
 .dao-tx-type-invalid-icon,
 .dao-tx-type-invalid-icon:hover {
-    -fx-text-fill: #ff4500;
+    -fx-text-fill: -bs-red-soft;
 }
 
 .dao-tx-type-self-icon,
 .dao-tx-type-self-icon:hover {
-    -fx-text-fill: #818181;
+    -fx-text-fill: -bs-color-gray-2;
 }
 
 .dao-tx-type-proposal-fee-icon,
 .dao-tx-type-proposal-fee-icon:hover {
-    -fx-text-fill: #6c8b3b;
+    -fx-text-fill: -bs-color-green-4;
 }
 
 .dao-tx-type-genesis-icon,
@@ -1826,31 +1865,31 @@ textfield */
 
 .dao-tx-type-vote-icon,
 .dao-tx-type-vote-icon:hover {
-    -fx-text-fill: #0a4576;
+    -fx-text-fill: -bs-color-blue-5;
 }
 
 .dao-tx-type-vote-reveal-icon,
 .dao-tx-type-vote-reveal-icon:hover {
-    -fx-text-fill: #4AC5FF;
+    -fx-text-fill: -bs-color-blue-4;
 }
 
 .dao-tx-type-issuance-icon,
 .dao-tx-type-issuance-icon:hover {
-    -fx-text-fill: #04a908;
+    -fx-text-fill: -bs-color-green-3;
 }
 
 .dao-tx-type-lockup-icon,
 .dao-tx-type-lockup-icon:hover {
-    -fx-text-fill: #203e7f;
+    -fx-text-fill: -bs-color-blue-5;
 }
 
 .dao-tx-type-unlock-icon,
 .dao-tx-type-unlock-icon:hover {
-    -fx-text-fill: #438e6c;
+    -fx-text-fill: -bs-color-green-3;
 }
 
 .dao-accepted-icon {
-    -fx-text-fill: -bs-rd-green;
+    -fx-text-fill: -bs-color-primary;
 }
 
 .dao-rejected-icon {
@@ -1858,11 +1897,11 @@ textfield */
 }
 
 .dao-ignored-icon {
-    -fx-text-fill: -bs-medium-grey;
+    -fx-text-fill: -bs-color-gray-4;
 }
 
 .compensation-root {
-    -fx-background-insets: 0, 0 0 0 0
+    -fx-background-insets: 0, 0 0 0 0;
 }
 
 .info-icon {
@@ -1898,10 +1937,10 @@ textfield */
 }
 
 .dao-news-section-content {
-    -fx-text-fill: -bs-rd-black;
+    -fx-text-fill: -bs-rd-font-dark;
 }
 
-.dao-news-content, .dao-news-section-link, .dao-news-section-link .hyperlink {
+.dao-news-content, .dao-news-section-link, .dao-news-section-link .hyperlink, .dao-launch-version {
     -fx-text-fill: -bs-rd-font-light;
     -fx-fill: -bs-rd-font-light;
 }
@@ -1923,13 +1962,83 @@ textfield */
     -fx-text-fill: -bs-rd-error-red;
 }
 
+.dao-kpi-big {
+    -fx-font-size: 1.923em;
+    -fx-text-fill: -bs-rd-font-dark;
+    -fx-font-family: "IBM Plex Sans Light";
+}
+
+.dao-kpi-subtext {
+    -fx-text-fill: -bs-rd-font-light;
+    -fx-font-size: 0.923em;
+}
+
+.price-trend-up {
+    -fx-text-fill: -bs-color-primary;
+    -fx-padding: 2 0 0 0;
+}
+
+.price-trend-down {
+    -fx-text-fill: -bs-red;
+    -fx-padding: 2 0 0 0;
+}
+
 /********************************************************************************************************************
  *                                                                                                                  *
- * Notifications                                                                                                              *
+ * News                                                                                                             *
  *                                                                                                                  *
  ********************************************************************************************************************/
 
-#notification-erase-button {
-    -fx-background-color: -bs-soft-red;
-    -fx-text-fill: -bs-rd-white;
+.news-version {
+    -fx-alignment: center-left;
+    -fx-font-size: 1em;
 }
+
+.news-feature-headline {
+    -fx-font-size: 1.077em;
+    -fx-text-fill: -bs-rd-font-dark-gray;
+    -fx-font-family: "IBM Plex Sans Medium";
+}
+
+.news-feature-description {
+    -fx-font-size: 1em;
+    -fx-text-fill: -bs-rd-font-dark-gray;
+}
+
+.news-feature-image {
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-border-color: -bs-rd-separator-dark;
+}
+/********************************************************************************************************************
+ *                                                                                                                  *
+ * Notifications                                                                                                    *
+ *                                                                                                                  *
+ ********************************************************************************************************************/
+#notification-erase-button {
+    -fx-background-color: -bs-red-soft;
+    -fx-text-fill: -bs-background-color;
+}
+
+.status-icon {
+    -fx-text-fill: -fx-faint-focus-color;
+}
+
+/********************************************************************************************************************
+ *                                                                                                                  *
+ * Popover                                                                                                    *
+ *                                                                                                                  *
+ ********************************************************************************************************************/
+.popover > .content {
+    -fx-padding: 10;
+}
+
+.popover > .content .default-text {
+    -fx-text-fill: -bs-text-color;
+}
+
+.popover > .border {
+    -fx-stroke: linear-gradient(to bottom, -bs-text-color-transparent, -bs-text-color-transparent-dark) !important;
+    -fx-fill: -bs-background-color !important;
+}
+

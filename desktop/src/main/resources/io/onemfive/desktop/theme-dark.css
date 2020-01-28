@@ -1,4 +1,11 @@
 .root {
+    -ims-black: #191919;
+    -ims-white: #f4f1ec;
+    -ims-purple-grey-light: #8072ba;
+    -ims-purple-grey-darker: #7361bd;
+    -ims-grey: #666;
+    -ims-grey-lighter: #999;
+
     /* javafx main color palette */
     -fx-base: #29292a;
     -fx-background: #29292a;
