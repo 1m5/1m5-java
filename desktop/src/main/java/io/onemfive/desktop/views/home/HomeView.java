@@ -71,6 +71,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
 
+import static io.onemfive.desktop.util.Layout.MIN_WINDOW_HEIGHT;
+import static io.onemfive.desktop.util.Layout.MIN_WINDOW_WIDTH;
 import static javafx.scene.layout.AnchorPane.*;
 
 public class HomeView extends InitializableView {
@@ -324,6 +326,7 @@ public class HomeView extends InitializableView {
             getStyleClass().add("top-navigation");
         }};
         navPane.setAlignment(Pos.CENTER);
+        navPane.setVisible(false);
 
         AnchorPane contentContainer = new AnchorPane() {{
             getStyleClass().add("content-pane");
@@ -374,6 +377,8 @@ public class HomeView extends InitializableView {
         });
 
         VBox splashScreen = createSplashScreen();
+        splashScreen.setMinHeight(MIN_WINDOW_HEIGHT);
+        splashScreen.setMinWidth(MIN_WINDOW_WIDTH);
         rootContainer.getChildren().addAll(baseApplicationContainer, splashScreen);
 //        rootContainer.getChildren().addAll(baseApplicationContainer);
 
@@ -385,6 +390,7 @@ public class HomeView extends InitializableView {
                 transitions.fadeOutAndRemove(splashScreen, 3500, new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
+                        navPane.setVisible(true);
                         // Default to Personal Dashboard
                         personalButton.fire();
                     }
