@@ -195,11 +195,13 @@ public class HomeView extends InitializableView {
             if (newValue != null) {
                 manConComboBox.getSelectionModel().select(newValue);
                 OneMFiveAppContext.MIN_REQUIRED_MANCON = newValue.manConLevel;
+                // TODO: Persist this update
                 LOG.info("Required ManCon new value: "+newValue.manConLevel.name());
             }
         });
         manConComboBox.setItems(manConComboBoxItems);
         updateManConOptions();
+        // TODO: Load min required mancon from a persisted profile setting and then set to context
         manConComboBox.getSelectionModel().select(getComboBoxIndex(OneMFiveAppContext.MIN_REQUIRED_MANCON));
 
         // ManCon Status
