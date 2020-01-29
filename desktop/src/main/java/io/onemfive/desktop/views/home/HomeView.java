@@ -205,79 +205,6 @@ public class HomeView extends InitializableView {
         Tuple2<ImageView, VBox> radioSensorStatusBox = getStatusBox("image-radio-icon", 32);
         Tuple2<ImageView, VBox> lifiSensorStatusBox = getStatusBox("image-lifi-icon", 32);
 
-//        i2pSensorStatusBox.first.textProperty().bind(model.getAvailableBalance());
-//        i2pSensorStatusBox.first.setPrefWidth(100);
-//        i2pSensorStatusBox.first.tooltipProperty().bind(new ObjectBinding<>() {
-//            {
-//                bind(model.getAvailableBalance());
-//                bind(model.getMarketPrice());
-//            }
-//
-//            @Override
-//            protected Tooltip computeValue() {
-//                String tooltipText = Res.get("homeView.balance.available");
-//                try {
-//                    double availableBalance = Double.parseDouble(
-//                            model.getAvailableBalance().getValue().replace("BTC", ""));
-//                    double marketPrice = Double.parseDouble(model.getMarketPrice().getValue());
-//                    tooltipText += "\n" + currencyFormat.format(availableBalance * marketPrice) +
-//                            " " + model.getPreferences().getPreferredTradeCurrency().getCode();
-//                } catch (NullPointerException | NumberFormatException e) {
-//                    // Either the balance or market price is not available yet
-//                }
-//                return new Tooltip(tooltipText);
-//            }
-//        });
-
-//        Tuple2<Label, VBox> reservedBalanceBox = getBalanceBox(Res.get("mainView.balance.reserved.short"));
-//        reservedBalanceBox.first.textProperty().bind(model.getReservedBalance());
-//        reservedBalanceBox.first.tooltipProperty().bind(new ObjectBinding<>() {
-//            {
-//                bind(model.getReservedBalance());
-//                bind(model.getMarketPrice());
-//            }
-//
-//            @Override
-//            protected Tooltip computeValue() {
-//                String tooltipText = Res.get("mainView.balance.reserved");
-//                try {
-//                    double reservedBalance = Double.parseDouble(
-//                            model.getReservedBalance().getValue().replace("BTC", ""));
-//                    double marketPrice = Double.parseDouble(model.getMarketPrice().getValue());
-//                    tooltipText += "\n" + currencyFormat.format(reservedBalance * marketPrice) +
-//                            " " + model.getPreferences().getPreferredTradeCurrency().getCode();
-//                } catch (NullPointerException | NumberFormatException e) {
-//                    // Either the balance or market price is not available yet
-//                }
-//                return new Tooltip(tooltipText);
-//            }
-//        });
-//
-//        Tuple2<Label, VBox> lockedBalanceBox = getBalanceBox(Res.get("mainView.balance.locked.short"));
-//        lockedBalanceBox.first.textProperty().bind(model.getLockedBalance());
-//        lockedBalanceBox.first.tooltipProperty().bind(new ObjectBinding<>() {
-//            {
-//                bind(model.getLockedBalance());
-//                bind(model.getMarketPrice());
-//            }
-//
-//            @Override
-//            protected Tooltip computeValue() {
-//                String tooltipText = Res.get("mainView.balance.locked");
-//                try {
-//                    String preferredTradeCurrency = model.getPreferences().getPreferredTradeCurrency().getCode();
-//                    double lockedBalance = Double.parseDouble(
-//                            model.getLockedBalance().getValue().replace("BTC", ""));
-//                    double marketPrice = Double.parseDouble(model.getMarketPrice(preferredTradeCurrency).getValue());
-//                    tooltipText += "\n" + currencyFormat.format(lockedBalance * marketPrice) +
-//                            " " + preferredTradeCurrency;
-//                } catch (NullPointerException | NumberFormatException e) {
-//                    // Either the balance or market price is not available yet
-//                }
-//                return new Tooltip(tooltipText);
-//            }
-//        });
-
 //        HBox primaryNav = new HBox(dashboardButton, getNavigationSeparator(), browserButton, getNavigationSeparator(),
 //                emailButtonWithBadge, getNavigationSeparator(), messengerButtonWithBadge, getNavigationSeparator(), calendarButtonWithBadge);
 
@@ -288,7 +215,7 @@ public class HomeView extends InitializableView {
 
         primaryNav.setAlignment(Pos.CENTER_LEFT);
         primaryNav.getStyleClass().add("nav-primary");
-        HBox.setHgrow(primaryNav, Priority.SOMETIMES);
+        HBox.setHgrow(primaryNav, Priority.NEVER);
 
 //        HBox secondaryNav = new HBox(voiceButtonWithBadge, getNavigationSpacer(), videoButtonWithBadge,
 //                getNavigationSpacer(), appsButtonWithBadge, getNavigationSpacer(), daoButtonWithBadge,
@@ -300,8 +227,8 @@ public class HomeView extends InitializableView {
                 manconButton);
 
         secondaryNav.getStyleClass().add("nav-secondary");
-        HBox.setHgrow(secondaryNav, Priority.SOMETIMES);
-        secondaryNav.setAlignment(Pos.CENTER);
+        HBox.setHgrow(secondaryNav, Priority.NEVER);
+        secondaryNav.setAlignment(Pos.CENTER_LEFT);
 
 
         HBox networkStatusHBox = new HBox(
@@ -315,7 +242,7 @@ public class HomeView extends InitializableView {
                 lifiSensorStatusBox.second);
         networkStatusHBox.setMaxHeight(41);
 
-        networkStatusHBox.setAlignment(Pos.CENTER);
+        networkStatusHBox.setAlignment(Pos.CENTER_RIGHT);
         networkStatusHBox.setSpacing(9);
         networkStatusHBox.getStyleClass().add("nav-tertiary");
 
