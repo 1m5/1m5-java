@@ -64,6 +64,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
 import java.text.DecimalFormat;
@@ -205,20 +206,20 @@ public class HomeView extends InitializableView {
         manConComboBox.getSelectionModel().select(getComboBoxIndex(OneMFiveAppContext.MIN_REQUIRED_MANCON));
 
         // ManCon Status
-        noneManConImageView = getManConImageView(ManCon.NONE, 32);
-        VBox noneManConBox = getStatusBox(noneManConImageView);
-        lowManConImageView = getManConImageView(ManCon.LOW, 32);
-        VBox lowManConBox = getStatusBox(lowManConImageView);
-        mediumManConImageView = getManConImageView(ManCon.MEDIUM, 32);
-        VBox mediumManConBox = getStatusBox(mediumManConImageView);
-        highManConImageView = getManConImageView(ManCon.HIGH, 32);
-        VBox highManConBox = getStatusBox(highManConImageView);
-        veryHighManConImageView = getManConImageView(ManCon.VERYHIGH, 32);
-        VBox veryHighManConBox = getStatusBox(veryHighManConImageView);
-        extremeManConImageView = getManConImageView(ManCon.EXTREME, 32);
-        VBox extremeManConBox = getStatusBox(extremeManConImageView);
-        neoManConImageView = getManConImageView(ManCon.NEO, 32);
-        VBox neoManConBox = getStatusBox(neoManConImageView);
+        noneManConImageView = getManConImageView(ManCon.NONE, 25);
+        VBox noneManConBox = getStatusBox(noneManConImageView, ManCon.NONE);
+        lowManConImageView = getManConImageView(ManCon.LOW, 25);
+        VBox lowManConBox = getStatusBox(lowManConImageView, ManCon.LOW);
+        mediumManConImageView = getManConImageView(ManCon.MEDIUM, 25);
+        VBox mediumManConBox = getStatusBox(mediumManConImageView, ManCon.MEDIUM);
+        highManConImageView = getManConImageView(ManCon.HIGH, 25);
+        VBox highManConBox = getStatusBox(highManConImageView, ManCon.HIGH);
+        veryHighManConImageView = getManConImageView(ManCon.VERYHIGH, 25);
+        VBox veryHighManConBox = getStatusBox(veryHighManConImageView, ManCon.VERYHIGH);
+        extremeManConImageView = getManConImageView(ManCon.EXTREME, 25);
+        VBox extremeManConBox = getStatusBox(extremeManConImageView, ManCon.EXTREME);
+        neoManConImageView = getManConImageView(ManCon.NEO, 25);
+        VBox neoManConBox = getStatusBox(neoManConImageView, ManCon.NEO);
         updateManConBox();
 
 //        HBox primaryNav = new HBox(dashboardButton, getNavigationSeparator(), browserButton, getNavigationSeparator(),
@@ -245,7 +246,6 @@ public class HomeView extends InitializableView {
         secondaryNav.getStyleClass().add("nav-secondary");
         HBox.setHgrow(secondaryNav, Priority.NEVER);
         secondaryNav.setAlignment(Pos.CENTER_LEFT);
-
 
         HBox manConStatusBox = new HBox(
                 manConVBox, getNavigationSeparator(),
@@ -369,11 +369,7 @@ public class HomeView extends InitializableView {
                 if(item == null || empty) {
                     setGraphic(null);
                 } else {
-                    LOG.info("Update item with ManCon: "+item.manConLevel.name());
-                    ImageView iconImageView = getManConImageView(item.manConLevel, 25);
-                    iconImageView.setFitHeight(25);
-                    iconImageView.setPreserveRatio(true);
-                    setGraphic(iconImageView);
+                    setGraphic(getManConImageView(item.manConLevel, 20));
                 }
             }
         };
@@ -399,7 +395,7 @@ public class HomeView extends InitializableView {
         return iv;
     }
 
-    private VBox getStatusBox(ImageView imageView) {
+    private VBox getStatusBox(ImageView imageView, ManCon manCon) {
         VBox vBox = new VBox();
         vBox.setAlignment(Pos.CENTER_LEFT);
         vBox.getChildren().addAll(imageView);
