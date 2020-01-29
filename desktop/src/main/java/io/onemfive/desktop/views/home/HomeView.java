@@ -48,7 +48,6 @@ import io.onemfive.util.LanguageUtil;
 import io.onemfive.util.LocaleUtil;
 import io.onemfive.util.Res;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -65,12 +64,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Arrays;
 
 import static javafx.scene.layout.AnchorPane.*;
 
@@ -81,17 +78,15 @@ public class HomeView extends InitializableView {
     private Runnable onUiReadyHandler;
     private final ToggleGroup navButtons = new ToggleGroup();
     private Transitions transitions = new Transitions();
-    // ManCon Status
-    private ImageView inactiveManConImageView;
-    private ImageView noneManConImageView;
-    private ImageView lowManConImageView;
-    private ImageView mediumManConImageView;
-    private ImageView highManConImageView;
-    private ImageView veryHighManConImageView;
-    private ImageView extremeManConImageView;
-    private ImageView neoManConImageView;
 
-    private ComboBox<ManConComboBoxItem> manConComboBox;
+    private ImageView neoManConImageView;
+    private ImageView extremeManConImageView;
+    private ImageView veryHighManConImageView;
+    private ImageView highManConImageView;
+    private ImageView mediumManConImageView;
+    private ImageView lowManConImageView;
+    private ImageView noneManConImageView;
+
     private final ObservableList<ManConComboBoxItem> manConComboBoxItems = FXCollections.observableArrayList();
     private final ObjectProperty<ManConComboBoxItem> selectedManConComboBoxItemProperty = new SimpleObjectProperty<>();
 
@@ -193,43 +188,34 @@ public class HomeView extends InitializableView {
         manConVBox.setAlignment(Pos.CENTER);
         manConVBox.setPadding(new Insets(0, 0, 0, 10));
         manConVBox.getChildren().addAll(manConComboBox);
-
         manConComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             selectedManConComboBoxItemProperty.setValue(newValue);
         });
-        ChangeListener<ManConComboBoxItem> selectedManConItemListener = (observable, oldValue, newValue) -> {
+        selectedManConComboBoxItemProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 manConComboBox.getSelectionModel().select(newValue);
                 OneMFiveAppContext.MIN_REQUIRED_MANCON = newValue.manConLevel;
-                LOG.info("ManCon new value: "+newValue.manConLevel.name());
+                LOG.info("Required ManCon new value: "+newValue.manConLevel.name());
             }
-        };
-        selectedManConComboBoxItemProperty.addListener(selectedManConItemListener);
+        });
         manConComboBox.setItems(manConComboBoxItems);
-        manConComboBoxItems.addAll(Arrays.asList(
-                new ManConComboBoxItem(ManCon.NEO),
-                new ManConComboBoxItem(ManCon.EXTREME),
-                new ManConComboBoxItem(ManCon.VERYHIGH),
-                new ManConComboBoxItem(ManCon.HIGH),
-                new ManConComboBoxItem(ManCon.MEDIUM),
-                new ManConComboBoxItem(ManCon.LOW)
-        ));
-        manConComboBox.getSelectionModel().select(OneMFiveAppContext.MIN_REQUIRED_MANCON.ordinal());
+        updateManConOptions();
+        manConComboBox.getSelectionModel().select(getComboBoxIndex(OneMFiveAppContext.MIN_REQUIRED_MANCON));
 
         // ManCon Status
-        noneManConImageView = getImageView("image-icon-white", 32);
+        noneManConImageView = getManConImageView(ManCon.NONE, 32);
         VBox noneManConBox = getStatusBox(noneManConImageView);
-        lowManConImageView = getImageView("image-icon-green", 32);
+        lowManConImageView = getManConImageView(ManCon.LOW, 32);
         VBox lowManConBox = getStatusBox(lowManConImageView);
-        mediumManConImageView = getImageView("image-icon-blue", 32);
+        mediumManConImageView = getManConImageView(ManCon.MEDIUM, 32);
         VBox mediumManConBox = getStatusBox(mediumManConImageView);
-        highManConImageView = getImageView("image-icon-yellow", 32);
+        highManConImageView = getManConImageView(ManCon.HIGH, 32);
         VBox highManConBox = getStatusBox(highManConImageView);
-        veryHighManConImageView = getImageView("image-icon-orange", 32);
+        veryHighManConImageView = getManConImageView(ManCon.VERYHIGH, 32);
         VBox veryHighManConBox = getStatusBox(veryHighManConImageView);
-        extremeManConImageView = getImageView("image-icon-red", 32);
+        extremeManConImageView = getManConImageView(ManCon.EXTREME, 32);
         VBox extremeManConBox = getStatusBox(extremeManConImageView);
-        neoManConImageView = getImageView("image-icon-gray", 32);
+        neoManConImageView = getManConImageView(ManCon.NEO, 32);
         VBox neoManConBox = getStatusBox(neoManConImageView);
         updateManConBox();
 
@@ -259,7 +245,7 @@ public class HomeView extends InitializableView {
         secondaryNav.setAlignment(Pos.CENTER_LEFT);
 
 
-        HBox networkStatusHBox = new HBox(
+        HBox manConStatusBox = new HBox(
                 manConVBox, getNavigationSeparator(),
                 noneManConBox, getNavigationSeparator(),
                 lowManConBox, getNavigationSeparator(),
@@ -274,7 +260,7 @@ public class HomeView extends InitializableView {
             getStyleClass().add("nav-tertiary");
         }};
 
-        HBox navPane = new HBox(primaryNav, secondaryNav, networkStatusHBox) {{
+        HBox navPane = new HBox(primaryNav, secondaryNav, manConStatusBox) {{
             setLeftAnchor(this, 0d);
             setRightAnchor(this, 0d);
             setTopAnchor(this, 0d);
@@ -381,7 +367,8 @@ public class HomeView extends InitializableView {
                 if(item == null || empty) {
                     setGraphic(null);
                 } else {
-                    ImageView iconImageView = new ImageView(new Image(Resources.getManConIcon(this.getIndex()).toString()));
+                    LOG.info("Update item with ManCon: "+item.manConLevel.name());
+                    ImageView iconImageView = getManConImageView(item.manConLevel, 25);
                     iconImageView.setFitHeight(25);
                     iconImageView.setPreserveRatio(true);
                     setGraphic(iconImageView);
@@ -390,13 +377,23 @@ public class HomeView extends InitializableView {
         };
     }
 
-    private ImageView getImageView(String imageId, int fitHeight) {
+    private ImageView getManConImageView(ManCon manCon, int fitHeight) {
+        String imageId;
+        switch (manCon) {
+            case NEO: imageId = "image-icon-gray";break;
+            case EXTREME: imageId = "image-icon-red";break;
+            case VERYHIGH: imageId = "image-icon-orange";break;
+            case HIGH: imageId = "image-icon-yellow";break;
+            case MEDIUM: imageId = "image-icon-blue";break;
+            case LOW: imageId = "image-icon-green";break;
+            default: imageId = "image-icon-white";
+        }
         ImageView iv = new ImageView();
         iv.setFitHeight(fitHeight);
         iv.setPreserveRatio(true);
         iv.setId(imageId);
-//        iv.setCache(true);
-//        iv.setCacheHint(CacheHint.SPEED);
+        iv.setCache(true);
+        iv.setCacheHint(CacheHint.SPEED);
         return iv;
     }
 
@@ -666,10 +663,27 @@ public class HomeView extends InitializableView {
 
     }
 
+    private void updateManConOptions() {
+        manConComboBoxItems.clear();
+        for(int start=5; start >= OneMFiveAppContext.MAX_SUPPORTED_MANCON.ordinal(); start--) {
+            manConComboBoxItems.add(new ManConComboBoxItem(ManCon.fromOrdinal(start)));
+        }
+    }
+
+    private int getComboBoxIndex(ManCon manCon) {
+        int index = 0;
+        for(HomeView.ManConComboBoxItem i : manConComboBoxItems) {
+            if(i.manConLevel == manCon)
+                return index;
+            index++;
+        }
+        return index;
+    }
+
     private void updateManConBox() {
         ColorAdjust smoke = new ColorAdjust();
-        smoke.setBrightness(-0.5);
-        Glow glow = new Glow(0.5);
+        smoke.setBrightness(-0.6);
+        Glow glow = new Glow(0.6);
         switch(OneMFiveAppContext.MAX_AVAILABLE_MANCON) {
             case NEO: {
                 neoManConImageView.setEffect(glow);

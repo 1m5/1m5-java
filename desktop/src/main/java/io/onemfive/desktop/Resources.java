@@ -52,7 +52,7 @@ public class Resources {
             case VERYHIGH: return ICON_ORANGE;
             case EXTREME: return ICON_RED;
             case NEO: return ICON_GRAY;
-            default: return ICON_YELLOW;
+            default: return ICON_WHITE;
         }
     }
 
@@ -64,7 +64,7 @@ public class Resources {
             case 3: return ICON_YELLOW;
             case 4: return ICON_BLUE;
             case 5: return ICON_GREEN;
-            default: return ICON_YELLOW;
+            default: return ICON_WHITE;
         }
     }
 

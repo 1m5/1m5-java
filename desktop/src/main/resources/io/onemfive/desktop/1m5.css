@@ -295,14 +295,6 @@
     -fx-font-size: 1em;
 }
 
-.image-clear {
-
-}
-
-.image-smoked {
-
-}
-
 .input-with-border {
     -fx-background-color: -bs-rd-white;
     -fx-border-width: 1;
