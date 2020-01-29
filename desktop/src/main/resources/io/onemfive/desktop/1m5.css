@@ -1,30 +1,3 @@
-/*
-Theme colors:
-
-logo colors:
-
-1m5 black: 191919
-1m5 white: f4f1ec
-1m5 electric blue: 2646ea
-1m5 light purple: 8072ba
-1m5 dark purple: 5d528a
-1m5 grey: 666666
-
-00abff
-orange web page quotes : ff7f00
-
-
-main bg grey: dddddd
-content bg grey: f4f4f4
-tab pane upper bg gradient color mid dark grey to bright grey: cfcfcf -> dddddd
-upper border on tab: cfcfcf
-lower border on tab: b5b5b5
-upper gradient color on tab: d3d3d3
-lower gradient color on tab: dddddd
-bg color of non edit textFields: fafafa
-*/
-
-
 /********************************************************************************************************************
  *                                                                                                                  *
  * General                                                                                                          *
@@ -120,7 +93,7 @@ bg color of non edit textFields: fafafa
     -fx-border-color: -bs-rd-separator-dark;
 }
 
-.separator:vertical *.line {
+.separator:vertical *getStatusBox("image-icon-blue", 32);.line {
     -fx-border-width: 0 1 0 0;
 }
 
@@ -320,6 +293,14 @@ bg color of non edit textFields: fafafa
 .jfx-text-field .error-icon, .jfx-password-field .error-icon, .jfx-text-area .error-icon {
     -fx-text-fill: -bs-rd-error-red;
     -fx-font-size: 1em;
+}
+
+.image-clear {
+
+}
+
+.image-smoked {
+
 }
 
 .input-with-border {
@@ -614,7 +595,7 @@ bg color of non edit textFields: fafafa
 }
 
 .nav-tertiary {
-    -fx-background-color: -bs-color-gray-background;
+    -fx-background-color: -ims-black;
     -fx-background-radius: 3;
     -fx-effect: innershadow(gaussian, -bs-text-color-transparent, 3, 0, 0, 1);
     -fx-pref-height: 41;

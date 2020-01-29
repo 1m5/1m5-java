@@ -4,6 +4,15 @@
     -ims-purple-gray-light: #8072ba;
     -ims-purple-gray-dark: #7361bd;
 
+    -ims-icon-black: -ims-black;
+    -ims-icon-white: -ims-white;
+    -ims-icon-green: #2ab027;
+    -ims-icon-blue: #154edf;
+    -ims-icon-yellow: #d5d30d;
+    -ims-icon-orange: #df7015;
+    -ims-icon-red: #df1515;
+    -ims-icon-gray: #708090;
+
     -bs-color-primary: -ims-purple-gray-light;
     -bs-color-primary-dark: -ims-purple-gray-dark;
     -bs-text-color: -ims-black;

@@ -32,5 +32,6 @@ public enum ManCon {
     VERYHIGH, // MANCON 2
     HIGH, // MANCON 3
     MEDIUM, // MANCON 4
-    LOW // MANCON 5
+    LOW, // MANCON 5
+    NONE
 }

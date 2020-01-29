@@ -29,7 +29,6 @@ package io.onemfive.desktop.views.home;
 import com.jfoenix.controls.JFXComboBox;
 import io.onemfive.core.OneMFiveAppContext;
 import io.onemfive.data.ManCon;
-import io.onemfive.data.Tuple2;
 import io.onemfive.desktop.DesktopApp;
 import io.onemfive.desktop.MVC;
 import io.onemfive.desktop.Resources;
@@ -48,7 +47,6 @@ import io.onemfive.desktop.views.support.SupportView;
 import io.onemfive.util.LanguageUtil;
 import io.onemfive.util.LocaleUtil;
 import io.onemfive.util.Res;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -59,21 +57,21 @@ import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.control.*;
+import javafx.scene.effect.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
 
-import static io.onemfive.desktop.util.Layout.MIN_WINDOW_HEIGHT;
-import static io.onemfive.desktop.util.Layout.MIN_WINDOW_WIDTH;
 import static javafx.scene.layout.AnchorPane.*;
 
 public class HomeView extends InitializableView {
@@ -83,6 +81,15 @@ public class HomeView extends InitializableView {
     private Runnable onUiReadyHandler;
     private final ToggleGroup navButtons = new ToggleGroup();
     private Transitions transitions = new Transitions();
+    // ManCon Status
+    private ImageView inactiveManConImageView;
+    private ImageView noneManConImageView;
+    private ImageView lowManConImageView;
+    private ImageView mediumManConImageView;
+    private ImageView highManConImageView;
+    private ImageView veryHighManConImageView;
+    private ImageView extremeManConImageView;
+    private ImageView neoManConImageView;
 
     private ComboBox<ManConComboBoxItem> manConComboBox;
     private final ObservableList<ManConComboBoxItem> manConComboBoxItems = FXCollections.observableArrayList();
@@ -171,9 +178,21 @@ public class HomeView extends InitializableView {
             }
         });
 
+        // ManCon Combo Box
+        ComboBox<ManConComboBoxItem> manConComboBox = new JFXComboBox<>();
+        manConComboBox.setVisibleRowCount(6);
+        manConComboBox.setFocusTraversable(false);
+        manConComboBox.setId("mancon-combo");
+        manConComboBox.setPadding(new Insets(0, 0, 0, 0));
+        manConComboBox.setCellFactory(p -> getManConComboBoxListCell());
+        ListCell<ManConComboBoxItem> buttonCell = getManConComboBoxListCell();
+        buttonCell.setId("mancon-combo");
+        manConComboBox.setButtonCell(buttonCell);
 
-        Tuple2<ComboBox<ManConComboBoxItem>, VBox> manConBox = getManConBox();
-        manConComboBox = manConBox.first;
+        VBox manConVBox = new VBox();
+        manConVBox.setAlignment(Pos.CENTER);
+        manConVBox.setPadding(new Insets(0, 0, 0, 10));
+        manConVBox.getChildren().addAll(manConComboBox);
 
         manConComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             selectedManConComboBoxItemProperty.setValue(newValue);
@@ -181,7 +200,7 @@ public class HomeView extends InitializableView {
         ChangeListener<ManConComboBoxItem> selectedManConItemListener = (observable, oldValue, newValue) -> {
             if (newValue != null) {
                 manConComboBox.getSelectionModel().select(newValue);
-                OneMFiveAppContext.MANCON = newValue.manConLevel;
+                OneMFiveAppContext.MIN_REQUIRED_MANCON = newValue.manConLevel;
                 LOG.info("ManCon new value: "+newValue.manConLevel.name());
             }
         };
@@ -195,15 +214,24 @@ public class HomeView extends InitializableView {
                 new ManConComboBoxItem(ManCon.MEDIUM),
                 new ManConComboBoxItem(ManCon.LOW)
         ));
-        manConComboBox.getSelectionModel().select(OneMFiveAppContext.MANCON.ordinal());
+        manConComboBox.getSelectionModel().select(OneMFiveAppContext.MIN_REQUIRED_MANCON.ordinal());
 
-        Tuple2<ImageView, VBox> torSensorStatusBox = getStatusBox("image-tor-icon", 25);
-        Tuple2<ImageView, VBox> i2pSensorStatusBox = getStatusBox("image-i2p-icon", 32);
-        Tuple2<ImageView, VBox> btSensorStatusBox = getStatusBox("image-bluetooth-icon", 32);
-        Tuple2<ImageView, VBox> wifiSensorStatusBox = getStatusBox("image-wifi-icon", 32);
-        Tuple2<ImageView, VBox> satelliteSensorStatusBox = getStatusBox("image-satellite-icon", 32);
-        Tuple2<ImageView, VBox> radioSensorStatusBox = getStatusBox("image-radio-icon", 32);
-        Tuple2<ImageView, VBox> lifiSensorStatusBox = getStatusBox("image-lifi-icon", 32);
+        // ManCon Status
+        noneManConImageView = getImageView("image-icon-white", 32);
+        VBox noneManConBox = getStatusBox(noneManConImageView);
+        lowManConImageView = getImageView("image-icon-green", 32);
+        VBox lowManConBox = getStatusBox(lowManConImageView);
+        mediumManConImageView = getImageView("image-icon-blue", 32);
+        VBox mediumManConBox = getStatusBox(mediumManConImageView);
+        highManConImageView = getImageView("image-icon-yellow", 32);
+        VBox highManConBox = getStatusBox(highManConImageView);
+        veryHighManConImageView = getImageView("image-icon-orange", 32);
+        VBox veryHighManConBox = getStatusBox(veryHighManConImageView);
+        extremeManConImageView = getImageView("image-icon-red", 32);
+        VBox extremeManConBox = getStatusBox(extremeManConImageView);
+        neoManConImageView = getImageView("image-icon-gray", 32);
+        VBox neoManConBox = getStatusBox(neoManConImageView);
+        updateManConBox();
 
 //        HBox primaryNav = new HBox(dashboardButton, getNavigationSeparator(), browserButton, getNavigationSeparator(),
 //                emailButtonWithBadge, getNavigationSeparator(), messengerButtonWithBadge, getNavigationSeparator(), calendarButtonWithBadge);
@@ -232,19 +260,19 @@ public class HomeView extends InitializableView {
 
 
         HBox networkStatusHBox = new HBox(
-                manConBox.second, getNavigationSeparator(),
-                torSensorStatusBox.second, getNavigationSeparator(),
-                i2pSensorStatusBox.second, getNavigationSeparator(),
-                btSensorStatusBox.second, getNavigationSeparator(),
-                wifiSensorStatusBox.second, getNavigationSeparator(),
-                satelliteSensorStatusBox.second, getNavigationSeparator(),
-                radioSensorStatusBox.second, getNavigationSeparator(),
-                lifiSensorStatusBox.second);
-        networkStatusHBox.setMaxHeight(41);
-
-        networkStatusHBox.setAlignment(Pos.CENTER_RIGHT);
-        networkStatusHBox.setSpacing(9);
-        networkStatusHBox.getStyleClass().add("nav-tertiary");
+                manConVBox, getNavigationSeparator(),
+                noneManConBox, getNavigationSeparator(),
+                lowManConBox, getNavigationSeparator(),
+                mediumManConBox, getNavigationSeparator(),
+                highManConBox, getNavigationSeparator(),
+                veryHighManConBox, getNavigationSeparator(),
+                extremeManConBox, getNavigationSeparator(),
+                neoManConBox) {{
+            setMaxHeight(41);
+            setAlignment(Pos.CENTER_RIGHT);
+            setSpacing(9);
+            getStyleClass().add("nav-tertiary");
+        }};
 
         HBox navPane = new HBox(primaryNav, secondaryNav, networkStatusHBox) {{
             setLeftAnchor(this, 0d);
@@ -345,25 +373,6 @@ public class HomeView extends InitializableView {
         return spacer;
     }
 
-    private Tuple2<ComboBox<ManConComboBoxItem>, VBox> getManConBox() {
-        VBox manConVBox = new VBox();
-        manConVBox.setAlignment(Pos.CENTER);
-
-        ComboBox<ManConComboBoxItem> manConComboBox = new JFXComboBox<>();
-        manConComboBox.setVisibleRowCount(6);
-        manConComboBox.setFocusTraversable(false);
-        manConComboBox.setId("mancon-combo");
-        manConComboBox.setPadding(new Insets(0, 0, 0, 0));
-        manConComboBox.setCellFactory(p -> getManConComboBoxListCell());
-        ListCell<ManConComboBoxItem> buttonCell = getManConComboBoxListCell();
-        buttonCell.setId("mancon-combo");
-        manConComboBox.setButtonCell(buttonCell);
-
-        manConVBox.getChildren().addAll(manConComboBox);
-
-        return new Tuple2<>(manConComboBox, manConVBox);
-    }
-
     private ListCell<ManConComboBoxItem> getManConComboBoxListCell() {
         return new ListCell<>() {
             @Override
@@ -381,16 +390,21 @@ public class HomeView extends InitializableView {
         };
     }
 
-    private Tuple2<ImageView, VBox> getStatusBox(String statusImageID, int fitHeight) {
-        ImageView statusImageView = new ImageView();
-        statusImageView.setFitHeight(fitHeight);
-        statusImageView.setPreserveRatio(true);
-        statusImageView.setId(statusImageID);
+    private ImageView getImageView(String imageId, int fitHeight) {
+        ImageView iv = new ImageView();
+        iv.setFitHeight(fitHeight);
+        iv.setPreserveRatio(true);
+        iv.setId(imageId);
+//        iv.setCache(true);
+//        iv.setCacheHint(CacheHint.SPEED);
+        return iv;
+    }
 
+    private VBox getStatusBox(ImageView imageView) {
         VBox vBox = new VBox();
         vBox.setAlignment(Pos.CENTER_LEFT);
-        vBox.getChildren().addAll(statusImageView);
-        return new Tuple2<>(statusImageView, vBox);
+        vBox.getChildren().addAll(imageView);
+        return vBox;
     }
 
 //    private Tuple2<ImageView, VBox> getStatusBox(URL statusImageURL, int fitHeight) {
@@ -437,114 +451,6 @@ public class HomeView extends InitializableView {
 
         ImageView logo = new ImageView();
         logo.setId("image-splash-logo");
-
-        // createBitcoinInfoBox
-//        btcSplashInfo = new AutoTooltipLabel();
-//        btcSplashInfo.textProperty().bind(model.getBtcInfo());
-//        walletServiceErrorMsgListener = (ov, oldValue, newValue) -> {
-//            btcSplashInfo.setId("splash-error-state-msg");
-//            btcSplashInfo.getStyleClass().add("error-text");
-//        };
-//        model.getWalletServiceErrorMsg().addListener(walletServiceErrorMsgListener);
-//
-//        btcSyncIndicator = new JFXProgressBar();
-//        btcSyncIndicator.setPrefWidth(305);
-//        btcSyncIndicator.progressProperty().bind(model.getCombinedSyncProgress());
-//
-//        ImageView btcSyncIcon = new ImageView();
-//        btcSyncIcon.setVisible(false);
-//        btcSyncIcon.setManaged(false);
-//
-//        btcSyncIconIdListener = (ov, oldValue, newValue) -> {
-//            btcSyncIcon.setId(newValue);
-//            btcSyncIcon.setVisible(true);
-//            btcSyncIcon.setManaged(true);
-//
-//            btcSyncIndicator.setVisible(false);
-//            btcSyncIndicator.setManaged(false);
-//        };
-//        model.getBtcSplashSyncIconId().addListener(btcSyncIconIdListener);
-//
-//
-//        HBox blockchainSyncBox = new HBox();
-//        blockchainSyncBox.setSpacing(10);
-//        blockchainSyncBox.setAlignment(Pos.CENTER);
-//        blockchainSyncBox.setPadding(new Insets(40, 0, 0, 0));
-//        blockchainSyncBox.setPrefHeight(50);
-//        blockchainSyncBox.getChildren().addAll(btcSplashInfo, btcSyncIcon);
-
-
-        // create P2PNetworkBox
-//        splashP2PNetworkLabel = new AutoTooltipLabel();
-//        splashP2PNetworkLabel.setWrapText(true);
-//        splashP2PNetworkLabel.setMaxWidth(500);
-//        splashP2PNetworkLabel.setTextAlignment(TextAlignment.CENTER);
-//        splashP2PNetworkLabel.getStyleClass().add("sub-info");
-//        splashP2PNetworkLabel.textProperty().bind(model.getP2PNetworkInfo());
-//
-//        Button showTorNetworkSettingsButton = new AutoTooltipButton(Res.get("settings.net.openTorSettingsButton"));
-//        showTorNetworkSettingsButton.setVisible(false);
-//        showTorNetworkSettingsButton.setManaged(false);
-//        showTorNetworkSettingsButton.setOnAction(e -> model.getTorNetworkSettingsWindow().show());
-//
-//        splashP2PNetworkBusyAnimation = new BusyAnimation(false);
-//
-//        splashP2PNetworkErrorMsgListener = (ov, oldValue, newValue) -> {
-//            if (newValue != null) {
-//                splashP2PNetworkLabel.setId("splash-error-state-msg");
-//                splashP2PNetworkLabel.getStyleClass().remove("sub-info");
-//                splashP2PNetworkLabel.getStyleClass().add("error-text");
-//                splashP2PNetworkBusyAnimation.setDisable(true);
-//                splashP2PNetworkBusyAnimation.stop();
-//                showTorNetworkSettingsButton.setVisible(true);
-//                showTorNetworkSettingsButton.setManaged(true);
-//                if (model.getUseTorForBTC().get()) {
-//                    // If using tor for BTC, hide the BTC status since tor is not working
-//                    btcSyncIndicator.setVisible(false);
-//                    btcSplashInfo.setVisible(false);
-//                }
-//            } else if (model.getSplashP2PNetworkAnimationVisible().get()) {
-//                splashP2PNetworkBusyAnimation.setDisable(false);
-//                splashP2PNetworkBusyAnimation.play();
-//            }
-//        };
-//        model.getP2pNetworkWarnMsg().addListener(splashP2PNetworkErrorMsgListener);
-
-//        ImageView splashP2PNetworkIcon = new ImageView();
-//        splashP2PNetworkIcon.setId("image-connection-tor");
-//        splashP2PNetworkIcon.setVisible(false);
-//        splashP2PNetworkIcon.setManaged(false);
-//        HBox.setMargin(splashP2PNetworkIcon, new Insets(0, 0, 5, 0));
-//
-//        Timer showTorNetworkSettingsTimer = UserThread.runAfter(() -> {
-//            showTorNetworkSettingsButton.setVisible(true);
-//            showTorNetworkSettingsButton.setManaged(true);
-//        }, SHOW_TOR_SETTINGS_DELAY_SEC);
-//
-//        splashP2PNetworkIconIdListener = (ov, oldValue, newValue) -> {
-//            splashP2PNetworkIcon.setId(newValue);
-//            splashP2PNetworkIcon.setVisible(true);
-//            splashP2PNetworkIcon.setManaged(true);
-//
-//            // if we can connect in 10 sec. we know that tor is working
-//            showTorNetworkSettingsTimer.stop();
-//        };
-//        model.getP2PNetworkIconId().addListener(splashP2PNetworkIconIdListener);
-//
-//        splashP2PNetworkVisibleListener = (ov, oldValue, newValue) -> {
-//            splashP2PNetworkBusyAnimation.setDisable(!newValue);
-//            if (newValue) splashP2PNetworkBusyAnimation.play();
-//        };
-//
-//        model.getSplashP2PNetworkAnimationVisible().addListener(splashP2PNetworkVisibleListener);
-//
-//        HBox splashP2PNetworkBox = new HBox();
-//        splashP2PNetworkBox.setSpacing(10);
-//        splashP2PNetworkBox.setAlignment(Pos.CENTER);
-//        splashP2PNetworkBox.setPrefHeight(40);
-//        splashP2PNetworkBox.getChildren().addAll(splashP2PNetworkLabel, splashP2PNetworkBusyAnimation, splashP2PNetworkIcon, showTorNetworkSettingsButton);
-//
-//        vBox.getChildren().addAll(logo, blockchainSyncBox, btcSyncIndicator, splashP2PNetworkBox);
         vBox.getChildren().add(logo);
         return vBox;
     }
@@ -596,7 +502,7 @@ public class HomeView extends InitializableView {
 //                btcInfoLabel.setId("footer-pane");
 //                if (btcNetworkWarnMsgPopup != null)
 //                    btcNetworkWarnMsgPopup.hide();
-//            }
+//            }green
 //        });
 //
 //        model.getCombinedSyncProgress().addListener((ov, oldValue, newValue) -> {
@@ -758,6 +664,77 @@ public class HomeView extends InitializableView {
             this.manConImageView = new ImageView(new Image(Resources.getManConIcon(manConLevel).toString()));
         }
 
+    }
+
+    private void updateManConBox() {
+        ColorAdjust smoke = new ColorAdjust();
+        smoke.setBrightness(-0.5);
+        Glow glow = new Glow(0.5);
+        switch(OneMFiveAppContext.MAX_AVAILABLE_MANCON) {
+            case NEO: {
+                neoManConImageView.setEffect(glow);
+                extremeManConImageView.setEffect(glow);
+                veryHighManConImageView.setEffect(glow);
+                highManConImageView.setEffect(glow);
+                mediumManConImageView.setEffect(glow);
+                lowManConImageView.setEffect(glow);
+                noneManConImageView.setEffect(glow);
+                break;
+            } case EXTREME: {
+                neoManConImageView.setEffect(smoke);
+                extremeManConImageView.setEffect(glow);
+                veryHighManConImageView.setEffect(glow);
+                highManConImageView.setEffect(glow);
+                mediumManConImageView.setEffect(glow);
+                lowManConImageView.setEffect(glow);
+                noneManConImageView.setEffect(glow);
+                break;
+            } case VERYHIGH: {
+                neoManConImageView.setEffect(smoke);
+                extremeManConImageView.setEffect(smoke);
+                veryHighManConImageView.setEffect(glow);
+                highManConImageView.setEffect(glow);
+                mediumManConImageView.setEffect(glow);
+                lowManConImageView.setEffect(glow);
+                noneManConImageView.setEffect(glow);
+                break;
+            } case HIGH: {
+                neoManConImageView.setEffect(smoke);
+                extremeManConImageView.setEffect(smoke);
+                veryHighManConImageView.setEffect(smoke);
+                highManConImageView.setEffect(glow);
+                mediumManConImageView.setEffect(glow);
+                lowManConImageView.setEffect(glow);
+                noneManConImageView.setEffect(glow);
+                break;
+            } case MEDIUM: {
+                neoManConImageView.setEffect(smoke);
+                extremeManConImageView.setEffect(smoke);
+                veryHighManConImageView.setEffect(smoke);
+                highManConImageView.setEffect(smoke);
+                mediumManConImageView.setEffect(glow);
+                lowManConImageView.setEffect(glow);
+                noneManConImageView.setEffect(glow);
+                break;
+            } case LOW: {
+                neoManConImageView.setEffect(smoke);
+                extremeManConImageView.setEffect(smoke);
+                veryHighManConImageView.setEffect(smoke);
+                highManConImageView.setEffect(smoke);
+                mediumManConImageView.setEffect(smoke);
+                lowManConImageView.setEffect(glow);
+                noneManConImageView.setEffect(glow);
+                break;
+            } default: {
+                neoManConImageView.setEffect(smoke);
+                extremeManConImageView.setEffect(smoke);
+                veryHighManConImageView.setEffect(smoke);
+                highManConImageView.setEffect(smoke);
+                mediumManConImageView.setEffect(smoke);
+                lowManConImageView.setEffect(smoke);
+                noneManConImageView.setEffect(glow);
+            }
+        }
     }
 
 }
