@@ -30,6 +30,7 @@ import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.bus.ServiceBus;
 import io.onemfive.core.infovault.InfoVaultDB;
 import io.onemfive.data.ManCon;
+import io.onemfive.data.ManConStatus;
 import io.onemfive.util.*;
 
 import java.io.File;
@@ -50,13 +51,6 @@ public class OneMFiveAppContext {
 //    protected final OneMFiveConfig config;
 
     public static final Properties config = new Properties();
-    // Max Supported ManCon is the highest possible ManCon based on Sensors activated
-    public static ManCon MAX_SUPPORTED_MANCON = ManCon.HIGH;
-    // Min Required ManCon is set by end users or system admins for daemons to indicate the minimum ManCon to use for current communications
-    // TODO: Load this from a configuration
-    public static ManCon MIN_REQUIRED_MANCON = ManCon.HIGH;
-    // Max Available ManCon is the current level of ManCon that can be supported by active Sensors and changes in real-time based on network connectivity and peer discovery
-    public static ManCon MAX_AVAILABLE_MANCON = ManCon.HIGH;
 
     private ServiceBus serviceBus;
 
