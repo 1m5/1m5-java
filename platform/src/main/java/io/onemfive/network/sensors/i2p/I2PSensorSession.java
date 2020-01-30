@@ -194,11 +194,12 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
             return false;
         }
         i2pSession = socketManager.getSession();
-        // Throws I2PSessionException if the connection fails
         LOG.info("I2P Session connecting...");
         long start = System.currentTimeMillis();
         try {
+            // Throws I2PSessionException if the connection fails
             i2pSession.connect();
+            sensor.updateStatus(SensorStatus.NETWORK_CONNECTED);
             connected = true;
         } catch (I2PSessionException e) {
             LOG.warning(e.getLocalizedMessage());
