@@ -77,7 +77,7 @@ public final class Envelope implements Persistable, JSONSerializable {
 
     private Map<String, Object> headers;
     private Message message;
-    private ManCon manCon = ManCon.HIGH;
+    private ManCon manCon = ManConStatus.MIN_REQUIRED_MANCON;
     private Long minDelay = 0L;
     private Long maxDelay = 0L;
 
