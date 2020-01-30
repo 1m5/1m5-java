@@ -30,7 +30,6 @@ import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
-import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -38,8 +37,13 @@ import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
+import javax.microedition.io.Connector;
+import javax.obex.*;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -53,20 +57,25 @@ public class BluetoothSensor extends BaseSensor {
     private String bluetoothBaseDir;
     private File bluetoothDir;
 
+    private SessionNotifier sessionNotifier;
+    private RequestHandler handler;
+    private Thread serverThread;
+
     private Map<String, RemoteDevice> devices = new HashMap<>();
     private Map<String, List<String>> deviceServices = new HashMap<>();
-    private Map<String, NetworkPeer> peers = new HashMap<>();
 
     private BluetoothDeviceDiscovery deviceDiscovery;
-    private ServiceDiscovery serviceDiscovery;
+    private BluetoothServiceDiscovery serviceDiscovery;
     private BluetoothPeerDiscovery peerDiscovery;
 
+    private Map<Integer, BluetoothSession> leased = new HashMap<>();
+
     public BluetoothSensor() {
-        super(new NetworkPeer(Network.Bluetooth));
+        super(Network.Bluetooth);
     }
 
     public BluetoothSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.Bluetooth));
+        super(sensorManager, Network.Bluetooth);
     }
 
     @Override
@@ -86,69 +95,44 @@ public class BluetoothSensor extends BaseSensor {
 
     @Override
     public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
-        BluetoothSession session = new BluetoothSession();
-        if(autoConnect) {
-            session.connect();
+        BluetoothSession session = new BluetoothSession(this);
+        if(session.open(peer)) {
+            if (autoConnect) {
+                session.connect();
+            }
+            sessions.put(session.getId(), session);
         }
         return session;
     }
 
     /**
-     * Sends UTF-8 content to a Radio Peer using Software Defined Radio (SDR).
-     * @param packet Envelope containing SensorRequest as data.
-     *                 To DID must contain base64 encoded Radio destination key.
+     * Sends UTF-8 content to a Bluetooth Peer.
+     * @param packet Envelope containing Packet as data.
      * @return boolean was successful
      */
     @Override
     public boolean sendOut(Packet packet) {
-        LOG.info("Sending Radio Message...");
-//        Envelope envelope = packet.getEnvelope();
-//        NetworkRequest request = (NetworkRequest) DLC.getData(NetworkRequest.class,envelope);
-//        if(request == null){
-//            LOG.warning("No SensorRequest in Envelope.");
-//            request.statusCode = ServiceMessage.REQUEST_REQUIRED;
-//            return false;
-//        }
-//        NetworkPeer toPeer = request.destination.getPeer(Network.SDR.name());
-//        if(toPeer == null) {
-//            LOG.warning("No Peer for Radio found in toDID while sending to Radio.");
-//            request.statusCode = NetworkRequest.DESTINATION_PEER_REQUIRED;
-//            return false;
-//        }
-//        if(!Network.SDR.name().equals((toPeer.getNetwork()))) {
-//            LOG.warning("Radio requires an SDR Peer.");
-//            request.statusCode = NetworkRequest.DESTINATION_PEER_WRONG_NETWORK;
-//            return false;
-//        }
-//        NetworkPeer fromPeer = request.origination.getPeer(Network.SDR.name());
-//        LOG.info("Content to send: "+request.content);
-//        if(request.content == null) {
-//            LOG.warning("No content found in Envelope while sending to Radio.");
-//            request.statusCode = NetworkRequest.NO_CONTENT;
-//            return false;
-//        }
+        LOG.info("Sending Packet via Bluetooth...");
 
-//        Radio radio = RadioSelector.determineBestRadio(toRPeer);
-//        if(radio==null) {
-//            LOG.warning("Unhandled issue #1 here.");
-//            return false;
-//        }
-//        RadioSession session = radio.establishSession(toRPeer, true);
-//        if(session==null) {
-//            LOG.warning("Unhandled issue #2 here.");
-//            return false;
-//        }
-//        RadioDatagram datagram = session.toRadioDatagram(request);
-//        Properties options = new Properties();
-//        if(session.sendDatagram(datagram)) {
-//            LOG.info("Radio Message sent.");
-//            return true;
-//        } else {
-//            LOG.warning("Radio Message sending failed.");
-//            request.statusCode = NetworkRequest.SENDING_FAILED;
-//            return false;
-//        }
-        return true;
+        NetworkPeer toPeer = packet.getToPeer();
+        if(toPeer == null) {
+            LOG.warning("No Peer for Radio found in toDID while sending to Radio.");
+            return false;
+        }
+
+        if(toPeer.getNetwork() != Network.Bluetooth) {
+            LOG.warning("Not a Bluetooth Request.");
+            return false;
+        }
+
+        if(packet.getEnvelope() == null) {
+            LOG.warning("No content found in Envelope while sending to Radio.");
+            return false;
+        }
+        LOG.info("Envelope to send: "+packet.getEnvelope().toString());
+
+        BluetoothSession session = (BluetoothSession) establishSession(packet.getToPeer(), true);
+        return session.send(packet);
     }
 
     @Override
@@ -156,36 +140,9 @@ public class BluetoothSensor extends BaseSensor {
         return super.sendIn(envelope);
     }
 
-    /**
-     * Will be called only if you register via addSessionListener().
-     *
-     * After this is called, the client should call receiveMessage(msgId).
-     * There is currently no method for the client to reject the message.
-     * If the client does not call receiveMessage() within a timeout period
-     * (currently 30 seconds), the session will delete the message and
-     * log an error.
-     *
-     * @param session session to notify
-     */
-    public void messageAvailable(BluetoothSession session) {
-//        RadioDatagram d = session.receiveDatagram(port);
-//        LOG.info("Received Radio Message:\n\tFrom: " + d.from.getSDRAddress());
-//        Envelope e = Envelope.eventFactory(EventMessage.Type.TEXT);
-//        DID did = new DID();
-//        did.addPeer(d.from);
-//        e.setDID(did);
-//        EventMessage m = (EventMessage) e.getMessage();
-//        m.setName(d.from.getSDRFingerprint());
-//        m.setMessage(d);
-//        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
-//        LOG.info("Sending Event Message to Notification Service...");
-//        sendIn(e);
-    }
-
-
-
     @Override
     public boolean start(Properties properties) {
+        LOG.info("Starting...");
         this.properties = properties;
         updateStatus(SensorStatus.STARTING);
         bluetoothBaseDir = properties.getProperty("1m5.dir.sensors")+"/bluetooth";
@@ -240,12 +197,28 @@ public class BluetoothSensor extends BaseSensor {
         }
 
         try {
-            localPeer.getDid().getPublicKey().setAddress(LocalDevice.getLocalDevice().getBluetoothAddress());
-            localPeer.getDid().setUsername(LocalDevice.getLocalDevice().getFriendlyName());
+            localPeer = sensorManager.getPeerManager().getLocalNode().getNetworkPeer(Network.Bluetooth);
+            if(localPeer==null) {
+                localPeer = new NetworkPeer(Network.Bluetooth, "Alice", "1234");
+                localPeer.setLocal(true);
+                sensorManager.getPeerManager().getLocalNode().addNetworkPeer(localPeer);
+            }
+            String localAddress = LocalDevice.getLocalDevice().getBluetoothAddress();
+            String localFriendlyName = LocalDevice.getLocalDevice().getFriendlyName();
+            if(!localAddress.equals(localPeer.getDid().getPublicKey().getAddress())
+                    || localPeer.getDid().getPublicKey().getAttribute("uuid")==null) {
+                // New address or no UUID
+//                localPeer.getDid().getPublicKey().addAttribute("uuid", UUID.randomUUID().toString());
+                localPeer.getDid().getPublicKey().addAttribute("uuid", "11111111111111111111111111111123");
+            }
+            localPeer.getDid().getPublicKey().setAddress(localAddress);
+            localPeer.getDid().setUsername(localFriendlyName);
+            sensorManager.getPeerManager().savePeer(localPeer, true);
         } catch (BluetoothStateException e) {
             LOG.warning(e.getLocalizedMessage());
-            return true;
+            return false;
         }
+
 //        try {
 //            LocalDevice.getLocalDevice().setDiscoverable(DiscoveryAgent.GIAC);
 //        } catch (BluetoothStateException e) {
@@ -257,26 +230,56 @@ public class BluetoothSensor extends BaseSensor {
             taskRunner = new TaskRunner(4,4);
         }
 
-        // run every 2 minutes
-        deviceDiscovery = new BluetoothDeviceDiscovery(devices, this, taskRunner);
-        deviceDiscovery.setPeriodicity(2 * 60 * 1000L);
+        // run every 3 minutes
+        deviceDiscovery = new BluetoothDeviceDiscovery(this, taskRunner);
+        deviceDiscovery.setPeriodicity(3 * 60 * 1000L);
         deviceDiscovery.setLongRunning(true);
         taskRunner.addTask(deviceDiscovery);
 
-        // run every 60 seconds
-        peerDiscovery = new BluetoothPeerDiscovery(localPeer, peers, this, taskRunner);
-        peerDiscovery.setPeriodicity(60 * 1000L);
-        peerDiscovery.setLongRunning(true);
-        taskRunner.addTask(peerDiscovery);
-
-        // run every 30 seconds
-        serviceDiscovery = new ServiceDiscovery(devices, deviceServices, peers, this, taskRunner);
-        serviceDiscovery.setPeriodicity(30 * 1000L);
+        // run every 3 minutes one minute after device discovery
+        serviceDiscovery = new BluetoothServiceDiscovery(sensorManager.getPeerManager(), this, taskRunner);
+        serviceDiscovery.setPeriodicity(3 * 60 * 1000L);
         serviceDiscovery.setLongRunning(true);
+        serviceDiscovery.setDelayed(true);
+        serviceDiscovery.setFixedDelay(true);
+        serviceDiscovery.setDelayTimeMS(60 * 1000L);
         taskRunner.addTask(serviceDiscovery);
 
-//        new Thread(taskRunner, BluetoothSensor.class.getSimpleName()+"TaskRunnerThread").start();
+        // run every minute 3 minutes one minute after service discovery
+        peerDiscovery = new BluetoothPeerDiscovery(sensorManager.getPeerManager(), this, taskRunner);
+        peerDiscovery.setPeriodicity(3 * 60 * 1000L);
+        peerDiscovery.setLongRunning(true);
+        peerDiscovery.setDelayed(true);
+        peerDiscovery.setFixedDelay(true);
+        peerDiscovery.setDelayTimeMS(2 * 60 * 1000L);
+        taskRunner.addTask(peerDiscovery);
 
+        Thread taskRunnerThread = new Thread(taskRunner);
+        taskRunnerThread.setName("Bluetooth-Sensor-TaskRunner");
+        taskRunnerThread.setDaemon(true);
+        taskRunnerThread.start();
+
+//        try {
+//            String url = "btgoep://localhost:"+localPeer.getDid().getPublicKey().getAttribute("uuid")+";name=1M5";
+//            LOG.info("Setting up listener on: "+url);
+//            sessionNotifier = (SessionNotifier) Connector.open(url);
+//            handler = new RequestHandler();
+//        } catch (IOException e) {
+//            LOG.warning(e.getLocalizedMessage());
+//            return false;
+//        }
+//        serverThread = new Thread(() -> {
+//            while(getStatus()!=SensorStatus.SHUTTING_DOWN || getStatus()!=SensorStatus.GRACEFULLY_SHUTTING_DOWN) {
+//                try {
+//                    sessionNotifier.acceptAndOpen(handler);
+//                } catch (IOException e) {
+//                    LOG.warning(e.getLocalizedMessage());
+//                }
+//            }
+//        });
+//        serverThread.setDaemon(true);
+//        serverThread.start();
+        LOG.info("Started.");
         return true;
     }
 
@@ -295,7 +298,67 @@ public class BluetoothSensor extends BaseSensor {
         return false;
     }
 
-//    public static void main(String[] args) {
+    private static class RequestHandler extends ServerRequestHandler {
+
+        public int onPut(Operation op) {
+            LOG.info("Received operation: "+op.toString());
+            try {
+                HeaderSet hs = op.getReceivedHeaders();
+                String name = (String) hs.getHeader(HeaderSet.NAME);
+                if (name != null) {
+                    LOG.info("put name:" + name);
+                }
+
+                InputStream is = op.openInputStream();
+
+                StringBuffer buf = new StringBuffer();
+                int data;
+                while ((data = is.read()) != -1) {
+                    buf.append((char) data);
+                }
+
+                LOG.info("got:" + buf.toString());
+
+                op.close();
+                return ResponseCodes.OBEX_HTTP_OK;
+            } catch (IOException e) {
+                LOG.warning(e.getLocalizedMessage());
+                return ResponseCodes.OBEX_HTTP_UNAVAILABLE;
+            }
+        }
+    }
+
+    @Override
+    public boolean shutdown() {
+        super.shutdown();
+        try {
+            sessionNotifier.close();
+        } catch (IOException e) {
+            LOG.info(e.getLocalizedMessage());
+        }
+        serverThread.interrupt();
+        taskRunner.removeTask(peerDiscovery, true);
+        taskRunner.removeTask(serviceDiscovery, true);
+        taskRunner.removeTask(deviceDiscovery, true);
+        return true;
+    }
+
+    @Override
+    public boolean gracefulShutdown() {
+        super.gracefulShutdown();
+        try {
+            sessionNotifier.close();
+        } catch (IOException e) {
+            LOG.info(e.getLocalizedMessage());
+        }
+        serverThread.interrupt();
+        taskRunner.removeTask(peerDiscovery, false);
+        taskRunner.removeTask(serviceDiscovery, false);
+        taskRunner.removeTask(deviceDiscovery, false);
+        return true;
+    }
+
+    //    public static void main(String[] args) {
 //        NetworkPeer np = new NetworkPeer(Network.RADIO_BLUETOOTH);
 //        BluetoothSensor s = new BluetoothSensor(np);
 //        s.start(null);

@@ -48,7 +48,7 @@ public class ClearnetSession extends BaseSession {
     private boolean authenticated = false;
 
     public ClearnetSession(String sessionId) {
-        super(new NetworkPeer(Network.HTTPS));
+        super();
         this.sessionId = sessionId;
     }
 

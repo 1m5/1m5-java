@@ -161,7 +161,7 @@ public class NetworkService extends BaseService {
                                 String toNetwork = sensor.getClass().getName();
                                 if (!fromNetwork.equals(toNetwork)) {
                                     LOG.info("Escalated sensor: " + toNetwork);
-                                    NetworkPeer newToPeer = peerManager.getRandomKnownPeer(peerManager.getLocalNode().getLocalNetworkPeer(sensor.getNetwork()));
+                                    NetworkPeer newToPeer = peerManager.getRandomKnownPeer(peerManager.getLocalNode().getNetworkPeer(sensor.getNetwork()));
                                     if (newToPeer == null) {
                                         LOG.warning("No other peers to route blocked request. Request is dead.");
                                     } else {
@@ -202,7 +202,7 @@ public class NetworkService extends BaseService {
             }
             case OPERATION_UPDATE_LOCAL_PEER: {
                 LOG.info("Update local Peer...");
-                peerManager.updateLocalPeer((NetworkPeer)DLC.getData(NetworkPeer.class,e));break;
+                peerManager.updateLocalNode((NetworkPeer)DLC.getData(NetworkPeer.class,e));break;
             }
             case OPERATION_RECEIVE_LOCAL_AUTHN_PEER: {
                 LOG.info("Receive Local AuthN Peer...");
@@ -309,7 +309,7 @@ public class NetworkService extends BaseService {
             }
         } else if(msg instanceof NetworkPeer) {
             LOG.info("Route in NetworkPeer for update...");
-            peerManager.updateLocalPeer((NetworkPeer)msg);
+            peerManager.updateLocalNode((NetworkPeer)msg);
             LOG.info("DID with I2P Addresses saved; Network Service ready for requests.");
         } else {
             LOG.warning("EnvelopeMessage message "+msg.getClass().getName()+" not handled.");
@@ -608,7 +608,7 @@ public class NetworkService extends BaseService {
         peerManager.setNetworkService(this);
         peerManager.setTaskRunner(taskRunner);
         sensorManager.setPeerManager(peerManager);
-        if(sensorManager.init(properties) && peerManager.init(properties)) {
+        if(peerManager.init(properties) && sensorManager.init(properties)) {
             Subscription subscription = this::routeIn;
 
             // Subscribe to Text notifications

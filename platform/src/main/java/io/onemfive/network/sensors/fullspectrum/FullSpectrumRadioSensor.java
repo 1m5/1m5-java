@@ -53,11 +53,11 @@ public class FullSpectrumRadioSensor extends BaseSensor {
     private Logger LOG = Logger.getLogger(FullSpectrumRadioSensor.class.getName());
 
     public FullSpectrumRadioSensor() {
-        super(new NetworkPeer(Network.FSRadio));
+        super(Network.FSRadio);
     }
 
     public FullSpectrumRadioSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.FSRadio));
+        super(sensorManager, Network.FSRadio);
     }
 
     @Override

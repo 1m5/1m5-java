@@ -48,6 +48,11 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
+ * Sensor Manager's Responsibilities:
+ * 1) Maximize sensor network availability.
+ * 2) Determine what ManCon can be supported at any given time.
+ * 3) Select which sensor should be used per packet.
+ *
  * General ManCon to Network mappings:
  *
  * LOW:
@@ -82,11 +87,19 @@ public final class SensorManager {
     private final Map<String, Sensor> registeredSensors = new HashMap<>();
     private final Map<String, Sensor> activeSensors = new HashMap<>();
     private final Map<String, Sensor> blockedSensors = new HashMap<>();
-    private final Map<String, List<SensorStatusListener>> listeners = new HashMap<>();
+    private final Map<String, List<SensorStatusListener>> sensorListeners = new HashMap<>();
+    private static final List<ManConStatusListener> manConStatusListeners = new ArrayList<>();
 
     private PeerManager peerManager;
 
     private NetworkService networkService;
+
+    private Long manCon0TestLastSucceeded = 0L;
+    private Long manCon1TestLastSucceeded = 0L;
+    private Long manCon2TestLastSucceeded = 0L;
+    private Long manCon3TestLastSucceeded = 0L;
+    private Long manCon4TestLastSucceeded = 0L;
+    private Long manCon5TestLastSucceeded = 0L;
 
     private final long MAX_BLOCK_TIME_BETWEEN_RESTARTS = 10 * 60 * 1000; // 10 minutes
     private Map<String,Long> sensorBlocks = new HashMap<>();
@@ -124,10 +137,10 @@ public final class SensorManager {
         registeredSensors.put(TorSensor.class.getName(), new TorSensor(this));
         registeredSensors.put(I2PSensor.class.getName(), new I2PSensor(this));
         registeredSensors.put(BluetoothSensor.class.getName(), new BluetoothSensor(this));
-        registeredSensors.put(WiFiDirectSensor.class.getName(), new WiFiDirectSensor(this));
-        registeredSensors.put(SatelliteSensor.class.getName(), new SatelliteSensor(this));
-        registeredSensors.put(FullSpectrumRadioSensor.class.getName(), new FullSpectrumRadioSensor(this));
-        registeredSensors.put(LiFiSensor.class.getName(), new LiFiSensor(this));
+//        registeredSensors.put(WiFiDirectSensor.class.getName(), new WiFiDirectSensor(this));
+//        registeredSensors.put(SatelliteSensor.class.getName(), new SatelliteSensor(this));
+//        registeredSensors.put(FullSpectrumRadioSensor.class.getName(), new FullSpectrumRadioSensor(this));
+//        registeredSensors.put(LiFiSensor.class.getName(), new LiFiSensor(this));
         Collection<Sensor> sensors = registeredSensors.values();
         for(final Sensor s : sensors) {
             LOG.info("Launching sensor "+s.getClass().getName());
@@ -239,6 +252,43 @@ public final class SensorManager {
         return selected;
     }
 
+    public void determineManConAvailability() {
+        // This is a temporary simple test.
+        if(activeSensors.get(BluetoothSensor.class.getName())!=null
+                && activeSensors.get(BluetoothSensor.class.getName()).getStatus()==SensorStatus.NETWORK_CONNECTED) {
+            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.EXTREME;
+        } else if(activeSensors.get(I2PSensor.class.getName())!=null
+                && activeSensors.get(I2PSensor.class.getName()).getStatus()==SensorStatus.NETWORK_CONNECTED) {
+            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.HIGH;
+        } else if(activeSensors.get(TorSensor.class.getName())!=null
+                && activeSensors.get(TorSensor.class.getName()).getStatus()==SensorStatus.NETWORK_CONNECTED) {
+            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.LOW;
+        } else {
+            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.NONE;
+        }
+        // TODO: This is the real implementation but needs network ops completed
+//        long now = System.currentTimeMillis();
+//        long maxGap = 5 * 60 * 1000; // 5 minutes
+//        if(now - manCon0TestLastSucceeded < maxGap) {
+//            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.NEO;
+//        } else if(now - manCon1TestLastSucceeded < maxGap) {
+//            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.EXTREME;
+//        } else if(now - manCon2TestLastSucceeded < maxGap) {
+//            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.VERYHIGH;
+//        } else if(now - manCon3TestLastSucceeded < maxGap) {
+//            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.HIGH;
+//        } else if(now - manCon4TestLastSucceeded < maxGap) {
+//            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.MEDIUM;
+//        } else if(now - manCon5TestLastSucceeded < maxGap) {
+//            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.LOW;
+//        } else {
+//            ManConStatus.MAX_AVAILABLE_MANCON = ManCon.NONE;
+//        }
+        for(ManConStatusListener listener : manConStatusListeners) {
+            listener.statusUpdated();
+        }
+    }
+
     public Sensor findRelay(Packet packet) {
         Sensor sensor = null;
         ManCon minManCon = packet.getEnvelope().getManCon();
@@ -254,7 +304,7 @@ public final class SensorManager {
             return null;
         }
         // look for a random peer as destination for the selected network
-        NetworkPeer destination = peerManager.getRandomPeerByRelationship(peerManager.getLocalNode().getLocalNetworkPeer(sensor.getNetwork()), P2PRelationship.networkToRelationship(sensor.getNetwork()));
+        NetworkPeer destination = peerManager.getRandomPeerByRelationship(peerManager.getLocalNode().getNetworkPeer(sensor.getNetwork()), P2PRelationship.networkToRelationship(sensor.getNetwork()));
         packet.setDestinationPeer(destination);
         return sensor;
     }
@@ -417,12 +467,14 @@ public final class SensorManager {
         // Now update the Service's status based on the this Sensor's status
         networkService.determineStatus(sensorStatus);
         // Now update listeners
-        if(listeners.get(sensorID)!=null) {
-            List<SensorStatusListener> sslList = listeners.get(sensorID);
+        if(sensorListeners.get(sensorID)!=null) {
+            List<SensorStatusListener> sslList = sensorListeners.get(sensorID);
             for(SensorStatusListener ssl : sslList) {
                 ssl.statusUpdated(sensorStatus);
             }
         }
+        // Now update Man Con status
+        determineManConAvailability();
     }
 
     public void setNetworkService(NetworkService networkService) {
@@ -487,18 +539,26 @@ public final class SensorManager {
     }
 
     public boolean registerSensorStatusListener(String sensorId, SensorStatusListener listener) {
-        listeners.putIfAbsent(sensorId, new ArrayList<>());
-        if(!listeners.get(sensorId).contains(listener)) {
-            listeners.get(sensorId).add(listener);
+        sensorListeners.putIfAbsent(sensorId, new ArrayList<>());
+        if(!sensorListeners.get(sensorId).contains(listener)) {
+            sensorListeners.get(sensorId).add(listener);
         }
         return true;
     }
 
     public boolean unregisterSensorStatusListener(String sensorId, SensorStatusListener listener) {
-        if(listeners.get(sensorId)!=null) {
-            listeners.get(sensorId).remove(listener);
+        if(sensorListeners.get(sensorId)!=null) {
+            sensorListeners.get(sensorId).remove(listener);
         }
         return true;
+    }
+
+    public static void registerManConStatusListener(ManConStatusListener listener) {
+        manConStatusListeners.add(listener);
+    }
+
+    public static void removeManConStatusListener(ManConStatusListener listener) {
+        manConStatusListeners.remove(listener);
     }
 
     public boolean shutdown() {

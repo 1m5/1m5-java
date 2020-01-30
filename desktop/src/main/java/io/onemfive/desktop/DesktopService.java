@@ -31,12 +31,17 @@ import io.onemfive.core.MessageProducer;
 import io.onemfive.core.ServiceStatusListener;
 import io.onemfive.data.DID;
 import io.onemfive.data.Envelope;
+import io.onemfive.data.ManConStatus;
 import io.onemfive.data.route.Route;
+import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.personal.identities.IdentitiesView;
+import io.onemfive.network.sensors.ManConStatusListener;
+import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.util.DLC;
 import javafx.application.Platform;
 
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 public class DesktopService extends BaseService {
@@ -119,5 +124,19 @@ public class DesktopService extends BaseService {
                 LOG.warning("Operation unsupported: " + operation);
             }
         }
+    }
+
+    @Override
+    public boolean start(Properties p) {
+        if(!super.start(p)) {
+            LOG.warning("DesktopService's parent failed to start.");
+            return false;
+        }
+        SensorManager.registerManConStatusListener(() -> Platform.runLater(() -> {
+            LOG.info("Updating ManCon status...");
+            HomeView v = (HomeView)MVC.loadView(HomeView.class, true);
+            v.updateManConBox();
+        }));
+        return true;
     }
 }

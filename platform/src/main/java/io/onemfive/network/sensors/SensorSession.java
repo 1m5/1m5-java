@@ -49,7 +49,6 @@ public interface SensorSession {
     boolean close();
     Boolean send(Packet packet);
     void handleNetworkOpPacket(Packet packet, NetworkOp op);
-    NetworkPeer getLocalPeer();
     void addSessionListener(SessionListener listener);
     void removeSessionListener(SessionListener listener);
     Status getStatus();

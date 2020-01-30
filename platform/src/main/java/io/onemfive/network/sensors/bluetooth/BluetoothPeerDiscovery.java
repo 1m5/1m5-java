@@ -26,53 +26,53 @@
  */
 package io.onemfive.network.sensors.bluetooth;
 
-import io.onemfive.data.Envelope;
-import io.onemfive.data.TextMessage;
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.data.*;
 import io.onemfive.network.NetworkTask;
 import io.onemfive.network.Packet;
 import io.onemfive.network.Request;
+import io.onemfive.network.peers.P2PRelationship;
+import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.SensorSession;
+import io.onemfive.util.DLC;
 import io.onemfive.util.tasks.TaskRunner;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class BluetoothPeerDiscovery extends NetworkTask {
 
     private static final Logger LOG = Logger.getLogger(BluetoothPeerDiscovery.class.getName());
 
-    private NetworkPeer localPeer;
-    private Map<String, NetworkPeer> peers;
+    private SensorSession session;
+    private PeerManager peerManager;
 
-    public BluetoothPeerDiscovery(NetworkPeer localPeer, Map<String, NetworkPeer> peers, BluetoothSensor sensor, TaskRunner taskRunner) {
+    public BluetoothPeerDiscovery(PeerManager peerManager, BluetoothSensor sensor, TaskRunner taskRunner) {
         super(BluetoothPeerDiscovery.class.getName(), taskRunner, sensor);
-        this.localPeer = localPeer;
-        this.peers = peers;
+        this.peerManager = peerManager;
     }
 
     @Override
     public Boolean execute() {
-        started = true;
-        if(peers != null && peers.size() > 0) {
-            Collection<NetworkPeer> peersList = peers.values();
-            Envelope e;
-            for (NetworkPeer peer : peersList) {
-                SensorSession session = ((BluetoothSensor)sensor).establishSession(peer, true);
-                Packet packet = new Request();
-                packet.setOriginationPeer(localPeer);
-                packet.setFromPeer(localPeer);
-                packet.setToPeer(peer);
-                packet.setDestinationPeer(peer);
-                e = Envelope.textFactory();
-                ((TextMessage)e.getMessage()).setText("Hola Gaia!-"+System.currentTimeMillis());
-                packet.setEnvelope(e);
-                session.send(packet);
-            }
+        running = true;
+        NetworkPeer peer = peerManager.getRandomPeerByRelationship(peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth), P2PRelationship.RelType.Bluetooth);
+        if(peer==null) {
+            LOG.info("No Bluetooth Peers yet for Peer Discovery. Waiting on Device Discovery results...");
+        } else {
+            if (session == null)
+                session = sensor.establishSession(peer, true);
+            Packet packet = new Request();
+            packet.setOriginationPeer(peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth));
+            packet.setFromPeer(peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth));
+            packet.setToPeer(peer);
+            packet.setDestinationPeer(peer);
+            // TODO: Replace payload with status information
+            Envelope e = Envelope.documentFactory();
+            DLC.addContent("Hola Gaia!", e);
+            packet.setEnvelope(e);
+            session.send(packet);
         }
         lastCompletionTime = System.currentTimeMillis();
-        started = false;
+        running = false;
         return true;
     }
+
 }

@@ -35,7 +35,8 @@ public enum ManCon {
     HIGH, // MANCON 3
     MEDIUM, // MANCON 4
     LOW, // MANCON 5
-    NONE;
+    NONE,
+    UNKNOWN;
 
     public static ManCon fromOrdinal(int i) {
         switch (i) {
@@ -48,4 +49,5 @@ public enum ManCon {
             default: return NONE;
         }
     }
+
 }

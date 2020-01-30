@@ -26,7 +26,6 @@
  */
 package io.onemfive.network.sensors.bluetooth;
 
-import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkOp;
@@ -42,24 +41,26 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Logger;
 
-public class BluetoothSession extends BaseSession {
+class BluetoothSession extends BaseSession {
 
     private static final Logger LOG = Logger.getLogger(BluetoothSession.class.getName());
 
+    private BluetoothSensor sensor;
     private ClientSession clientSession;
     private boolean connected = false;
 
-    public BluetoothSession() {
-        super(new NetworkPeer(Network.Bluetooth));
+    BluetoothSession(BluetoothSensor sensor) {
+        this.sensor = sensor;
     }
 
     @Override
     public void handleNetworkOpPacket(Packet packet, NetworkOp op) {
-
+        LOG.warning("Handling Network Op Packet no yet implemented.");
     }
 
     @Override
     public Boolean send(Packet packet) {
+        LOG.info("Sending packet...");
         if(!connected) {
             connect();
         }
@@ -91,6 +92,7 @@ public class BluetoothSession extends BaseSession {
                 LOG.warning(e.getLocalizedMessage());
             }
         }
+        LOG.info("Packet sent.");
         return true;
     }
 
@@ -101,12 +103,14 @@ public class BluetoothSession extends BaseSession {
 
     @Override
     public boolean open(NetworkPeer peer) {
+        LOG.info("Establishing session...");
         try {
             clientSession = (ClientSession) Connector.open(peer.getDid().getPublicKey().getAddress());
         } catch (IOException e) {
-            LOG.warning(e.getLocalizedMessage());
+            LOG.warning("Failed to open connection: "+e.getLocalizedMessage());
             return false;
         }
+        LOG.info("Session established.");
         return true;
     }
 
@@ -114,7 +118,7 @@ public class BluetoothSession extends BaseSession {
     public boolean connect() {
         connected = false;
         if(clientSession==null) {
-            if(!open(localPeer))
+            if(!open(peer))
                 return false;
         }
         try {
@@ -158,6 +162,7 @@ public class BluetoothSession extends BaseSession {
                 return false;
             }
         }
+        sensor.releaseSession(this);
         return true;
     }
 }

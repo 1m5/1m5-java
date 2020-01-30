@@ -48,11 +48,11 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
     private LiFiSession session;
 
     public LiFiSensor() {
-        super(new NetworkPeer(Network.LiFi));
+       super(Network.LiFi);
     }
 
     public LiFiSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.LiFi));
+        super(sensorManager, Network.LiFi);
     }
 
     @Override

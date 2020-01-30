@@ -89,8 +89,8 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
     private I2PSocketManager socketManager;
     private boolean isTest = false;
 
-    public I2PSensorSession(I2PSensor sensor, NetworkPeer localPeer) {
-        super(localPeer);
+    public I2PSensorSession(I2PSensor sensor) {
+        super();
         this.sensor = sensor;
     }
 
@@ -113,9 +113,18 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
      * Open a Socket with supplied Network Peer
      */
     @Override
-    public boolean open(NetworkPeer peer) {
+    public boolean open(NetworkPeer newLocalPeer) {
+        NetworkPeer localPeer = sensor.getSensorManager().getPeerManager().getLocalNode().getNetworkPeer(Network.I2P);
+        if(localPeer==null) {
+            if(newLocalPeer!=null && newLocalPeer.getNetwork()==Network.I2P) {
+                localPeer = newLocalPeer;
+            } else {
+                localPeer = new NetworkPeer(Network.I2P, "Alice", "1234");
+            }
+            sensor.getSensorManager().getPeerManager().getLocalNode().addNetworkPeer(localPeer);
+        }
         // read the local destination key from the key file if it exists
-        File destinationKeyFile = new File(sensor.getDirectory(), peer.getDid().getUsername());
+        File destinationKeyFile = new File(sensor.getDirectory(), localPeer.getDid().getUsername());
         FileReader fileReader = null;
         try {
             fileReader = new FileReader(destinationKeyFile);
@@ -180,44 +189,13 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
                 return false;
             }
         }
-        return true;
-    }
-
-    /**
-     * Connect to I2P network
-     * @return
-     */
-    @Override
-    public boolean connect() {
-        if(!isOpen()) {
-            LOG.warning("No Socket Manager open.");
-            return false;
-        }
         i2pSession = socketManager.getSession();
-        LOG.info("I2P Session connecting...");
-        long start = System.currentTimeMillis();
-        try {
-            // Throws I2PSessionException if the connection fails
-            i2pSession.connect();
-            sensor.updateStatus(SensorStatus.NETWORK_CONNECTED);
-            connected = true;
-        } catch (I2PSessionException e) {
-            LOG.warning(e.getLocalizedMessage());
-            return false;
-        }
-        long end = System.currentTimeMillis();
-        long durationMs = end - start;
-        LOG.info("I2P Session connected. Took "+(durationMs/1000)+" seconds.");
-
         Destination localDestination = i2pSession.getMyDestination();
         String address = localDestination.toBase64();
         String fingerprint = localDestination.calculateHash().toBase64();
         String algorithm = localDestination.getPublicKey().getType().getAlgorithmName();
         LOG.info("I2PSensor Local destination key in base64: " + address);
         LOG.info("I2PSensor Local destination fingerprint (hash) in base64: " + fingerprint);
-
-        i2pSession.addMuxedSessionListener(this, I2PSession.PROTO_ANY, I2PSession.PORT_ANY);
-
         // Ensure local and network are correct
         localPeer.setLocal(true);
         localPeer.setNetwork(Network.I2P);
@@ -232,19 +210,38 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
         localPeer.getDid().getPublicKey().setBase64Encoded(true);
         localPeer.getDid().getPublicKey().setFingerprint(fingerprint);
         localPeer.getDid().getPublicKey().setType(algorithm);
+        sensor.getSensorManager().getPeerManager().savePeer(localPeer, true);
+        return true;
+    }
 
-        if(!isTest) {
-            // Publish local I2P address
-            // TODO: Change to Network Op
-            LOG.info("Publishing local I2P Network Peer key...");
-            Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
-            EventMessage m = (EventMessage) e.getMessage();
-            m.setName(fingerprint);
-            m.setMessage(localPeer);
-            DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
-            sensor.sendIn(e);
+    /**
+     * Connect to I2P network
+     * @return
+     */
+    @Override
+    public boolean connect() {
+        if(!isOpen()) {
+            LOG.info("No Socket Manager open.");
+            open(null);
         }
-        return false;
+        i2pSession = socketManager.getSession();
+        LOG.info("I2P Session connecting...");
+        long start = System.currentTimeMillis();
+        try {
+            // Throws I2PSessionException if the connection fails
+            i2pSession.connect();
+            connected = true;
+        } catch (I2PSessionException e) {
+            LOG.warning(e.getLocalizedMessage());
+            return false;
+        }
+        long end = System.currentTimeMillis();
+        long durationMs = end - start;
+        LOG.info("I2P Session connected. Took "+(durationMs/1000)+" seconds.");
+
+        i2pSession.addMuxedSessionListener(this, I2PSession.PROTO_ANY, I2PSession.PORT_ANY);
+
+        return true;
     }
 
     @Override

@@ -50,24 +50,23 @@ public abstract class BaseSensor implements Sensor {
 
     private static final Logger LOG = Logger.getLogger(BaseSensor.class.getName());
 
-    protected final NetworkPeer localPeer;
+    protected NetworkPeer localPeer;
     protected Network network;
     protected SensorManager sensorManager;
     private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
     protected Integer restartAttempts = 0;
     protected TaskRunner taskRunner;
     protected String directory;
-    protected Map<Integer, SensorSession> sessions = new HashMap<>();
+    protected final Map<Integer, SensorSession> sessions = new HashMap<>();
     protected Properties properties;
 
-    public BaseSensor(NetworkPeer localPeer) {
-        this.localPeer = localPeer;
-        this.network = localPeer.getNetwork();
+    public BaseSensor(Network network) {
+        this.network = network;
     }
 
-    public BaseSensor(SensorManager sensorManager, NetworkPeer localPeer) {
+    public BaseSensor(SensorManager sensorManager, Network network) {
         this.sensorManager = sensorManager;
-        this.localPeer = localPeer;
+        this.network = network;
     }
 
     public SensorManager getSensorManager() {
@@ -82,32 +81,16 @@ public abstract class BaseSensor implements Sensor {
         }
     }
 
-    public SensorSession getSession(NetworkPeer peer) {
-        for(SensorSession s : sessions.values()) {
-            if(s.getLocalPeer().equals(peer))
-                return s;
-        }
-        return null;
-    }
-
-    public SensorSession getSession(Integer sessId) {
-        return sessions.getOrDefault(sessId, null);
-    }
-
-    public abstract SensorSession establishSession(NetworkPeer peer, Boolean autoConnect);
-
-    public Boolean closeSession(Integer sessionId) {
-        SensorSession session = sessions.get(sessionId);
+    @Override
+    public void releaseSession(SensorSession sensorSession) {
+        SensorSession session = sessions.get(sensorSession.getId());
         if(session==null) {
-            LOG.info("No session found in sessions map for id: "+sessionId);
-            return true;
-        } else if (session.disconnect()) {
-            sessions.remove(sessionId);
-            LOG.info("Session (id="+sessionId+") disconnected and remove from sessions map.");
-            return true;
+            LOG.info("No session found in sessions map for id: "+sensorSession.getId());
         } else {
-            LOG.warning("Issue with disconnection of session with id: "+sessionId);
-            return false;
+            session.disconnect();
+            session.close();
+            sessions.remove(sensorSession.getId());
+            LOG.info("Session (id="+sensorSession.getId()+") disconnected and remove from sessions map.");
         }
     }
 
@@ -126,7 +109,7 @@ public abstract class BaseSensor implements Sensor {
      * @param session session to report disconnect to
      */
     public void disconnected(SensorSession session) {
-        LOG.info("Radio Session reporting disconnection.");
+        LOG.info("Sensor Session reporting disconnection.");
         if(disconnected()) {
             updateStatus(NETWORK_STOPPED);
             routerStatusChanged();
@@ -150,17 +133,17 @@ public abstract class BaseSensor implements Sensor {
         String statusText;
         switch (getStatus()) {
             case NETWORK_CONNECTING:
-                statusText = "Testing Radio Network...";
+                statusText = "Testing Sensor...";
                 break;
             case NETWORK_CONNECTED:
-                statusText = "Connected to Radio Network.";
+                statusText = "Connected to Sensor.";
                 restartAttempts = 0; // Reset restart attempts
                 break;
             case NETWORK_STOPPED:
-                statusText = "Disconnected from Radio Network.";
+                statusText = "Disconnected from Sensor.";
                 break;
             default: {
-                statusText = "Unhandled Radio Network Status: "+getStatus().name();
+                statusText = "Unhandled Sensor Status: "+getStatus().name();
             }
         }
         LOG.info(statusText);
@@ -171,7 +154,7 @@ public abstract class BaseSensor implements Sensor {
     }
 
     public void checkRouterStats() {
-        LOG.info("RadioSensor status:\n\t"+getStatus().name());
+        LOG.info("Sensor status:\n\t"+getStatus().name());
     }
 
     @Override
@@ -216,7 +199,7 @@ public abstract class BaseSensor implements Sensor {
     @Override
     public boolean shutdown() {
         boolean success = true;
-        if(sessions!=null) {
+        if(sessions !=null) {
             Collection<SensorSession> rl = sessions.values();
             for(SensorSession r : rl) {
                 if(!r.disconnect()) {

@@ -325,17 +325,17 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
         NetworkService networkService = new NetworkService(this, this);
         registeredServices.put(NetworkService.class.getName(), networkService);
 
-        BisqService bisqService = new BisqService(this, this);
-        registeredServices.put(BisqService.class.getName(), bisqService);
-
-        BitcoinService bitcoinService = new BitcoinService(this, this);
-        registeredServices.put(BitcoinService.class.getName(), bitcoinService);
-
-        KomodoService komodoService = new KomodoService(this, this);
-        registeredServices.put(KomodoService.class.getName(), komodoService);
-
-        MoneroService moneroService = new MoneroService(this, this);
-        registeredServices.put(MoneroService.class.getName(), moneroService);
+//        BisqService bisqService = new BisqService(this, this);
+//        registeredServices.put(BisqService.class.getName(), bisqService);
+//
+//        BitcoinService bitcoinService = new BitcoinService(this, this);
+//        registeredServices.put(BitcoinService.class.getName(), bitcoinService);
+//
+//        KomodoService komodoService = new KomodoService(this, this);
+//        registeredServices.put(KomodoService.class.getName(), komodoService);
+//
+//        MoneroService moneroService = new MoneroService(this, this);
+//        registeredServices.put(MoneroService.class.getName(), moneroService);
 
         AdminService adminService = new AdminService(this, this);
         registeredServices.put(AdminService.class.getName(), adminService);

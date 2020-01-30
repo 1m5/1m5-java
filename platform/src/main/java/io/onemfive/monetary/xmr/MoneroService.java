@@ -101,7 +101,7 @@ public class MoneroService extends BaseService {
     public boolean start(Properties p) {
         LOG.info("Starting....");
         updateStatus(ServiceStatus.STARTING);
-        daemon = new MoneroDaemonRpc("http://localhost:38081");
+//        daemon = new MoneroDaemonRpc("http://localhost:38081");
         updateStatus(ServiceStatus.RUNNING);
         LOG.info("Started.");
         return true;

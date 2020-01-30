@@ -142,19 +142,19 @@ public class ClearnetSensor extends BaseSensor {
     private Properties properties;
 
     public ClearnetSensor() {
-        super(new NetworkPeer(Network.HTTPS));
+        super(Network.HTTPS);
     }
 
-    public ClearnetSensor(NetworkPeer np) {
-        super(np);
+    public ClearnetSensor(Network network) {
+        super(network);
     }
 
     public ClearnetSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.HTTPS));
+        super(sensorManager, Network.HTTPS);
     }
 
-    public ClearnetSensor(SensorManager sensorManager, NetworkPeer np) {
-        super(sensorManager, np);
+    public ClearnetSensor(SensorManager sensorManager, Network network) {
+        super(sensorManager, network);
     }
 
     public String registerHandler(AsynchronousEnvelopeHandler handler) {

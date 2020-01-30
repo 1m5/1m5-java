@@ -83,13 +83,13 @@ public class I2PPeerDiscovery extends NetworkTask {
         if(peerManager.savePeer(seedA, true)) {
             seedA = peerManager.loadPeer(seedA);
             seeds.add(seedA);
-            localNode.addLocalNetworkPeer(seedA);
+            localNode.addNetworkPeer(seedA);
         }
     }
 
     @Override
     public Long getPeriodicity() {
-        P2PRelationship rel = peerManager.getRelationship(localNode.getLocalNetworkPeer(Network.I2P), seeds.get(0), P2PRelationship.RelType.I2P);
+        P2PRelationship rel = peerManager.getRelationship(localNode.getNetworkPeer(Network.I2P), seeds.get(0), P2PRelationship.RelType.I2P);
         if(!rel.isReliable())
             return 5 * 1000L; // Every five seconds until we have a reliable seed.
         else
@@ -99,8 +99,8 @@ public class I2PPeerDiscovery extends NetworkTask {
     @Override
     public Boolean execute() {
         LOG.info("Running I2P Peer Discovery...");
-        started = true;
-        long totalKnown = peerManager.totalPeersByRelationship(localNode.getLocalNetworkPeer(Network.I2P), P2PRelationship.RelType.I2P);
+        running = true;
+        long totalKnown = peerManager.totalPeersByRelationship(localNode.getNetworkPeer(Network.I2P), P2PRelationship.RelType.I2P);
         if(totalKnown < 2) {
             LOG.info("No I2P peers beyond a seed is known. Just use seeds.");
             if(seeds!=null && seeds.size() > 0) {
@@ -110,15 +110,15 @@ public class I2PPeerDiscovery extends NetworkTask {
                         LOG.warning("Seed provided is not for I2P.");
                     } else if(seed.getDid().getPublicKey().getAddress().isEmpty()) {
                         LOG.warning("Seed provided does not have an address.");
-                    } else if(seed.getDid().getPublicKey().getAddress().equals(localNode.getLocalNetworkPeer(Network.I2P).getDid().getPublicKey().getAddress())) {
+                    } else if(seed.getDid().getPublicKey().getAddress().equals(localNode.getNetworkPeer(Network.I2P).getDid().getPublicKey().getAddress())) {
                         LOG.info("Seed is local peer.");
                     } else {
                         LOG.info("Sending Peer Status Request to Seed Peer:\n\t" + seed);
                         Envelope e = Envelope.documentFactory();
                         DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
                         Request request = new Request();
-                        request.setOriginationPeer(localNode.getLocalNetworkPeer(Network.I2P));
-                        request.setFromPeer(localNode.getLocalNetworkPeer(Network.I2P));
+                        request.setOriginationPeer(localNode.getNetworkPeer(Network.I2P));
+                        request.setFromPeer(localNode.getNetworkPeer(Network.I2P));
                         request.setDestinationPeer(seed);
                         request.setToPeer(seed);
                         request.setEnvelope(e);
@@ -135,14 +135,14 @@ public class I2PPeerDiscovery extends NetworkTask {
             }
         } else if(totalKnown < MaxPT) {
             LOG.info(totalKnown+" known peers less than Maximum Peers Tracked of "+ MaxPT+"; continuing peer discovery...");
-            NetworkPeer p = peerManager.getRandomKnownPeer(localNode.getLocalNetworkPeer(Network.I2P));
+            NetworkPeer p = peerManager.getRandomKnownPeer(localNode.getNetworkPeer(Network.I2P));
             if(p != null) {
                 LOG.info("Sending Peer Status Request to Known Peer...");
                 Envelope e = Envelope.documentFactory();
                 DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
                 Request request = new Request();
-                request.setOriginationPeer(localNode.getLocalNetworkPeer(Network.I2P));
-                request.setFromPeer(localNode.getLocalNetworkPeer(Network.I2P));
+                request.setOriginationPeer(localNode.getNetworkPeer(Network.I2P));
+                request.setFromPeer(localNode.getNetworkPeer(Network.I2P));
                 request.setDestinationPeer(p);
                 request.setEnvelope(e);
                 sensor.sendOut(request);
@@ -151,7 +151,7 @@ public class I2PPeerDiscovery extends NetworkTask {
         } else {
             LOG.info("Maximum Peers Tracked of "+ MaxPT+" reached. No need to look for more.");
         }
-        started = false;
+        running = false;
         return true;
     }
 

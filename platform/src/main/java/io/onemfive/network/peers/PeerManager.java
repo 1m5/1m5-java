@@ -35,7 +35,6 @@ import io.onemfive.network.Response;
 import io.onemfive.neo4j.GraphUtil;
 import io.onemfive.neo4j.Neo4jDB;
 import io.onemfive.network.*;
-import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.RandomUtil;
 import io.onemfive.util.tasks.TaskRunner;
@@ -52,6 +51,11 @@ import java.util.logging.Logger;
 
 import static io.onemfive.data.ServiceMessage.NO_ERROR;
 
+/**
+ * Peer Manager's responsibility is to manage the Peer Graph serving all requests for information from it
+ * including finding various paths among peers.
+ * The Peer Manager delegates all Peer Discovery to each Sensor whom it turn reports back discovery information.
+ */
 public class PeerManager implements Runnable {
 
     private static final Logger LOG = Logger.getLogger(PeerManager.class.getName());
@@ -117,7 +121,8 @@ public class PeerManager implements Runnable {
             Iterable<IndexDefinition> definitions = db.getGraphDb().schema().getIndexes(PEER_LABEL);
             if(definitions==null || ((List)definitions).size() == 0) {
                 LOG.info("1M5 Indexes not found; creating...");
-                // No Address Indexes...set them up
+                // No Indexes...set them up
+                db.getGraphDb().schema().indexFor(PEER_LABEL).withName("NetworkPeer.id").on("id").create();
                 db.getGraphDb().schema().indexFor(PEER_LABEL).withName("NetworkPeer.address").on("address").create();
                 db.getGraphDb().schema().indexFor(PEER_LABEL).withName("NetworkPeer.network").on("network").create();
                 LOG.info("1M5 Indexes created.");
@@ -144,7 +149,7 @@ public class PeerManager implements Runnable {
 
     public void updateLocalAuthNPeer(AuthNRequest r) {
         if (r.statusCode == NO_ERROR) {
-            NetworkPeer localPeer = localNode.getLocalNetworkPeer();
+            NetworkPeer localPeer = localNode.getNetworkPeer();
             if(r.identityPublicKey.getAddress()!=null) {
                 localPeer.setId(r.identityPublicKey.getAddress());
                 localPeer.getDid().getPublicKey().setAddress(r.identityPublicKey.getAddress());
@@ -163,20 +168,25 @@ public class PeerManager implements Runnable {
         }
     }
 
-    public void updateLocalPeer(NetworkPeer np) {
-        np.setId(localNode.getLocalNetworkPeer().getId());
+    public void updateLocalNode(NetworkPeer np) {
+        if(localNode==null) {
+            localNode = new NetworkNode();
+        }
+        if(localNode.getNetworkPeer().getId()!=null) {
+            np.setId(localNode.getNetworkPeer().getId());
+        }
         np.setLocal(true);
-        localNode.addLocalNetworkPeer(np);
+        localNode.addNetworkPeer(np);
         savePeer(np, true);
-        LOG.info("Update local Peer: "+np);
+        LOG.info("Add to Local Node: "+np);
     }
 
     public List<NetworkPeer> findLeastHopsPath(NetworkPeer fromPeer, NetworkPeer toPeer) {
         List<NetworkPeer> leastHopsPath = new ArrayList<>();
         try (Transaction tx = db.getGraphDb().beginTx()) {
             PathFinder<Path> finder = GraphAlgoFactory.shortestPath(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.IMS, Direction.OUTGOING), 15);
-            Node startNode = findPeerNode(fromPeer);
-            Node endNode = findPeerNode(toPeer);
+            Node startNode = findPeerNodeByAddress(fromPeer);
+            Node endNode = findPeerNodeByAddress(toPeer);
             if (startNode != null && endNode != null) {
                 Path p = finder.findSinglePath(startNode, endNode);
                 NetworkPeer np;
@@ -196,8 +206,8 @@ public class PeerManager implements Runnable {
         List<NetworkPeer> lowestLatencyPath = new ArrayList<>();
         try (Transaction tx = db.getGraphDb().beginTx()) {
             PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.IMS, Direction.OUTGOING), P2PRelationship.AVG_ACK_LATENCY_MS);
-            Node startNode = findPeerNode(fromPeer);
-            Node endNode = findPeerNode(toPeer);
+            Node startNode = findPeerNodeByAddress(fromPeer);
+            Node endNode = findPeerNodeByAddress(toPeer);
             if (startNode != null && endNode != null) {
                 WeightedPath path = finder.findSinglePath(startNode, endNode);
                 double weight = path.weight();
@@ -248,8 +258,8 @@ public class PeerManager implements Runnable {
         try (Transaction tx = db.getGraphDb().beginTx()) {
             PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.IMS, Direction.OUTGOING), P2PRelationship.AVG_ACK_LATENCY_MS);
 //            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanderBuilder.allTypes(Direction.OUTGOING).)
-            Node startNode = findPeerNode(fromPeer);
-            Node endNode = findPeerNode(toPeer);
+            Node startNode = findPeerNodeByAddress(fromPeer);
+            Node endNode = findPeerNodeByAddress(toPeer);
             if (startNode != null && endNode != null) {
                 WeightedPath path = finder.findSinglePath(startNode, endNode);
                 double weight = path.weight();
@@ -293,8 +303,8 @@ public class PeerManager implements Runnable {
             return false;
         }
         if(p.getId()==null || p.getId().isEmpty()) {
-            if(p.getLocal() && localNode.getLocalNetworkPeer()!=null) {
-                p.setId(localNode.getLocalNetworkPeer().getId());
+            if(p.getLocal() && localNode.getNetworkPeer()!=null) {
+                p.setId(localNode.getNetworkPeer().getId());
             } else {
                 LOG.warning("NetworkPeer.id is empty. Must have an id for remote Network Peers to save.");
                 return false;
@@ -310,7 +320,7 @@ public class PeerManager implements Runnable {
             return true;
         else if(autocreate) {
             LOG.info("Creating NetworkPeer in graph...");
-            NetworkPeer localNP = localNode.getLocalNetworkPeer(p.getNetwork());
+            NetworkPeer localNP = localNode.getNetworkPeer(p.getNetwork());
             if(localNP==null) {
                 // No Local NP for this NP's network
                 if(p.getLocal()) {
@@ -334,7 +344,8 @@ public class PeerManager implements Runnable {
                 }
                 if(!isLocal(p) && !isRelated(p, P2PRelationship.RelType.IMS)) {
                     LOG.info("Peer not known: relating as known.");
-                    relatePeers(localNode.getLocalNetworkPeer(p.getNetwork()), p, P2PRelationship.RelType.IMS);
+                    relatePeers(localNode.getNetworkPeer(), p, P2PRelationship.RelType.IMS);
+                    relatePeers(localNode.getNetworkPeer(p.getNetwork()), p, P2PRelationship.networkToRelationship(p.getNetwork()));
                     LOG.info("Peers related as known.");
                 }
             } else {
@@ -346,13 +357,25 @@ public class PeerManager implements Runnable {
         return true;
     }
 
+    private NetworkNode loadNetworkNode(String id) {
+        NetworkNode node = new NetworkNode();
+        try (Transaction tx = db.getGraphDb().beginTx()) {
+            ResourceIterator<Node> nodes = db.getGraphDb().findNodes(PEER_LABEL, "id", id);
+            while (nodes.hasNext()) {
+                node.addNetworkPeer(toPeer(toMap(nodes.next())));
+            }
+            tx.success();
+        }
+        return node;
+    }
+
     /**
      * Requires to be used within a Transaction
      * @param p
      * @return
      * @throws Exception
      */
-    private Node findPeerNode(NetworkPeer p) {
+    private Node findPeerNodeByAddress(NetworkPeer p) {
         return db.getGraphDb().findNode(PEER_LABEL, "address", p.getDid().getPublicKey().getAddress());
     }
 
@@ -360,7 +383,7 @@ public class PeerManager implements Runnable {
         if(p==null) return null;
         NetworkPeer loaded = null;
         try (Transaction tx = db.getGraphDb().beginTx()) {
-            Node n = findPeerNode(p);
+            Node n = findPeerNodeByAddress(p);
             loaded = toPeer(n);
             tx.success();
         } catch (Exception e) {
@@ -416,7 +439,7 @@ public class PeerManager implements Runnable {
     }
 
     public NetworkPeer getRandomKnownPeer() {
-        return getRandomKnownPeer(localNode.getLocalNetworkPeer());
+        return getRandomKnownPeer(localNode.getNetworkPeer());
     }
 
     public NetworkPeer getRandomKnownPeer(NetworkPeer p) {
@@ -460,6 +483,24 @@ public class PeerManager implements Runnable {
         return reliable;
     }
 
+    public List<NetworkPeer> getPeersByNetwork(Network network) {
+        List<NetworkPeer> peers = new ArrayList<>();
+        NetworkPeer p = getLocalNode().getNetworkPeer(network);
+        try (Transaction tx = db.getGraphDb().beginTx()) {
+            String cql = "MATCH (n {address: '"+p.getDid().getPublicKey().getAddress()+"'})-[:" + P2PRelationship.networkToRelationship(network).name() + "]->(x)" +
+                    " RETURN x";
+            Result r = db.getGraphDb().execute(cql);
+            while (r.hasNext()) {
+                peers.add(toPeer((Node)r.next().get("x")));
+            }
+            tx.success();
+            LOG.info(peers.size() + " peers for local "+network.name()+ " peer");
+        } catch(Exception e) {
+            LOG.warning(e.getLocalizedMessage());
+        }
+        return peers;
+    }
+
     // TODO: Move this to file system to speed up
     public Long totalPeersByRelationship(NetworkPeer p, P2PRelationship.RelType relType) {
         long count = -1;
@@ -483,8 +524,8 @@ public class PeerManager implements Runnable {
     }
 
     public Boolean isLocal(NetworkPeer r) {
-        return localNode.getLocalNetworkPeer(r.getNetwork())!=null
-                && localNode.getLocalNetworkPeer(r.getNetwork()).getDid().getPublicKey().getAddress().equals(r.getDid().getPublicKey().getAddress());
+        return localNode.getNetworkPeer(r.getNetwork())!=null
+                && localNode.getNetworkPeer(r.getNetwork()).getDid().getPublicKey().getAddress().equals(r.getDid().getPublicKey().getAddress());
     }
 
     public NetworkPeer findPeerByAddress(String address) {
@@ -549,8 +590,8 @@ public class PeerManager implements Runnable {
     }
 
     public boolean isRelated(NetworkPeer peer, P2PRelationship.RelType relType) {
-        boolean isRelated = hasRelationship(localNode.getLocalNetworkPeer(peer.getNetwork()), peer, relType);
-        LOG.info("Are Peers Related?:\n\tLocal Peer Address: "+localNode.getLocalNetworkPeer(peer.getNetwork()).getDid().getPublicKey().getAddress()
+        boolean isRelated = hasRelationship(localNode.getNetworkPeer(peer.getNetwork()), peer, relType);
+        LOG.info("Are Peers Related?:\n\tLocal Peer Address: "+localNode.getNetworkPeer(peer.getNetwork()).getDid().getPublicKey().getAddress()
                 +"\n\tRemote Peer Address: "+peer.getDid().getPublicKey().getAddress()+"\n\t is related: "+isRelated);
         return isRelated;
     }
@@ -684,15 +725,15 @@ public class PeerManager implements Runnable {
         if(savePeer(remotePeer, true)) {
             LOG.info("Remote Peer saved.");
             saved++;
-            relatePeers(localNode.getLocalNetworkPeer(remotePeer.getNetwork()), remotePeer, P2PRelationship.networkToRelationship(remotePeer.getNetwork()));
+            relatePeers(localNode.getNetworkPeer(remotePeer.getNetwork()), remotePeer, P2PRelationship.networkToRelationship(remotePeer.getNetwork()));
             LOG.info("Remote Peer related as known to local peer.");
-            long numberKnown = totalPeersByRelationship(localNode.getLocalNetworkPeer(remotePeer.getNetwork()), P2PRelationship.networkToRelationship(remotePeer.getNetwork()));
+            long numberKnown = totalPeersByRelationship(localNode.getNetworkPeer(remotePeer.getNetwork()), P2PRelationship.networkToRelationship(remotePeer.getNetwork()));
             for (NetworkPeer known : remoteKnown) {
                 if (numberKnown + saved > MaxPeersTracked)
                     break;
                 LOG.info("Saving Remote Known...");
                 savePeer(known, true);
-                relatePeers(localNode.getLocalNetworkPeer(remotePeer.getNetwork()), known, P2PRelationship.networkToRelationship(remotePeer.getNetwork()));
+                relatePeers(localNode.getNetworkPeer(remotePeer.getNetwork()), known, P2PRelationship.networkToRelationship(remotePeer.getNetwork()));
                 LOG.info("Remote Peer saved and related as Known to local peer.");
                 relatePeers(remotePeer, known, P2PRelationship.networkToRelationship(remotePeer.getNetwork()));
                 LOG.info("Remote Known Peer related as Known to Remote Peer.");

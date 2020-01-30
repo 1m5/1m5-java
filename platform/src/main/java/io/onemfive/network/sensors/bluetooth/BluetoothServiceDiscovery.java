@@ -29,6 +29,8 @@ package io.onemfive.network.sensors.bluetooth;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkTask;
+import io.onemfive.network.peers.P2PRelationship;
+import io.onemfive.network.peers.PeerManager;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
@@ -37,26 +39,23 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class ServiceDiscovery extends NetworkTask implements DiscoveryListener {
+public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryListener {
 
-    private static final Logger LOG = Logger.getLogger(ServiceDiscovery.class.getName());
+    private static final Logger LOG = Logger.getLogger(BluetoothServiceDiscovery.class.getName());
 
     private final Object serviceSearchCompletedEvent = new Object();
 
     private BluetoothSensor sensor;
-    private Map<String, RemoteDevice> devices;
-    private Map<String, List<String>> deviceServices;
-    private Map<String, NetworkPeer> peers;
+    private PeerManager peerManager;
 
+    private NetworkPeer currentPeer;
     private RemoteDevice currentDevice;
 
     private int result;
 
-    public ServiceDiscovery(Map<String, RemoteDevice> devices, Map<String, List<String>> deviceServices, Map<String, NetworkPeer> peers, BluetoothSensor sensor, TaskRunner taskRunner) {
-        super(ServiceDiscovery.class.getName(), taskRunner, sensor);
-        this.devices = devices;
-        this.deviceServices = deviceServices;
-        this.peers = peers;
+    public BluetoothServiceDiscovery(PeerManager peerManager, BluetoothSensor sensor, TaskRunner taskRunner) {
+        super(BluetoothServiceDiscovery.class.getName(), taskRunner, sensor);
+        this.peerManager = peerManager;
         this.sensor = sensor;
     }
 
@@ -66,7 +65,7 @@ public class ServiceDiscovery extends NetworkTask implements DiscoveryListener {
 
     @Override
     public Boolean execute() {
-        started = true;
+        running = true;
         UUID obexObjPush = ServiceClasses.getUUID(ServiceClasses.OBEX_OBJECT_PUSH);
 //        if ((properties != null) && (properties.size() > 0)) {
 //            objPush = new UUID(args[0], false);
@@ -81,13 +80,13 @@ public class ServiceDiscovery extends NetworkTask implements DiscoveryListener {
         int[] attrIDs =  new int[] {
                 0x0100 // Service name
         };
-        Collection<RemoteDevice> deviceList = devices.values();
-        LOG.info(deviceList.size()+" devices to search services on...");
-        for(RemoteDevice device : deviceList) {
+        LOG.info(BluetoothDeviceDiscovery.remoteDevices.size()+" devices to search services on...");
+        for(RemoteDevice device : BluetoothDeviceDiscovery.remoteDevices) {
             currentDevice = device;
+            currentPeer = peerManager.findPeerByAddress(device.getBluetoothAddress());
             try {
                 synchronized (serviceSearchCompletedEvent) {
-                    LOG.info("search services on " + device.getBluetoothAddress() + " " + device.getFriendlyName(false));
+                    LOG.info("search services on " + device.getFriendlyName(true) + " address=" + device.getBluetoothAddress());
                     LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(attrIDs, searchUuidSet, device, this);
                     serviceSearchCompletedEvent.wait();
                 }
@@ -98,7 +97,7 @@ public class ServiceDiscovery extends NetworkTask implements DiscoveryListener {
             }
         }
         lastCompletionTime = System.currentTimeMillis();
-        started = false;
+        running = false;
         return true;
     }
 
@@ -121,29 +120,17 @@ public class ServiceDiscovery extends NetworkTask implements DiscoveryListener {
                 LOG.info("Not a NoAuthN-NoEncrypt service.");
                 continue;
             }
-            if(deviceServices.get(currentDevice.getBluetoothAddress())==null) {
-                deviceServices.put(currentDevice.getBluetoothAddress(), new ArrayList<>());
-            }
-            if(!deviceServices.get(currentDevice.getBluetoothAddress()).contains(url)) {
-                deviceServices.get(currentDevice.getBluetoothAddress()).add(url);
-            }
+
+            currentPeer.getDid().getPublicKey().addAttribute("serviceURL", url);
+
             DataElement serviceName = serviceRecords[i].getAttributeValue(0x0100);
             if (serviceName != null) {
                 LOG.info("service " + serviceName.getValue() + " found " + url);
-                // TODO: Ensure 1M5 has service name then perform check
-//                if("1M5".equals(serviceName.getValue())) {
-                    NetworkPeer peer;
-                    if(peers.get(currentDevice.getBluetoothAddress())==null) {
-                        peer = new NetworkPeer(Network.Bluetooth);
-                        peer.getDid().getPublicKey().setAddress(currentDevice.getBluetoothAddress());
-                        peer.getDid().getPublicKey().addAttribute("url", url);
-                        peer.setLocal(false);
-                        peers.put(currentDevice.getBluetoothAddress(), peer);
-                    }
-//                }
+                currentPeer.getDid().getPublicKey().addAttribute("serviceName", serviceName);
             } else {
                 LOG.info("service found " + url);
             }
+            peerManager.savePeer(currentPeer, false);
         }
     }
 
@@ -160,9 +147,7 @@ public class ServiceDiscovery extends NetworkTask implements DiscoveryListener {
             }
             case DiscoveryListener.SERVICE_SEARCH_ERROR : {
                 LOG.warning("Bluetooth search errored. Removing device from list.");
-                devices.remove(currentDevice.getBluetoothAddress());
-                deviceServices.remove(currentDevice.getBluetoothAddress());
-                peers.remove(currentDevice.getBluetoothAddress());
+                BluetoothDeviceDiscovery.remoteDevices.remove(currentDevice.getBluetoothAddress());
                 break;
             }
             case DiscoveryListener.SERVICE_SEARCH_NO_RECORDS : {

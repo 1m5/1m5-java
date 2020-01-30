@@ -45,11 +45,11 @@ public class WiFiDirectSensor extends BaseSensor {
     public static Logger LOG = Logger.getLogger(WiFiDirectSensor.class.getName());
 
     public WiFiDirectSensor() {
-        super(new NetworkPeer(Network.WiFiDirect));
+        super(Network.WiFiDirect);
     }
 
     public WiFiDirectSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.WiFiDirect));
+        super(sensorManager, Network.WiFiDirect);
     }
 
     @Override

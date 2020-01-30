@@ -26,12 +26,17 @@
  */
 package io.onemfive.network.sensors.bluetooth;
 
+import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
+import io.onemfive.data.PublicKey;
 import io.onemfive.network.NetworkTask;
+import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
 import java.io.IOException;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryListener {
@@ -39,14 +44,14 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
     private static Logger LOG = Logger.getLogger(BluetoothDeviceDiscovery.class.getName());
 
     private final Object inquiryCompletedEvent = new Object();
-
-    private BluetoothSensor sensor;
-    private Map<String,RemoteDevice> devices;
     private int result;
+    private NetworkPeer currentPeer;
+    private RemoteDevice currentDevice;
 
-    public BluetoothDeviceDiscovery(Map<String, RemoteDevice> devices, BluetoothSensor sensor, TaskRunner taskRunner) {
+    public static final List<RemoteDevice> remoteDevices = new ArrayList<>();
+
+    public BluetoothDeviceDiscovery(BluetoothSensor sensor, TaskRunner taskRunner) {
         super(BluetoothDeviceDiscovery.class.getName(), taskRunner, sensor);
-        this.devices = devices;
         this.sensor = sensor;
     }
 
@@ -56,7 +61,7 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
 
     @Override
     public Boolean execute() {
-        started = true;
+        running = true;
         try {
             synchronized (inquiryCompletedEvent) {
                 boolean inquiring = LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC, this);
@@ -76,22 +81,27 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
             LOG.warning(e.getLocalizedMessage());
             return false;
         }
+        running = false;
         return true;
     }
 
     @Override
     public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass deviceClass) {
         String msg = "Device " + remoteDevice.getBluetoothAddress() + " found.";
-        if(!devices.containsKey(remoteDevice.getBluetoothAddress())) {
-            msg += "\r\nKnown: false";
-            devices.put(remoteDevice.getBluetoothAddress(), remoteDevice);
-            try {
-                msg += "\r\nName: "+remoteDevice.getFriendlyName(false);
-            } catch (IOException e) {
-                LOG.info(e.getLocalizedMessage());
-            }
-        } else {
-            msg += "\r\nKnown: true";
+        currentDevice = remoteDevice;
+        try {
+            currentPeer = new NetworkPeer(Network.Bluetooth, remoteDevice.getFriendlyName(true), "1234");
+            currentPeer.setId(peerManager.getLocalNode().getNetworkPeer().getId());
+            PublicKey pk = currentPeer.getDid().getPublicKey();
+            pk.setAddress(remoteDevice.getBluetoothAddress());
+            pk.addAttribute("isAuthenticated", remoteDevice.isAuthenticated());
+            pk.addAttribute("isEncrypted", remoteDevice.isEncrypted());
+            pk.addAttribute("isTrustedDevice", remoteDevice.isTrustedDevice());
+            pk.addAttribute("majorDeviceClass", deviceClass.getMajorDeviceClass());
+            pk.addAttribute("minorDeviceClass", deviceClass.getMinorDeviceClass());
+            pk.addAttribute("serviceClasses", deviceClass.getServiceClasses());
+        } catch (IOException e) {
+            LOG.warning(e.getLocalizedMessage());
         }
         LOG.info(msg);
     }
@@ -101,7 +111,11 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
         result = discType;
         switch (discType) {
             case DiscoveryListener.INQUIRY_COMPLETED : {
-                LOG.info("Bluetooth inquiry completed.");break;
+                LOG.info("Bluetooth inquiry completed. Saving peer.");
+                peerManager.savePeer(currentPeer, true);
+                remoteDevices.add(currentDevice);
+                ((BluetoothSensor)sensor).updateStatus(SensorStatus.NETWORK_CONNECTED);
+                break;
             }
             case DiscoveryListener.INQUIRY_TERMINATED : {
                 LOG.warning("Bluetooth inquiry terminated.");break;
@@ -117,7 +131,7 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
             inquiryCompletedEvent.notifyAll();
         }
         lastCompletionTime = System.currentTimeMillis();
-        started = false;
+        running = false;
     }
 
     @Override

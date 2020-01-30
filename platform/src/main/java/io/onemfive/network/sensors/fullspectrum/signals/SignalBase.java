@@ -104,11 +104,6 @@ public abstract class SignalBase implements Signal, JSONSerializable {
     }
 
     @Override
-    public NetworkPeer getLocalPeer() {
-        return null;
-    }
-
-    @Override
     public void addSessionListener(SessionListener listener) {
 
     }

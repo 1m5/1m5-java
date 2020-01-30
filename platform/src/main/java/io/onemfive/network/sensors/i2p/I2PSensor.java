@@ -27,7 +27,6 @@
 package io.onemfive.network.sensors.i2p;
 
 import io.onemfive.network.Packet;
-import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.Config;
 import io.onemfive.util.tasks.TaskRunner;
@@ -94,10 +93,10 @@ public class I2PSensor extends BaseSensor {
     private CheckRouterStats checkRouterStats;
     private I2PPeerDiscovery discovery;
 
-    public I2PSensor() {super(new NetworkPeer(Network.I2P, "I2PSensor", "jR4nd0m"));}
+    public I2PSensor() {super(Network.I2P);}
 
     public I2PSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.I2P, "I2PSensor", "jR4nd0m"));
+        super(sensorManager, Network.I2P);
     }
 
     @Override
@@ -117,7 +116,7 @@ public class I2PSensor extends BaseSensor {
 
     @Override
     public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
-        SensorSession sensorSession = new I2PSensorSession(this, peer);
+        SensorSession sensorSession = new I2PSensorSession(this);
         sensorSession.init(properties);
         sensorSession.open(peer);
         if(autoConnect) {
@@ -136,7 +135,7 @@ public class I2PSensor extends BaseSensor {
     @Override
     public boolean sendOut(Packet packet) {
         LOG.info("Send I2P Message Out Packet received...");
-        SensorSession sensorSession = getSession(packet.getFromPeer());
+        SensorSession sensorSession = establishSession(null, true);
         if(sensorSession==null) {
             LOG.info("No I2P Session available. Will try to establish session with from peer...");
             sensorSession = establishSession(packet.getFromPeer(), true);
@@ -518,15 +517,14 @@ public class I2PSensor extends BaseSensor {
                 updateStatus(SensorStatus.NETWORK_STOPPED);
             }
         }
-        if(getStatus()==SensorStatus.NETWORK_CONNECTED && getSession(localPeer) == null) {
-            // Newly connected and no sessions for local peer -> establish session
-            establishSession(localPeer, true); // Connect with local peer by default
+        if(getStatus()==SensorStatus.NETWORK_CONNECTED && sessions.size()==0) {
             if(routerContext.commSystem().isInStrictCountry()) {
                 LOG.warning("This peer is in a 'strict' country defined by I2P.");
             }
             if(routerContext.router().isHidden()) {
                 LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
             }
+            establishSession(sensorManager.getPeerManager().getLocalNode().getNetworkPeer(Network.I2P), true);
             if(discovery==null) {
                 discovery = new I2PPeerDiscovery(this, taskRunner);
                 taskRunner.addTask(discovery);

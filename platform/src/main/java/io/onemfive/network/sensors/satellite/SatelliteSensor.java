@@ -45,11 +45,11 @@ public class SatelliteSensor extends BaseSensor {
     public static Logger LOG = Logger.getLogger(SatelliteSensor.class.getName());
 
     public SatelliteSensor() {
-        super(new NetworkPeer(Network.Satellite));
+        super(Network.Satellite);
     }
 
     public SatelliteSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.Satellite));
+        super(sensorManager, Network.Satellite);
     }
 
     @Override

@@ -49,7 +49,7 @@ public abstract class BaseTask implements Task {
     protected boolean successful = false;
     protected boolean stopASAP = false;
     protected boolean scheduled = false;
-    protected boolean started = false;
+    protected boolean running = false;
     protected Task.Status status = Task.Status.Ready;
 
     public BaseTask(String taskName, TaskRunner taskRunner) {
@@ -155,7 +155,6 @@ public abstract class BaseTask implements Task {
 
     @Override
     public void run() {
-
         status = Status.Running;
         startTime = System.currentTimeMillis();
         successful = execute();

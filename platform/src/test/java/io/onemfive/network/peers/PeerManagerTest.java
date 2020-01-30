@@ -85,7 +85,7 @@ public class PeerManagerTest {
         mgr.init(p);
 
         // Node A
-        NetworkPeer pA = mgr.localNode.getLocalNetworkPeer();
+        NetworkPeer pA = mgr.localNode.getNetworkPeer();
         pA.setLocal(true);
         pA.getDid().setUsername("Alice");
         pA.getDid().getPublicKey().setAddress("1m5-A");
@@ -130,7 +130,7 @@ public class PeerManagerTest {
         pCBT.getDid().getPublicKey().setAddress("bt-C");
         mgr.savePeer(pCBT, true);
 
-        long numPeers = mgr.totalPeersByRelationship(mgr.localNode.getLocalNetworkPeer(), P2PRelationship.networkToRelationship(mgr.localNode.getLocalNetworkPeer().getNetwork()));
+        long numPeers = mgr.totalPeersByRelationship(mgr.localNode.getNetworkPeer(), P2PRelationship.networkToRelationship(mgr.localNode.getNetworkPeer().getNetwork()));
         LOG.info("num peers: "+numPeers);
 
         long sent = 10 *60*1000;

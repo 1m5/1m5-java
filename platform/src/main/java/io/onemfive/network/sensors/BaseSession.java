@@ -39,11 +39,10 @@ public abstract class BaseSession implements SensorSession {
     protected Properties properties;
     protected Status status = SensorSession.Status.STOPPED;
     private List<SessionListener> listeners = new ArrayList<>();
-    protected NetworkPeer localPeer;
+    protected NetworkPeer peer;
 
-    public BaseSession(NetworkPeer localPeer) {
+    public BaseSession() {
         id = RandomUtil.nextRandomInteger();
-        this.localPeer = localPeer;
     }
 
     @Override
@@ -55,10 +54,6 @@ public abstract class BaseSession implements SensorSession {
     public boolean init(Properties properties) {
         this.properties = properties;
         return true;
-    }
-
-    public NetworkPeer getLocalPeer() {
-        return localPeer;
     }
 
     @Override

@@ -29,6 +29,7 @@ package io.onemfive.desktop.views.home;
 import com.jfoenix.controls.JFXComboBox;
 import io.onemfive.core.OneMFiveAppContext;
 import io.onemfive.data.ManCon;
+import io.onemfive.data.ManConStatus;
 import io.onemfive.desktop.DesktopApp;
 import io.onemfive.desktop.MVC;
 import io.onemfive.desktop.Resources;
@@ -80,13 +81,13 @@ public class HomeView extends InitializableView {
     private final ToggleGroup navButtons = new ToggleGroup();
     private Transitions transitions = new Transitions();
 
-    private ImageView neoManConImageView;
-    private ImageView extremeManConImageView;
-    private ImageView veryHighManConImageView;
-    private ImageView highManConImageView;
-    private ImageView mediumManConImageView;
-    private ImageView lowManConImageView;
-    private ImageView noneManConImageView;
+    private static ImageView neoManConImageView;
+    private static ImageView extremeManConImageView;
+    private static ImageView veryHighManConImageView;
+    private static ImageView highManConImageView;
+    private static ImageView mediumManConImageView;
+    private static ImageView lowManConImageView;
+    private static ImageView noneManConImageView;
 
     private final ObservableList<ManConComboBoxItem> manConComboBoxItems = FXCollections.observableArrayList();
     private final ObjectProperty<ManConComboBoxItem> selectedManConComboBoxItemProperty = new SimpleObjectProperty<>();
@@ -195,7 +196,7 @@ public class HomeView extends InitializableView {
         selectedManConComboBoxItemProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 manConComboBox.getSelectionModel().select(newValue);
-                OneMFiveAppContext.MIN_REQUIRED_MANCON = newValue.manConLevel;
+                ManConStatus.MIN_REQUIRED_MANCON = newValue.manConLevel;
                 // TODO: Persist this update
                 LOG.info("Required ManCon new value: "+newValue.manConLevel.name());
             }
@@ -203,7 +204,7 @@ public class HomeView extends InitializableView {
         manConComboBox.setItems(manConComboBoxItems);
         updateManConOptions();
         // TODO: Load min required mancon from a persisted profile setting and then set to context
-        manConComboBox.getSelectionModel().select(getComboBoxIndex(OneMFiveAppContext.MIN_REQUIRED_MANCON));
+        manConComboBox.getSelectionModel().select(getComboBoxIndex(ManConStatus.MIN_REQUIRED_MANCON));
 
         // ManCon Status
         noneManConImageView = getManConImageView(ManCon.NONE, 25);
@@ -663,7 +664,7 @@ public class HomeView extends InitializableView {
 
     private void updateManConOptions() {
         manConComboBoxItems.clear();
-        for(int start=5; start >= OneMFiveAppContext.MAX_SUPPORTED_MANCON.ordinal(); start--) {
+        for(int start = 5; start >= ManConStatus.MAX_SUPPORTED_MANCON.ordinal(); start--) {
             manConComboBoxItems.add(new ManConComboBoxItem(ManCon.fromOrdinal(start)));
         }
     }
@@ -678,11 +679,11 @@ public class HomeView extends InitializableView {
         return index;
     }
 
-    private void updateManConBox() {
+    public void updateManConBox() {
         ColorAdjust smoke = new ColorAdjust();
         smoke.setBrightness(-0.6);
         Glow glow = new Glow(0.6);
-        switch(OneMFiveAppContext.MAX_AVAILABLE_MANCON) {
+        switch(ManConStatus.MAX_AVAILABLE_MANCON) {
             case NEO: {
                 neoManConImageView.setEffect(glow);
                 extremeManConImageView.setEffect(glow);

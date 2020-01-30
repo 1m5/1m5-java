@@ -29,6 +29,7 @@ package io.onemfive.network.sensors;
 import io.onemfive.core.LifeCycle;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.util.tasks.TaskRunner;
 
@@ -50,6 +51,8 @@ public interface Sensor extends LifeCycle {
     String[] getOperationEndsWith();
     String[] getURLBeginsWith();
     String[] getURLEndsWith();
+    SensorSession establishSession(NetworkPeer peer, Boolean autoConnect);
+    void releaseSession(SensorSession sensorSession);
     void setSensorManager(SensorManager sensorManager);
     SensorManager getSensorManager();
     File getDirectory();

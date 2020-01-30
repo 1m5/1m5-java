@@ -52,13 +52,13 @@ public final class TorSensor extends ClearnetSensor {
     private static final Logger LOG = Logger.getLogger(TorSensor.class.getName());
 
     public TorSensor() {
-        super(new NetworkPeer(Network.TOR, TorSensor.class.getSimpleName(), "USNSux"));
+        super(Network.TOR);
         // Setup local Tor instance as proxy for Tor Client
         proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1",9050));
     }
 
     public TorSensor(SensorManager sensorManager) {
-        super(sensorManager, new NetworkPeer(Network.TOR, TorSensor.class.getSimpleName(), "USNSux"));
+        super(sensorManager, Network.TOR);
         // Setup local Tor instance as proxy for Tor Client
         proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1",9050));
     }

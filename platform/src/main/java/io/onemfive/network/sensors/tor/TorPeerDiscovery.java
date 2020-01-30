@@ -29,7 +29,6 @@ package io.onemfive.network.sensors.tor;
 import io.onemfive.data.*;
 import io.onemfive.network.*;
 import io.onemfive.network.peers.P2PRelationship;
-import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.NetworkTask;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.util.DLC;
@@ -37,7 +36,6 @@ import io.onemfive.network.ops.PingRequestOp;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class TorPeerDiscovery extends NetworkTask {
@@ -57,8 +55,8 @@ public class TorPeerDiscovery extends NetworkTask {
     @Override
     public Boolean execute() {
         LOG.info("Running Tor Peer Discovery...");
-        started = true;
-        long totalKnown = peerManager.totalPeersByRelationship(localNode.getLocalNetworkPeer(Network.TOR), P2PRelationship.RelType.TOR);
+        running = true;
+        long totalKnown = peerManager.totalPeersByRelationship(localNode.getNetworkPeer(Network.TOR), P2PRelationship.RelType.TOR);
         LOG.info(totalKnown+" Tor peers known.");
         if(hiddenServices!=null && hiddenServices.size() > 0) {
             // Verify Tor Hidden Services Status
@@ -67,7 +65,7 @@ public class TorPeerDiscovery extends NetworkTask {
                     LOG.warning("HiddenService provided is not for TOR.");
                 } else if(hiddenService.getDid().getPublicKey().getAddress().isEmpty()) {
                     LOG.warning("HiddenService provided does not have an address.");
-                } else if(hiddenService.getDid().getPublicKey().getAddress().equals(localNode.getLocalNetworkPeer(Network.TOR).getDid().getPublicKey().getAddress())) {
+                } else if(hiddenService.getDid().getPublicKey().getAddress().equals(localNode.getNetworkPeer(Network.TOR).getDid().getPublicKey().getAddress())) {
                     LOG.info("HiddenService is local peer.");
                     hiddenServices.remove(hiddenService);
                 } else {
@@ -75,8 +73,8 @@ public class TorPeerDiscovery extends NetworkTask {
                     Envelope e = Envelope.documentFactory();
                     DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
                     Request request = new Request();
-                    request.setOriginationPeer(localNode.getLocalNetworkPeer(Network.TOR));
-                    request.setFromPeer(localNode.getLocalNetworkPeer(Network.TOR));
+                    request.setOriginationPeer(localNode.getNetworkPeer(Network.TOR));
+                    request.setFromPeer(localNode.getNetworkPeer(Network.TOR));
                     request.setDestinationPeer(hiddenService);
                     request.setToPeer(hiddenService);
                     request.setEnvelope(e);
@@ -91,7 +89,7 @@ public class TorPeerDiscovery extends NetworkTask {
             LOG.info("No hidden services provided.");
             return false;
         }
-        started = false;
+        running = false;
         return true;
     }
 }
