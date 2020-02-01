@@ -26,18 +26,18 @@
  */
 package io.onemfive.network.sensors.bluetooth;
 
+import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.RandomUtil;
 import io.onemfive.network.sensors.BaseSession;
 
 import javax.microedition.io.Connector;
-import javax.obex.ClientSession;
-import javax.obex.HeaderSet;
-import javax.obex.Operation;
-import javax.obex.ResponseCodes;
+import javax.obex.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Logger;
 
@@ -47,6 +47,9 @@ class BluetoothSession extends BaseSession {
 
     private BluetoothSensor sensor;
     private ClientSession clientSession;
+    private SessionNotifier sessionNotifier;
+    private RequestHandler handler;
+    private Thread serverThread;
     private boolean connected = false;
 
     BluetoothSession(BluetoothSensor sensor) {
@@ -103,13 +106,34 @@ class BluetoothSession extends BaseSession {
 
     @Override
     public boolean open(NetworkPeer peer) {
-        LOG.info("Establishing session...");
+        LOG.info("Establishing client session...");
         try {
             clientSession = (ClientSession) Connector.open(peer.getDid().getPublicKey().getAddress());
         } catch (IOException e) {
             LOG.warning("Failed to open connection: "+e.getLocalizedMessage());
             return false;
         }
+                try {
+            String url = "btgoep://localhost:"+sensor.getSensorManager().getPeerManager().getLocalNode().getNetworkPeer(Network.Bluetooth).getDid().getPublicKey().getAttribute("uuid")+";name=1M5";
+            LOG.info("Setting up listener on: "+url);
+            sessionNotifier = (SessionNotifier) Connector.open(url);
+            handler = new RequestHandler();
+        } catch (IOException e) {
+            LOG.warning(e.getLocalizedMessage());
+            return false;
+        }
+        serverThread = new Thread(() -> {
+            while(getStatus()!= SensorSession.Status.STOPPING) {
+                try {
+                    sessionNotifier.acceptAndOpen(handler);
+                } catch (IOException e) {
+                    LOG.warning(e.getLocalizedMessage());
+                }
+            }
+        });
+        serverThread.setDaemon(true);
+        serverThread.start();
+
         LOG.info("Session established.");
         return true;
     }
@@ -162,7 +186,45 @@ class BluetoothSession extends BaseSession {
                 return false;
             }
         }
+        if(sessionNotifier!=null) {
+            try {
+                sessionNotifier.close();
+            } catch (IOException e) {
+                LOG.warning(e.getLocalizedMessage());
+            }
+        }
+        serverThread.interrupt();
         sensor.releaseSession(this);
         return true;
+    }
+
+    private static class RequestHandler extends ServerRequestHandler {
+
+        public int onPut(Operation op) {
+            LOG.info("Received operation: "+op.toString());
+            try {
+                HeaderSet hs = op.getReceivedHeaders();
+                String name = (String) hs.getHeader(HeaderSet.NAME);
+                if (name != null) {
+                    LOG.info("put name:" + name);
+                }
+
+                InputStream is = op.openInputStream();
+
+                StringBuffer buf = new StringBuffer();
+                int data;
+                while ((data = is.read()) != -1) {
+                    buf.append((char) data);
+                }
+
+                LOG.info("got:" + buf.toString());
+
+                op.close();
+                return ResponseCodes.OBEX_HTTP_OK;
+            } catch (IOException e) {
+                LOG.warning(e.getLocalizedMessage());
+                return ResponseCodes.OBEX_HTTP_UNAVAILABLE;
+            }
+        }
     }
 }

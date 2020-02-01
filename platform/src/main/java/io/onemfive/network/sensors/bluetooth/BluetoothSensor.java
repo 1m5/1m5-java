@@ -56,10 +56,6 @@ public class BluetoothSensor extends BaseSensor {
     private String bluetoothBaseDir;
     private File bluetoothDir;
 
-    private SessionNotifier sessionNotifier;
-    private RequestHandler handler;
-    private Thread serverThread;
-
     private Map<String, RemoteDevice> devices = new HashMap<>();
     private Map<String, List<String>> deviceServices = new HashMap<>();
 
@@ -259,26 +255,6 @@ public class BluetoothSensor extends BaseSensor {
         taskRunnerThread.setDaemon(true);
         taskRunnerThread.start();
 
-//        try {
-//            String url = "btgoep://localhost:"+localPeer.getDid().getPublicKey().getAttribute("uuid")+";name=1M5";
-//            LOG.info("Setting up listener on: "+url);
-//            sessionNotifier = (SessionNotifier) Connector.open(url);
-//            handler = new RequestHandler();
-//        } catch (IOException e) {
-//            LOG.warning(e.getLocalizedMessage());
-//            return false;
-//        }
-//        serverThread = new Thread(() -> {
-//            while(getStatus()!=SensorStatus.SHUTTING_DOWN || getStatus()!=SensorStatus.GRACEFULLY_SHUTTING_DOWN) {
-//                try {
-//                    sessionNotifier.acceptAndOpen(handler);
-//                } catch (IOException e) {
-//                    LOG.warning(e.getLocalizedMessage());
-//                }
-//            }
-//        });
-//        serverThread.setDaemon(true);
-//        serverThread.start();
         LOG.info("Started.");
         return true;
     }
@@ -298,45 +274,9 @@ public class BluetoothSensor extends BaseSensor {
         return false;
     }
 
-    private static class RequestHandler extends ServerRequestHandler {
-
-        public int onPut(Operation op) {
-            LOG.info("Received operation: "+op.toString());
-            try {
-                HeaderSet hs = op.getReceivedHeaders();
-                String name = (String) hs.getHeader(HeaderSet.NAME);
-                if (name != null) {
-                    LOG.info("put name:" + name);
-                }
-
-                InputStream is = op.openInputStream();
-
-                StringBuffer buf = new StringBuffer();
-                int data;
-                while ((data = is.read()) != -1) {
-                    buf.append((char) data);
-                }
-
-                LOG.info("got:" + buf.toString());
-
-                op.close();
-                return ResponseCodes.OBEX_HTTP_OK;
-            } catch (IOException e) {
-                LOG.warning(e.getLocalizedMessage());
-                return ResponseCodes.OBEX_HTTP_UNAVAILABLE;
-            }
-        }
-    }
-
     @Override
     public boolean shutdown() {
         super.shutdown();
-        try {
-            sessionNotifier.close();
-        } catch (IOException e) {
-            LOG.info(e.getLocalizedMessage());
-        }
-        serverThread.interrupt();
         taskRunner.removeTask(peerDiscovery, true);
         taskRunner.removeTask(serviceDiscovery, true);
         taskRunner.removeTask(deviceDiscovery, true);
@@ -346,12 +286,6 @@ public class BluetoothSensor extends BaseSensor {
     @Override
     public boolean gracefulShutdown() {
         super.gracefulShutdown();
-        try {
-            sessionNotifier.close();
-        } catch (IOException e) {
-            LOG.info(e.getLocalizedMessage());
-        }
-        serverThread.interrupt();
         taskRunner.removeTask(peerDiscovery, false);
         taskRunner.removeTask(serviceDiscovery, false);
         taskRunner.removeTask(deviceDiscovery, false);
