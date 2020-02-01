@@ -28,6 +28,7 @@ package io.onemfive.network.sensors.bluetooth;
 
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
+import io.onemfive.data.NetworkNode;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
@@ -37,13 +38,11 @@ import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
-import javax.microedition.io.Connector;
 import javax.obex.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -195,24 +194,24 @@ public class BluetoothSensor extends BaseSensor {
             System.setProperty("bluetooth.dir.log",logDir);
             properties.setProperty("bluetooth.dir.log",logDir);
         }
-
+        NetworkNode localNode = sensorManager.getPeerManager().getLocalNode();
         try {
-            localPeer = sensorManager.getPeerManager().getLocalNode().getNetworkPeer(Network.Bluetooth);
+            localPeer = localNode.getNetworkPeer(Network.Bluetooth);
             if(localPeer==null) {
-                localPeer = new NetworkPeer(Network.Bluetooth, "Alice", "1234");
-                localPeer.setLocal(true);
-                sensorManager.getPeerManager().getLocalNode().addNetworkPeer(localPeer);
+                localPeer = new NetworkPeer(Network.Bluetooth);
+                localNode.addNetworkPeer(localPeer);
             }
             String localAddress = LocalDevice.getLocalDevice().getBluetoothAddress();
-            String localFriendlyName = LocalDevice.getLocalDevice().getFriendlyName();
-            if(!localAddress.equals(localPeer.getDid().getPublicKey().getAddress())
-                    || localPeer.getDid().getPublicKey().getAttribute("uuid")==null) {
+            localPeer.getDid().setUsername(LocalDevice.getLocalDevice().getFriendlyName());
+            localPeer.getDid().getPublicKey().setAddress(localAddress);
+            localPeer.getDid().setPassphrase(localNode.getNetworkPeer().getDid().getPassphrase());
+            if (!localAddress.equals(localPeer.getDid().getPublicKey().getAddress())
+                    || localPeer.getDid().getPublicKey().getAttribute("uuid") == null) {
                 // New address or no UUID
 //                localPeer.getDid().getPublicKey().addAttribute("uuid", UUID.randomUUID().toString());
+                // TODO: Remove hard-coding
                 localPeer.getDid().getPublicKey().addAttribute("uuid", "11111111111111111111111111111123");
             }
-            localPeer.getDid().getPublicKey().setAddress(localAddress);
-            localPeer.getDid().setUsername(localFriendlyName);
             sensorManager.getPeerManager().savePeer(localPeer, true);
         } catch (BluetoothStateException e) {
             LOG.warning(e.getLocalizedMessage());
@@ -230,28 +229,29 @@ public class BluetoothSensor extends BaseSensor {
             taskRunner = new TaskRunner(4,4);
         }
 
-        // run every 3 minutes
+        // TODO: Increase periodicity once a threshold of known peers is established
+        // run every minute
         deviceDiscovery = new BluetoothDeviceDiscovery(this, taskRunner);
-        deviceDiscovery.setPeriodicity(3 * 60 * 1000L);
+        deviceDiscovery.setPeriodicity(60 * 1000L);
         deviceDiscovery.setLongRunning(true);
         taskRunner.addTask(deviceDiscovery);
 
-        // run every 3 minutes one minute after device discovery
+        // run every minute 20 seconds after device discovery
         serviceDiscovery = new BluetoothServiceDiscovery(sensorManager.getPeerManager(), this, taskRunner);
-        serviceDiscovery.setPeriodicity(3 * 60 * 1000L);
+        serviceDiscovery.setPeriodicity(60 * 1000L);
         serviceDiscovery.setLongRunning(true);
         serviceDiscovery.setDelayed(true);
         serviceDiscovery.setFixedDelay(true);
-        serviceDiscovery.setDelayTimeMS(60 * 1000L);
+        serviceDiscovery.setDelayTimeMS(20 * 1000L);
         taskRunner.addTask(serviceDiscovery);
 
-        // run every minute 3 minutes one minute after service discovery
+        // run every minute 20 seconds after service discovery
         peerDiscovery = new BluetoothPeerDiscovery(sensorManager.getPeerManager(), this, taskRunner);
-        peerDiscovery.setPeriodicity(3 * 60 * 1000L);
+        peerDiscovery.setPeriodicity(60 * 1000L);
         peerDiscovery.setLongRunning(true);
         peerDiscovery.setDelayed(true);
         peerDiscovery.setFixedDelay(true);
-        peerDiscovery.setDelayTimeMS(2 * 60 * 1000L);
+        peerDiscovery.setDelayTimeMS(40 * 1000L);
         taskRunner.addTask(peerDiscovery);
 
         Thread taskRunnerThread = new Thread(taskRunner);
