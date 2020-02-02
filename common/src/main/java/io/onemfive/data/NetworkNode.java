@@ -45,6 +45,8 @@ public final class NetworkNode {
     }
 
     public void addNetworkPeer(NetworkPeer networkPeer) {
+        if(networkPeer.getNetwork()!=Network.IMS)
+            networkPeer.setId(localPeers.get(Network.IMS).getId());
         localPeers.put(networkPeer.getNetwork(), networkPeer);
     }
 
