@@ -83,6 +83,7 @@ public class I2PSensor extends BaseSensor {
     private String i2pBaseDir;
     protected String i2pAppDir;
 
+    private Thread taskRunnerThread;
     private Long startTimeBlockedMs = 0L;
     private static final Long BLOCK_TIME_UNTIL_RESTART = 3 * 60 * 1000L; // 4 minutes
     private Integer restartAttempts = 0;
@@ -287,7 +288,10 @@ public class I2PSensor extends BaseSensor {
         checkRouterStats = new CheckRouterStats(taskRunner, this);
         checkRouterStats.setPeriodicity(3 * 1000L);
         taskRunner.addTask(checkRouterStats);
-        new Thread(taskRunner).start();
+        taskRunnerThread = new Thread(taskRunner);
+        taskRunnerThread.setDaemon(true);
+        taskRunnerThread.setName("1M5-I2PSensor-TaskRunnerThread");
+        taskRunnerThread.start();
 
 //        CountDownLatch startSignal = new CountDownLatch(1);
 //        CountDownLatch doneSignal = new CountDownLatch(1);
@@ -397,9 +401,8 @@ public class I2PSensor extends BaseSensor {
     private class RouterStopper implements Runnable {
         public void run() {
             LOG.info("I2P router stopping...");
-            for(SensorSession s : sessions.values()) {
-                s.disconnect();
-                s.close();
+            if(taskRunnerThread!=null && taskRunnerThread.isAlive()) {
+                taskRunnerThread.interrupt();
             }
             if(router != null) {
                 router.shutdown(Router.EXIT_HARD);
@@ -412,6 +415,9 @@ public class I2PSensor extends BaseSensor {
     private class RouterGracefulStopper implements Runnable {
         public void run() {
             LOG.info("I2P router gracefully stopping...");
+            if(taskRunnerThread!=null && taskRunnerThread.isAlive()) {
+                taskRunner.shutdown();
+            }
             for(SensorSession s : sessions.values()) {
                 s.disconnect();
                 s.close();
@@ -518,14 +524,17 @@ public class I2PSensor extends BaseSensor {
             }
         }
         if(getStatus()==SensorStatus.NETWORK_CONNECTED && sessions.size()==0) {
+            LOG.info("Network Connected and no Sessions.");
             if(routerContext.commSystem().isInStrictCountry()) {
                 LOG.warning("This peer is in a 'strict' country defined by I2P.");
             }
             if(routerContext.router().isHidden()) {
                 LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
             }
+            LOG.info("Establishing Session to speed up future outgoing messages...");
             establishSession(sensorManager.getPeerManager().getLocalNode().getNetworkPeer(Network.I2P), true);
             if(discovery==null) {
+                LOG.info("I2PPeerDiscovery not instantiated; adding to TaskRunner...");
                 discovery = new I2PPeerDiscovery(this, taskRunner);
                 taskRunner.addTask(discovery);
             }

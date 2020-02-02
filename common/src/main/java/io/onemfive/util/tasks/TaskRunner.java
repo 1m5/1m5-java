@@ -175,11 +175,13 @@ public class TaskRunner implements Runnable {
             if(runUntil > 0 && runUntil < System.currentTimeMillis()) {
                 status = Status.Stopping;
             }
-            try {
-                synchronized (this) {
-                    this.wait(periodicity);
+            if(status == Status.Running) {
+                try {
+                    synchronized (this) {
+                        this.wait(periodicity);
+                    }
+                } catch (InterruptedException ex) {
                 }
-            } catch (InterruptedException ex) {
             }
         }
         LOG.info("Task Runner Stopped.");
