@@ -179,7 +179,7 @@ public class OneMFiveAppContext {
             } else {
                 baseDir = SystemSettings.getSystemApplicationDir("1m5", "platform", true);
                 if (baseDir == null) {
-                    LOG.severe("Unable to create base system directory for 1M5 router.");
+                    LOG.severe("Unable to create base system directory for 1M5 platform.");
                     return;
                 } else {
                     baseStr = baseDir.getAbsolutePath();
@@ -294,9 +294,9 @@ public class OneMFiveAppContext {
      *  attempt to write to it.
      *  It may actually be read-only on a multi-user installation.
      *
-     *  In Linux, the path is: /home/[user]/1m5/router
-     *  In Mac, the path is: /home/[user]/Applications/1m5/router
-     *  in Windows, the path is: C:\\\\Program Files\\1m5\\router
+     *  In Linux, the path is: /home/[user]/1m5/platform
+     *  In Mac, the path is: /home/[user]/Applications/1m5/platform
+     *  in Windows, the path is: C:\\\\Program Files\\1m5\\platform
      *
      *  @return File constant for the life of the context
      */
@@ -308,7 +308,7 @@ public class OneMFiveAppContext {
      *  There may also be config files in this directory as templates for user
      *  installations that should not be altered by dapps.
      *
-     *  1m5/router/config
+     *  1m5/platform/config
      *
      *  @return File constant for the life of the context
      */
@@ -318,7 +318,7 @@ public class OneMFiveAppContext {
      *  The OS process id of the currently running instance.
      *  Dapps should not use this.
      *
-     *  1m5/router/pid
+     *  1m5/platform/pid
      *
      *  @return File constant for the life of the context
      */
@@ -328,7 +328,7 @@ public class OneMFiveAppContext {
      *  Where the log directory is.
      *  Dapps should not use this.
      *
-     *  1m5/router/log
+     *  1m5/platform/log
      *
      *  @return File constant for the life of the context
      */
@@ -338,7 +338,7 @@ public class OneMFiveAppContext {
      *  Where the core stores core-specific data.
      *  Applications should create their own data directory within their base directory.
      *
-     *  1m5/router/data
+     *  1m5/platform/data
      *
      *  @return File constant for the life of the context
      */
@@ -348,7 +348,7 @@ public class OneMFiveAppContext {
      *  Where the core may store cache.
      *  Applications should create their own cache directory within their base directory.
      *
-     *  1m5/router/cache
+     *  1m5/platform/cache
      *
      *  @return File constant for the life of the context
      */
@@ -359,7 +359,7 @@ public class OneMFiveAppContext {
      *  This directory is created on the first call in this context and is deleted on JVM exit.
      *  Applications should create their own temp directory within their base directory.
      *
-     *  1m5/router/tmp
+     *  1m5/platform/tmp
      *
      *  @return File constant for the life of the context
      */
@@ -469,36 +469,6 @@ public class OneMFiveAppContext {
     }
 
     /**
-     * Default false
-     */
-    public boolean getBooleanProperty(String propName) {
-        return Boolean.parseBoolean(getProperty(propName));
-    }
-
-    public boolean getBooleanPropertyDefaultTrue(String propName) {
-        return getProperty(propName, true);
-    }
-
-    /**
-     * Access the configuration attributes of this context, listing the properties
-     * provided during the context construction, as well as the ones included in
-     * System.getProperties.
-     *
-     * WARNING - not overridden in ConsciousContext, doesn't contain router config settings,
-     * use getProperties() instead.
-     *
-     * @return set of Strings containing the names of defined system properties
-     */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Set<String> getPropertyNames() {
-        // clone to avoid ConcurrentModificationException
-        Set<String> names = new HashSet<String>((Set<String>) (Set) ((java.util.Properties) System.getProperties().clone()).keySet()); // TODO-Java6: s/keySet()/stringPropertyNames()/
-        if (config != null)
-            names.addAll((Set<String>) (Set) config.keySet()); // TODO-Java6: s/keySet()/stringPropertyNames()/
-        return names;
-    }
-
-    /**
      * Access the configuration attributes of this context, listing the properties
      * provided during the context construction, as well as the ones included in
      * System.getProperties.
@@ -511,31 +481,6 @@ public class OneMFiveAppContext {
         props.putAll((java.util.Properties)System.getProperties().clone());
         props.putAll(config);
         return props;
-    }
-
-    /**
-     *  WARNING - Shutdown tasks are not executed in an I2PAppContext.
-     *  You must be in a RouterContext for the tasks to be executed
-     *  at teardown.
-     *  This method moved from Router in 0.7.1 so that clients
-     *  may use it without depending on router.jar.
-     */
-    public void addShutdownTask(Runnable task) {
-        shutdownTasks.add(task);
-    }
-
-    /**
-     *  @return an unmodifiable Set
-     */
-    public Set<Runnable> getShutdownTasks() {
-        return Collections.unmodifiableSet(shutdownTasks);
-    }
-
-    /**
-     *  Use this instead of context instanceof CoreContext
-     */
-    public boolean isConsciousContext() {
-        return false;
     }
 
     /**

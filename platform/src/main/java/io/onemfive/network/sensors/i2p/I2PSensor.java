@@ -119,7 +119,7 @@ public class I2PSensor extends BaseSensor {
     public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
         SensorSession sensorSession = new I2PSensorSession(this);
         sensorSession.init(properties);
-        sensorSession.open(peer);
+        sensorSession.open(null);
         if(autoConnect) {
             sensorSession.connect();
         }
@@ -139,7 +139,7 @@ public class I2PSensor extends BaseSensor {
         SensorSession sensorSession = establishSession(null, true);
         if(sensorSession==null) {
             LOG.info("No I2P Session available. Will try to establish session with from peer...");
-            sensorSession = establishSession(packet.getFromPeer(), true);
+            sensorSession = establishSession(null, true);
         }
         return sensorSession.send(packet);
     }
@@ -532,7 +532,7 @@ public class I2PSensor extends BaseSensor {
                 LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
             }
             LOG.info("Establishing Session to speed up future outgoing messages...");
-            establishSession(sensorManager.getPeerManager().getLocalNode().getNetworkPeer(Network.I2P), true);
+            establishSession(null, true);
             if(discovery==null) {
                 LOG.info("I2PPeerDiscovery not instantiated; adding to TaskRunner...");
                 discovery = new I2PPeerDiscovery(this, taskRunner);

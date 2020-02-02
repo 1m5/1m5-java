@@ -113,18 +113,18 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
      * Open a Socket with supplied Network Peer
      */
     @Override
-    public boolean open(NetworkPeer newLocalPeer) {
-        NetworkPeer localPeer = sensor.getSensorManager().getPeerManager().getLocalNode().getNetworkPeer(Network.I2P);
-        if(localPeer==null) {
-            if(newLocalPeer!=null && newLocalPeer.getNetwork()==Network.I2P) {
-                localPeer = newLocalPeer;
-            } else {
-                localPeer = new NetworkPeer(Network.I2P, "Alice", "1234");
-            }
-            sensor.getSensorManager().getPeerManager().getLocalNode().addNetworkPeer(localPeer);
+    public boolean open(NetworkPeer newLocalI2PPeer) {
+        // I2P Sensor currently uses only one internal I2P address thus ignoring any peer passed to this method
+        NetworkNode localNode = sensor.getSensorManager().getPeerManager().getLocalNode();
+        NetworkPeer localI2PPeer;
+        if(localNode.getNetworkPeer(Network.I2P)!=null) {
+            localI2PPeer = localNode.getNetworkPeer(Network.I2P);
+        } else {
+            localI2PPeer = new NetworkPeer(Network.I2P, localNode.getNetworkPeer().getDid().getUsername(), localNode.getNetworkPeer().getDid().getPassphrase());
+            localNode.addNetworkPeer(localI2PPeer);
         }
         // read the local destination key from the key file if it exists
-        File destinationKeyFile = new File(sensor.getDirectory(), localPeer.getDid().getUsername());
+        File destinationKeyFile = new File(sensor.getDirectory(), localI2PPeer.getDid().getUsername());
         FileReader fileReader = null;
         try {
             fileReader = new FileReader(destinationKeyFile);
@@ -190,27 +190,28 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
             }
         }
         i2pSession = socketManager.getSession();
-        Destination localDestination = i2pSession.getMyDestination();
-        String address = localDestination.toBase64();
-        String fingerprint = localDestination.calculateHash().toBase64();
-        String algorithm = localDestination.getPublicKey().getType().getAlgorithmName();
-        LOG.info("I2PSensor Local destination key in base64: " + address);
-        LOG.info("I2PSensor Local destination fingerprint (hash) in base64: " + fingerprint);
-        // Ensure local and network are correct
-        localPeer.setLocal(true);
-        localPeer.setNetwork(Network.I2P);
-        // Add destination to PK and update DID info
-        localPeer.getDid().setStatus(DID.Status.ACTIVE);
-        localPeer.getDid().setDescription("DID for I2PSensorSession");
-        localPeer.getDid().setAuthenticated(true);
-        localPeer.getDid().setVerified(true);
-        localPeer.getDid().getPublicKey().setAlias(String.valueOf(getId()));
-        localPeer.getDid().getPublicKey().isIdentityKey(true);
-        localPeer.getDid().getPublicKey().setAddress(address);
-        localPeer.getDid().getPublicKey().setBase64Encoded(true);
-        localPeer.getDid().getPublicKey().setFingerprint(fingerprint);
-        localPeer.getDid().getPublicKey().setType(algorithm);
-        sensor.getSensorManager().getPeerManager().savePeer(localPeer, true);
+        if(localI2PPeer.getDid().getPublicKey().getAddress()==null || localI2PPeer.getDid().getPublicKey().getAddress().isEmpty()) {
+            Destination localDestination = i2pSession.getMyDestination();
+            String address = localDestination.toBase64();
+            String fingerprint = localDestination.calculateHash().toBase64();
+            String algorithm = localDestination.getPublicKey().getType().getAlgorithmName();
+            // Ensure network is correct
+            localI2PPeer.setNetwork(Network.I2P);
+            // Add destination to PK and update DID info
+            localI2PPeer.getDid().setStatus(DID.Status.ACTIVE);
+            localI2PPeer.getDid().setDescription("DID for I2PSensorSession");
+            localI2PPeer.getDid().setAuthenticated(true);
+            localI2PPeer.getDid().setVerified(true);
+            localI2PPeer.getDid().getPublicKey().setAlias(localNode.getNetworkPeer().getDid().getUsername());
+            localI2PPeer.getDid().getPublicKey().isIdentityKey(true);
+            localI2PPeer.getDid().getPublicKey().setAddress(address);
+            localI2PPeer.getDid().getPublicKey().setBase64Encoded(true);
+            localI2PPeer.getDid().getPublicKey().setFingerprint(fingerprint);
+            localI2PPeer.getDid().getPublicKey().setType(algorithm);
+            sensor.getSensorManager().getPeerManager().savePeer(localI2PPeer, true);
+        }
+        LOG.info("I2PSensor Address in base64: " + localI2PPeer.getDid().getPublicKey().getAddress());
+        LOG.info("I2PSensor Fingerprint (hash) in base64: " + localI2PPeer.getDid().getPublicKey().getFingerprint());
         return true;
     }
 

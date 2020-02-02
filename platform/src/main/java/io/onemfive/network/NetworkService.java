@@ -653,6 +653,9 @@ public class NetworkService extends BaseService {
                 return false;
             }
 
+            peerManager.getLocalNode().getNetworkPeer().getDid().setUsername(username);
+            peerManager.getLocalNode().getNetworkPeer().getDid().setPassphrase(passphrase);
+
             // 3. Request local Peer
             Envelope e3 = Envelope.documentFactory();
             DLC.addRoute(NetworkService.class, NetworkService.OPERATION_RECEIVE_LOCAL_AUTHN_PEER, e3);
