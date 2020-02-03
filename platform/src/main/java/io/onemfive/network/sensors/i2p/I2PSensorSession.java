@@ -105,7 +105,6 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
         // set tunnel names
         properties.setProperty("inbound.nickname", "I2PSensor");
         properties.setProperty("outbound.nickname", "I2PSensor");
-        properties.putAll(getI2CPOptions());
         return true;
     }
 

@@ -162,7 +162,6 @@ public class PeerManager implements Runnable {
             localPeer.getDid().setVerified(true);
             LOG.info("Updating Local Peer: \n\t: "+localPeer);
             savePeer(localPeer, true);
-            LOG.info("Added returned public key to local Peer: "+localPeer);
         } else {
             LOG.warning("Error returned from AuthNRequest: " + r.statusCode);
         }
@@ -357,7 +356,7 @@ public class PeerManager implements Runnable {
         return true;
     }
 
-    private NetworkNode loadNetworkNode(String id) {
+    public NetworkNode loadNetworkNode(String id) {
         NetworkNode node = new NetworkNode();
         try (Transaction tx = db.getGraphDb().beginTx()) {
             ResourceIterator<Node> nodes = db.getGraphDb().findNodes(PEER_LABEL, "id", id);
