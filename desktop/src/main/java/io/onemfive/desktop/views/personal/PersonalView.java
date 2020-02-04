@@ -32,6 +32,7 @@ import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.personal.agora.AgoraView;
+import io.onemfive.desktop.views.personal.blog.BlogView;
 import io.onemfive.desktop.views.personal.calendar.CalendarView;
 import io.onemfive.desktop.views.personal.dashboard.DashboardView;
 import io.onemfive.desktop.views.personal.identities.IdentitiesView;
@@ -49,7 +50,7 @@ public class PersonalView extends ActivatableView {
     private Scene scene;
     private TabPane pane;
     @FXML
-    private Tab agoraTab, calendarTab, dashboardTab, identitiesTab, walletTab;
+    private Tab blogTab, agoraTab, calendarTab, dashboardTab, identitiesTab, walletTab;
 
     private Navigation.Listener navigationListener;
     private ChangeListener<Tab> tabChangeListener;
@@ -60,6 +61,7 @@ public class PersonalView extends ActivatableView {
         LOG.info("Initializing...");
 
         pane = (TabPane)root;
+        blogTab.setText(Res.get("personalView.tabs.blog").toUpperCase());
         agoraTab.setText(Res.get("personalView.tabs.agora").toUpperCase());
         calendarTab.setText(Res.get("personalView.tabs.calendar").toUpperCase());
         dashboardTab.setText(Res.get("personalView.tabs.dashboard").toUpperCase());
@@ -72,7 +74,9 @@ public class PersonalView extends ActivatableView {
         };
 
         tabChangeListener = (ov, oldValue, newValue) -> {
-            if (newValue == agoraTab)
+            if(newValue == blogTab)
+                MVC.navigation.navigateTo(HomeView.class, PersonalView.class, BlogView.class);
+            else if (newValue == agoraTab)
                 MVC.navigation.navigateTo(HomeView.class, PersonalView.class, AgoraView.class);
             else if (newValue == calendarTab)
                 MVC.navigation.navigateTo(HomeView.class, PersonalView.class, CalendarView.class);
@@ -92,7 +96,9 @@ public class PersonalView extends ActivatableView {
         pane.getSelectionModel().selectedItemProperty().addListener(tabChangeListener);
         MVC.navigation.addListener(navigationListener);
 
-        if (pane.getSelectionModel().getSelectedItem() == agoraTab)
+        if(pane.getSelectionModel().getSelectedItem() == blogTab)
+            MVC.navigation.navigateTo(HomeView.class, PersonalView.class, BlogView.class);
+        else if (pane.getSelectionModel().getSelectedItem() == agoraTab)
             MVC.navigation.navigateTo(HomeView.class, PersonalView.class, AgoraView.class);
         else if (pane.getSelectionModel().getSelectedItem() == calendarTab)
             MVC.navigation.navigateTo(HomeView.class, PersonalView.class, CalendarView.class);
@@ -123,7 +129,8 @@ public class PersonalView extends ActivatableView {
         final Tab tab;
         View view = MVC.loadView(viewClass);
 
-        if (view instanceof AgoraView) tab = agoraTab;
+        if (view instanceof BlogView) tab = blogTab;
+        else if (view instanceof AgoraView) tab = agoraTab;
         else if (view instanceof CalendarView) tab = calendarTab;
         else if (view instanceof DashboardView) tab = dashboardTab;
         else if (view instanceof IdentitiesView) tab = identitiesTab;
