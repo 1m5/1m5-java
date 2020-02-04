@@ -26,8 +26,10 @@
  */
 package io.onemfive.network.sensors.bluetooth;
 
+import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkTask;
+import io.onemfive.network.ops.OpsPacket;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.util.tasks.TaskRunner;
 
@@ -45,8 +47,8 @@ public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryL
     private BluetoothSensor sensor;
     private PeerManager peerManager;
 
-    private NetworkPeer currentPeer;
     private RemoteDevice currentDevice;
+    private NetworkPeer currentPeer;
 
     private int result;
 
@@ -68,8 +70,6 @@ public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryL
 //            objPush = new UUID(args[0], false);
 //        }
 //        UUID obexFileXfer = ServiceClasses.getUUID(ServiceClasses.OBEX_FILE_TRANSFER);
-//        UUID oneMFiveEnvPush = ServiceClasses.getUUID(ServiceClasses.ONEMFIVE_ENVELOPE_PUSH);
-//        UUID oneMFiveBinXfer = ServiceClasses.getUUID(ServiceClasses.ONEMFIVE_BINARY_TRANSFER);
 
         UUID[] searchUuidSet = new UUID[] { obexObjPush };
 //        UUID[] searchUuidSet = new UUID[] { obexObjPush, obexFileXfer, oneMFiveEnvPush, oneMFiveBinXfer };
@@ -78,12 +78,14 @@ public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryL
                 0x0100 // Service name
         };
         LOG.info(BluetoothDeviceDiscovery.remoteDevices.size()+" devices to search services on...");
-        for(RemoteDevice device : BluetoothDeviceDiscovery.remoteDevices) {
-            currentDevice = device;
-            currentPeer = peerManager.findPeerByAddress(device.getBluetoothAddress());
+        for(RemoteDevice device : BluetoothDeviceDiscovery.remoteDevices.values()) {
             try {
                 synchronized (serviceSearchCompletedEvent) {
-                    LOG.info("search services on " + device.getFriendlyName(true) + " address=" + device.getBluetoothAddress());
+                    currentDevice = device;
+                    currentPeer = new NetworkPeer(Network.Bluetooth);
+                    currentPeer.getDid().getPublicKey().setAlias(device.getFriendlyName(true));
+                    currentPeer.getDid().getPublicKey().setAddress(device.getBluetoothAddress());
+                    LOG.info("Searching services on " + currentPeer.getDid().getPublicKey().getAlias() + " address=" + currentPeer.getDid().getPublicKey().getAddress());
                     LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(attrIDs, searchUuidSet, device, this);
                     serviceSearchCompletedEvent.wait();
                 }
@@ -118,7 +120,7 @@ public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryL
                 continue;
             }
 
-            currentPeer.getDid().getPublicKey().addAttribute("serviceURL", url);
+            currentPeer.getDid().getPublicKey().addAttribute(OpsPacket.URL, url);
 
             DataElement serviceName = serviceRecords[i].getAttributeValue(0x0100);
             if (serviceName != null) {
@@ -127,7 +129,13 @@ public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryL
             } else {
                 LOG.info("service found " + url);
             }
-            peerManager.savePeer(currentPeer, false);
+
+            DataElement id = serviceRecords[i].getAttributeValue(0x5555);
+            if(id != null) {
+                LOG.info("1M5 id found: "+id);
+                currentPeer.setId((String)id.getValue());
+                BluetoothPeerDiscovery.peers.put(currentPeer.getId(), currentPeer);
+            }
         }
     }
 

@@ -28,15 +28,13 @@ package io.onemfive.network.sensors.bluetooth;
 
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkTask;
-import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.Request;
 import io.onemfive.network.ops.OpsPacket;
-import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.SensorSession;
-import io.onemfive.util.DLC;
 import io.onemfive.util.tasks.TaskRunner;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class BluetoothPeerDiscovery extends NetworkTask {
@@ -46,6 +44,8 @@ public class BluetoothPeerDiscovery extends NetworkTask {
     private SensorSession session;
     private PeerManager peerManager;
 
+    public static final Map<String,NetworkPeer> peers = new HashMap<>();
+
     public BluetoothPeerDiscovery(PeerManager peerManager, BluetoothSensor sensor, TaskRunner taskRunner) {
         super(BluetoothPeerDiscovery.class.getName(), taskRunner, sensor);
         this.peerManager = peerManager;
@@ -54,14 +54,10 @@ public class BluetoothPeerDiscovery extends NetworkTask {
     @Override
     public Boolean execute() {
         running = true;
-        NetworkPeer peer = peerManager.getRandomPeer(Network.Bluetooth);
-        if(peer==null) {
-            LOG.info("No Bluetooth Peers yet for Peer Discovery. Waiting on Device Discovery results...");
-        } else {
-            if (session == null)
-                session = sensor.establishSession(peer, true);
+        for(NetworkPeer peer : peers.values()) {
+            session = sensor.establishSession(peer, true);
             OpsPacket packet = new OpsPacket();
-//            packet.atts.put("url", session.getURL());
+            packet.atts.put(OpsPacket.URL, peer.getDid().getPublicKey().getAttribute(OpsPacket.URL));
             packet.atts.put(OpsPacket.FROM_ADDRESS, peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth).getDid().getPublicKey().getAddress());
             packet.atts.put(OpsPacket.FROM_ID, peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth).getId());
             packet.atts.put(OpsPacket.TO_ADDRESS, peer.getDid().getPublicKey().getAddress());

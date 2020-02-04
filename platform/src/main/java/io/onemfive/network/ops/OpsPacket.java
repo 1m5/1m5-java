@@ -41,6 +41,7 @@ public class OpsPacket extends Packet implements JSONSerializable {
     public static final String FROM_ADDRESS = "fromAddress";
     public static final String TO_ID = "toId";
     public static final String TO_ADDRESS = "toAddress";
+    public static final String URL = "url";
 
     public Map<String,Object> atts = new HashMap<>();
 

@@ -26,7 +26,6 @@
  */
 package io.onemfive.network.sensors;
 
-import io.onemfive.data.NetworkPeer;
 import io.onemfive.util.RandomUtil;
 
 import java.util.ArrayList;
@@ -39,7 +38,6 @@ public abstract class BaseSession implements SensorSession {
     protected Properties properties;
     protected Status status = SensorSession.Status.STOPPED;
     private List<SessionListener> listeners = new ArrayList<>();
-    protected NetworkPeer peer;
 
     public BaseSession() {
         id = RandomUtil.nextRandomInteger();

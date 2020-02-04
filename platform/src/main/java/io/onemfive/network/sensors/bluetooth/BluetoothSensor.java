@@ -211,13 +211,6 @@ public class BluetoothSensor extends BaseSensor {
             return false;
         }
 
-//        try {
-//            LocalDevice.getLocalDevice().setDiscoverable(DiscoveryAgent.GIAC);
-//        } catch (BluetoothStateException e) {
-//            LOG.warning(e.getLocalizedMessage());
-//            return false;
-//        }
-
         if(taskRunner==null) {
             taskRunner = new TaskRunner(4,4);
         }
