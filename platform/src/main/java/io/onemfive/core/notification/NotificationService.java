@@ -188,6 +188,8 @@ public class NotificationService extends BaseService {
         // For each EventMessage.Type, set a HashMap<String,Subscription>
         // and add a null filtered list for Subscriptions with no filters.
 
+        subscriptions.put(EventMessage.Type.JSON.name(), buildNewMap());
+        subscriptions.put(EventMessage.Type.HTML.name(), buildNewMap());
         subscriptions.put(EventMessage.Type.EMAIL.name(), buildNewMap());
         subscriptions.put(EventMessage.Type.EXCEPTION.name(), buildNewMap());
         subscriptions.put(EventMessage.Type.ERROR.name(), buildNewMap());
