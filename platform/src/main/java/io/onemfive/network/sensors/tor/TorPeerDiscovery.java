@@ -56,7 +56,7 @@ public class TorPeerDiscovery extends NetworkTask {
     public Boolean execute() {
         LOG.info("Running Tor Peer Discovery...");
         running = true;
-        long totalKnown = peerManager.totalPeersByRelationship(localNode.getNetworkPeer(Network.TOR), P2PRelationship.RelType.TOR);
+        long totalKnown = peerManager.totalPeersByNetwork(localNode.getNetworkPeer().getId(), Network.TOR);
         LOG.info(totalKnown+" Tor peers known.");
         if(hiddenServices!=null && hiddenServices.size() > 0) {
             // Verify Tor Hidden Services Status

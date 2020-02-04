@@ -26,9 +26,6 @@
  */
 package io.onemfive.network.ops;
 
-import io.onemfive.core.RequestReply;
-import io.onemfive.network.Request;
-import io.onemfive.network.Response;
 import io.onemfive.network.sensors.SensorManager;
 
 import java.util.logging.Logger;
@@ -36,7 +33,7 @@ import java.util.logging.Logger;
 /**
  * Handle a ping request
  */
-public class PingRequestOp extends NetworkOpBase implements RequestReply {
+public class PingRequestOp extends NetworkOpBase {
 
     private static final Logger LOG = Logger.getLogger(PingResponseOp.class.getName());
 
@@ -44,15 +41,13 @@ public class PingRequestOp extends NetworkOpBase implements RequestReply {
         super(sensorManager);
     }
 
-    @Override
-    public Response operate(Request request) {
-        Response response = new Response(request.getId());
+    public OpsPacket operate(OpsPacket packet) {
 //        LOG.info("Received PeerStatus request...");
 //        peerManager.reliablesFromRemotePeer(request.getFromPeer(), request.getReliablePeers());
 //        request.setResponding(true);
 //        request.setReliablePeers(peerManager.getReliablesToShare(peerManager.getLocalPeer()));
 //        LOG.info("Sending response to PeerStatus request...");
 //        routeOut(new ResponsePacket(request, peerManager.getLocalPeer(), request.getFromPeer(), StatusCode.OK, request.getId()));
-        return response;
+        return packet;
     }
 }

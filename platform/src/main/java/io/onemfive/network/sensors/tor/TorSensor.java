@@ -27,7 +27,7 @@
 package io.onemfive.network.sensors.tor;
 
 import io.onemfive.data.*;
-import io.onemfive.network.Packet;
+import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
 import io.onemfive.util.DLC;
@@ -80,7 +80,7 @@ public final class TorSensor extends ClearnetSensor {
     }
 
     @Override
-    public boolean sendOut(Packet packet) {
+    public boolean sendOut(NetworkPacket packet) {
         LOG.info("Tor Sensor sending request...");
         Envelope e = packet.getEnvelope();
         boolean successful = super.sendOut(packet);

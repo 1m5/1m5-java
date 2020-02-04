@@ -26,17 +26,14 @@
  */
 package io.onemfive.network.sensors.bluetooth;
 
-import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkTask;
-import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
 import javax.bluetooth.UUID;
 import java.io.IOException;
-import java.util.*;
 import java.util.logging.Logger;
 
 public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryListener {

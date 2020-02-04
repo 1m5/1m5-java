@@ -45,7 +45,6 @@ import io.onemfive.network.sensors.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -110,32 +109,22 @@ public class NetworkService extends BaseService {
         Route r = e.getRoute();
         switch (r.getOperation()) {
             case OPERATION_SEND : {
-                Request request = (Request) DLC.getData(Request.class,e);
+                // A desire to send a packet to another Peer from an internal service
+                Request request = null;
                 Sensor sensor = null;
-                if(request == null){
-                    if(r instanceof ExternalRoute) {
-                        ExternalRoute exRoute = (ExternalRoute)r;
-                        request = peerManager.buildRequest(exRoute.getOrigination(), exRoute.getDestination());
-                    } else {
-                        LOG.warning("A Network Request or External Route must be provided.");
-                        return;
-                    }
+                if(r instanceof ExternalRoute) {
+                    ExternalRoute exRoute = (ExternalRoute)r;
+                    request = peerManager.buildRequest(exRoute.getOrigination(), exRoute.getDestination());
                 } else {
-                    if (request.getDestinationPeer() == null) {
-                        LOG.warning("Must provide a destination address when using a NetworkRequest.");
-                        return;
-                    }
-                    request = peerManager.buildRequest(request.getOriginationPeer(), request.getDestinationPeer());
+                    LOG.warning("A Request or External Route must be provided.");
+                    return;
                 }
+                // Wrap Envelope with Request Packet
                 request.setEnvelope(e);
-                if(!peerManager.isKnown(request.getDestinationPeer())) {
-                    request.setToPeer(request.getDestinationPeer());
-                } else {
-                    request.setToPeer(peerManager.getRandomKnownPeer());
-                }
-                sensor = sensorManager.selectSensor(request);
+                // Select the Sensor and To Peer to make the request
+                sensor = sensorManager.selectSensorAndToPeer(request);
                 if(sensor != null) {
-                    LOG.info("Sending Packet to selected Sensor...");
+                    LOG.info("Sending Request to selected Sensor...");
                     if (!sensor.sendOut(request)) {
                         Message m = e.getMessage();
                         boolean reroute = false;
@@ -145,6 +134,7 @@ public class NetworkService extends BaseService {
                                 if ("BLOCKED".equals(err)) {
                                     if (e.getManCon() == ManCon.LOW) {
                                         LOG.info("Low security required. Assuming block means the site is down.");
+                                        // TODO: Return 404 if HTTPS, TOR, or I2P and URL is present
                                     } else {
                                         LOG.info("Some level of security required. Re-routing through another peer.");
                                         reroute = true;
@@ -153,29 +143,32 @@ public class NetworkService extends BaseService {
                             }
                         }
                         // TODO: Needs re-visited
-                        if (reroute || sensor.getStatus() == SensorStatus.NETWORK_BLOCKED) {
+                        int maxRetries = 10;
+                        int retries = 1;
+                        while ((reroute || sensor.getStatus() == SensorStatus.NETWORK_BLOCKED) && retries <= maxRetries) {
                             LOG.info("Can we reroute?");
                             String fromNetwork = sensor.getClass().getName();
-                            sensor = sensorManager.selectSensor(request);
+                            sensor = sensorManager.selectSensorAndToPeer(request);
                             if (sensor != null) {
-                                String toNetwork = sensor.getClass().getName();
-                                if (!fromNetwork.equals(toNetwork)) {
-                                    LOG.info("Escalated sensor: " + toNetwork);
-                                    NetworkPeer newToPeer = peerManager.getRandomKnownPeer(peerManager.getLocalNode().getNetworkPeer(sensor.getNetwork()));
-                                    if (newToPeer == null) {
-                                        LOG.warning("No other peers to route blocked request. Request is dead.");
-                                    } else {
-                                        // Clear error messages
-                                        if (m != null) {
-                                            m.clearErrorMessages();
+                                // Send through escalated network
+                                if(!sensor.sendOut(request)) {
+                                    retries++;
+                                    m = e.getMessage();
+                                    reroute = false;
+                                    if (m != null && m.getErrorMessages() != null && m.getErrorMessages().size() > 0) {
+                                        for (String err : m.getErrorMessages()) {
+                                            LOG.warning(err);
+                                            if ("BLOCKED".equals(err)) {
+                                                LOG.info("Some level of security required. Re-routing through another peer.");
+                                                reroute = true;
+                                            }
                                         }
-                                        request.setToPeer(newToPeer);
-                                        // Send through escalated network
-                                        sensor.sendOut(request);
                                     }
                                 }
                             } else {
                                 LOG.warning("Rerouting desired but no Sensor available for rerouting.");
+                                deadLetter(e);
+                                break;
                             }
                         }
                     }
@@ -196,7 +189,7 @@ public class NetworkService extends BaseService {
                     LOG.warning("Must provide a destination address when using a NetworkRequest.");
                     return;
                 }
-                Sensor sensor = sensorManager.selectSensor(response);
+                Sensor sensor = sensorManager.selectSensorAndToPeer(response);
                 sensor.sendOut(response);
                 break;
             }
@@ -215,7 +208,7 @@ public class NetworkService extends BaseService {
         }
     }
 
-    public boolean handlePacket(Packet request, NetworkOp op) {
+    public boolean handlePacket(NetworkPacket request, NetworkOp op) {
         // Incoming sensor request/response
         boolean successful = false;
         op.setSensorManager(sensorManager);
@@ -257,57 +250,7 @@ public class NetworkService extends BaseService {
         // ----------
         EventMessage m = (EventMessage)envelope.getMessage();
         Object msg = m.getMessage();
-        Object obj;
-        if(msg instanceof String) {
-            // Raw
-            Map<String, Object> mp = (Map<String, Object>) JSONParser.parse(msg);
-            String type = (String) mp.get("type");
-            if (type == null) {
-                LOG.warning("Attribute 'type' not found in EventMessage message. Unable to instantiate object.");
-                deadLetter(envelope);
-                return;
-            }
-            try {
-                obj = Class.forName(type).getConstructor().newInstance();
-            } catch (NoSuchMethodException e) {
-                LOG.warning("No constructor for class: " + type);
-                deadLetter(envelope);
-                return;
-            } catch (InvocationTargetException e) {
-                LOG.warning("Unable to invoke new class of type: "+type);
-                deadLetter(envelope);
-                return;
-            } catch (InstantiationException e) {
-                LOG.warning("Unable to instantiate class: " + type);
-                deadLetter(envelope);
-                return;
-            } catch (IllegalAccessException e) {
-                LOG.severe("Class of type "+type+" is not accessible.");
-                deadLetter(envelope);
-                return;
-            } catch (ClassNotFoundException e) {
-                LOG.warning("Class not on classpath: " + type);
-                deadLetter(envelope);
-                return;
-            }
-            if (obj instanceof Packet) {
-                LOG.info("Object a Packet...");
-                Packet packet = (Packet) obj;
-                packet.fromMap(mp);
-                if(peerManager.isLocal(packet.getDestinationPeer())) {
-                    // Packet meant for this local node
-
-                } else if(peerManager.isKnown(packet.getDestinationPeer())) {
-                    // Destination is known therefore forward
-                    packet.setToPeer(packet.getDestinationPeer());
-                } else {
-                    // Forward to a random reachable peer of the destination peer's network
-
-                }
-            } else {
-                LOG.warning("Object " + obj.getClass().getName() + " not handled; ignoring.");
-            }
-        } else if(msg instanceof NetworkPeer) {
+        if(msg instanceof NetworkPeer) {
             LOG.info("Route in NetworkPeer for update...");
             peerManager.updateLocalNode((NetworkPeer)msg);
             LOG.info("DID with I2P Addresses saved; Network Service ready for requests.");
@@ -580,7 +523,7 @@ public class NetworkService extends BaseService {
     @Override
     public boolean start(Properties p) {
         super.start(p);
-        LOG.info("Starting...");
+        LOG.info("Starting Network Service...");
         updateStatus(ServiceStatus.STARTING);
         properties = p;
 
@@ -606,7 +549,6 @@ public class NetworkService extends BaseService {
         // Peer Manager
         peerManager = new PeerManager(taskRunner);
         peerManager.setNetworkService(this);
-        peerManager.setTaskRunner(taskRunner);
         sensorManager.setPeerManager(peerManager);
         if(peerManager.init(properties) && sensorManager.init(properties)) {
             Subscription subscription = this::routeIn;
@@ -683,7 +625,10 @@ public class NetworkService extends BaseService {
             producer.send(e3);
 
             updateStatus(ServiceStatus.WAITING);
-            LOG.info("Sensors Service Started.");
+            LOG.info("Network Service Started.");
+        } else {
+            LOG.severe("Unable to start up Network Service without Peer Manager and Sensor Manager.");
+            return false;
         }
         return true;
     }

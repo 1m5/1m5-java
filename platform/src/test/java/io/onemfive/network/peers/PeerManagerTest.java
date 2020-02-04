@@ -26,8 +26,11 @@
  */
 package io.onemfive.network.peers;
 
+import io.onemfive.data.AuthNRequest;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.data.PublicKey;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -35,11 +38,42 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-@Ignore
 public class PeerManagerTest {
 
     private static Logger LOG = Logger.getLogger(PeerManagerTest.class.getName());
 
+    private Properties properties = new Properties();
+    private PeerManager mgr = new PeerManager();
+
+    @Before
+    public void setup() {
+        properties.setProperty("1m5.network.peers.dir","/home/objectorange/Projects/1m5/1m5/platform/src/test/resources");
+        properties.setProperty("1m5.peers.db.cleanOnRestart","true");
+        mgr.init(properties);
+        mgr.localNode.getNetworkPeer().setId("1234");
+        AuthNRequest request = new AuthNRequest();
+        request.identityPublicKey = new PublicKey("ABCDEFG");
+        request.alias = "Alice";
+        request.aliasPassphrase = "1234";
+        mgr.updateLocalAuthNPeer(request);
+    }
+
+    @Ignore
+    @Test
+    public void saveAndLoad() {
+        NetworkPeer np = new NetworkPeer();
+        np.setId("ABCDEFG");
+        np.getDid().setUsername("Bob");
+        np.getDid().setPassphrase("5678");
+        np.getDid().getPublicKey().setAddress("12345678");
+        np.getDid().getPublicKey().setFingerprint("123456");
+        mgr.savePeer(np, true);
+
+        NetworkPeer npLoaded = mgr.loadPeer("ABCDEFG");
+        assert npLoaded != null && "123456".equals(npLoaded.getDid().getPublicKey().getFingerprint());
+    }
+
+    @Ignore
     @Test
     public void relationships() {
         /**
@@ -79,14 +113,9 @@ public class PeerManagerTest {
          * with Bluetooth A -> B of 1/2 second, now the path to C will be A -> B using Bluetooth and B -> C using I2P
          * with an expected latency of 4.5 seconds.
          */
-        Properties p = new Properties();
-        p.setProperty("1m5.network.peers.dir","/home/objectorange/Projects/1m5/1m5/src/test/resources");
-        PeerManager mgr = new PeerManager();
-        mgr.init(p);
 
         // Node A
         NetworkPeer pA = mgr.localNode.getNetworkPeer();
-        pA.setLocal(true);
         pA.getDid().setUsername("Alice");
         pA.getDid().getPublicKey().setAddress("1m5-A");
         mgr.savePeer(pA, true);
@@ -130,9 +159,6 @@ public class PeerManagerTest {
         pCBT.getDid().getPublicKey().setAddress("bt-C");
         mgr.savePeer(pCBT, true);
 
-        long numPeers = mgr.totalPeersByRelationship(mgr.localNode.getNetworkPeer(), P2PRelationship.networkToRelationship(mgr.localNode.getNetworkPeer().getNetwork()));
-        LOG.info("num peers: "+numPeers);
-
         long sent = 10 *60*1000;
         long ack;
 
@@ -140,19 +166,19 @@ public class PeerManagerTest {
         // A -> C
         for(int i=0; i<2; i++) {
             ack = sent + 10000;
-            mgr.savePeerStatusTimes(pAI2P, pCI2P, sent, ack);
+            mgr.savePeerStatusTimes(pAI2P.getId(), Network.I2P, pCI2P.getId(), sent, ack);
             sent = ack;
         }
         // A -> B
         for(int i=0; i<2; i++) {
             ack = sent + 2000;
-            mgr.savePeerStatusTimes(pAI2P, pBI2P, sent, ack);
+            mgr.savePeerStatusTimes(pAI2P.getId(), Network.I2P, pBI2P.getId(), sent, ack);
             sent = ack;
         }
         // B -> C
         for(int i=0; i<2; i++) {
             ack = sent + 40000;
-            mgr.savePeerStatusTimes(pBI2P, pCI2P, sent, ack);
+            mgr.savePeerStatusTimes(pBI2P.getId(), Network.I2P, pCI2P.getId(), sent, ack);
             sent = ack;
         }
 
@@ -166,19 +192,19 @@ public class PeerManagerTest {
         // A -> C
         for(int i=0; i<2; i++) {
             ack = sent + 500;
-            mgr.savePeerStatusTimes(pATor, pCTor, sent, ack);
+            mgr.savePeerStatusTimes(pATor.getId(), Network.TOR, pCTor.getId(), sent, ack);
             sent = ack;
         }
         // A -> B
         for(int i=0; i<2; i++) {
             ack = sent + 30000;
-            mgr.savePeerStatusTimes(pATor, pBTor, sent, ack);
+            mgr.savePeerStatusTimes(pATor.getId(), Network.TOR, pBTor.getId(), sent, ack);
             sent = ack;
         }
         // B -> C
         for(int i=0; i<2; i++) {
             ack = sent + 30000;
-            mgr.savePeerStatusTimes(pBTor, pCTor, sent, ack);
+            mgr.savePeerStatusTimes(pBTor.getId(), Network.TOR, pCTor.getId(), sent, ack);
             sent = ack;
         }
 
@@ -192,19 +218,19 @@ public class PeerManagerTest {
         // A -> C
         for(int i=0; i<2; i++) {
             ack = sent + 5000;
-            mgr.savePeerStatusTimes(pABT, pCBT, sent, ack);
+            mgr.savePeerStatusTimes(pABT.getId(), Network.Bluetooth, pCBT.getId(), sent, ack);
             sent = ack;
         }
         // A -> B
         for(int i=0; i<2; i++) {
             ack = sent + 4000;
-            mgr.savePeerStatusTimes(pABT, pBBT, sent, ack);
+            mgr.savePeerStatusTimes(pABT.getId(), Network.Bluetooth, pBBT.getId(), sent, ack);
             sent = ack;
         }
         // B -> C
         for(int i=0; i<2; i++) {
             ack = sent + 6000;
-            mgr.savePeerStatusTimes(pBBT, pCBT, sent, ack);
+            mgr.savePeerStatusTimes(pBBT.getId(), Network.Bluetooth, pCBT.getId(), sent, ack);
             sent = ack;
         }
 

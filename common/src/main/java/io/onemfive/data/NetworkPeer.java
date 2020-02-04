@@ -44,10 +44,22 @@ public final class NetworkPeer implements JSONSerializable {
 
     private static Logger LOG = Logger.getLogger(NetworkPeer.class.getName());
 
+    public static final String ID = "id";
+    public static final String LOCAL = "local";
+    public static final String NETWORK = "network";
+    public static final String DID = "did";
+    public static final String USERNAME = "username";
+    public static final String PASSPHRASE_HASH = "passphraseHash";
+    public static final String PASSPHRASE_HASH_ALG = "passphraseHashAlg";
+    public static final String ALIAS = "alias";
+    public static final String ADDRESS = "address";
+    public static final String FINGERPRINT = "fingerprint";
+    public static final String KEY_TYPE = "keyType";
+    public static final String ATTRIBUTES = "attributes";
+
     private String id;
     private Network network;
     private DID did;
-    protected Boolean local = false;
 
     public NetworkPeer() {
         this(Network.IMS, null, null);
@@ -92,39 +104,28 @@ public final class NetworkPeer implements JSONSerializable {
         this.did = did;
     }
 
-    public Boolean getLocal() {
-        return local;
-    }
-
-    public void setLocal(Boolean local) {
-        this.local = local;
-    }
-
     @Override
     public Map<String, Object> toMap() {
         Map<String,Object> m = new HashMap<>();
         if(id!=null)
-            m.put("id", id);
-        if(local!=null)
-            m.put("local", local);
+            m.put(ID, id);
         if(network!=null)
-            m.put("network", network.name());
+            m.put(NETWORK, network.name());
         if(did!=null)
-            m.put("did",did.toMap());
+            m.put(DID,did.toMap());
         return m;
     }
 
     @Override
     public void fromMap(Map<String, Object> m) {
-        if(m.get("id")!=null) id = (String)m.get("id");
-        if(m.get("local")!=null) local = (Boolean) m.get("local");
-        if(m.get("network")!=null) network = Network.valueOf((String)m.get("network"));
-        if(m.get("did")!=null) {
+        if(m.get(ID)!=null) id = (String)m.get(ID);
+        if(m.get(NETWORK)!=null) network = Network.valueOf((String)m.get(NETWORK));
+        if(m.get(DID)!=null) {
             did = new DID();
-            if(m.get("did") instanceof String)
-                did.fromMap((Map<String,Object>) JSONParser.parse((String)m.get("did")));
+            if(m.get(DID) instanceof String)
+                did.fromMap((Map<String,Object>) JSONParser.parse((String)m.get(DID)));
             else
-                did.fromMap((Map<String,Object>)m.get("did"));
+                did.fromMap((Map<String,Object>)m.get(DID));
         }
     }
 

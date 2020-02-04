@@ -26,8 +26,6 @@
  */
 package io.onemfive.network.ops;
 
-import io.onemfive.core.Notification;
-import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.SensorManager;
 
 import java.util.logging.Logger;
@@ -35,7 +33,7 @@ import java.util.logging.Logger;
 /**
  * Notify Network Peer of change in reachability
  */
-public class NotifyReachabilityOp extends NetworkOpBase implements Notification {
+public class NotifyReachabilityOp extends NetworkOpBase {
 
     private static final Logger LOG = Logger.getLogger(NotifyReachabilityOp.class.getName());
 
@@ -43,8 +41,7 @@ public class NotifyReachabilityOp extends NetworkOpBase implements Notification 
         super(sensorManager);
     }
 
-    @Override
-    public void notify(Packet packet) {
+    public void notify(OpsPacket packet) {
         LOG.warning("Not yet implemented.");
     }
 }

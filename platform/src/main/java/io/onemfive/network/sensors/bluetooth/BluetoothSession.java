@@ -28,6 +28,7 @@ package io.onemfive.network.sensors.bluetooth;
 
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.sensors.SensorSession;
@@ -57,7 +58,7 @@ class BluetoothSession extends BaseSession {
     }
 
     @Override
-    public void handleNetworkOpPacket(Packet packet, NetworkOp op) {
+    public void handleNetworkOpPacket(NetworkPacket packet, NetworkOp op) {
         LOG.warning("Handling Network Op Packet no yet implemented.");
     }
 
@@ -99,7 +100,7 @@ class BluetoothSession extends BaseSession {
         return true;
     }
 
-    public Packet receive(Integer port) {
+    public NetworkPacket receive(Integer port) {
         LOG.warning("Not yet implemented.");
         return null;
     }

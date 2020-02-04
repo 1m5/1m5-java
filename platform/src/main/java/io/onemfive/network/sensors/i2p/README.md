@@ -6,9 +6,9 @@ Invisible Internet Project (I2P) Sensor
 to be copied to resources/io/onemfive/core/sensors/i2p/bote/certificates keeping reseed and ssl as directories:
     - /installer/resources/certificates/reseed
     - /installer/resources/certificates/ssl
-    
-## Installation
 
+## Installation
+https://geti2p.net/en/download
 
 ## Removal
 
@@ -19,7 +19,7 @@ sudo apt remove i2p
 sudo apt remove i2prouter
 sudo apt autoremove
 sudo apt autoclean
-    
+
 ## Attack Mitigation
 
 - https://www.irongeek.com/i.php?page=security/i2p-identify-service-hosts-eepsites

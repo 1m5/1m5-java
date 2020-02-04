@@ -28,8 +28,9 @@ package io.onemfive.network.sensors.bluetooth;
 
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkTask;
-import io.onemfive.network.Packet;
+import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Request;
+import io.onemfive.network.ops.OpsPacket;
 import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -53,21 +54,19 @@ public class BluetoothPeerDiscovery extends NetworkTask {
     @Override
     public Boolean execute() {
         running = true;
-        NetworkPeer peer = peerManager.getRandomPeerByRelationship(peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth), P2PRelationship.RelType.Bluetooth);
+        NetworkPeer peer = peerManager.getRandomPeer(Network.Bluetooth);
         if(peer==null) {
             LOG.info("No Bluetooth Peers yet for Peer Discovery. Waiting on Device Discovery results...");
         } else {
             if (session == null)
                 session = sensor.establishSession(peer, true);
-            Packet packet = new Request();
-            packet.setOriginationPeer(peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth));
-            packet.setFromPeer(peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth));
-            packet.setToPeer(peer);
-            packet.setDestinationPeer(peer);
+            OpsPacket packet = new OpsPacket();
+//            packet.atts.put("url", session.getURL());
+            packet.atts.put(OpsPacket.FROM_ADDRESS, peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth).getDid().getPublicKey().getAddress());
+            packet.atts.put(OpsPacket.FROM_ID, peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth).getId());
+            packet.atts.put(OpsPacket.TO_ADDRESS, peer.getDid().getPublicKey().getAddress());
+            packet.atts.put(OpsPacket.TO_ID, peer.getId());
             // TODO: Replace payload with status information
-            Envelope e = Envelope.documentFactory();
-            DLC.addContent("Hola Gaia!", e);
-            packet.setEnvelope(e);
             session.send(packet);
         }
         lastCompletionTime = System.currentTimeMillis();

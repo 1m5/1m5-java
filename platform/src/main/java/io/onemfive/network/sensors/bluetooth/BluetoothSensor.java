@@ -30,7 +30,7 @@ import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkNode;
 import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.Packet;
+import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -38,10 +38,7 @@ import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
-import javax.obex.*;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -106,7 +103,7 @@ public class BluetoothSensor extends BaseSensor {
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(Packet packet) {
+    public boolean sendOut(NetworkPacket packet) {
         LOG.info("Sending Packet via Bluetooth...");
 
         NetworkPeer toPeer = packet.getToPeer();

@@ -28,7 +28,7 @@ package io.onemfive.network;
 
 import java.util.Map;
 
-public class Response extends Packet {
+public class Response extends NetworkPacket {
 
     public String requestId;
 

@@ -165,7 +165,7 @@ public class DID implements Persistable, PIIClearable, JSONSerializable {
         if(status!=null) m.put("status",status.name());
         if(verified!=null) m.put("verified",verified.toString());
         if(authenticated!=null) m.put("authenticated",authenticated.toString());
-        if(publicKey!=null) m.put("publicKey", publicKey.toMap());
+        if(publicKey !=null) m.put("publicKey", publicKey.toMap());
         return m;
     }
 

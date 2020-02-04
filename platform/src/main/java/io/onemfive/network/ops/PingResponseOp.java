@@ -26,13 +26,11 @@
  */
 package io.onemfive.network.ops;
 
-import io.onemfive.core.HandleResponse;
-import io.onemfive.network.Response;
 import io.onemfive.network.sensors.SensorManager;
 
 import java.util.logging.Logger;
 
-public class PingResponseOp extends NetworkOpBase implements HandleResponse {
+public class PingResponseOp extends NetworkOpBase {
 
     private static final Logger LOG = Logger.getLogger(PingResponseOp.class.getName());
 
@@ -40,8 +38,7 @@ public class PingResponseOp extends NetworkOpBase implements HandleResponse {
         super(sensorManager);
     }
 
-    @Override
-    public Boolean operate(Response res) {
+    public Boolean operate(OpsPacket res) {
 //        res.setTimeReceived(System.currentTimeMillis());
 //        CommunicationPacket req = res.getRequest();
 //        switch (res.getStatusCode()) {

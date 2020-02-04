@@ -26,7 +26,7 @@
  */
 package io.onemfive.network.sensors.i2p;
 
-import io.onemfive.network.Packet;
+import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.Config;
 import io.onemfive.util.tasks.TaskRunner;
@@ -35,6 +35,7 @@ import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorStatus;
 import net.i2p.client.*;
+import net.i2p.crypto.SigType;
 import net.i2p.data.DataHelper;
 import net.i2p.router.CommSystemFacade;
 import net.i2p.router.Router;
@@ -134,7 +135,7 @@ public class I2PSensor extends BaseSensor {
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(Packet packet) {
+    public boolean sendOut(NetworkPacket packet) {
         LOG.info("Send I2P Message Out Packet received...");
         SensorSession sensorSession = establishSession(null, true);
         if(sensorSession==null) {

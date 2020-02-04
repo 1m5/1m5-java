@@ -28,9 +28,8 @@ package io.onemfive.network.sensors;
 
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkService;
-import io.onemfive.network.Packet;
+import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.ops.NetworkOp;
-import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.bluetooth.BluetoothSensor;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
@@ -104,32 +103,32 @@ public final class SensorManager {
     private final long MAX_BLOCK_TIME_BETWEEN_RESTARTS = 10 * 60 * 1000; // 10 minutes
     private Map<String,Long> sensorBlocks = new HashMap<>();
 
-    public static List<String> torSensorEscalation = Arrays.asList(
-            TorSensor.class.getName(),
-            I2PSensor.class.getName(),
-            BluetoothSensor.class.getName(),
-            WiFiDirectSensor.class.getName(),
-            SatelliteSensor.class.getName(),
-            FullSpectrumRadioSensor.class.getName(),
-            LiFiSensor.class.getName()
+    public static List<Network> torSensorEscalation = Arrays.asList(
+            Network.TOR,
+            Network.I2P,
+            Network.Bluetooth,
+            Network.WiFiDirect,
+            Network.Satellite,
+            Network.FSRadio,
+            Network.LiFi
     );
 
-    public static List<String> i2pSensorEscalation = Arrays.asList(
-            I2PSensor.class.getName(),
-            TorSensor.class.getName(),
-            BluetoothSensor.class.getName(),
-            WiFiDirectSensor.class.getName(),
-            SatelliteSensor.class.getName(),
-            FullSpectrumRadioSensor.class.getName(),
-            LiFiSensor.class.getName()
+    public static List<Network> i2pSensorEscalation = Arrays.asList(
+            Network.I2P,
+            Network.TOR,
+            Network.Bluetooth,
+            Network.WiFiDirect,
+            Network.Satellite,
+            Network.FSRadio,
+            Network.LiFi
     );
 
-    public static List<String> idnSensorEscalation = Arrays.asList(
-            BluetoothSensor.class.getName(),
-            WiFiDirectSensor.class.getName(),
-            SatelliteSensor.class.getName(),
-            FullSpectrumRadioSensor.class.getName(),
-            LiFiSensor.class.getName()
+    public static List<Network> idnSensorEscalation = Arrays.asList(
+            Network.Bluetooth,
+            Network.WiFiDirect,
+            Network.Satellite,
+            Network.FSRadio,
+            Network.LiFi
     );
 
     public boolean init(final Properties properties) {
@@ -157,62 +156,55 @@ public final class SensorManager {
         return true;
     }
 
-    public Sensor selectSensor(Packet packet) {
+    public Sensor selectSensorAndToPeer(NetworkPacket packet) {
         Sensor selected = null;
         URL url = packet.getEnvelope().getURL();
         boolean isWebRequest = url != null && url.toString().startsWith("http");
         if(isWebRequest) {
             switch (packet.getEnvelope().getManCon()) {
-                case LOW: {
+                case LOW: {}
+                case MEDIUM: {}
+                case HIGH: {
                     //   Web: I2P for .i2p addresses and Tor for the rest
                     if (url.toString().endsWith(".i2p")) {
-                        if (activeSensors.get(I2PSensor.class.getName()) != null) {
+                        if(isNetworkReady(Network.I2P))
                             selected = activeSensors.get(I2PSensor.class.getName());
-                            if (selected != null && SensorStatus.NETWORK_CONNECTED == selected.getStatus()) {
-                                return selected;
-                            } else {
-                                // I2P not available and yet I2P EEPSite requested therefore must send to Peer via Tor
-                                selected = activeSensors.get(TorSensor.class.getName());
-                                if (selected != null && SensorStatus.NETWORK_CONNECTED == selected.getStatus()) {
-                                    return selected;
-                                } else {
-
-                                }
-                            }
-                        }
+                        else
+                            selected = findRelay(packet);
                     } else {
-
+                        if(isNetworkReady(Network.TOR))
+                            selected = activeSensors.get(TorSensor.class.getName());
+                        else
+                            selected = findRelay(packet);
                     }
-                    break;
-                }
-                case MEDIUM: {
-                    // MEDIUM:
-                    //   Web: Same as LOW except use peers to assist
-
-                    break;
-                }
-                case HIGH: {
-                    // HIGH:
-                    //   Web: I2P to Tor, 1DN to I2P/Tor escalation
-
                     break;
                 }
                 case VERYHIGH: {
                     // VERYHIGH:
                     //   Web: I2P with random delays to Tor Peer at a lower ManCon, 1DN escalation
-
+                    //   Web: I2P for .i2p addresses and Tor for the rest
+                    if(isNetworkReady(Network.I2P))
+                        selected = activeSensors.get(I2PSensor.class.getName());
+                    else
+                        selected = findRelay(packet);
+                    packet.setDelayed(true);
+                    packet.setMinDelay(4 * 1000L);
+                    packet.setMaxDelay(10 * 1000L);
                     break;
                 }
                 case EXTREME: {
                     // EXTREME:
                     //   Web: 1DN to Tor peer
-
+                    selected = findRelay(packet);
                     break;
                 }
                 case NEO: {
                     // NEO:
                     //   Web: 1DN to I2P peer with high delays to Tor peer
-
+                    selected = findRelay(packet);
+                    packet.setDelayed(true);
+                    packet.setMinDelay(60 * 1000L);
+                    packet.setMaxDelay(2 * 60 * 1000L);
                     break;
                 }
             }
@@ -223,19 +215,28 @@ public final class SensorManager {
                 case HIGH: {
                     // LOW|MEDIUM|HIGH:
                     //   P2P: I2P, Tor as Tunnel when I2P blocked, 1DN escalation
-
+                    if(isNetworkReady(Network.I2P))
+                        selected = activeSensors.get(I2PSensor.class.getName());
+                    else
+                        selected = findRelay(packet);
                     break;
                 }
                 case VERYHIGH: {
                     // VERYHIGH:
                     //   P2P: I2P with random delays, Tor as tunnel when I2P blocked, 1DN escalation\
-
+                    if(isNetworkReady(Network.I2P))
+                        selected = activeSensors.get(I2PSensor.class.getName());
+                    else
+                        selected = findRelay(packet);
+                    packet.setDelayed(true);
+                    packet.setMinDelay(4 * 1000L);
+                    packet.setMaxDelay(10 * 1000L);
                     break;
                 }
                 case EXTREME: {
                     // EXTREME:
                     //   P2P: 1DN to I2P peer
-
+                    selected = findRelay(packet);
                     break;
                 }
                 case NEO: {
@@ -243,7 +244,13 @@ public final class SensorManager {
                     //   P2P: 1DN to random number/combination of 1DN/I2P peers at random delays up to 90 seconds for I2P layer and up to
                     //     3 months for 1M5 layer. A random number of copies (3 min/12 max) sent out with only 12 word mnemonic passphrase
                     //     as key.
-
+                    selected = findRelay(packet);
+                    packet.setCopy(true);
+                    packet.setMinCopies(3);
+                    packet.setMaxCopies(12);
+                    packet.setDelayed(true);
+                    packet.setMinDelay(5 * 60 * 1000L);
+                    packet.setMaxDelay(3 * 30 * 24 * 60 * 60 * 1000L);
                     break;
                 }
             }
@@ -289,23 +296,47 @@ public final class SensorManager {
         }
     }
 
-    public Sensor findRelay(Packet packet) {
+    public Sensor findRelay(NetworkPacket packet) {
         Sensor sensor = null;
         ManCon minManCon = packet.getEnvelope().getManCon();
-        List<String> escalation = (minManCon == ManCon.LOW) || (minManCon == ManCon.MEDIUM) ? torSensorEscalation
+        List<Network> escalation = (minManCon == ManCon.LOW) || (minManCon == ManCon.MEDIUM) ? torSensorEscalation
                 : (minManCon == ManCon.HIGH) || (minManCon == ManCon.VERYHIGH) ? i2pSensorEscalation : idnSensorEscalation;
-        for(String name : escalation) {
-            sensor = activeSensors.get(name);
-            if(sensor!=null && sensor.getStatus() == SensorStatus.NETWORK_CONNECTED)
+        for(Network network : escalation) {
+            if(isPathAvailable(network)) {
+                packet.setToPeer(getPath(network));
+                sensor = getSensor(network);
                 break;
+            }
         }
-        if(sensor==null) {
-            LOG.warning("No sensor available to relay packet.");
-            return null;
+        return sensor;
+    }
+
+    public Sensor getSensor(Network network) {
+        switch (network) {
+            case HTTPS: return activeSensors.get(ClearnetSensor.class.getName());
+            case TOR: return activeSensors.get(TorSensor.class.getName());
+            case I2P: return activeSensors.get(I2PSensor.class.getName());
+            case Bluetooth: return activeSensors.get(BluetoothSensor.class.getName());
+            case WiFiDirect: return activeSensors.get(WiFiDirectSensor.class.getName());
+            case Satellite: return activeSensors.get(SatelliteSensor.class.getName());
+            case FSRadio: return activeSensors.get(FullSpectrumRadioSensor.class.getName());
+            case LiFi: return activeSensors.get(LiFiSensor.class.getName());
+            default: return null;
         }
-        // look for a random peer as destination for the selected network
-        NetworkPeer destination = peerManager.getRandomPeerByRelationship(peerManager.getLocalNode().getNetworkPeer(sensor.getNetwork()), P2PRelationship.networkToRelationship(sensor.getNetwork()));
-        packet.setDestinationPeer(destination);
+    }
+
+    public Sensor getConnected1DNSensor() {
+        Sensor sensor = null;
+        if(isNetworkReady(Network.Bluetooth))
+            sensor = activeSensors.get(BluetoothSensor.class.getName());
+        else if(isNetworkReady(Network.WiFiDirect))
+            sensor = activeSensors.get(WiFiDirectSensor.class.getName());
+        else if(isNetworkReady(Network.Satellite))
+            sensor = activeSensors.get(SatelliteSensor.class.getName());
+        else if(isNetworkReady(Network.FSRadio))
+            sensor = activeSensors.get(FullSpectrumRadioSensor.class.getName());
+        else if(isNetworkReady(Network.LiFi))
+            sensor = activeSensors.get(LiFiSensor.class.getName());
         return sensor;
     }
 
@@ -319,23 +350,23 @@ public final class SensorManager {
             case LOW: {}
             case MEDIUM: {}
             case HIGH: {
-                if(SensorStatus.NETWORK_CONNECTED == getSensorStatus(TorSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(I2PSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(BluetoothSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(WiFiDirectSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(SatelliteSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(FullSpectrumRadioSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(LiFiSensor.class.getName()))
+                if(isNetworkReady(Network.TOR)
+                        || isNetworkReady(Network.I2P)
+                        || isNetworkReady(Network.Bluetooth)
+                        || isNetworkReady(Network.WiFiDirect)
+                        || isNetworkReady(Network.Satellite)
+                        || isNetworkReady(Network.FSRadio)
+                        || isNetworkReady(Network.LiFi))
                     return true;
             }
             case VERYHIGH: {}
             case EXTREME: {}
             case NEO: {
-                if(SensorStatus.NETWORK_CONNECTED == getSensorStatus(BluetoothSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(WiFiDirectSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(SatelliteSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(FullSpectrumRadioSensor.class.getName())
-                        || SensorStatus.NETWORK_CONNECTED == getSensorStatus(LiFiSensor.class.getName()))
+                if(isNetworkReady(Network.Bluetooth)
+                        || isNetworkReady(Network.WiFiDirect)
+                        || isNetworkReady(Network.Satellite)
+                        || isNetworkReady(Network.FSRadio)
+                        || isNetworkReady(Network.LiFi))
                     return true;
             }
         }
@@ -505,6 +536,28 @@ public final class SensorManager {
         return blockedSensors;
     }
 
+    public boolean isNetworkReady(Network network) {
+        switch (network) {
+            case HTTPS: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(ClearnetSensor.class.getName());
+            case TOR: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(TorSensor.class.getName());
+            case I2P: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(I2PSensor.class.getName());
+            case Bluetooth: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(BluetoothSensor.class.getName());
+            case WiFiDirect: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(WiFiDirectSensor.class.getName());
+            case Satellite: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(SatelliteSensor.class.getName());
+            case FSRadio: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(FullSpectrumRadioSensor.class.getName());
+            case LiFi: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(LiFiSensor.class.getName());
+            default: return false;
+        }
+    }
+
+    public boolean isPathAvailable(Network network) {
+        return isNetworkReady(network) && peerManager.getRandomPeer(network)!=null;
+    }
+
+    public NetworkPeer getPath(Network network) {
+        return peerManager.getRandomPeer(network);
+    }
+
     public SensorStatus getSensorStatus(String sensor) {
         Sensor s = activeSensors.get(sensor);
         if(s == null) {
@@ -526,7 +579,7 @@ public final class SensorManager {
         return new File(networkService.getSensorsDirectory(), sensorName);
     }
 
-    public boolean handleNetworkOpPacket(Packet packet, NetworkOp op) {
+    public boolean handleNetworkOpPacket(NetworkPacket packet, NetworkOp op) {
         return networkService.handlePacket(packet, op);
     }
 

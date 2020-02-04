@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.neo4j;
+package io.onemfive.network.peers.graph;
 
 import org.neo4j.graphdb.RelationshipType;
 

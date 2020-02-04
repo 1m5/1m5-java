@@ -26,9 +26,17 @@
  */
 package io.onemfive.desktop.views.commons.browser;
 
+import io.onemfive.OneMFivePlatform;
+import io.onemfive.core.OneMFiveAppContext;
+import io.onemfive.data.*;
+import io.onemfive.desktop.DesktopApp;
+import io.onemfive.desktop.DesktopService;
 import io.onemfive.desktop.Resources;
 import io.onemfive.desktop.util.KeystrokeUtil;
 import io.onemfive.desktop.views.ActivatableView;
+import io.onemfive.network.NetworkService;
+import io.onemfive.network.peers.PeerManager;
+import io.onemfive.util.DLC;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -50,6 +58,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class BrowserView extends ActivatableView {
@@ -61,6 +70,8 @@ public class BrowserView extends ActivatableView {
     private final WebHistory history = engine.getHistory();
 
     private EventHandler<KeyEvent> keyEventEventHandler;
+
+    private TextField url;
 
     @Override
     protected void initialize() {
@@ -80,7 +91,7 @@ public class BrowserView extends ActivatableView {
         nav.setSpacing(5);
         vBox.getChildren().add(nav);
 
-        TextField url = new TextField();
+        url = new TextField();
         url.setText("1m5://1m5.1m5");
         HBox.setHgrow(url, Priority.ALWAYS);
         nav.getChildren().add(url);
@@ -99,9 +110,34 @@ public class BrowserView extends ActivatableView {
                     if(!path.endsWith(".html") || !path.endsWith(".htm")) {
                         path += "/index.html";
                     }
+                    engine.load(path);
+                    url.setText(url.getText());
+                } else if(ManConStatus.MIN_REQUIRED_MANCON == ManCon.NONE) {
+                    // Mainly for testing
+                    engine.load(path);
+                    url.setText(url.getText());
+                } else {
+                    String address = path.substring(path.indexOf("//"), path.indexOf("."));
+                    NetworkPeer destination = new NetworkPeer();
+                    destination.getDid().getPublicKey().setAddress(address);
+                    if(path.endsWith(".i2p")) {
+                        destination.setNetwork(Network.I2P);
+                    } else if(path.endsWith(".onion")) {
+                        destination.setNetwork(Network.TOR);
+                    } else {
+                        destination.setNetwork(Network.HTTPS);
+                    }
+                    try {
+                        Envelope e = Envelope.documentFactory();
+                        e.setURL(new URL(path));
+                        DLC.addExternalRoute(NetworkService.class, NetworkService.OPERATION_SEND, e, null, destination);
+                        OneMFivePlatform.sendRequest(e);
+                    } catch (MalformedURLException ex) {
+                        LOG.warning(ex.getLocalizedMessage());
+                        // TODO: Show error message
+                    }
                 }
-                engine.load(path);
-                url.setText(url.getText());
+
                 LOG.info(path+" loaded");
             }
         });
@@ -202,5 +238,10 @@ public class BrowserView extends ActivatableView {
     protected void deactivate() {
         if (scene != null)
             scene.removeEventHandler(KeyEvent.KEY_RELEASED, keyEventEventHandler);
+    }
+
+    public void updateContent(String content, URL url) {
+        engine.loadContent(content);
+        this.url.setText(url.toString());
     }
 }

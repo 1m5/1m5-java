@@ -26,13 +26,15 @@
  */
 package io.onemfive.desktop;
 
+import io.onemfive.OneMFivePlatform;
 import io.onemfive.core.BaseService;
 import io.onemfive.core.MessageProducer;
 import io.onemfive.core.ServiceStatusListener;
-import io.onemfive.data.DID;
-import io.onemfive.data.Envelope;
-import io.onemfive.data.ManConStatus;
+import io.onemfive.core.notification.NotificationService;
+import io.onemfive.core.notification.SubscriptionRequest;
+import io.onemfive.data.*;
 import io.onemfive.data.route.Route;
+import io.onemfive.desktop.views.commons.browser.BrowserView;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.personal.identities.IdentitiesView;
 import io.onemfive.network.sensors.ManConStatusListener;
@@ -40,6 +42,7 @@ import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.util.DLC;
 import javafx.application.Platform;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -49,6 +52,7 @@ public class DesktopService extends BaseService {
     private static final Logger LOG = Logger.getLogger(DesktopService.class.getName());
 
     public static final String OPERATION_NOTIFY_UI = "NOTIFY_UI";
+
     public static final String OPERATION_UPDATE_ACTIVE_IDENTITY = "UPDATE_ACTIVE_IDENTITY";
     public static final String OPERATION_UPDATE_CONTACTS = "UPDATE_CONTACTS";
     public static final String OPERATION_UPDATE_IDENTITIES = "UPDATE_IDENTITIES";
@@ -137,6 +141,24 @@ public class DesktopService extends BaseService {
             HomeView v = (HomeView)MVC.loadView(HomeView.class, true);
             v.updateManConBox();
         }));
+        Envelope e = Envelope.documentFactory();
+        SubscriptionRequest request = new SubscriptionRequest(EventMessage.Type.HTML, new Subscription() {
+            @Override
+            public void notifyOfEvent(Envelope envelope) {
+                final String content = (String)DLC.getContent(envelope);
+                final URL url = envelope.getURL();
+                if(content!=null) {
+                    Platform.runLater(() -> {
+                        LOG.info("Updating BrowserView content...");
+                        BrowserView v = (BrowserView)MVC.loadView(BrowserView.class, true);
+                        v.updateContent(content, url);
+                    });
+                }
+            }
+        });
+        DLC.addData(SubscriptionRequest.class, request, e);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
+        OneMFivePlatform.sendRequest(e);
         return true;
     }
 }

@@ -83,8 +83,21 @@ public class P2PRelationship implements JSONSerializable {
         totalAcks++;
     }
 
-    public LinkedList<Long> getAckTimesTracked() {
-        return ackTimesTracked;
+    public void setAckTimesTracked(String trackedFlattened) {
+        String[] tracked = trackedFlattened.split(",");
+        for(String time : tracked) {
+            ackTimesTracked.add(Long.parseLong(time));
+        }
+    }
+
+    public String getAckTimesTracked() {
+        StringBuilder sb = new StringBuilder();
+        for(Long time : ackTimesTracked) {
+            sb.append(time+",");
+        }
+        String trackedFlattened = sb.toString();
+        trackedFlattened = trackedFlattened.substring(0, trackedFlattened.length()-1);
+        return trackedFlattened;
     }
 
     public Long getAvgAckLatencyMS() {
@@ -150,7 +163,7 @@ public class P2PRelationship implements JSONSerializable {
         m.put(AVG_ACK_LATENCY_MS, getAvgAckLatencyMS());
         m.put(MEDIAN_ACK_LATENCY_MS, getMedAckLatencyMS());
         if(lastAckTime!=null) m.put(LAST_ACK_TIME, lastAckTime);
-        if(ackTimesTracked !=null) m.put("ackTimesTracked", ackTimesTracked);
+        if(ackTimesTracked !=null) m.put("ackTimesTracked", getAckTimesTracked());
         return m;
     }
 
@@ -162,7 +175,7 @@ public class P2PRelationship implements JSONSerializable {
             if(m.get(LAST_ACK_TIME)!=null)
                 lastAckTime = (Long)m.get(LAST_ACK_TIME);
             if(m.get("ackTimesTracked")!=null) {
-                ackTimesTracked = (LinkedList<Long>) m.get("ackTimesTracked");
+                setAckTimesTracked((String)m.get("ackTimesTracked"));
             }
         }
     }

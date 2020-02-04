@@ -24,33 +24,51 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors;
+package io.onemfive.network.ops;
 
-import io.onemfive.network.NetworkPacket;
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.data.JSONSerializable;
 import io.onemfive.network.Packet;
-import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.util.JSONParser;
+import io.onemfive.util.JSONPretty;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * Define the means of sending and receiving messages using the radio electromagnetic spectrum
- * over a bidirectional Socket.
- */
-public interface SensorSession {
+public class OpsPacket extends Packet implements JSONSerializable {
 
-    enum Status {CONNECTING, CONNECTED, DISCONNECTED, STOPPING, STOPPED, ERRORED}
+    public static final String ID = "id";
+    public static final String FROM_ID = "fromId";
+    public static final String FROM_ADDRESS = "fromAddress";
+    public static final String TO_ID = "toId";
+    public static final String TO_ADDRESS = "toAddress";
 
-    Integer getId();
-    boolean init(Properties properties);
-    boolean open(NetworkPeer peer);
-    boolean connect();
-    boolean disconnect();
-    boolean isConnected();
-    boolean close();
-    Boolean send(Packet packet);
-    void handleNetworkOpPacket(NetworkPacket packet, NetworkOp op);
-    void addSessionListener(SessionListener listener);
-    void removeSessionListener(SessionListener listener);
-    Status getStatus();
+    public Map<String,Object> atts = new HashMap<>();
+
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String,Object> m = super.toMap();
+        m.putAll(atts);
+        return m;
+    }
+
+    @Override
+    public void fromMap(Map<String, Object> m) {
+        super.fromMap(m);
+        atts = m;
+    }
+
+    @Override
+    public String toJSON() {
+        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
+    }
+
+    @Override
+    public void fromJSON(String json) {
+        fromMap((Map<String,Object>)JSONParser.parse(json));
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
+    }
 }

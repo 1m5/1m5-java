@@ -28,8 +28,7 @@ package io.onemfive.network.sensors.lifi;
 
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.*;
-import io.onemfive.network.Packet;
-import io.onemfive.network.peers.P2PRelationship;
+import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.DLC;
 import io.onemfive.network.sensors.BaseSensor;
@@ -84,7 +83,7 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(Packet packet) {
+    public boolean sendOut(NetworkPacket packet) {
         LOG.info("Sending LiFi Message...");
         NetworkPeer toPeer = packet.getToPeer();
 //        if(toPeer == null) {
@@ -131,7 +130,7 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
     @Override
     public void messageAvailable(LiFiSession session, int msgId, long size) {
         LOG.info("Message received by LiFi Sensor...");
-        Packet packet = session.receive(msgId);
+        NetworkPacket packet = session.receive(msgId);
         LOG.info("Received LiFi Packet:\n\tFrom: " + packet.getFromPeer().getDid().getPublicKey().getAddress() +"\n\tContent: " + packet.getEnvelope().toJSON());
 
 //        EventMessage m = (EventMessage) e.getMessage();

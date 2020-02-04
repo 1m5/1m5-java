@@ -28,6 +28,7 @@ package io.onemfive.network.sensors.fullspectrum.signals;
 
 import io.onemfive.data.JSONSerializable;
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.sensors.SessionListener;
@@ -99,7 +100,7 @@ public abstract class SignalBase implements Signal, JSONSerializable {
     }
 
     @Override
-    public void handleNetworkOpPacket(Packet packet, NetworkOp op) {
+    public void handleNetworkOpPacket(NetworkPacket packet, NetworkOp op) {
 
     }
 

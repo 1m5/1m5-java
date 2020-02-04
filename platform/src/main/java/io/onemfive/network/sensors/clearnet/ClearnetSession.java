@@ -27,8 +27,8 @@
 package io.onemfive.network.sensors.clearnet;
 
 import io.onemfive.data.DID;
-import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.sensors.BaseSession;
@@ -107,7 +107,7 @@ public class ClearnetSession extends BaseSession {
     }
 
     @Override
-    public void handleNetworkOpPacket(Packet packet, NetworkOp op) {
+    public void handleNetworkOpPacket(NetworkPacket packet, NetworkOp op) {
 
     }
 }

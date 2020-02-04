@@ -26,8 +26,8 @@
  */
 package io.onemfive.core;
 
-import io.onemfive.network.Packet;
+import io.onemfive.network.NetworkPacket;
 
 public interface Notification extends Operation {
-    void notify(Packet packet);
+    void notify(NetworkPacket packet);
 }
