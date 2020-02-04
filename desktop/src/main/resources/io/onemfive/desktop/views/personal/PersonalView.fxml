@@ -23,6 +23,10 @@
 
     </Tab>
 
+    <Tab fx:id="blogTab" closable="false">
+
+    </Tab>
+
     <Tab fx:id="calendarTab" closable="false">
 
     </Tab>
