@@ -46,17 +46,19 @@ public class LiFiSession extends BaseSession {
         super();
     }
 
-    public Boolean send(Packet packet) {
-        LOG.warning("LiFISession.send(Packet) not implemented.");
-        return false;
-    }
-
-    public NetworkPacket receive(int msgId) {
+    @Override
+    public Boolean send(NetworkOp op) {
         return null;
     }
 
     @Override
-    public boolean open(NetworkPeer peer) {
+    public Boolean send(NetworkPacket packet) {
+        LOG.warning("LiFISession.send(Packet) not implemented.");
+        return false;
+    }
+
+    @Override
+    public boolean open(String address) {
         return false;
     }
 
@@ -75,10 +77,7 @@ public class LiFiSession extends BaseSession {
         return false;
     }
 
-    @Override
-    public void handleNetworkOpPacket(NetworkPacket packet, NetworkOp op) {
 
-    }
 
     public boolean connect() {
         return false;

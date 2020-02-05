@@ -31,12 +31,7 @@ import io.onemfive.data.Network;
 import io.onemfive.data.NetworkNode;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.Packet;
-import io.onemfive.network.ops.OpsPacket;
-import io.onemfive.network.sensors.BaseSensor;
-import io.onemfive.network.sensors.SensorManager;
-import io.onemfive.network.sensors.SensorSession;
-import io.onemfive.network.sensors.SensorStatus;
+import io.onemfive.network.sensors.*;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
@@ -55,12 +50,12 @@ public class BluetoothSensor extends BaseSensor {
     private String bluetoothBaseDir;
     private File bluetoothDir;
 
-    private Map<String, RemoteDevice> devices = new HashMap<>();
-    private Map<String, List<String>> deviceServices = new HashMap<>();
+    Map<String, RemoteDevice> devices = new HashMap<>();
+    Map<String, NetworkPeer> peersInDiscovery = new HashMap<>();
 
     private BluetoothDeviceDiscovery deviceDiscovery;
     private BluetoothServiceDiscovery serviceDiscovery;
-    private BluetoothPeerDiscovery peerDiscovery;
+    private NetworkPeerDiscovery peerDiscovery;
 
     private Map<Integer, BluetoothSession> leased = new HashMap<>();
 
@@ -88,26 +83,21 @@ public class BluetoothSensor extends BaseSensor {
     }
 
     @Override
-    public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
-        BluetoothSession session = new BluetoothSession(this);
-        if(session.open(peer)) {
-            if (autoConnect) {
-                session.connect();
+    public SensorSession establishSession(String address, Boolean autoConnect) {
+        SensorSession session = sessions.get(address);
+        if(session==null) {
+            if (session.open(address)) {
+                if (autoConnect) {
+                    session.connect();
+                }
+                sessions.put(address, session);
             }
-            sessions.put(session.getId(), session);
         }
         return session;
     }
 
-    public SensorSession establishSession(String address, Boolean autoConnect) {
-        BluetoothSession session = new BluetoothSession(this);
-        if(session.open(address)) {
-            if(autoConnect) {
-                session.connect();
-            }
-            sessions.put(session.getId(), session);
-        }
-        return session;
+    public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
+        return establishSession(peer.getDid().getPublicKey().getAddress(), true);
     }
 
     /**
@@ -116,32 +106,25 @@ public class BluetoothSensor extends BaseSensor {
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(Packet packet) {
+    public boolean sendOut(NetworkPacket packet) {
         LOG.info("Sending Packet via Bluetooth...");
-        BluetoothSession session;
-        if(packet instanceof NetworkPacket) {
-            NetworkPacket np = (NetworkPacket)packet;
-            NetworkPeer toPeer = np.getToPeer();
-            if (toPeer == null) {
-                LOG.warning("No Peer found while sending to Bluetooth.");
-                return false;
-            }
-
-            if (toPeer.getNetwork() != Network.Bluetooth) {
-                LOG.warning("Not a Bluetooth Request.");
-                return false;
-            }
-
-            if (np.getEnvelope() == null) {
-                LOG.warning("No Envelope found while sending to Bluetooth.");
-                return false;
-            }
-            LOG.info("Envelope to send: " + np.getEnvelope().toString());
-            session = (BluetoothSession) establishSession(np.getToPeer(), true);
-        } else {
-            session = (BluetoothSession) establishSession((String)((OpsPacket)packet).atts.get(OpsPacket.TO_NADDRESS), true);
+        NetworkPeer toPeer = packet.getToPeer();
+        if (toPeer == null) {
+            LOG.warning("No Peer found while sending to Bluetooth.");
+            return false;
         }
-        return session.send(packet);
+
+        if (toPeer.getNetwork() != Network.Bluetooth) {
+            LOG.warning("Not a Bluetooth Request.");
+            return false;
+        }
+
+        if (packet.getEnvelope() == null) {
+            LOG.warning("No Envelope found while sending to Bluetooth.");
+            return false;
+        }
+        LOG.info("Envelope to send: " + packet.getEnvelope().toString());
+        return establishSession(packet.getToPeer(), true).send(packet);
     }
 
     @Override
@@ -249,8 +232,9 @@ public class BluetoothSensor extends BaseSensor {
         taskRunner.addTask(serviceDiscovery);
 
         // run every minute 20 seconds after service discovery
-        peerDiscovery = new BluetoothPeerDiscovery(sensorManager.getPeerManager(), this, taskRunner);
-        peerDiscovery.setPeriodicity(60 * 1000L);
+        peerDiscovery = new NetworkPeerDiscovery(taskRunner, this, Network.Bluetooth);
+        peerDiscovery.UpdateInterval = 60;
+        peerDiscovery.UpdateIntervalHyper = 60;
         peerDiscovery.setLongRunning(true);
         peerDiscovery.setDelayed(true);
         peerDiscovery.setFixedDelay(true);
@@ -299,18 +283,4 @@ public class BluetoothSensor extends BaseSensor {
         return true;
     }
 
-    //    public static void main(String[] args) {
-//        NetworkPeer np = new NetworkPeer(Network.RADIO_BLUETOOTH);
-//        BluetoothSensor s = new BluetoothSensor(np);
-//        s.start(null);
-//        SensorSession sess = s.establishSession(np, true);
-        // Discovery here
-
-        // Get dest peer here and build request
-//        Request request = new Request();
-//        request.setOriginationPeer(np);
-//        request.setDestinationPeer(destPeer);
-//        sess.send();
-//        s.shutdown();
-//    }
 }

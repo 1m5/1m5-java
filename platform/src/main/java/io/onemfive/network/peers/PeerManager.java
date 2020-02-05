@@ -160,10 +160,7 @@ public class PeerManager implements Runnable {
     }
 
     public NetworkPeer getRandomPeer(Network network) {
-        LOG.info("Get Random Peer...");
-        NetworkPeer peer = null;
-
-        return peer;
+        return peerDB.randomPeer(network);
     }
 
     public NetworkPeer findPeerByAddress(String address) {

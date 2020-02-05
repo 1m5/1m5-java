@@ -76,7 +76,7 @@ public class FullSpectrumRadioSensor extends BaseSensor {
     }
 
     @Override
-    public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
+    public SensorSession establishSession(String address, Boolean autoConnect) {
         return null;
     }
 
@@ -87,7 +87,7 @@ public class FullSpectrumRadioSensor extends BaseSensor {
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(Packet packet) {
+    public boolean sendOut(NetworkPacket packet) {
         LOG.info("Sending Radio Message...");
 //        Envelope envelope = packet.getEnvelope();
 //        NetworkRequest request = (NetworkRequest) DLC.getData(NetworkRequest.class,envelope);

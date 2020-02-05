@@ -26,13 +26,12 @@
  */
 package io.onemfive.network.sensors.bluetooth;
 
+import io.onemfive.data.JSONSerializable;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.sensors.SensorSession;
-import io.onemfive.util.RandomUtil;
 import io.onemfive.network.sensors.BaseSession;
 
 import javax.bluetooth.BluetoothStateException;
@@ -62,13 +61,18 @@ class BluetoothSession extends BaseSession {
     }
 
     @Override
-    public void handleNetworkOpPacket(NetworkPacket packet, NetworkOp op) {
-        LOG.warning("Handling Network Op Packet no yet implemented.");
+    public Boolean send(NetworkOp op) {
+        LOG.info("Sending NetworkOp...");
+        return send(op);
     }
 
     @Override
-    public Boolean send(Packet packet) {
-        LOG.info("Sending packet...");
+    public Boolean send(NetworkPacket packet) {
+        LOG.info("Sending NetworkPacket...");
+        return send(packet);
+    }
+
+    private boolean send(JSONSerializable jsonSerializable) {
         if(!connected) {
             connect();
         }
@@ -82,7 +86,7 @@ class BluetoothSession extends BaseSession {
         try {
             putOperation = clientSession.put(hsOperation);
             os = putOperation.openOutputStream();
-            os.write(packet.toJSON().getBytes());
+            os.write(jsonSerializable.toJSON().getBytes());
         } catch (IOException e) {
             LOG.warning(e.getLocalizedMessage());
             return false;
@@ -100,10 +104,10 @@ class BluetoothSession extends BaseSession {
                 LOG.warning(e.getLocalizedMessage());
             }
         }
-        LOG.info("Packet sent.");
         return true;
     }
 
+    @Override
     public boolean open(String address) {
         LOG.info("Establishing session...");
         // Client
@@ -152,13 +156,6 @@ class BluetoothSession extends BaseSession {
         }
 
         LOG.info("Session established.");
-        return true;
-    }
-
-    @Override
-    public boolean open(NetworkPeer peer) {
-        LOG.info("Establishing session...");
-        open(peer.getDid().getPublicKey().getAddress());
         return true;
     }
 

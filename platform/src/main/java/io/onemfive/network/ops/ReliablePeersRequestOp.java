@@ -26,25 +26,14 @@
  */
 package io.onemfive.network.ops;
 
-import io.onemfive.network.sensors.SensorManager;
-
 import java.util.logging.Logger;
 
-public class ReliablePeersRequestOp extends NetworkOpBase {
+public class ReliablePeersRequestOp extends NetworkResponseOp {
 
     private static final Logger LOG = Logger.getLogger(ReliablePeersRequestOp.class.getName());
 
-    public ReliablePeersRequestOp(SensorManager sensorManager) {
-        super(sensorManager);
-    }
+    @Override
+    public void operate() {
 
-    public OpsPacket operate(OpsPacket packet) {
-//        LOG.info("Received PeerStatus request...");
-//        peerManager.reliablesFromRemotePeer(request.getFromPeer(), request.getReliablePeers());
-//        request.setResponding(true);
-//        request.setReliablePeers(peerManager.getReliablesToShare(peerManager.getLocalPeer()));
-//        LOG.info("Sending response to PeerStatus request...");
-//        routeOut(new ResponsePacket(request, peerManager.getLocalPeer(), request.getFromPeer(), StatusCode.OK, request.getId()));
-        return packet;
     }
 }

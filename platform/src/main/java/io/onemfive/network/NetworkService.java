@@ -40,7 +40,6 @@ import io.onemfive.data.route.Route;
 import io.onemfive.data.AuthenticateDIDRequest;
 import io.onemfive.data.DID;
 import io.onemfive.did.DIDService;
-import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.sensors.*;
 
 import java.io.File;
@@ -206,28 +205,6 @@ public class NetworkService extends BaseService {
                 deadLetter(e);
             }
         }
-    }
-
-    public boolean handlePacket(NetworkPacket request, NetworkOp op) {
-        // Incoming sensor request/response
-        boolean successful = false;
-        op.setSensorManager(sensorManager);
-        if(op instanceof RequestReply) {
-            // Return a result
-            RequestReply rr = (RequestReply)op;
-            Response response = rr.operate((Request)request);
-            LOG.warning("RequstReply not yet handled by NetworkService");
-        } else if(op instanceof Response) {
-            // The result of an ealier request
-            Response response = (Response)op;
-            LOG.warning("Response not yet handled by NetworkService");
-        } else if(op instanceof Notification) {
-            // One way inbound packet with no response needed
-            Notification notification = (Notification)op;
-            notification.notify(request);
-            LOG.warning("Notification not yet handled by NetworkService");
-        }
-        return successful;
     }
 
     public boolean sendToBus(Envelope envelope) {

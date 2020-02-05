@@ -29,7 +29,6 @@ package io.onemfive.network.sensors.tor;
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Packet;
-import io.onemfive.network.ops.OpsPacket;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
 import io.onemfive.util.DLC;
@@ -82,31 +81,21 @@ public final class TorSensor extends ClearnetSensor {
     }
 
     @Override
-    public boolean sendOut(Packet packet) {
+    public boolean sendOut(NetworkPacket packet) {
         LOG.info("Tor Sensor sending request...");
-        if(packet instanceof NetworkPacket) {
-            NetworkPacket np = (NetworkPacket)packet;
-            Envelope e = np.getEnvelope();
-            boolean successful = super.sendOut(packet);
-            if (successful) {
-                LOG.info("Tor Sensor successful response received.");
-                // Change flag to LOW so Client Server Sensor will pick it back up
-                e.setManCon(ManCon.LOW);
-                DLC.addRoute(NetworkService.class, NetworkService.OPERATION_REPLY, e);
-                if (!getStatus().equals(SensorStatus.NETWORK_CONNECTED)) {
-                    LOG.info("Tor Network status changed back to CONNECTED.");
-                    updateStatus(SensorStatus.NETWORK_CONNECTED);
-                }
+        Envelope e = packet.getEnvelope();
+        boolean successful = super.sendOut(packet);
+        if (successful) {
+            LOG.info("Tor Sensor successful response received.");
+            // Change flag to LOW so Client Server Sensor will pick it back up
+            e.setManCon(ManCon.LOW);
+            DLC.addRoute(NetworkService.class, NetworkService.OPERATION_REPLY, e);
+            if (!getStatus().equals(SensorStatus.NETWORK_CONNECTED)) {
+                LOG.info("Tor Network status changed back to CONNECTED.");
+                updateStatus(SensorStatus.NETWORK_CONNECTED);
             }
-            return successful;
-        } else {
-            OpsPacket op = (OpsPacket)packet;
-            boolean successful = super.sendOut(packet);
-            if(successful) {
-                LOG.warning("Finish implementing Tor Network Ops");
-            }
-            return successful;
         }
+        return successful;
     }
 
     protected void handleFailure(Message m) {

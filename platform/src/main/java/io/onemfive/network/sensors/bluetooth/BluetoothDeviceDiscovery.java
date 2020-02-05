@@ -47,8 +47,6 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
     private NetworkPeer currentPeer;
     private RemoteDevice currentDevice;
 
-    public static final Map<String, RemoteDevice> remoteDevices = new HashMap<>();
-
     public BluetoothDeviceDiscovery(BluetoothSensor sensor, TaskRunner taskRunner) {
         super(BluetoothDeviceDiscovery.class.getName(), taskRunner, sensor);
         this.sensor = sensor;
@@ -65,7 +63,7 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
             RemoteDevice[] devices = LocalDevice.getLocalDevice().getDiscoveryAgent().retrieveDevices(DiscoveryAgent.CACHED);
             if(devices!=null) {
                 for(RemoteDevice device : devices) {
-                    remoteDevices.put(device.getBluetoothAddress(), device);
+                    ((BluetoothSensor)sensor).devices.put(device.getBluetoothAddress(), device);
                 }
             }
         } catch (BluetoothStateException e) {
@@ -120,7 +118,7 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
         switch (discType) {
             case DiscoveryListener.INQUIRY_COMPLETED : {
                 LOG.info("Bluetooth inquiry completed. Caching peer.");
-                remoteDevices.put(currentDevice.getBluetoothAddress(), currentDevice);
+                ((BluetoothSensor)sensor).devices.put(currentDevice.getBluetoothAddress(), currentDevice);
                 ((BluetoothSensor)sensor).updateStatus(SensorStatus.NETWORK_CONNECTED);
                 break;
             }

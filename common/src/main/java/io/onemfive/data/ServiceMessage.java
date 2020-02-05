@@ -68,4 +68,9 @@ public abstract class ServiceMessage implements JSONSerializable {
     public void fromJSON(String json) {
         fromMap((Map<String,Object>)JSONParser.parse(json));
     }
+
+    @Override
+    public String toString() {
+        return toJSON();
+    }
 }

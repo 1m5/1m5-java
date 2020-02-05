@@ -57,7 +57,7 @@ public abstract class BaseSensor implements Sensor {
     protected Integer restartAttempts = 0;
     protected TaskRunner taskRunner;
     protected String directory;
-    protected final Map<Integer, SensorSession> sessions = new HashMap<>();
+    protected final Map<String, SensorSession> sessions = new HashMap<>();
     protected Properties properties;
 
     public BaseSensor(Network network) {

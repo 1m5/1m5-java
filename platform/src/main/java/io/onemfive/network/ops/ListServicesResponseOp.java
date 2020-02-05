@@ -26,10 +26,10 @@
  */
 package io.onemfive.network.ops;
 
-public class ListServicesResponseOp extends NetworkOpBase {
+public class ListServicesResponseOp extends NetworkResponseOp {
 
     @Override
-    public OpsPacket operate(OpsPacket packet) {
-        return null;
+    public void operate() {
+
     }
 }

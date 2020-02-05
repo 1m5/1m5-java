@@ -26,19 +26,15 @@
  */
 package io.onemfive.network.sensors.i2p;
 
-import io.onemfive.core.HandleResponse;
-import io.onemfive.core.Notification;
-import io.onemfive.core.Operation;
-import io.onemfive.core.RequestReply;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.*;
 import io.onemfive.data.Envelope;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Packet;
-import io.onemfive.network.Request;
-import io.onemfive.network.Response;
+import io.onemfive.network.ops.NetworkNotifyOp;
 import io.onemfive.network.ops.NetworkOp;
-import io.onemfive.network.ops.OpsPacket;
+import io.onemfive.network.ops.NetworkRequestOp;
+import io.onemfive.network.ops.NetworkResponseOp;
 import io.onemfive.network.sensors.BaseSession;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.util.DLC;
@@ -113,11 +109,11 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
     }
 
     /**
-     * Open a Socket with supplied Network Peer
+     * Open a Socket with internal peer.
+     * I2P Sensor currently uses only one internal I2P address thus ignoring any address passed to this method.
      */
     @Override
-    public boolean open(NetworkPeer newLocalI2PPeer) {
-        // I2P Sensor currently uses only one internal I2P address thus ignoring any peer passed to this method
+    public boolean open(String i2pAddress) {
         NetworkNode localNode = sensor.getSensorManager().getPeerManager().getLocalNode();
         NetworkPeer localI2PPeer;
         if(localNode.getNetworkPeer(Network.I2P)!=null) {
@@ -281,48 +277,33 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
     }
 
     @Override
-    public Boolean send(Packet packet) {
-        if(packet == null){
+    public Boolean send(NetworkPacket packet) {
+        if (packet == null) {
             LOG.warning("No Packet.");
-            packet.statusCode = ServiceMessage.REQUEST_REQUIRED;
             return false;
         }
-        if(packet instanceof NetworkPacket) {
-            if (((NetworkPacket)packet).getToPeer() == null) {
-                LOG.warning("No Peer for I2P found in toDID while sending to I2P.");
-                packet.statusCode = Packet.DESTINATION_PEER_REQUIRED;
-                return false;
-            }
-            if (((NetworkPacket)packet).getToPeer().getNetwork() != Network.I2P) {
-                LOG.warning("Not a packet for I2P.");
-                packet.statusCode = Packet.DESTINATION_PEER_WRONG_NETWORK;
-                return false;
-            }
-        } else {
-            if (((OpsPacket)packet).atts.get(OpsPacket.TO_NADDRESS) == null) {
-                LOG.warning("No Peer for I2P found in packet while sending to I2P.");
-                packet.statusCode = Packet.DESTINATION_PEER_REQUIRED;
-                return false;
-            }
+        if (packet.getToPeer() == null) {
+            LOG.warning("No Peer for I2P found in toDID while sending to I2P.");
+            packet.statusCode = NetworkPacket.DESTINATION_PEER_REQUIRED;
+            return false;
+        }
+        if (packet.getToPeer().getNetwork() != Network.I2P) {
+            LOG.warning("Not a packet for I2P.");
+            packet.statusCode = NetworkPacket.DESTINATION_PEER_WRONG_NETWORK;
+            return false;
         }
         String content = packet.toJSON();
-        LOG.info("Content to send: "+content);
-        if(content.length() > 31500) {
+        LOG.info("Content to send: " + content);
+        if (content.length() > 31500) {
             // Just warn for now
             // TODO: Split into multiple serialized packets
             LOG.warning("Content longer than 31.5kb. May have issues.");
         }
-
         try {
-            String address;
-            if(packet instanceof NetworkPacket)
-                address = ((NetworkPacket)packet).getToPeer().getDid().getPublicKey().getAddress();
-            else
-                address = (String)((OpsPacket)packet).atts.get(OpsPacket.TO_NADDRESS);
-            Destination toDestination = i2pSession.lookupDest(address);
+            Destination toDestination = i2pSession.lookupDest(packet.getToPeer().getDid().getPublicKey().getAddress());
             if(toDestination == null) {
                 LOG.warning("I2P Peer To Destination not found.");
-                packet.statusCode = Packet.DESTINATION_PEER_NOT_FOUND;
+                packet.statusCode = NetworkPacket.DESTINATION_PEER_NOT_FOUND;
                 return false;
             }
             I2PDatagramMaker m = new I2PDatagramMaker(i2pSession);
@@ -332,7 +313,7 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
                 return true;
             } else {
                 LOG.warning("I2P Message sending failed.");
-                packet.statusCode = NetworkPacket.SENDING_FAILED;
+                packet.statusCode = Packet.SENDING_FAILED;
                 return false;
             }
         } catch (I2PSessionException e) {
@@ -340,6 +321,41 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
             LOG.warning(errMsg);
             packet.exception = e;
             packet.errorMessage = errMsg;
+            if("Already closed".equals(e.getLocalizedMessage())) {
+                LOG.info("I2P Connection closed. Could be no internet access or getting blocked. Assume blocked for re-route. If not blocked, I2P will automatically re-establish connection when network access returns.");
+                sensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
+            }
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean send(NetworkOp op) {
+        String content = op.toJSON();
+        LOG.info("Content to send: " + content);
+        if (content.length() > 31500) {
+            // Just warn for now
+            // TODO: Split into multiple serialized packets
+            LOG.warning("Content longer than 31.5kb. May have issues.");
+        }
+        try {
+            Destination toDestination = i2pSession.lookupDest(op.toNetworkAddress);
+            if(toDestination == null) {
+                LOG.warning("I2P Peer To Destination not found.");
+                return false;
+            }
+            I2PDatagramMaker m = new I2PDatagramMaker(i2pSession);
+            byte[] payload = m.makeI2PDatagram(content.getBytes());
+            if(i2pSession.sendMessage(toDestination, payload, I2PSession.PROTO_UNSPECIFIED, I2PSession.PORT_ANY, I2PSession.PORT_ANY)) {
+                LOG.info("I2P Message sent.");
+                return true;
+            } else {
+                LOG.warning("I2P Message sending failed.");
+                return false;
+            }
+        } catch (I2PSessionException e) {
+            String errMsg = "Exception while sending I2P message: " + e.getLocalizedMessage();
+            LOG.warning(errMsg);
             if("Already closed".equals(e.getLocalizedMessage())) {
                 LOG.info("I2P Connection closed. Could be no internet access or getting blocked. Assume blocked for re-route. If not blocked, I2P will automatically re-establish connection when network access returns.");
                 sensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
@@ -395,50 +411,41 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
             String address = sender.toBase64();
             String fingerprint = sender.getHash().toBase64();
             LOG.info("Received I2P Message:\n\tFrom: " + address +"\n\tContent:\n\t" + strPayload);
-            NetworkPacket packet;
-            Envelope e = null;
-            boolean sendAsEvent = false;
             if(strPayload.startsWith("{")) {
                 // JSON
                 Map<String, Object> pm = (Map<String, Object>) JSONParser.parse(strPayload);
-                if (pm.get("type") != null) {
-                    String type = (String) pm.get("type");
-                    LOG.info("Type discovered: " + type);
-                    packet = (NetworkPacket) Class.forName(type).getConstructor().newInstance();
+                String type = (String) pm.get("type");
+                LOG.info("Type discovered: " + type);
+                Object obj = Class.forName(type).getConstructor().newInstance();
+                if(obj instanceof NetworkOp) {
+                    if(obj instanceof NetworkRequestOp) {
+                        NetworkRequestOp request = (NetworkRequestOp)obj;
+                        NetworkResponseOp response = request.operate();
+                        if(response!=null) {
+                            send(response);
+                        }
+                    } else if(obj instanceof NetworkResponseOp) {
+                        NetworkResponseOp response = (NetworkResponseOp)obj;
+                        response.operate();
+                    } else if(obj instanceof NetworkNotifyOp) {
+                        NetworkNotifyOp notify = (NetworkNotifyOp)obj;
+                        notify.publish();
+                    } else {
+                        LOG.warning("NetworkOp subtype not supported: "+type);
+                    }
+                } else if(obj instanceof NetworkPacket) {
+                    NetworkPacket packet = (NetworkPacket) Class.forName(type).getConstructor().newInstance();
                     packet.fromMap(pm);
-                    e = packet.getEnvelope();
-                    boolean processed = false;
-                    if (e != null && e.getRoute() != null && e.getRoute().getOperation() != null) {
-                        try {
-                            Operation op = (Operation) Class.forName(e.getRoute().getOperation()).getConstructor().newInstance();
-                            if (op instanceof NetworkOp) {
-                                handleNetworkOpPacket(packet, (NetworkOp) op);
-                                processed = true;
-                            }
-                        } catch (Exception ex) {
-                            LOG.warning(ex.getLocalizedMessage());
-                        }
+                    Envelope e = packet.getEnvelope();
+                    if (!sensor.sendIn(e)) {
+                        LOG.warning("Unsuccessful sending of JSON event to bus.");
                     }
-                    if(!processed) {
-                        LOG.info("Creating Text Event Message for Notification Service...");
-                        e = Envelope.eventFactory(EventMessage.Type.JSON);
-                        e.setURL(new URL("http://"+address+".i2p"));
-                        NetworkPeer from = new NetworkPeer(Network.I2P);
-                        from.getDid().getPublicKey().setAddress(address);
-                        from.getDid().getPublicKey().setFingerprint(fingerprint);
-                        e.setDID(from.getDid());
-                        EventMessage m = (EventMessage) e.getMessage();
-                        m.setName(fingerprint);
-                        m.setMessage(strPayload);
-                        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
-                        if(!sensor.sendIn(e)) {
-                            LOG.warning("Unsuccessful sending of JSON event to bus.");
-                        }
-                    }
+                } else {
+                    LOG.warning("Unhandled type: "+type);
                 }
             } else {
                 LOG.info("Creating HTML Event Message for Notification Service...");
-                e = Envelope.eventFactory(EventMessage.Type.HTML);
+                Envelope e = Envelope.eventFactory(EventMessage.Type.HTML);
                 e.setURL(new URL("http://"+address+".i2p"));
                 NetworkPeer from = new NetworkPeer(Network.I2P);
                 from.getDid().getPublicKey().setAddress(address);
@@ -492,22 +499,6 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
         messageAvailable(session, msgId, size);
 //        else
 //            LOG.warning("Received unhandled message with proto="+proto+" and id="+msgId);
-    }
-
-    @Override
-    public void handleNetworkOpPacket(NetworkPacket packet, NetworkOp op) {
-        op.setSensorManager(sensor.getSensorManager());
-        if(op instanceof RequestReply) {
-            // Handle incoming Request returning a Response
-            sensor.sendOut(((RequestReply)op).operate((Request)packet));
-        } else if(op instanceof HandleResponse) {
-            boolean success = ((HandleResponse)op).operate((Response)packet);
-            if(!success) {
-                LOG.warning("Handling response op ("+op.toString()+") failed: "+packet);
-            }
-        } else if(op instanceof Notification) {
-            ((Notification)op).notify(packet);
-        }
     }
 
     /**

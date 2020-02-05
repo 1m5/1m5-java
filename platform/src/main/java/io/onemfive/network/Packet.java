@@ -37,10 +37,7 @@ public abstract class Packet extends ServiceMessage {
 
     private Logger LOG = Logger.getLogger(Packet.class.getName());
 
-    public static int DESTINATION_PEER_REQUIRED = 1;
-    public static int DESTINATION_PEER_WRONG_NETWORK = 2;
-    public static int DESTINATION_PEER_NOT_FOUND = 3;
-    public static int SENDING_FAILED = 4;
+    public static int SENDING_FAILED = 1;
 
     public static final String ID = "id";
     public static final String TYPE = "type";

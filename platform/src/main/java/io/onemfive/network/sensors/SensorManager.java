@@ -29,7 +29,6 @@ package io.onemfive.network.sensors;
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkService;
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.bluetooth.BluetoothSensor;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
@@ -577,10 +576,6 @@ public final class SensorManager {
 
     public File getSensorDirectory(String sensorName) {
         return new File(networkService.getSensorsDirectory(), sensorName);
-    }
-
-    public boolean handleNetworkOpPacket(NetworkPacket packet, NetworkOp op) {
-        return networkService.handlePacket(packet, op);
     }
 
     public boolean sendToBus(Envelope envelope) {

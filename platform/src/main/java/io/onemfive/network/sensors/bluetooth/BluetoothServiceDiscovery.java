@@ -29,7 +29,6 @@ package io.onemfive.network.sensors.bluetooth;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkTask;
-import io.onemfive.network.ops.OpsPacket;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.util.tasks.TaskRunner;
 
@@ -77,8 +76,8 @@ public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryL
         int[] attrIDs =  new int[] {
                 0x0100 // Service name
         };
-        LOG.info(BluetoothDeviceDiscovery.remoteDevices.size()+" devices to search services on...");
-        for(RemoteDevice device : BluetoothDeviceDiscovery.remoteDevices.values()) {
+        LOG.info(sensor.devices.size()+" devices to search services on...");
+        for(RemoteDevice device : sensor.devices.values()) {
             try {
                 synchronized (serviceSearchCompletedEvent) {
                     currentDevice = device;
@@ -120,7 +119,7 @@ public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryL
                 continue;
             }
 
-            currentPeer.getDid().getPublicKey().addAttribute(OpsPacket.URL, url);
+            currentPeer.getDid().getPublicKey().addAttribute("serviceURL", url);
 
             DataElement serviceName = serviceRecords[i].getAttributeValue(0x0100);
             if (serviceName != null) {
@@ -134,7 +133,7 @@ public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryL
             if(id != null) {
                 LOG.info("1M5 id found: "+id);
                 currentPeer.setId((String)id.getValue());
-                BluetoothPeerDiscovery.peers.put(currentPeer.getId(), currentPeer);
+                sensor.peersInDiscovery.put(currentPeer.getId(), currentPeer);
             }
         }
     }
@@ -152,7 +151,7 @@ public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryL
             }
             case DiscoveryListener.SERVICE_SEARCH_ERROR : {
                 LOG.warning("Bluetooth search errored. Removing device from list.");
-                BluetoothDeviceDiscovery.remoteDevices.remove(currentDevice.getBluetoothAddress());
+                sensor.devices.remove(currentDevice.getBluetoothAddress());
                 break;
             }
             case DiscoveryListener.SERVICE_SEARCH_NO_RECORDS : {

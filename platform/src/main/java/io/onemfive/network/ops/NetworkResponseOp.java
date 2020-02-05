@@ -26,42 +26,7 @@
  */
 package io.onemfive.network.ops;
 
-import io.onemfive.data.JSONSerializable;
-import io.onemfive.network.Packet;
+public abstract class NetworkResponseOp extends NetworkOp {
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class OpsPacket extends Packet implements JSONSerializable {
-
-    public static final byte PING_REQUEST = 0x01;
-    public static final byte PING_RESPONSE = 0x02;
-    public static final byte RELIABLE_PEERS_REQUEST = 0x03;
-    public static final byte RELIABLE_PEERS_RESPONSE = 0x04;
-
-    public static final String OPS = "ops";
-    public static final String FROM_ID = "fId";
-    public static final String FROM_ADDRESS = "fAdd";
-    public static final String FROM_NFINGERPRINT = "fNFpt";
-    public static final String FROM_NADDRESS = "fNAdd";
-    public static final String TO_ID = "tId";
-    public static final String TO_NFINGERPRINT = "tNFpt";
-    public static final String TO_NADDRESS = "tNAdd";
-    public static final String URL = "url";
-
-    public Map<String,Object> atts = new HashMap<>();
-
-    @Override
-    public Map<String, Object> toMap() {
-        Map<String,Object> m = super.toMap();
-        m.putAll(atts);
-        return m;
-    }
-
-    @Override
-    public void fromMap(Map<String, Object> m) {
-        super.fromMap(m);
-        atts = m;
-    }
-
+    public abstract void operate();
 }

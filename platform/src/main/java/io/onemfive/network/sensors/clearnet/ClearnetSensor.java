@@ -163,13 +163,13 @@ public class ClearnetSensor extends BaseSensor {
     }
 
     @Override
-    public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
+    public SensorSession establishSession(String address, Boolean autoConnect) {
         return null;
     }
 
     @Override
-    public boolean sendOut(Packet packet) {
-        Envelope e = ((NetworkPacket)packet).getEnvelope();
+    public boolean sendOut(NetworkPacket packet) {
+        Envelope e = packet.getEnvelope();
         URL url = e.getURL();
         if(url != null) {
             LOG.info("URL="+url.toString());

@@ -27,7 +27,6 @@
 package io.onemfive.network;
 
 import io.onemfive.data.NetworkNode;
-import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.Sensor;
 import io.onemfive.network.sensors.SensorManager;

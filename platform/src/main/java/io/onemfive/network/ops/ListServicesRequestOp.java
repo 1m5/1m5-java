@@ -29,10 +29,10 @@ package io.onemfive.network.ops;
 /**
  * Services listed should only be public in nature or within community.
  */
-public class ListServicesRequestOp extends NetworkOpBase {
+public class ListServicesRequestOp extends NetworkRequestOp {
 
     @Override
-    public OpsPacket operate(OpsPacket packet) {
+    public NetworkResponseOp operate() {
         return null;
     }
 }

@@ -70,7 +70,7 @@ public abstract class SignalBase implements Signal, JSONSerializable {
     }
 
     @Override
-    public boolean open(NetworkPeer peer) {
+    public boolean open(String address) {
         return false;
     }
 
@@ -95,13 +95,13 @@ public abstract class SignalBase implements Signal, JSONSerializable {
     }
 
     @Override
-    public Boolean send(Packet packet) {
+    public Boolean send(NetworkOp op) {
         return null;
     }
 
     @Override
-    public void handleNetworkOpPacket(NetworkPacket packet, NetworkOp op) {
-
+    public Boolean send(NetworkPacket packet) {
+        return null;
     }
 
     @Override

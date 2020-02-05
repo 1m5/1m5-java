@@ -77,7 +77,7 @@ public class ClearnetSession extends BaseSession {
     }
 
     @Override
-    public boolean open(NetworkPeer peer) {
+    public boolean open(String address) {
         return false;
     }
 
@@ -102,12 +102,12 @@ public class ClearnetSession extends BaseSession {
     }
 
     @Override
-    public Boolean send(Packet packet) {
+    public Boolean send(NetworkPacket packet) {
         return null;
     }
 
     @Override
-    public void handleNetworkOpPacket(NetworkPacket packet, NetworkOp op) {
-
+    public Boolean send(NetworkOp op) {
+        return null;
     }
 }

@@ -36,6 +36,9 @@ public abstract class NetworkPacket extends Packet {
 
     private Logger LOG = Logger.getLogger(NetworkPacket.class.getName());
 
+    public static int DESTINATION_PEER_REQUIRED = 2;
+    public static int DESTINATION_PEER_WRONG_NETWORK = 3;
+    public static int DESTINATION_PEER_NOT_FOUND = 4;
     public static int NO_ENVELOPE = 5;
     public static int NO_ROUTE = 6;
     public static int NO_SERVICE = 7;
