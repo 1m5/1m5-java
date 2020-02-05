@@ -210,7 +210,7 @@ public class PeerManager implements Runnable {
         return r != null && r.isReliable();
     }
 
-    public int totalPeersByNetwork(String id, Network network) {
+    public long totalPeersByNetwork(String id, Network network) {
         return graphDB.numberPeersByNetwork(id, network);
     }
 

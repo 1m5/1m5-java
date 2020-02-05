@@ -165,18 +165,23 @@ public class GraphDB {
     }
 
     public boolean savePeer(NetworkPeer networkPeer, Boolean autoCreate) {
+        boolean saved = false;
         try (Transaction tx = graphDb.beginTx()) {
             Node n = findPeerNode(networkPeer.getId());
             if(n==null) {
-                n = graphDb.createNode(peerLabel);
-                n.setProperty("id",networkPeer.getId());
+                if(autoCreate) {
+                    n = graphDb.createNode(peerLabel);
+                    n.setProperty("id", networkPeer.getId());
+                    saved = true;
+                }
+            } else {
+                saved = true;
             }
             tx.success();
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());
-            return false;
         }
-        return true;
+        return saved;
     }
 
     /**
@@ -186,7 +191,7 @@ public class GraphDB {
      * @throws Exception
      */
     private Node findPeerNode(String id) {
-        return graphDb.findNode(relLabel, "id", id);
+        return graphDb.findNode(peerLabel, "id", id);
     }
 
     public boolean isRelatedByNetwork(String startPeerId, Network network, String endPeerId) {
@@ -267,9 +272,9 @@ public class GraphDB {
         return rt;
     }
 
-    public int numberPeersByNetwork(String id, Network network) {
+    public long numberPeersByNetwork(String id, Network network) {
         P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
-        int count = -1;
+        long count = -1;
         try (Transaction tx = graphDb.beginTx()) {
             String cql = "MATCH (n {id: '"+id+"'})-[:" + relType.name() + "]->()" +
                     " RETURN count(*) as total";
@@ -277,7 +282,7 @@ public class GraphDB {
             if (r.hasNext()) {
                 Map<String,Object> row = r.next();
                 for (Map.Entry<String,Object> column : row.entrySet()) {
-                    count = (int)column.getValue();
+                    count = (long)column.getValue();
                     break;
                 }
             }

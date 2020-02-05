@@ -238,11 +238,6 @@ public class PeerDB {
                 Class.forName("org.apache.derby.jdbc.EmbeddedDriver").getConstructor().newInstance();
                 connection = DriverManager.getConnection(dbURL+";create=true", properties);
 //                connection.setAutoCommit(false);
-                peersById = connection.prepareStatement("select * from Peer where id=?");
-                peerByIdAndNetwork = connection.prepareStatement("select * from Peer where id=? and network=?");
-                peerByAddress = connection.prepareStatement("select * from Peer where address=?");
-                peerInsertPS = connection.prepareStatement("insert into Peer values (?, ?, ?, ?, ?, ?, ?)");
-                peerUpdatePS = connection.prepareStatement("update Peer set id=?, network=?, username=?, alias=?, address=?, fingerprint=?, type=? where id=?");
             } catch (Exception e) {
                 LOG.warning(e.getLocalizedMessage());
                 return false;
@@ -255,27 +250,15 @@ public class PeerDB {
                 }
             } );
 
-            // Drop while testing
             Statement stmt = null;
-            try{
-                stmt = connection.createStatement();
-                stmt.execute("drop table Peer");
-            } catch (SQLException e) {
-                LOG.info(e.getLocalizedMessage());
-            } finally {
-                if(stmt!=null) {
-                    try {
-                        stmt.close();
-                    } catch (SQLException e) {
-                        LOG.warning(e.getLocalizedMessage());
-                    }
-                }
-            }
-
-            // Recreate
             try {
                 stmt = connection.createStatement();
                 stmt.execute(PEER_TABLE_DDL);
+                peersById = connection.prepareStatement("select * from Peer where id=?");
+                peerByIdAndNetwork = connection.prepareStatement("select * from Peer where id=? and network=?");
+                peerByAddress = connection.prepareStatement("select * from Peer where address=?");
+                peerInsertPS = connection.prepareStatement("insert into Peer values (?, ?, ?, ?, ?, ?, ?)");
+                peerUpdatePS = connection.prepareStatement("update Peer set id=?, network=?, username=?, alias=?, address=?, fingerprint=?, type=? where id=?");
             } catch (SQLException e) {
                 LOG.info(e.getLocalizedMessage());
             } finally {
