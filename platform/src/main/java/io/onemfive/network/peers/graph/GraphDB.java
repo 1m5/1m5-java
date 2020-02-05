@@ -53,7 +53,8 @@ public class GraphDB {
     private String name;
     private Properties properties;
     private GraphDatabaseService graphDb;
-    private Label label = Label.label("P2P");
+    private Label peerLabel = Label.label("Peer");
+    private Label relLabel = Label.label("P2P");
 
     public GraphDB() {
         super();
@@ -163,6 +164,21 @@ public class GraphDB {
         return lowestLatencyPath;
     }
 
+    public boolean savePeer(NetworkPeer networkPeer, Boolean autoCreate) {
+        try (Transaction tx = graphDb.beginTx()) {
+            Node n = findPeerNode(networkPeer.getId());
+            if(n==null) {
+                n = graphDb.createNode(peerLabel);
+                n.setProperty("id",networkPeer.getId());
+            }
+            tx.success();
+        } catch (Exception e) {
+            LOG.warning(e.getLocalizedMessage());
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Requires to be used within a Transaction
      * @param id Id of NetworkPeer
@@ -170,7 +186,7 @@ public class GraphDB {
      * @throws Exception
      */
     private Node findPeerNode(String id) {
-        return graphDb.findNode(label, "id", id);
+        return graphDb.findNode(relLabel, "id", id);
     }
 
     public boolean isRelatedByNetwork(String startPeerId, Network network, String endPeerId) {

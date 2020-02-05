@@ -31,7 +31,6 @@ import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.peers.graph.GraphUtil;
 import org.neo4j.graphdb.*;
 
-import java.io.File;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -48,60 +47,78 @@ public class PeerDB {
     private Connection connection;
     private String dbURL;
 
+    private PreparedStatement peersById;
+    private PreparedStatement peerByIdAndNetwork;
+    private PreparedStatement peerByAddress;
+    private PreparedStatement peerInsertPS;
+    private PreparedStatement peerUpdatePS;
+
+    private static final String PEER_TABLE_DDL = "create table "+TABLE+"(id varchar(256), network varchar(16), username varchar(32), alias varchar(32), address varchar(4096), fingerprint varchar(64), type varchar(32))";
+
     public Boolean savePeer(NetworkPeer p, Boolean autocreate) {
         LOG.info("Saving NetworkPeer...");
         if(p.getId()==null || p.getId().isEmpty()) {
             LOG.warning("NetworkPeer.id is empty. Must have an id for Network Peers to save.");
             return false;
         }
-        boolean updated = false;
+        boolean update = false;
+        ResultSet rs = null;
+        LOG.info("Looking up Node by Id: "+p.getId());
         try {
-            updated = updatePeer(p);
-        } catch (Exception e) {
-            return false;
-        }
-        if(updated)
-            return true;
-        else if(autocreate) {
-            LOG.info("Creating NetworkPeer in DB...");
-            if(p.getId()==null) {
-                LOG.warning("Can not insert NetworkPeer into database without an id.");
-                return false;
-            }
-            Statement stmt = null;
-            try {
-                stmt = connection.createStatement();
-                String sql = "insert into "+TABLE+" ("+
-                        NetworkPeer.ID+
-                        p.getNetwork()==null?"":", "+NetworkPeer.NETWORK+
-                        p.getDid().getUsername()==null?"":", "+NetworkPeer.USERNAME+
-                        p.getDid().getPublicKey().getAlias()==null?"":", "+NetworkPeer.ALIAS+
-                        p.getDid().getPublicKey().getAddress()==null?"":", "+NetworkPeer.ADDRESS+
-                        p.getDid().getPublicKey().getFingerprint()==null?"":", "+NetworkPeer.FINGERPRINT+
-                        p.getDid().getPublicKey().getType()==null?"":", "+NetworkPeer.KEY_TYPE+
-                        " ) values ( "+
-                        "'"+p.getId()+"'" +
-                        p.getNetwork()==null?"":", '"+p.getNetwork().name()+"'"+
-                        p.getDid().getUsername()==null?"":", '"+p.getDid().getUsername()+"'"+
-                        p.getDid().getPublicKey().getAlias()==null?"":", '"+p.getDid().getPublicKey().getAlias()+"'"+
-                        p.getDid().getPublicKey().getAddress()==null?"":", '"+p.getDid().getPublicKey().getAddress()+"'"+
-                        p.getDid().getPublicKey().getFingerprint()==null?"":", '"+p.getDid().getPublicKey().getFingerprint()+"'"+
-                        p.getDid().getPublicKey().getType()==null?"":", '"+p.getDid().getPublicKey().getType()+"'";
-                LOG.info(sql);
-                stmt.execute(sql);
-            } catch (SQLException e) {
-                LOG.warning(e.getLocalizedMessage());
-            } finally {
-                if(stmt!=null) {
-                    try {
-                        stmt.close();
-                    } catch (SQLException e) {
-                        LOG.warning(e.getLocalizedMessage());
-                    }
+            peersById.clearParameters();
+            peersById.setString(1, p.getId());
+            rs = peersById.executeQuery();
+            update = rs.next();
+        } catch (SQLException e) {
+            LOG.warning(e.getLocalizedMessage());
+        } finally {
+            if(rs!=null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    LOG.warning(e.getLocalizedMessage());
                 }
             }
+        }
+        if(update) {
+            LOG.info("Find and Update Peer Node...");
+            try {
+                peerUpdatePS.clearParameters();
+                peerUpdatePS.setString(1, p.getId());
+                peerUpdatePS.setString(2, p.getNetwork().name());
+                peerUpdatePS.setString(3, p.getDid().getUsername());
+                peerUpdatePS.setString(4, p.getDid().getPublicKey().getAlias());
+                peerUpdatePS.setString(5, p.getDid().getPublicKey().getAddress());
+                peerUpdatePS.setString(6, p.getDid().getPublicKey().getFingerprint());
+                peerUpdatePS.setString(7, p.getDid().getPublicKey().getType());
+                peerUpdatePS.setString(8, p.getId());
+                peerUpdatePS.executeUpdate();
+            } catch (SQLException e) {
+                LOG.warning(e.getLocalizedMessage());
+                return false;
+            }
+        } else if(autocreate) {
+            LOG.info("Creating NetworkPeer in DB...");
+            if(p.getNetwork()==null) {
+                LOG.warning("Can not insert NetworkPeer into database without a network.");
+                return false;
+            }
+            try {
+                peerInsertPS.clearParameters();
+                peerInsertPS.setString(1, p.getId());
+                peerInsertPS.setString(2, p.getNetwork().name());
+                peerInsertPS.setString(3, p.getDid().getUsername());
+                peerInsertPS.setString(4, p.getDid().getPublicKey().getAlias());
+                peerInsertPS.setString(5, p.getDid().getPublicKey().getAddress());
+                peerInsertPS.setString(6, p.getDid().getPublicKey().getFingerprint());
+                peerInsertPS.setString(7, p.getDid().getPublicKey().getType());
+                peerInsertPS.executeUpdate();
+            } catch (SQLException e) {
+                LOG.warning(e.getLocalizedMessage());
+                return false;
+            }
         } else {
-            LOG.info("New Peer but autocreate is false, unable to save peer.");
+            LOG.warning("New Peer but autocreate is false, unable to save peer.");
         }
         return true;
     }
@@ -112,11 +129,12 @@ public class PeerDB {
 
     public NetworkPeer loadPeerByIdAndNetwork(String id, Network network) {
         NetworkPeer p = null;
-        Statement stmt = null;
         ResultSet rs = null;
         try {
-            stmt = connection.createStatement();
-            rs = stmt.executeQuery("select * from "+TABLE+" where "+NetworkPeer.ID+"='"+id+"' and "+NetworkPeer.NETWORK+"='"+network.name()+"';");
+            peerByIdAndNetwork.clearParameters();
+            peerByIdAndNetwork.setString(1, id);
+            peerByIdAndNetwork.setString(2, network.name());
+            rs = peerByIdAndNetwork.executeQuery();
             if(rs.next()) {
                 p = new NetworkPeer();
                 p.setId(rs.getString(NetworkPeer.ID));
@@ -136,62 +154,39 @@ public class PeerDB {
                 } catch (SQLException e) {
                     LOG.warning(e.getLocalizedMessage());
                 }
-            if(stmt!=null)
+        }
+        return p;
+    }
+
+    public NetworkPeer loadPeerByAddress(String address) {
+        NetworkPeer p = null;
+        ResultSet rs = null;
+        try {
+            peerByAddress.clearParameters();
+            peerByAddress.setString(1, address);
+            rs = peerByAddress.executeQuery();
+            if(rs.next()) {
+                p = new NetworkPeer();
+                p.setId(rs.getString(NetworkPeer.ID));
+                p.setNetwork(Network.valueOf(rs.getString(NetworkPeer.NETWORK)));
+                p.getDid().setUsername(rs.getString(NetworkPeer.USERNAME));
+                p.getDid().getPublicKey().setAlias(rs.getString(NetworkPeer.ALIAS));
+                p.getDid().getPublicKey().setAddress(rs.getString(NetworkPeer.ADDRESS));
+                p.getDid().getPublicKey().setFingerprint(rs.getString(NetworkPeer.FINGERPRINT));
+                p.getDid().getPublicKey().setType(rs.getString(NetworkPeer.KEY_TYPE));
+            }
+        } catch (Exception e) {
+            LOG.warning(e.getLocalizedMessage());
+        } finally {
+            if(rs!=null) {
                 try {
-                    stmt.close();
+                    rs.close();
                 } catch (SQLException e) {
                     LOG.warning(e.getLocalizedMessage());
                 }
+            }
         }
         return p;
-    }
-
-    public NetworkPeer loadPeerByAddress(String address) throws Exception {
-        NetworkPeer p = null;
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery("select * from "+TABLE+" where "+NetworkPeer.ADDRESS+"='"+address+"';");
-        if(rs.next()) {
-            p = new NetworkPeer();
-            p.setId(rs.getString(NetworkPeer.ID));
-            p.setNetwork(Network.valueOf(rs.getString(NetworkPeer.NETWORK)));
-            p.getDid().setUsername(rs.getString(NetworkPeer.USERNAME));
-            p.getDid().getPublicKey().setAlias(rs.getString(NetworkPeer.ALIAS));
-            p.getDid().getPublicKey().setAddress(rs.getString(NetworkPeer.ADDRESS));
-            p.getDid().getPublicKey().setFingerprint(rs.getString(NetworkPeer.FINGERPRINT));
-            p.getDid().getPublicKey().setType(rs.getString(NetworkPeer.KEY_TYPE));
-        }
-        rs.close();
-        stmt.close();
-        return p;
-    }
-
-    private boolean updatePeer(NetworkPeer p) throws Exception {
-        LOG.info("Find and Update Peer Node...");
-        boolean updated = false;
-        LOG.info("Looking up Node by Id: "+p.getId());
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery("select * from "+TABLE+" where id="+p.getId());
-        boolean update = rs.next();
-        rs.close();
-        stmt.close();
-        if(update) {
-            stmt = connection.createStatement();
-            String sql = "update "+TABLE+" set "+
-                    NetworkPeer.ID+"='"+p.getId()+"'"+
-                    p.getNetwork()==null?"":", "+NetworkPeer.NETWORK+"='"+p.getNetwork().name()+"'"+
-                    p.getDid().getUsername()==null?"":", "+NetworkPeer.USERNAME+"='"+p.getDid().getUsername()+"'"+
-                    p.getDid().getPassphraseHash()==null?"":", "+NetworkPeer.PASSPHRASE_HASH+"='"+p.getDid().getPassphraseHash()+"'"+
-                    p.getDid().getPassphraseHashAlgorithm()==null?"":", "+NetworkPeer.PASSPHRASE_HASH_ALG+"='"+p.getDid().getPassphraseHashAlgorithm().getName()+"'"+
-                    p.getDid().getPublicKey().getAlias()==null?"":", "+NetworkPeer.ALIAS+"='"+p.getDid().getPublicKey().getAlias()+"'"+
-                    p.getDid().getPublicKey().getAddress()==null?"":", "+NetworkPeer.ADDRESS+"='"+p.getDid().getPublicKey().getAddress()+"'"+
-                    p.getDid().getPublicKey().getFingerprint()==null?"":", "+NetworkPeer.FINGERPRINT+"='"+p.getDid().getPublicKey().getFingerprint()+"'"+
-                    p.getDid().getPublicKey().getType()==null?"":", "+NetworkPeer.KEY_TYPE+"='"+p.getDid().getPublicKey().getType()+"'";
-            LOG.info(sql);
-            stmt.execute(sql);
-            stmt.close();
-            updated = true;
-        }
-        return updated;
     }
 
     private Map<String,Object> toMap(PropertyContainer n) {
@@ -226,7 +221,7 @@ public class PeerDB {
         this.name = name;
     }
 
-    public boolean init(Properties properties) {
+    public boolean init(Properties p) {
         if(location==null) {
             LOG.warning("Derby DB location required. Please provide.");
             return false;
@@ -236,16 +231,18 @@ public class PeerDB {
             return false;
         }
         if(!initialized) {
-            this.properties = properties;
-            File dbDir = new File(location+"/"+name);
-            if(!dbDir.exists() && !dbDir.mkdir()) {
-                LOG.warning("Unable to create derby db directory at: "+location+"/"+name);
-                return false;
-            }
-            dbURL = "jdbc:derby:"+location+":"+name;
+            this.properties = p;
+            System.setProperty("derby.system.home",location);
+            dbURL = "jdbc:derby:"+name;
             try {
                 Class.forName("org.apache.derby.jdbc.EmbeddedDriver").getConstructor().newInstance();
                 connection = DriverManager.getConnection(dbURL+";create=true", properties);
+//                connection.setAutoCommit(false);
+                peersById = connection.prepareStatement("select * from Peer where id=?");
+                peerByIdAndNetwork = connection.prepareStatement("select * from Peer where id=? and network=?");
+                peerByAddress = connection.prepareStatement("select * from Peer where address=?");
+                peerInsertPS = connection.prepareStatement("insert into Peer values (?, ?, ?, ?, ?, ?, ?)");
+                peerUpdatePS = connection.prepareStatement("update Peer set id=?, network=?, username=?, alias=?, address=?, fingerprint=?, type=? where id=?");
             } catch (Exception e) {
                 LOG.warning(e.getLocalizedMessage());
                 return false;
@@ -257,6 +254,40 @@ public class PeerDB {
                     teardown();
                 }
             } );
+
+            // Drop while testing
+            Statement stmt = null;
+            try{
+                stmt = connection.createStatement();
+                stmt.execute("drop table Peer");
+            } catch (SQLException e) {
+                LOG.info(e.getLocalizedMessage());
+            } finally {
+                if(stmt!=null) {
+                    try {
+                        stmt.close();
+                    } catch (SQLException e) {
+                        LOG.warning(e.getLocalizedMessage());
+                    }
+                }
+            }
+
+            // Recreate
+            try {
+                stmt = connection.createStatement();
+                stmt.execute(PEER_TABLE_DDL);
+            } catch (SQLException e) {
+                LOG.info(e.getLocalizedMessage());
+            } finally {
+                if(stmt!=null) {
+                    try {
+                        stmt.close();
+                    } catch (SQLException e) {
+                        LOG.warning(e.getLocalizedMessage());
+                    }
+                }
+            }
+
             initialized = true;
         }
         return true;

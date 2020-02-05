@@ -176,7 +176,7 @@ public class PeerManager implements Runnable {
             LOG.warning("Can not save Network Peer; id must be provided.");
             return false;
         }
-        if(peerDB.savePeer(networkPeer, autoCreate)) {
+        if(peerDB.savePeer(networkPeer, autoCreate) && graphDB.savePeer(networkPeer, autoCreate)) {
             NetworkPeer local1M5Peer = localNode.getNetworkPeer();
             if(local1M5Peer.getId().equals(networkPeer.getId())) {
                 // This is a local peer
