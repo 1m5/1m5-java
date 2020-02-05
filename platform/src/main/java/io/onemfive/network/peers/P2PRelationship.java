@@ -122,12 +122,12 @@ public class P2PRelationship implements JSONSerializable {
 
     public Boolean isReliable() {
         return totalAcks > 100
-                && getAvgAckLatencyMS() < 6000
-                && getMedAckLatencyMS() < 6000;
+                && getAvgAckLatencyMS() < 8000
+                && getMedAckLatencyMS() < 8000;
     }
 
     public Boolean isSuperReliable() {
-        return totalAcks > 10000
+        return totalAcks > 1000
                 && getAvgAckLatencyMS() < 4000
                 && getMedAckLatencyMS() < 4000;
     }
