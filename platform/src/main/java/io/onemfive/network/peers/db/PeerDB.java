@@ -28,12 +28,13 @@ package io.onemfive.network.peers.db;
 
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.peers.graph.GraphUtil;
-import org.neo4j.graphdb.*;
+import io.onemfive.util.RandomUtil;
 
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Logger;
+
+import static java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE;
 
 public class PeerDB {
 
@@ -47,7 +48,9 @@ public class PeerDB {
     private Connection connection;
     private String dbURL;
 
+    private PreparedStatement peersCountByNetwork;
     private PreparedStatement peersById;
+    private PreparedStatement peersByNetwork;
     private PreparedStatement peerByIdAndNetwork;
     private PreparedStatement peerByAddress;
     private PreparedStatement peerInsertPS;
@@ -123,6 +126,58 @@ public class PeerDB {
         return true;
     }
 
+    public NetworkPeer randomPeer(Network network) {
+        NetworkPeer p = null;
+        ResultSet rs = null;
+        int total = 0;
+        try {
+            peersCountByNetwork.clearParameters();
+            peersCountByNetwork.setString(1, network.name());
+            rs = peersCountByNetwork.executeQuery();
+            if(rs.next()) {
+                total = rs.getInt(0);
+            }
+        } catch (SQLException e) {
+            LOG.warning(e.getLocalizedMessage());
+        } finally {
+            if(rs!=null)
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    LOG.warning(e.getLocalizedMessage());
+                }
+        }
+        int random = RandomUtil.nextRandomInteger(0, total);
+        rs = null;
+        try {
+            peersByNetwork.clearParameters();
+            peersByNetwork.setString(1, network.name());
+            peersByNetwork.execute("set schema 'SAMP'");
+            rs = peersByNetwork.executeQuery();
+            if(rs.first()) {
+                rs.absolute(random);
+                p = new NetworkPeer();
+                p.setId(rs.getString(NetworkPeer.ID));
+                p.setNetwork(Network.valueOf(rs.getString(NetworkPeer.NETWORK)));
+                p.getDid().setUsername(rs.getString(NetworkPeer.USERNAME));
+                p.getDid().getPublicKey().setAlias(rs.getString(NetworkPeer.ALIAS));
+                p.getDid().getPublicKey().setAddress(rs.getString(NetworkPeer.ADDRESS));
+                p.getDid().getPublicKey().setFingerprint(rs.getString(NetworkPeer.FINGERPRINT));
+                p.getDid().getPublicKey().setType(rs.getString(NetworkPeer.KEY_TYPE));
+            }
+        } catch (SQLException e) {
+            LOG.warning(e.getLocalizedMessage());
+        } finally {
+            if(rs!=null)
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    LOG.warning(e.getLocalizedMessage());
+                }
+        }
+        return p;
+    }
+
     public NetworkPeer loadPeerById(String id) {
         return loadPeerByIdAndNetwork(id, Network.IMS);
     }
@@ -189,22 +244,6 @@ public class PeerDB {
         return p;
     }
 
-    private Map<String,Object> toMap(PropertyContainer n) {
-        return GraphUtil.getAttributes(n);
-    }
-
-    private NetworkPeer toPeer(PropertyContainer n) {
-        NetworkPeer p = new NetworkPeer();
-        p.setId((String)n.getProperty("id"));
-        return p;
-    }
-
-    private NetworkPeer toPeer(Map<String,Object> m) {
-        NetworkPeer p = new NetworkPeer();
-        p.fromMap(m);
-        return p;
-    }
-
     public String getLocation() {
         return location;
     }
@@ -254,11 +293,6 @@ public class PeerDB {
             try {
                 stmt = connection.createStatement();
                 stmt.execute(PEER_TABLE_DDL);
-                peersById = connection.prepareStatement("select * from Peer where id=?");
-                peerByIdAndNetwork = connection.prepareStatement("select * from Peer where id=? and network=?");
-                peerByAddress = connection.prepareStatement("select * from Peer where address=?");
-                peerInsertPS = connection.prepareStatement("insert into Peer values (?, ?, ?, ?, ?, ?, ?)");
-                peerUpdatePS = connection.prepareStatement("update Peer set id=?, network=?, username=?, alias=?, address=?, fingerprint=?, type=? where id=?");
             } catch (SQLException e) {
                 LOG.info(e.getLocalizedMessage());
             } finally {
@@ -269,6 +303,18 @@ public class PeerDB {
                         LOG.warning(e.getLocalizedMessage());
                     }
                 }
+            }
+
+            try {
+                peersCountByNetwork = connection.prepareStatement("select count(id) from Peer where network=?");
+                peersById = connection.prepareStatement("select * from Peer where id=?");
+                peersByNetwork = connection.prepareStatement("select * from Peer where network=?", TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                peerByIdAndNetwork = connection.prepareStatement("select * from Peer where id=? and network=?");
+                peerByAddress = connection.prepareStatement("select * from Peer where address=?");
+                peerInsertPS = connection.prepareStatement("insert into Peer values (?, ?, ?, ?, ?, ?, ?)");
+                peerUpdatePS = connection.prepareStatement("update Peer set id=?, network=?, username=?, alias=?, address=?, fingerprint=?, type=? where id=?");
+            } catch (SQLException e) {
+                LOG.info(e.getLocalizedMessage());
             }
 
             initialized = true;

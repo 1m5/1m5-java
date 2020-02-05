@@ -166,9 +166,7 @@ public class PeerManager implements Runnable {
     }
 
     public NetworkPeer findPeerByAddress(String address) {
-        NetworkPeer p = null;
-
-        return p;
+        return peerDB.loadPeerByAddress(address);
     }
 
     public Boolean savePeer(NetworkPeer networkPeer, boolean autoCreate) {
@@ -230,7 +228,6 @@ public class PeerManager implements Runnable {
         if (r.statusCode == NO_ERROR) {
             NetworkPeer localPeer = localNode.getNetworkPeer();
             if(r.identityPublicKey.getAddress()!=null) {
-                localPeer.setId(r.identityPublicKey.getAddress());
                 localPeer.getDid().getPublicKey().setAddress(r.identityPublicKey.getAddress());
             }
             if(r.identityPublicKey.getFingerprint()!=null) {
@@ -244,7 +241,7 @@ public class PeerManager implements Runnable {
             localPeer.getDid().getPublicKey().setAlias(r.identityPublicKey.getAlias());
             LOG.info("Updating Local Peer: \n\t: "+localPeer);
             try {
-                if(peerDB.savePeer(localPeer, true)) {
+                if(peerDB.savePeer(localPeer, true) && graphDB.savePeer(localPeer, true)) {
                     LOG.info("Local Peer updated.");
                 }
             } catch (Exception e) {
@@ -264,7 +261,7 @@ public class PeerManager implements Runnable {
             np.setId(localNode.getNetworkPeer().getId());
         }
         try {
-            if(peerDB.savePeer(np, true)) {
+            if(peerDB.savePeer(np, true) && graphDB.savePeer(np, true)) {
                 localNode.addNetworkPeer(np);
                 LOG.info("Added to Local Node: " + np);
             }

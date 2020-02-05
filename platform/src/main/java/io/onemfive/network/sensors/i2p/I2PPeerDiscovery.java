@@ -32,7 +32,6 @@ import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Request;
 import io.onemfive.network.*;
 import io.onemfive.network.ops.PingRequestOp;
-import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.NetworkTask;
 import io.onemfive.util.DLC;
 import io.onemfive.util.tasks.TaskRunner;
@@ -71,26 +70,40 @@ public class I2PPeerDiscovery extends NetworkTask {
     public I2PPeerDiscovery(I2PSensor sensor, TaskRunner taskRunner) {
         super(I2PPeerDiscovery.class.getName(), taskRunner, sensor);
 
-        NetworkPeer seedA = new NetworkPeer(Network.I2P);
+        NetworkPeer seedA1M5 = new NetworkPeer();
+        seedA1M5.setId("+sKVViuz2FPsl/XQ+Da/ivbNfOI=");
+        seedA1M5.getDid().getPublicKey().setAddress("mQENBF43FaEDCACtMtZJu3oSchRgtaUzTmMJRbJmdfSpEaG2nW7U2YinHeMUkIpFCQGu2/OgmCuE4kVEQ4y6kKvqCiMvahtv+OqID0Lk7JEofFpwH8UUUis+p99qnw7RYy1q4IrjBpFSZHLi/nCyZOp4L7jG0CgJEFoZZEd2Uby1vnmePxts7srWkBjlmUWj+e/G89r+ZYpRN7dwdwl69Qk2s3UWTq1xyVyMqg/RuFC9kUgsmkL8vIpO4KYX7DfRKmYT29gfwjrvbVd18oeFECFVU/E6118N4P/8zIj0vhOiuar5hdKiq3oU5ka1hlQqP3IrQz2+feh2Q34+TP/BBEKOvbSv6V/6/6T/ABEBAAG0BUFsaWNliQEuBBMDAgAYBQJeNxWkAhsDBAsJCAcGFQgCCQoLAh4BAAoJEPg2v4r2zXzihH8H/iKc0ZBoWbeP/FykApYjG9m8ze54Pr9noRUw7JDAs6a7Y4IjNuE42NLMMwcxCoekzVmUwMyLrQDW+pLMaZupX2i8yU720F9WMh4f9eC4lXg64IMTnNUZqI4U52wZV22nxiGdGqacHwSSRcG5rHBskdrOJ8BX0QQ7Qt+iw4xyaxMPSPnULiJv3Z+kwLVLbxMQsmtLy7BZW6Pn848oONRNodg9tWn3PA/jTFg4ak+9lzfc1HnAWe/FeQ7O6jZ3h5eAbC4Y9KQqxVI7QzOkwIpRHMbkrVHdEcZMOa36wznC6SCXxpB/uGNrVnCJ0og9RN701QbxOu0XcevMjAOcE5dsC3g=");
+        seedA1M5.getDid().getPublicKey().setFingerprint("+sKVViuz2FPsl/XQ+Da/ivbNfOI=");
+        seedA1M5.getDid().getPublicKey().setType("RSA2048");
+        seedA1M5.getDid().getPublicKey().isIdentityKey(true);
+        seedA1M5.getDid().getPublicKey().setBase64Encoded(true);
+        if(peerManager.savePeer(seedA1M5, true)) {
+            seeds.add(seedA1M5);
+        }
+
+        NetworkPeer seedAI2P = new NetworkPeer(Network.I2P);
         // TODO: Change id to fingerprint
-        seedA.setId("1234567890");
-        seedA.getDid().getPublicKey().setAddress("ygfTZm-Cwhs9FI05gwHC3hr360gpcp103KRUSubJ2xvaEhFXzND8emCKXSAZLrIubFoEct5lmPYjXegykkWZOsjdvt8ZWZR3Wt79rc3Ovk7Ev4WXrgIDHjhpr-cQdBITSFW8Ay1YvArKxuEVpIChF22PlPbDg7nRyHXOqmYmrjo2AcwObs--mtH34VMy4R934PyhfEkpLZTPyN73qO4kgvrBtmpOxdWOGvlDbCQjhSAC3018xpM0qFdFSyQwZkHdJ9sG7Mov5dmG5a6D6wRx~5IEdfufrQi1aR7FEoomtys-vAAF1asUyX1UkxJ2WT2al8eIuCww6Nt6U6XfhN0UbSjptbNjWtK-q4xutcreAu3FU~osZRaznGwCHez5arT4X2jLXNfSEh01ICtT741Ki4aeSrqRFPuIove2tmUHZPt4W6~WMztvf5Oc58jtWOj08HBK6Tc16dzlgo9kpb0Vs3h8cZ4lavpRen4i09K8vVORO1QgD0VH3nIZ5Ql7K43zAAAA");
-        seedA.getDid().getPublicKey().setFingerprint("bl4fi-lFyTPQQkKOPuxlF9zPGEdgtAhtKetnyEwj8t0=");
-        seedA.getDid().getPublicKey().setType("ElGamal/None/NoPadding");
-        seedA.getDid().getPublicKey().isIdentityKey(true);
-        seedA.getDid().getPublicKey().setBase64Encoded(true);
-        if(peerManager.savePeer(seedA, true)) {
-            seeds.add(seedA);
+        seedAI2P.setId("+sKVViuz2FPsl/XQ+Da/ivbNfOI=");
+        seedAI2P.getDid().getPublicKey().setAddress("ygfTZm-Cwhs9FI05gwHC3hr360gpcp103KRUSubJ2xvaEhFXzND8emCKXSAZLrIubFoEct5lmPYjXegykkWZOsjdvt8ZWZR3Wt79rc3Ovk7Ev4WXrgIDHjhpr-cQdBITSFW8Ay1YvArKxuEVpIChF22PlPbDg7nRyHXOqmYmrjo2AcwObs--mtH34VMy4R934PyhfEkpLZTPyN73qO4kgvrBtmpOxdWOGvlDbCQjhSAC3018xpM0qFdFSyQwZkHdJ9sG7Mov5dmG5a6D6wRx~5IEdfufrQi1aR7FEoomtys-vAAF1asUyX1UkxJ2WT2al8eIuCww6Nt6U6XfhN0UbSjptbNjWtK-q4xutcreAu3FU~osZRaznGwCHez5arT4X2jLXNfSEh01ICtT741Ki4aeSrqRFPuIove2tmUHZPt4W6~WMztvf5Oc58jtWOj08HBK6Tc16dzlgo9kpb0Vs3h8cZ4lavpRen4i09K8vVORO1QgD0VH3nIZ5Ql7K43zAAAA");
+        seedAI2P.getDid().getPublicKey().setFingerprint("bl4fi-lFyTPQQkKOPuxlF9zPGEdgtAhtKetnyEwj8t0=");
+        seedAI2P.getDid().getPublicKey().setType("ElGamal/None/NoPadding");
+        seedAI2P.getDid().getPublicKey().isIdentityKey(true);
+        seedAI2P.getDid().getPublicKey().setBase64Encoded(true);
+        if(peerManager.savePeer(seedAI2P, true)) {
+            seeds.add(seedAI2P);
         }
         periodicity = getPeriodicity();
     }
 
     @Override
     public Long getPeriodicity() {
-        if(!peerManager.isReliable(seeds.get(0)))
-            return 5 * 1000L; // Every five seconds until we have a reliable seed.
-        else
-            return UpdateInterval * 1000L; // wait for UI seconds
+        for(NetworkPeer sp : seeds) {
+            // Do we have at least one reliable I2P Peer?
+            if(sp.getNetwork()==Network.I2P && peerManager.isReliable(sp)) {
+                return UpdateInterval * 1000L; // wait for UI seconds
+            }
+        }
+        return 5 * 1000L; // Every five seconds until we have a reliable seed.
     }
 
     @Override
@@ -104,10 +117,10 @@ public class I2PPeerDiscovery extends NetworkTask {
                 // Launch Seeds
                 for (NetworkPeer seed : seeds) {
                     if(seed.getNetwork()!= Network.I2P) {
-                        LOG.warning("Seed provided is not for I2P.");
+                        LOG.info("Seed not for I2P, skipping.");
                     } else if(seed.getDid().getPublicKey().getAddress().isEmpty()) {
                         LOG.warning("Seed provided does not have an address.");
-                    } else if(seed.getDid().getPublicKey().getAddress().equals(localNode.getNetworkPeer(Network.I2P).getDid().getPublicKey().getAddress())) {
+                    } else if(seed.getDid().getPublicKey().getFingerprint().equals(localNode.getNetworkPeer(Network.I2P).getDid().getPublicKey().getFingerprint())) {
                         LOG.info("Seed is local peer.");
                     } else {
                         LOG.info("Sending Peer Status Request to Seed Peer:\n\t" + seed);
