@@ -31,6 +31,7 @@ import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.Request;
 import io.onemfive.network.*;
+import io.onemfive.network.ops.OpsPacket;
 import io.onemfive.network.ops.PingRequestOp;
 import io.onemfive.network.NetworkTask;
 import io.onemfive.util.DLC;
@@ -126,13 +127,16 @@ public class I2PPeerDiscovery extends NetworkTask {
                         LOG.info("Sending Peer Status Request to Seed Peer:\n\t" + seed);
                         Envelope e = Envelope.documentFactory();
                         DLC.addRoute(NetworkService.class, PingRequestOp.class.getName(), e);
-                        Request request = new Request();
-                        request.setOriginationPeer(localNode.getNetworkPeer(Network.I2P));
-                        request.setFromPeer(localNode.getNetworkPeer(Network.I2P));
-                        request.setDestinationPeer(seed);
-                        request.setToPeer(seed);
-                        request.setEnvelope(e);
-                        if(sensor.sendOut(request)) {
+                        OpsPacket packet = new OpsPacket();
+                        packet.atts.put(OpsPacket.OPS, OpsPacket.PING_REQUEST);
+                        packet.atts.put(OpsPacket.FROM_ID, localNode.getNetworkPeer().getId());
+                        packet.atts.put(OpsPacket.FROM_ADDRESS, localNode.getNetworkPeer().getDid().getPublicKey().getAddress());
+                        packet.atts.put(OpsPacket.FROM_NFINGERPRINT, localNode.getNetworkPeer(Network.I2P).getDid().getPublicKey().getFingerprint());
+                        packet.atts.put(OpsPacket.FROM_NADDRESS, localNode.getNetworkPeer(Network.I2P).getDid().getPublicKey().getAddress());
+                        packet.atts.put(OpsPacket.TO_ID, seed.getId());
+                        packet.atts.put(OpsPacket.TO_NFINGERPRINT, seed.getDid().getPublicKey().getFingerprint());
+                        packet.atts.put(OpsPacket.TO_NADDRESS, seed.getDid().getPublicKey().getAddress());
+                        if(sensor.sendOut(packet)) {
                             LOG.info("Sent Peer Status Request to Seed Peer.");
                         } else {
                             LOG.warning("A problem occurred attempting to send out Peer Status Request.");

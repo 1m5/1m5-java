@@ -28,7 +28,6 @@ package io.onemfive.network.peers.graph;
 
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.peers.P2PRelationship;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;

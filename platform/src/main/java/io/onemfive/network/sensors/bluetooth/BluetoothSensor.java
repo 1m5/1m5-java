@@ -31,6 +31,8 @@ import io.onemfive.data.Network;
 import io.onemfive.data.NetworkNode;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.Packet;
+import io.onemfive.network.ops.OpsPacket;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -97,33 +99,48 @@ public class BluetoothSensor extends BaseSensor {
         return session;
     }
 
+    public SensorSession establishSession(String address, Boolean autoConnect) {
+        BluetoothSession session = new BluetoothSession(this);
+        if(session.open(address)) {
+            if(autoConnect) {
+                session.connect();
+            }
+            sessions.put(session.getId(), session);
+        }
+        return session;
+    }
+
     /**
      * Sends UTF-8 content to a Bluetooth Peer.
      * @param packet Envelope containing Packet as data.
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(NetworkPacket packet) {
+    public boolean sendOut(Packet packet) {
         LOG.info("Sending Packet via Bluetooth...");
+        BluetoothSession session;
+        if(packet instanceof NetworkPacket) {
+            NetworkPacket np = (NetworkPacket)packet;
+            NetworkPeer toPeer = np.getToPeer();
+            if (toPeer == null) {
+                LOG.warning("No Peer found while sending to Bluetooth.");
+                return false;
+            }
 
-        NetworkPeer toPeer = packet.getToPeer();
-        if(toPeer == null) {
-            LOG.warning("No Peer for Radio found in toDID while sending to Radio.");
-            return false;
+            if (toPeer.getNetwork() != Network.Bluetooth) {
+                LOG.warning("Not a Bluetooth Request.");
+                return false;
+            }
+
+            if (np.getEnvelope() == null) {
+                LOG.warning("No Envelope found while sending to Bluetooth.");
+                return false;
+            }
+            LOG.info("Envelope to send: " + np.getEnvelope().toString());
+            session = (BluetoothSession) establishSession(np.getToPeer(), true);
+        } else {
+            session = (BluetoothSession) establishSession((String)((OpsPacket)packet).atts.get(OpsPacket.TO_NADDRESS), true);
         }
-
-        if(toPeer.getNetwork() != Network.Bluetooth) {
-            LOG.warning("Not a Bluetooth Request.");
-            return false;
-        }
-
-        if(packet.getEnvelope() == null) {
-            LOG.warning("No content found in Envelope while sending to Radio.");
-            return false;
-        }
-        LOG.info("Envelope to send: "+packet.getEnvelope().toString());
-
-        BluetoothSession session = (BluetoothSession) establishSession(packet.getToPeer(), true);
         return session.send(packet);
     }
 

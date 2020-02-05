@@ -55,7 +55,7 @@ class BluetoothSession extends BaseSession {
     private RequestHandler handler;
     private Thread serverThread;
     private boolean connected = false;
-    private NetworkPeer remotePeer;
+    private String remotePeerAddress;
 
     BluetoothSession(BluetoothSensor sensor) {
         this.sensor = sensor;
@@ -104,13 +104,12 @@ class BluetoothSession extends BaseSession {
         return true;
     }
 
-    @Override
-    public boolean open(NetworkPeer peer) {
+    public boolean open(String address) {
         LOG.info("Establishing session...");
         // Client
-        remotePeer = peer;
+        remotePeerAddress = address;
         try {
-            clientSession = (ClientSession) Connector.open(remotePeer.getDid().getPublicKey().getAddress());
+            clientSession = (ClientSession) Connector.open(address);
         } catch (IOException e) {
             LOG.warning("Failed to open connection: "+e.getLocalizedMessage());
             return false;
@@ -157,11 +156,18 @@ class BluetoothSession extends BaseSession {
     }
 
     @Override
+    public boolean open(NetworkPeer peer) {
+        LOG.info("Establishing session...");
+        open(peer.getDid().getPublicKey().getAddress());
+        return true;
+    }
+
+    @Override
     public boolean connect() {
-        LOG.info("Connecting to remote bluetooth device of peer: "+remotePeer);
+        LOG.info("Connecting to remote bluetooth device of peer: "+remotePeerAddress);
         connected = false;
         if(clientSession==null) {
-            if(!open(remotePeer))
+            if(!open(remotePeerAddress))
                 return false;
         }
         try {
@@ -240,12 +246,12 @@ class BluetoothSession extends BaseSession {
                     // Known peer
                 }
                 if(networkPeer.getId()!=null) {
-                    if(session.remotePeer == null) {
-                        session.remotePeer = networkPeer;
-                        LOG.info("Inbound peer set to remote peer.");
-                    } else if(networkPeer.getId().equals(session.remotePeer.getDid())) {
-                        LOG.info("Inbound peer same as established remote peer.");
-                    }
+//                    if(session.remotePeerAddress == null) {
+//                        session.remotePeerAddress = networkPeer;
+//                        LOG.info("Inbound peer set to remote peer.");
+//                    } else if(networkPeer.getId().equals(session.remotePeer.getDid())) {
+//                        LOG.info("Inbound peer same as established remote peer.");
+//                    }
                 }
             } catch (IOException e) {
                 LOG.warning(e.getLocalizedMessage());

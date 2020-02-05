@@ -34,16 +34,12 @@ import java.util.logging.Logger;
 
 public abstract class NetworkPacket extends Packet {
 
-    public static int DESTINATION_PEER_REQUIRED = 1;
-    public static int DESTINATION_PEER_WRONG_NETWORK = 2;
-    public static int DESTINATION_PEER_NOT_FOUND = 3;
-    public static int NO_ENVELOPE = 4;
-    public static int NO_ROUTE = 5;
-    public static int NO_SERVICE = 6;
-    public static int NO_OPERATION = 7;
-    public static int SENDING_FAILED = 8;
-
     private Logger LOG = Logger.getLogger(NetworkPacket.class.getName());
+
+    public static int NO_ENVELOPE = 5;
+    public static int NO_ROUTE = 6;
+    public static int NO_SERVICE = 7;
+    public static int NO_OPERATION = 8;
 
     protected Envelope envelope;
 

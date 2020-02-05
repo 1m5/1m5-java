@@ -35,6 +35,7 @@ import io.onemfive.network.Request;
 import io.onemfive.network.Response;
 import io.onemfive.network.peers.graph.GraphDB;
 import io.onemfive.network.*;
+import io.onemfive.network.peers.graph.P2PRelationship;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.RandomUtil;
 import io.onemfive.util.tasks.TaskRunner;

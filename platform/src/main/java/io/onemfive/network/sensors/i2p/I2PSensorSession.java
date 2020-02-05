@@ -290,18 +290,18 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
         if(packet instanceof NetworkPacket) {
             if (((NetworkPacket)packet).getToPeer() == null) {
                 LOG.warning("No Peer for I2P found in toDID while sending to I2P.");
-                packet.statusCode = NetworkPacket.DESTINATION_PEER_REQUIRED;
+                packet.statusCode = Packet.DESTINATION_PEER_REQUIRED;
                 return false;
             }
             if (((NetworkPacket)packet).getToPeer().getNetwork() != Network.I2P) {
                 LOG.warning("Not a packet for I2P.");
-                packet.statusCode = NetworkPacket.DESTINATION_PEER_WRONG_NETWORK;
+                packet.statusCode = Packet.DESTINATION_PEER_WRONG_NETWORK;
                 return false;
             }
         } else {
-            if (((OpsPacket)packet).atts.get(OpsPacket.TO_ADDRESS) == null) {
+            if (((OpsPacket)packet).atts.get(OpsPacket.TO_NADDRESS) == null) {
                 LOG.warning("No Peer for I2P found in packet while sending to I2P.");
-                packet.statusCode = NetworkPacket.DESTINATION_PEER_REQUIRED;
+                packet.statusCode = Packet.DESTINATION_PEER_REQUIRED;
                 return false;
             }
         }
@@ -318,11 +318,11 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
             if(packet instanceof NetworkPacket)
                 address = ((NetworkPacket)packet).getToPeer().getDid().getPublicKey().getAddress();
             else
-                address = (String)((OpsPacket)packet).atts.get(OpsPacket.TO_ADDRESS);
+                address = (String)((OpsPacket)packet).atts.get(OpsPacket.TO_NADDRESS);
             Destination toDestination = i2pSession.lookupDest(address);
             if(toDestination == null) {
                 LOG.warning("I2P Peer To Destination not found.");
-                packet.statusCode = NetworkPacket.DESTINATION_PEER_NOT_FOUND;
+                packet.statusCode = Packet.DESTINATION_PEER_NOT_FOUND;
                 return false;
             }
             I2PDatagramMaker m = new I2PDatagramMaker(i2pSession);

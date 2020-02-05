@@ -28,19 +28,25 @@ package io.onemfive.network.ops;
 
 import io.onemfive.data.JSONSerializable;
 import io.onemfive.network.Packet;
-import io.onemfive.util.JSONParser;
-import io.onemfive.util.JSONPretty;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class OpsPacket extends Packet implements JSONSerializable {
 
-    public static final String ID = "id";
-    public static final String FROM_ID = "fromId";
-    public static final String FROM_ADDRESS = "fromAddress";
-    public static final String TO_ID = "toId";
-    public static final String TO_ADDRESS = "toAddress";
+    public static final byte PING_REQUEST = 0x01;
+    public static final byte PING_RESPONSE = 0x02;
+    public static final byte RELIABLE_PEERS_REQUEST = 0x03;
+    public static final byte RELIABLE_PEERS_RESPONSE = 0x04;
+
+    public static final String OPS = "ops";
+    public static final String FROM_ID = "fId";
+    public static final String FROM_ADDRESS = "fAdd";
+    public static final String FROM_NFINGERPRINT = "fNFpt";
+    public static final String FROM_NADDRESS = "fNAdd";
+    public static final String TO_ID = "tId";
+    public static final String TO_NFINGERPRINT = "tNFpt";
+    public static final String TO_NADDRESS = "tNAdd";
     public static final String URL = "url";
 
     public Map<String,Object> atts = new HashMap<>();
@@ -58,18 +64,4 @@ public class OpsPacket extends Packet implements JSONSerializable {
         atts = m;
     }
 
-    @Override
-    public String toJSON() {
-        return JSONPretty.toPretty(JSONParser.toString(toMap()), 4);
-    }
-
-    @Override
-    public void fromJSON(String json) {
-        fromMap((Map<String,Object>)JSONParser.parse(json));
-    }
-
-    @Override
-    public String toString() {
-        return toJSON();
-    }
 }

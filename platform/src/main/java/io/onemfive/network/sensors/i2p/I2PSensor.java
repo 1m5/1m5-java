@@ -27,6 +27,7 @@
 package io.onemfive.network.sensors.i2p;
 
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.Config;
 import io.onemfive.util.tasks.TaskRunner;
@@ -137,7 +138,7 @@ public class I2PSensor extends BaseSensor {
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(NetworkPacket packet) {
+    public boolean sendOut(Packet packet) {
         LOG.info("Send I2P Message Out Packet received...");
         SensorSession sensorSession = establishSession(null, true);
         return sensorSession.send(packet);

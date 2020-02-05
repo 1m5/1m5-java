@@ -32,6 +32,7 @@ import io.onemfive.data.*;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -167,8 +168,8 @@ public class ClearnetSensor extends BaseSensor {
     }
 
     @Override
-    public boolean sendOut(NetworkPacket packet) {
-        Envelope e = packet.getEnvelope();
+    public boolean sendOut(Packet packet) {
+        Envelope e = ((NetworkPacket)packet).getEnvelope();
         URL url = e.getURL();
         if(url != null) {
             LOG.info("URL="+url.toString());

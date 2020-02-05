@@ -29,6 +29,8 @@ package io.onemfive.network.sensors.lifi;
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.Packet;
+import io.onemfive.network.ops.OpsPacket;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.DLC;
 import io.onemfive.network.sensors.BaseSensor;
@@ -83,9 +85,11 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(NetworkPacket packet) {
+    public boolean sendOut(Packet packet) {
         LOG.info("Sending LiFi Message...");
-        NetworkPeer toPeer = packet.getToPeer();
+        if(packet instanceof NetworkPacket) {
+            NetworkPacket np = (NetworkPacket)packet;
+            NetworkPeer toPeer = np.getToPeer();
 //        if(toPeer == null) {
 //            LOG.warning("No Peer for LiFi found in toDID while sending to LiFi.");
 //            packet.statusCode = NetworkRequest.DESTINATION_DID_REQUIRED;
@@ -96,12 +100,13 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
 //            packet.statusCode = NetworkRequest.DESTINATION_DID_WRONG_NETWORK;
 //            return false;
 //        }
-        LOG.info("Envelope to send: "+packet.getEnvelope());
+            LOG.info("Envelope to send: " + np.getEnvelope());
 //        if(packet.getEnvelope() == null) {
 //            LOG.warning("No Envelope while sending to LiFi.");
 //            packet.statusCode = NetworkRequest.NO_CONTENT;
 //            return false;
 //        }
+        }
 
         if(session.send(packet)) {
             LOG.info("LiFi Message sent.");

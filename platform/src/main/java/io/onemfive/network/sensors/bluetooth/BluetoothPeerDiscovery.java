@@ -57,12 +57,12 @@ public class BluetoothPeerDiscovery extends NetworkTask {
         for(NetworkPeer peer : peers.values()) {
             session = sensor.establishSession(peer, true);
             OpsPacket packet = new OpsPacket();
-            packet.atts.put(OpsPacket.URL, peer.getDid().getPublicKey().getAttribute(OpsPacket.URL));
-            packet.atts.put(OpsPacket.FROM_ADDRESS, peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth).getDid().getPublicKey().getAddress());
             packet.atts.put(OpsPacket.FROM_ID, peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth).getId());
-            packet.atts.put(OpsPacket.TO_ADDRESS, peer.getDid().getPublicKey().getAddress());
+            packet.atts.put(OpsPacket.FROM_ADDRESS, peerManager.getLocalNode().getNetworkPeer().getDid().getPublicKey().getAddress());
+            packet.atts.put(OpsPacket.FROM_NADDRESS, peerManager.getLocalNode().getNetworkPeer(Network.Bluetooth).getDid().getPublicKey().getAddress());
             packet.atts.put(OpsPacket.TO_ID, peer.getId());
-            // TODO: Replace payload with status information
+            packet.atts.put(OpsPacket.TO_NADDRESS, peer.getDid().getPublicKey().getAddress());
+            packet.atts.put(OpsPacket.URL, peer.getDid().getPublicKey().getAttribute(OpsPacket.URL));
             session.send(packet);
         }
         lastCompletionTime = System.currentTimeMillis();

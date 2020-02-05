@@ -28,7 +28,6 @@ package io.onemfive.network.sensors.tor;
 
 import io.onemfive.data.*;
 import io.onemfive.network.*;
-import io.onemfive.network.peers.P2PRelationship;
 import io.onemfive.network.NetworkTask;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.util.DLC;

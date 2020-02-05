@@ -30,7 +30,7 @@ import io.onemfive.core.LifeCycle;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.Packet;
 import io.onemfive.util.tasks.TaskRunner;
 
 import java.io.File;
@@ -42,7 +42,7 @@ import java.io.File;
  */
 public interface Sensor extends LifeCycle {
     void setTaskRunner(TaskRunner taskRunner);
-    boolean sendOut(NetworkPacket packet);
+    boolean sendOut(Packet packet);
     boolean sendIn(Envelope envelope);
     void setNetwork(Network network);
     Network getNetwork();

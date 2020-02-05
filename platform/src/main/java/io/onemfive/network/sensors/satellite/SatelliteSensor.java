@@ -30,6 +30,7 @@ import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -78,7 +79,7 @@ public class SatelliteSensor extends BaseSensor {
      * @return boolean was successful
      */
     @Override
-    public boolean sendOut(NetworkPacket packet) {
+    public boolean sendOut(Packet packet) {
         LOG.info("Sending Radio Message...");
 //        Envelope envelope = packet.getEnvelope();
 //        NetworkRequest request = (NetworkRequest) DLC.getData(NetworkRequest.class,envelope);

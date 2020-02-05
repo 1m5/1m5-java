@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.peers;
+package io.onemfive.network.peers.graph;
 
 import io.onemfive.data.JSONSerializable;
 import io.onemfive.data.Network;
