@@ -118,14 +118,16 @@ public class I2PSensor extends BaseSensor {
 
     @Override
     public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
-        SensorSession sensorSession = new I2PSensorSession(this);
-        sensorSession.init(properties);
-        sensorSession.open(null);
-        if(autoConnect) {
-            sensorSession.connect();
+        if(sessions.get(0)==null) {
+            SensorSession sensorSession = new I2PSensorSession(this);
+            sensorSession.init(properties);
+            sensorSession.open(null);
+            if (autoConnect) {
+                sensorSession.connect();
+            }
+            sessions.put(0, sensorSession);
         }
-        sessions.put(sensorSession.getId(), sensorSession);
-        return sensorSession;
+        return sessions.get(0);
     }
 
     /**
@@ -138,10 +140,6 @@ public class I2PSensor extends BaseSensor {
     public boolean sendOut(NetworkPacket packet) {
         LOG.info("Send I2P Message Out Packet received...");
         SensorSession sensorSession = establishSession(null, true);
-        if(sensorSession==null) {
-            LOG.info("No I2P Session available. Will try to establish session with from peer...");
-            sensorSession = establishSession(null, true);
-        }
         return sensorSession.send(packet);
     }
 
