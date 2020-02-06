@@ -6,7 +6,7 @@ to protect their communications and personal data from unethical monitoring, int
 and censorship.
 
 ## Version
-0.6.3-SNAPSHOT
+0.6.4-SNAPSHOT
 
 ## Licensing
 In the interests of ensuring the 1M5 mission, all copyright automatically imposed on the 1M5 project by any and all people
