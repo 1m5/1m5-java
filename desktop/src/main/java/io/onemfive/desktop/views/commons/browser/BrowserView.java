@@ -26,17 +26,11 @@
  */
 package io.onemfive.desktop.views.commons.browser;
 
-import io.onemfive.OneMFivePlatform;
-import io.onemfive.core.OneMFiveAppContext;
-import io.onemfive.data.*;
-import io.onemfive.desktop.DesktopApp;
-import io.onemfive.desktop.DesktopService;
+import io.onemfive.data.ManCon;
+import io.onemfive.data.ManConStatus;
 import io.onemfive.desktop.Resources;
 import io.onemfive.desktop.util.KeystrokeUtil;
 import io.onemfive.desktop.views.ActivatableView;
-import io.onemfive.network.NetworkService;
-import io.onemfive.network.peers.PeerManager;
-import io.onemfive.util.DLC;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -58,10 +52,15 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 
-import java.net.MalformedURLException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 
 public class BrowserView extends ActivatableView {
+
+    static {
+        setupTorProxy();
+    }
 
     private Scene scene;
 
@@ -72,6 +71,9 @@ public class BrowserView extends ActivatableView {
     private EventHandler<KeyEvent> keyEventEventHandler;
 
     private TextField url;
+
+    private static boolean usingTOR = true;
+    private static boolean usingI2P = false;
 
     @Override
     protected void initialize() {
@@ -93,6 +95,7 @@ public class BrowserView extends ActivatableView {
 
         url = new TextField();
         url.setText("1m5://1m5.1m5");
+
         HBox.setHgrow(url, Priority.ALWAYS);
         nav.getChildren().add(url);
 
@@ -105,38 +108,22 @@ public class BrowserView extends ActivatableView {
                 URL newURL;
                 if(path.startsWith("1m5:")) {
                     path = path.substring("1m5://".length(), path.indexOf(".1m5"));
-                    newURL = Resources.class.getResource("/web/"+path);
+                    newURL = Resources.class.getResource("/web/" + path);
                     path = newURL.toString();
-                    if(!path.endsWith(".html") || !path.endsWith(".htm")) {
+                    if (!path.endsWith(".html") || !path.endsWith(".htm")) {
                         path += "/index.html";
                     }
-                    engine.load(path);
-                    url.setText(url.getText());
-                } else if(ManConStatus.MIN_REQUIRED_MANCON == ManCon.NONE) {
-                    // Mainly for testing
-                    engine.load(path);
-                    url.setText(url.getText());
-                } else {
-                    String address = path.substring(path.indexOf("//"), path.indexOf("."));
-                    NetworkPeer destination = new NetworkPeer();
-                    destination.getDid().getPublicKey().setAddress(address);
-                    if(path.endsWith(".i2p")) {
-                        destination.setNetwork(Network.I2P);
-                    } else if(path.endsWith(".onion")) {
-                        destination.setNetwork(Network.TOR);
-                    } else {
-                        destination.setNetwork(Network.HTTPS);
-                    }
-                    try {
-                        Envelope e = Envelope.documentFactory();
-                        e.setURL(new URL(path));
-                        DLC.addExternalRoute(NetworkService.class, NetworkService.OPERATION_SEND, e, null, destination);
-                        OneMFivePlatform.sendRequest(e);
-                    } catch (MalformedURLException ex) {
-                        LOG.warning(ex.getLocalizedMessage());
-                        // TODO: Show error message
-                    }
+                } else if(path.endsWith(".i2p") && !usingI2P) {
+                    LOG.info("Setup I2P Proxy");
+                    setupI2PProxy();
+                    usingI2P = true;
+                } else if(!usingTOR) {
+                    LOG.info("Setup TOR Proxy");
+                    setupTorProxy();
+                    usingTOR = true;
                 }
+                engine.load(path);
+                url.setText(url.getText());
 
                 LOG.info(path+" loaded");
             }
@@ -240,8 +227,23 @@ public class BrowserView extends ActivatableView {
             scene.removeEventHandler(KeyEvent.KEY_RELEASED, keyEventEventHandler);
     }
 
-    public void updateContent(String content, URL url) {
-        engine.loadContent(content);
+    public void updateContent(byte[] content, URL url) {
+        LOG.info("BrowserView loading content...");
+        // TODO: figure out hwo to display content, below does not work.
+        String html = new String(content);
+        LOG.info(html);
+        engine.loadContent(html);
         this.url.setText(url.toString());
     }
+
+    private static void setupTorProxy() {
+        Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 9050));
+        URLStreamFactoryCustomizer.useDedicatedProxyForWebkit(proxy, "http, https");
+    }
+
+    private static void setupI2PProxy() {
+        Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 4444));
+        URLStreamFactoryCustomizer.useDedicatedProxyForWebkit(proxy, "http, https");
+    }
+
 }

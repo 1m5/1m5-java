@@ -115,8 +115,8 @@ public class NetworkService extends BaseService {
                     ExternalRoute exRoute = (ExternalRoute)r;
                     request = peerManager.buildRequest(exRoute.getOrigination(), exRoute.getDestination());
                 } else {
-                    LOG.warning("A Request or External Route must be provided.");
-                    return;
+                    // Could be synchronous request for a resource (Tor/HTTPS)
+                    request = new Request();
                 }
                 // Wrap Envelope with Request Packet
                 request.setEnvelope(e);

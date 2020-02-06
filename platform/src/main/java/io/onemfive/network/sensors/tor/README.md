@@ -7,6 +7,7 @@ This is accomplished by the 1M5 Tor Sensor by using the local Tor Browser's SOCK
 If you do not have Tor installed:
 
 Tor Browser: https://www.torproject.org/download/download.html.en
-Or as a router:
+Or as a daemon router:
 1. sudo apt install tor
 2. tor
+

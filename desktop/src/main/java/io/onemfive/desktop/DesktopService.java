@@ -37,6 +37,7 @@ import io.onemfive.data.route.Route;
 import io.onemfive.desktop.views.commons.browser.BrowserView;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.personal.identities.IdentitiesView;
+import io.onemfive.network.NetworkService;
 import io.onemfive.network.sensors.ManConStatusListener;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.util.DLC;
@@ -56,6 +57,9 @@ public class DesktopService extends BaseService {
     public static final String OPERATION_UPDATE_ACTIVE_IDENTITY = "UPDATE_ACTIVE_IDENTITY";
     public static final String OPERATION_UPDATE_CONTACTS = "UPDATE_CONTACTS";
     public static final String OPERATION_UPDATE_IDENTITIES = "UPDATE_IDENTITIES";
+
+    public static final String OPERATION_GET_HTML = "GET_HTML";
+    public static final String OPERATION_RETURN_HTML = "RETURN_HTML";
 
     public DesktopService() {
     }
@@ -84,6 +88,27 @@ public class DesktopService extends BaseService {
         Route route = e.getRoute();
         String operation = route.getOperation();
         switch (operation) {
+            case OPERATION_GET_HTML: {
+                e.setAction(Envelope.Action.GET);
+                DLC.addRoute(DesktopService.class, DesktopService.OPERATION_RETURN_HTML,e);
+                DLC.addRoute(NetworkService.class, NetworkService.OPERATION_SEND, e);
+                producer.send(e);
+                break;
+            }
+            case OPERATION_RETURN_HTML: {
+                LOG.info("HTML response received.");
+                byte[] content = (byte[])DLC.getContent(e);
+                if(content==null) {
+                    LOG.warning("No content.");
+                } else {
+                    Platform.runLater(() -> {
+                        BrowserView v = (BrowserView) MVC.loadView(BrowserView.class, true);
+                        byte[] c = (byte[]) DLC.getContent(e);
+                        v.updateContent(c, e.getURL());
+                    });
+                }
+                break;
+            }
             case OPERATION_UPDATE_ACTIVE_IDENTITY: {
                 LOG.info("Update active identity request...");
                 final DID activeIdentity = (DID)DLC.getEntity(e);
@@ -141,24 +166,24 @@ public class DesktopService extends BaseService {
             HomeView v = (HomeView)MVC.loadView(HomeView.class, true);
             v.updateManConBox();
         }));
-        Envelope e = Envelope.documentFactory();
-        SubscriptionRequest request = new SubscriptionRequest(EventMessage.Type.HTML, new Subscription() {
-            @Override
-            public void notifyOfEvent(Envelope envelope) {
-                final String content = (String)DLC.getContent(envelope);
-                final URL url = envelope.getURL();
-                if(content!=null) {
-                    Platform.runLater(() -> {
-                        LOG.info("Updating BrowserView content...");
-                        BrowserView v = (BrowserView)MVC.loadView(BrowserView.class, true);
-                        v.updateContent(content, url);
-                    });
-                }
-            }
-        });
-        DLC.addData(SubscriptionRequest.class, request, e);
-        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
-        OneMFivePlatform.sendRequest(e);
+//        Envelope e = Envelope.documentFactory();
+//        SubscriptionRequest request = new SubscriptionRequest(EventMessage.Type.HTML, new Subscription() {
+//            @Override
+//            public void notifyOfEvent(Envelope envelope) {
+//                final byte[] content = (byte[])DLC.getContent(envelope);
+//                final URL url = envelope.getURL();
+//                if(content!=null) {
+//                    Platform.runLater(() -> {
+//                        LOG.info("Updating BrowserView content...");
+//                        BrowserView v = (BrowserView)MVC.loadView(BrowserView.class, true);
+//                        v.updateContent(content, url);
+//                    });
+//                }
+//            }
+//        });
+//        DLC.addData(SubscriptionRequest.class, request, e);
+//        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
+//        OneMFivePlatform.sendRequest(e);
         return true;
     }
 }

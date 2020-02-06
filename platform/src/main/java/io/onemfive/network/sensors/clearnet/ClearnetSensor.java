@@ -324,7 +324,7 @@ public class ClearnetSensor extends BaseSensor {
             } finally {
                 responseBody.close();
             }
-            LOG.info(new String((byte[])DLC.getContent(e)));
+//            LOG.info(new String((byte[])DLC.getContent(e)));
         } else {
             LOG.info("Body was null.");
             DLC.addContent(null,e);
