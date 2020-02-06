@@ -34,6 +34,7 @@ import io.onemfive.desktop.DesktopService;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.did.DIDService;
 import io.onemfive.util.DLC;
+import io.onemfive.util.Res;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -92,27 +93,27 @@ public class IdentitiesView extends ActivatableView {
         identitiesPane.setPrefWidth(DesktopApp.WIDTH-10);
         basePlane.getChildren().add(identitiesPane);
 
-        Text myIdentitiesText = new Text("My Identities");
-        identitiesPane.getChildren().add(myIdentitiesText);
+        Text currentIdentity = new Text("Current");
+        identitiesPane.getChildren().add(currentIdentity);
 
         HBox identitiesHeader = new HBox();
         identitiesHeader.setPadding(new Insets(5));
         identitiesHeader.setSpacing(5);
         identitiesPane.getChildren().add(identitiesHeader);
 
-        Label identityAliasCol = new Label("Alias");
+        Label identityAliasCol = new Label(Res.get("shared.alias"));
         identityAliasCol.setPrefWidth(200);
         identitiesHeader.getChildren().add(identityAliasCol);
 
-        Label identityPwdCol = new Label("Password");
+        Label identityPwdCol = new Label(Res.get("shared.passphrase"));
         identityPwdCol.setPrefWidth(200);
         identitiesHeader.getChildren().add(identityPwdCol);
 
-        Label identityPwd2Col = new Label("Password Again");
+        Label identityPwd2Col = new Label(Res.get("shared.passphraseAgain"));
         identityPwd2Col.setPrefWidth(200);
         identitiesHeader.getChildren().add(identityPwd2Col);
 
-        Label identityLocationCol = new Label("Location");
+        Label identityLocationCol = new Label(Res.get("shared.location"));
         identityLocationCol.setPrefWidth(400);
         identitiesHeader.getChildren().add(identityLocationCol);
 
@@ -137,7 +138,7 @@ public class IdentitiesView extends ActivatableView {
         identityLocationText.setPrefWidth(400);
         addIdentityBox.getChildren().add(identityLocationText);
 
-        Button addIdentity = new Button("Add");
+        Button addIdentity = new Button(Res.get("shared.generate"));
         addIdentity.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
