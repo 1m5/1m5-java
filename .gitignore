@@ -22,4 +22,6 @@ target
 /.settings/
 /src/test/resources/logs
 **/store_lock
-/src/test/resources/1m5_peers_db
+/src/test/resources/peerDB
+/src/test/resources/peerGraph
+
