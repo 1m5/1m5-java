@@ -405,6 +405,16 @@ public class NetworkService extends BaseService {
                     updateStatus(ServiceStatus.BLOCKED);
                 break;
             }
+            case NETWORK_UNAVAILABLE: {
+                if(currentServiceStatus == ServiceStatus.RUNNING
+                        || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING
+                        || currentServiceStatus == ServiceStatus.DEGRADED_RUNNING
+                        && sensorManager.availableSensorConnected(manCon))
+                    updateStatus(ServiceStatus.DEGRADED_RUNNING);
+                else
+                    updateStatus(ServiceStatus.UNAVAILABLE);
+                break;
+            }
             case NETWORK_ERROR: {
                 if(currentServiceStatus == ServiceStatus.RUNNING
                         || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING)

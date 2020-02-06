@@ -54,6 +54,8 @@ public enum ServiceStatus {
     GRACEFULLY_SHUTDOWN, // Shutdown was graceful - safe to assume no file / state corruption
     // Restarting
     RESTARTING, // Short for GRACEFULLY_SHUTTING_DOWN followed by INITIALIZING on up
+    // Unavailable
+    UNAVAILABLE, // No Network available but not through blocking, more likely either not installed or not turned on
     // Service Error
     ERROR // Likely need of Service restart
 }

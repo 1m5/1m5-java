@@ -47,6 +47,7 @@ public enum SensorStatus {
     NETWORK_STOPPING, // Network connection is hanging, e.g. unacceptable response times, begin looking at alternatives
     NETWORK_STOPPED, // Network connection failed, try another or recommend alternative
     NETWORK_BLOCKED, // Network connection being blocked.
+    NETWORK_UNAVAILABLE, // Network is not available; either not installed in machine or not started
     NETWORK_ERROR, // Error in Network; handle within Sensor if possible yet make Sensor Service aware of likely service degradation.
     // Sensor Pausing (Not Yet Supported In Any Sensors)
     PAUSING, // Queueing up requests both inbound and outbound waiting for pre-pausing requests to complete.

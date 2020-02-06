@@ -205,9 +205,17 @@ public class BluetoothSensor extends BaseSensor {
                 // TODO: Remove hard-coding
                 localPeer.getDid().getPublicKey().addAttribute("uuid", "11111111111111111111111111111123");
             }
-            sensorManager.getPeerManager().savePeer(localPeer, true);
+            if(localNode.getNetworkPeer()!=null && localNode.getNetworkPeer().getId()!=null) {
+                localPeer.setId(localNode.getNetworkPeer().getId());
+                sensorManager.getPeerManager().savePeer(localPeer, true);
+            }
         } catch (BluetoothStateException e) {
-            LOG.warning(e.getLocalizedMessage());
+            if(e.getLocalizedMessage().contains("Bluetooth Device is not available")) {
+                updateStatus(SensorStatus.NETWORK_UNAVAILABLE);
+                LOG.warning("Bluetooth either not installed on machine or not turned on.");
+            } else {
+                LOG.warning(e.getLocalizedMessage());
+            }
             return false;
         }
 
