@@ -58,10 +58,6 @@ import java.net.URL;
 
 public class BrowserView extends ActivatableView {
 
-    static {
-        setupTorProxy();
-    }
-
     private Scene scene;
 
     private final WebView webView = new WebView();
