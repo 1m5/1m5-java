@@ -24,11 +24,11 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.mancon;
+package io.onemfive.desktop.views.system;
 
 import io.onemfive.desktop.views.InitializableView;
 
-public class ManConView extends InitializableView {
+public class SystemView extends InitializableView {
 
     @Override
     protected void initialize() {

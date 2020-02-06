@@ -27,7 +27,6 @@
 package io.onemfive.desktop.views.home;
 
 import com.jfoenix.controls.JFXComboBox;
-import io.onemfive.core.OneMFiveAppContext;
 import io.onemfive.data.ManCon;
 import io.onemfive.data.ManConStatus;
 import io.onemfive.desktop.DesktopApp;
@@ -41,7 +40,7 @@ import io.onemfive.desktop.util.Transitions;
 import io.onemfive.desktop.views.*;
 import io.onemfive.desktop.views.commons.CommonsView;
 import io.onemfive.desktop.views.community.CommunityView;
-import io.onemfive.desktop.views.mancon.ManConView;
+import io.onemfive.desktop.views.system.SystemView;
 import io.onemfive.desktop.views.personal.PersonalView;
 import io.onemfive.desktop.views.settings.SettingsView;
 import io.onemfive.desktop.views.support.SupportView;
@@ -65,7 +64,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
 import java.text.DecimalFormat;
@@ -140,7 +138,7 @@ public class HomeView extends InitializableView {
 //        supportButton.disableProperty().setValue(true);
         final ToggleButton settingsButton = new NavButton(SettingsView.class, Res.get("homeView.menu.settings").toUpperCase());
 //        settingsButton.disableProperty().setValue(true);
-        final ToggleButton manconButton = new NavButton(ManConView.class, Res.get("homeView.menu.mancon").toUpperCase());
+        final ToggleButton systemButton = new NavButton(SystemView.class, Res.get("homeView.menu.system").toUpperCase());
 //        manconButton.disableProperty().setValue(true);
 
         Badge personalButtonWithBadge = new Badge(personalButton);
@@ -148,7 +146,7 @@ public class HomeView extends InitializableView {
         Badge commonsButtonWithBadge = new Badge(commonsButton);
         Badge supportButtonWithBadge = new Badge(supportButton);
         Badge settingsButtonWithBadge = new Badge(settingsButton);
-        Badge manconButtonWithBadge = new Badge(manconButton);
+        Badge systemButtonWithBadge = new Badge(systemButton);
 
         DecimalFormat currencyFormat = (DecimalFormat) NumberFormat.getNumberInstance(LocaleUtil.currentLocale);
         currencyFormat.setMinimumFractionDigits(0);
@@ -169,7 +167,7 @@ public class HomeView extends InitializableView {
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT5, keyEvent)) {
                         settingsButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT6, keyEvent)) {
-                        manconButton.fire();
+                        systemButton.fire();
                     }
                 });
             }
@@ -242,7 +240,7 @@ public class HomeView extends InitializableView {
         HBox secondaryNav = new HBox(
                 supportButton, getNavigationSeparator(),
                 settingsButton, getNavigationSeparator(),
-                manconButton);
+                systemButton);
 
         secondaryNav.getStyleClass().add("nav-secondary");
         HBox.setHgrow(secondaryNav, Priority.NEVER);

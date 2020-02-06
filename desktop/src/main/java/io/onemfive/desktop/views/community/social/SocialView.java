@@ -26,27 +26,11 @@
  */
 package io.onemfive.desktop.views.community.social;
 
-import io.onemfive.OneMFivePlatform;
 import io.onemfive.data.DID;
-import io.onemfive.data.Envelope;
-import io.onemfive.desktop.DesktopApp;
-import io.onemfive.desktop.DesktopService;
 import io.onemfive.desktop.views.InitializableView;
-import io.onemfive.did.DIDService;
-import io.onemfive.util.DLC;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
 import java.util.List;
 

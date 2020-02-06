@@ -4,6 +4,6 @@
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:id="root"
-           fx:controller="io.onemfive.desktop.views.mancon.ManConView">
+           fx:controller="io.onemfive.desktop.views.system.SystemView">
 
 </StackPane>
