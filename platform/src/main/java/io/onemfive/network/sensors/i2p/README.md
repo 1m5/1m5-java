@@ -36,3 +36,6 @@ sudo apt autoclean
 - added blocklist.txt for reference
 
 Note: I believe built-in-peers.txt is no longer used; couldn't find an update
+
+### 0.6.3
+- upgraded to 0.9.44
