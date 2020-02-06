@@ -553,7 +553,7 @@ public class I2PSensor extends BaseSensor {
                 if(sensorManager.getPeerManager().savePeer(seedAI2P, true)) {
                     discovery.seeds.add(seedAI2P);
                 }
-//                taskRunner.addTask(discovery);
+                taskRunner.addTask(discovery);
             }
         }
     }
