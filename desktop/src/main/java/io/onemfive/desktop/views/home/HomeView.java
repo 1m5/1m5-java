@@ -664,7 +664,7 @@ public class HomeView extends InitializableView {
 
     private void updateManConOptions() {
         manConComboBoxItems.clear();
-        for(int start = 5; start >= ManConStatus.MAX_SUPPORTED_MANCON.ordinal(); start--) {
+        for(int start = 6; start >= ManConStatus.MAX_SUPPORTED_MANCON.ordinal(); start--) {
             manConComboBoxItems.add(new ManConComboBoxItem(ManCon.fromOrdinal(start)));
         }
     }
