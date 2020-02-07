@@ -38,10 +38,15 @@ public class CssTheme {
     private static String LIGHT_THEME = CssTheme.class.getResource("theme-light.css").toExternalForm();
     private static String DARK_THEME = CssTheme.class.getResource("theme-dark.css").toExternalForm();
 
+    private static Boolean initialized = false;
+
     public static void loadSceneStyles(Scene scene, int cssTheme) {
 
-        scene.getStylesheets().add(ONEMFIVE);
-        scene.getStylesheets().add(IMAGES);
+        if(!initialized) {
+            scene.getStylesheets().add(ONEMFIVE);
+            scene.getStylesheets().add(IMAGES);
+            initialized = true;
+        }
 
         switch (cssTheme) {
 
@@ -57,8 +62,6 @@ public class CssTheme {
                 break;
             }
         }
-
-
 
 //        List<String> families = javafx.scene.text.Font.getFamilies();
 //        for(String f : families){
