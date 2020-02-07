@@ -73,11 +73,11 @@ import static javafx.scene.layout.AnchorPane.*;
 
 public class HomeView extends InitializableView {
 
-    private StackPane rootContainer;
+    public static StackPane rootContainer;
     private Label versionLabel;
     private Runnable onUiReadyHandler;
     private final ToggleGroup navButtons = new ToggleGroup();
-    private Transitions transitions = new Transitions();
+    private static Transitions transitions = new Transitions();
 
     private static ImageView neoManConImageView;
     private static ImageView extremeManConImageView;
@@ -92,8 +92,8 @@ public class HomeView extends InitializableView {
 
     public HomeView() {}
 
-    public void setTransitions(Transitions transitions) {
-        this.transitions = transitions;
+    public void setTransitions(Transitions t) {
+        transitions = t;
     }
 
     public void setOnUiReadyHandler(Runnable onUiReadyHandler) {
@@ -104,19 +104,19 @@ public class HomeView extends InitializableView {
         return rootContainer;
     }
 
-    public void blurLight() {
+    public static void blurLight() {
         transitions.blur(rootContainer, Transitions.DEFAULT_DURATION, -0.6, false, 5);
     }
 
-    public void blurUltraLight() {
+    public static void blurUltraLight() {
         transitions.blur(rootContainer, Transitions.DEFAULT_DURATION, -0.6, false, 2);
     }
 
-    public void darken() {
+    public static void darken() {
         transitions.darken(rootContainer, Transitions.DEFAULT_DURATION, false);
     }
 
-    public void removeEffect() {
+    public static void removeEffect() {
         transitions.removeEffect(rootContainer);
     }
 

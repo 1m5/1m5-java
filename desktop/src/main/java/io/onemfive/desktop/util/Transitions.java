@@ -51,7 +51,7 @@ public class Transitions {
     private Timeline removeEffectTimeLine;
 
     private int getDuration(int duration) {
-        return "true".equals(MVC.preferences.getProperty("useAnimations")) ? duration : 1;
+        return Preferences.useAnimations ? duration : 1;
     }
 
     // Fade

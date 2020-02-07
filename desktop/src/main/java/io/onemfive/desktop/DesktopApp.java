@@ -31,6 +31,7 @@ import io.onemfive.core.ServiceStatus;
 import io.onemfive.core.ServiceStatusObserver;
 import io.onemfive.core.admin.AdminService;
 import io.onemfive.data.Envelope;
+import io.onemfive.desktop.user.Preferences;
 import io.onemfive.desktop.util.ImageUtil;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.util.AppThread;
@@ -57,7 +58,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
     private static SystemTray systemTray;
     private static boolean systemTrayInitialized = false;
 
-    private static Runnable shutDownHandler;
+    public static Runnable shutDownHandler;
 
     public static double WIDTH;
     public static double HEIGHT;
@@ -105,8 +106,18 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
             }
         }).start();
 
+        shutDownHandler = new Runnable() {
+            @Override
+            public void run() {
+                stop();
+            }
+        };
+
         // Setup Preferences
-        MVC.preferences.put("useAnimations","true");
+        // TODO: Load from persistence
+        Preferences.useAnimations = true;
+        Preferences.cssTheme = CSS_THEME_LIGHT;
+        Preferences.locale = Locale.US;
     }
 
     @Override
@@ -131,8 +142,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
                 INITIAL_WINDOW_HEIGHT;
         scene = new Scene((StackPane)homeView.getRoot(), WIDTH, HEIGHT);
 
-//        CssTheme.loadSceneStyles(scene, CSS_THEME_LIGHT);
-        CssTheme.loadSceneStyles(scene, CSS_THEME_DARK);
+        CssTheme.loadSceneStyles(scene, Preferences.cssTheme);
 
         // Launch Tray
 //        systemTray = new SystemTray(stage, this::stop);
