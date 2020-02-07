@@ -452,6 +452,14 @@ public class FormBuilder {
         return addTopLabelTextArea(gridPane, rowIndex, colIndex, title, prompt, -Layout.FLOATING_LABEL_DISTANCE);
     }
 
+    public static Tuple2<Label, TextArea> addCompactTopLabelTextAreaWithText(GridPane gridPane,
+                                                                     String text,
+                                                                     int rowIndex,
+                                                                     String title,
+                                                                     boolean readOnly) {
+        return addTopLabelTextAreaWithText(gridPane, rowIndex, title, -Layout.FLOATING_LABEL_DISTANCE, text, readOnly);
+    }
+
     public static Tuple2<Label, TextArea> addTopLabelTextArea(GridPane gridPane,
                                                               int rowIndex,
                                                               String title,
@@ -467,6 +475,14 @@ public class FormBuilder {
         return addTopLabelTextArea(gridPane, rowIndex, colIndex, title, prompt, 0);
     }
 
+    public static Tuple2<Label, TextArea> addTopLabelTextAreaWithText(GridPane gridPane,
+                                                              String text,
+                                                              int rowIndex,
+                                                              int colIndex,
+                                                              String title, boolean readOnly) {
+        return addTopLabelTextAreaWithText(gridPane, rowIndex, colIndex, title, 0, text, readOnly);
+    }
+
     public static Tuple2<Label, TextArea> addTopLabelTextArea(GridPane gridPane,
                                                               int rowIndex,
                                                               String title,
@@ -476,12 +492,39 @@ public class FormBuilder {
         return addTopLabelTextArea(gridPane, rowIndex, 0, title, prompt, top);
     }
 
+    public static Tuple2<Label, TextArea> addTopLabelTextAreaWithText(GridPane gridPane,
+                                                              int rowIndex,
+                                                              String title,
+                                                              double top,
+                                                              String text,
+                                                              boolean readOnly) {
+
+        return addTopLabelTextAreaWithText(gridPane, rowIndex, 0, title, top, text, readOnly);
+    }
+
     public static Tuple2<Label, TextArea> addTopLabelTextArea(GridPane gridPane, int rowIndex, int colIndex,
                                                               String title, String prompt, double top) {
 
         JFXTextArea textArea = new JFXTextArea();
         textArea.setPromptText(prompt);
         textArea.setWrapText(true);
+
+        final Tuple2<Label, VBox> topLabelWithVBox = addTopLabelWithVBox(gridPane, rowIndex, title, textArea, top);
+        GridPane.setColumnIndex(topLabelWithVBox.second, colIndex);
+
+        return new Tuple2<>(topLabelWithVBox.first, textArea);
+    }
+
+    public static Tuple2<Label, TextArea> addTopLabelTextAreaWithText(GridPane gridPane, int rowIndex, int colIndex,
+                                                              String title, double top, String text, boolean readOnly) {
+
+        JFXTextArea textArea = new JFXTextArea();
+        textArea.setText(text);
+        textArea.setWrapText(true);
+        textArea.setEditable(!readOnly);
+        if(readOnly) {
+            textArea.getStyleClass().add("jfx-text-area:readonly");
+        }
 
         final Tuple2<Label, VBox> topLabelWithVBox = addTopLabelWithVBox(gridPane, rowIndex, title, textArea, top);
         GridPane.setColumnIndex(topLabelWithVBox.second, colIndex);

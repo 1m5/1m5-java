@@ -26,87 +26,41 @@
  */
 package io.onemfive.desktop.views.settings.network;
 
-import io.onemfive.desktop.components.AutoTooltipButton;
-import io.onemfive.desktop.components.AutoTooltipLabel;
-import io.onemfive.desktop.components.InputTextField;
-import io.onemfive.desktop.components.TitledGroupBg;
-import io.onemfive.desktop.components.overlays.popups.Popup;
+import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.util.Res;
-import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.VPos;
-import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+
+import static io.onemfive.desktop.util.FormBuilder.*;
 
 public class NetworkSettingsView extends ActivatableView {
 
-    @FXML
-    TitledGroupBg p2pHeader, btcHeader;
-    @FXML
-    Label btcNodesLabel, bitcoinNodesLabel, localhostBtcNodeInfoLabel;
-    @FXML
-    InputTextField btcNodesInputTextField;
-    @FXML
-    TextField onionAddress, totalTrafficTextField;
-    @FXML
-    Label p2PPeersLabel, bitcoinPeersLabel;
-    @FXML
-    CheckBox useTorForBtcJCheckBox;
-    @FXML
-    RadioButton useProvidedNodesRadio, useCustomNodesRadio, usePublicNodesRadio;
-    @FXML
-    Label reSyncSPVChainLabel;
-    @FXML
-    AutoTooltipButton reSyncSPVChainButton, openTorSettingsButton;
+    private GridPane pane;
+    private int gridRow = 0;
 
     public NetworkSettingsView() {
         super();
     }
 
     public void initialize() {
-        btcHeader.setText(Res.get("settings.net.btcHeader"));
-        p2pHeader.setText(Res.get("settings.net.p2pHeader"));
-        onionAddress.setPromptText(Res.get("settings.net.onionAddressLabel"));
-        btcNodesLabel.setText(Res.get("settings.net.btcNodesLabel"));
-        bitcoinPeersLabel.setText(Res.get("settings.net.bitcoinPeersLabel"));
-        useTorForBtcJCheckBox.setText(Res.get("settings.net.useTorForBtcJLabel"));
-        bitcoinNodesLabel.setText(Res.get("settings.net.bitcoinNodesLabel"));
-        localhostBtcNodeInfoLabel.setText(Res.get("settings.net.localhostBtcNodeInfo"));
-        useProvidedNodesRadio.setText(Res.get("settings.net.useProvidedNodesRadio"));
-        useCustomNodesRadio.setText(Res.get("settings.net.useCustomNodesRadio"));
-        usePublicNodesRadio.setText(Res.get("settings.net.usePublicNodesRadio"));
-        reSyncSPVChainLabel.setText(Res.get("settings.net.reSyncSPVChainLabel"));
-        reSyncSPVChainButton.updateText(Res.get("settings.net.reSyncSPVChainButton"));
-        p2PPeersLabel.setText(Res.get("settings.net.p2PPeersLabel"));
-        totalTrafficTextField.setPromptText(Res.get("settings.net.totalTrafficLabel"));
-        openTorSettingsButton.updateText(Res.get("settings.net.openTorSettingsButton"));
+        LOG.info("Initializing...");
+        pane = (GridPane)root;
 
-        GridPane.setMargin(bitcoinPeersLabel, new Insets(4, 0, 0, 0));
-        GridPane.setValignment(bitcoinPeersLabel, VPos.TOP);
+        addTitledGroupBg(pane, gridRow, 3, Res.get("settings.net.localNode"));
+        addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.1m5Fingerprint"), "+sKVViuz2FPsl/XQ+Da/ivbNfOI=", Layout.FIRST_ROW_DISTANCE);
+        addCompactTopLabelTextAreaWithText(pane, "mQENBF43FaEDCACtMtZJu3oSchRgtaUzTmMJRbJmdfSpEaG2nW7U2YinHeMUkIpFCQGu2/OgmCuE4kVEQ4y6kKvqCiMvahtv+OqID0Lk7JEofFpwH8UUUis+p99qnw7RYy1q4IrjBpFSZHLi/nCyZOp4L7jG0CgJEFoZZEd2Uby1vnmePxts7srWkBjlmUWj+e/G89r+ZYpRN7dwdwl69Qk2s3UWTq1xyVyMqg/RuFC9kUgsmkL8vIpO4KYX7DfRKmYT29gfwjrvbVd18oeFECFVU/E6118N4P/8zIj0vhOiuar5hdKiq3oU5ka1hlQqP3IrQz2+feh2Q34+TP/BBEKOvbSv6V/6/6T/ABEBAAG0BUFsaWNliQEuBBMDAgAYBQJeNxWkAhsDBAsJCAcGFQgCCQoLAh4BAAoJEPg2v4r2zXzihH8H/iKc0ZBoWbeP/FykApYjG9m8ze54Pr9noRUw7JDAs6a7Y4IjNuE42NLMMwcxCoekzVmUwMyLrQDW+pLMaZupX2i8yU720F9WMh4f9eC4lXg64IMTnNUZqI4U52wZV22nxiGdGqacHwSSRcG5rHBskdrOJ8BX0QQ7Qt+iw4xyaxMPSPnULiJv3Z+kwLVLbxMQsmtLy7BZW6Pn848oONRNodg9tWn3PA/jTFg4ak+9lzfc1HnAWe/FeQ7O6jZ3h5eAbC4Y9KQqxVI7QzOkwIpRHMbkrVHdEcZMOa36wznC6SCXxpB/uGNrVnCJ0og9RN701QbxOu0XcevMjAOcE5dsC3g=", ++gridRow, Res.get("settings.net.1m5AddressLabel"), true);
 
-        GridPane.setMargin(p2PPeersLabel, new Insets(4, 0, 0, 0));
-        GridPane.setValignment(p2PPeersLabel, VPos.TOP);
-
+        LOG.info("Initialized");
     }
 
     @Override
     public void activate() {
-
 
     }
 
     @Override
     public void deactivate() {
 
-    }
-
-    private void showShutDownPopup() {
-        new Popup()
-                .information(Res.get("settings.net.needRestart"))
-                .closeButtonText(Res.get("shared.cancel"))
-                .useShutDownButton()
-                .show();
     }
 
 }

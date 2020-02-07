@@ -52,8 +52,8 @@ public class AboutView extends ActivatableView {
         LOG.info("Initializing...");
         GridPane pane = (GridPane)root;
 
-        addTitledGroupBg(pane, gridRow, 4, Res.get("setting.about.about1M5"));
-        Label label = addLabel(pane, gridRow, Res.get("setting.about.about"), Layout.FIRST_ROW_DISTANCE);
+        addTitledGroupBg(pane, gridRow, 5, Res.get("setting.about.about1M5"));
+        Label label = addLabel(pane, ++gridRow, Res.get("setting.about.about"), Layout.FIRST_ROW_DISTANCE);
         label.setWrapText(true);
         GridPane.setColumnSpan(label, 2);
         GridPane.setHalignment(label, HPos.LEFT);
@@ -80,6 +80,7 @@ public class AboutView extends ActivatableView {
         addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.versionWiFiDirect"), "Not Registered");
         addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.versionSDR"), "GNU Radio - Not Registered");
         addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.versionLiFi"), "PureLiFi - Not Registered");
+        LOG.info("Initialized");
     }
 
     @Override

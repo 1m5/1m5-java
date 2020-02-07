@@ -37,9 +37,6 @@ import io.onemfive.util.LanguageUtil;
 import io.onemfive.util.Res;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
@@ -64,15 +61,23 @@ public class PreferencesView extends ActivatableView {
 
     @Override
     public void initialize() {
+        LOG.info("Initializing...");
         pane = (GridPane)root;
         languageCodes = FXCollections.observableArrayList(LanguageUtil.getUserLanguageCodes());
 
-        initializeGeneralOptions();
-        initializeSeparator();
-        initializeDisplayOptions();
+        TitledGroupBg titledGroupBg = addTitledGroupBg(pane, gridRow, 2, Res.get("setting.preferences.general"));
+        GridPane.setColumnSpan(titledGroupBg, 1);
 
+        userLanguageComboBox = addComboBox(pane, ++gridRow, Res.get("shared.language"), Layout.FIRST_ROW_DISTANCE);
+
+        TitledGroupBg titledGroupBg1 = addTitledGroupBg(pane, ++gridRow, 3, Res.get("setting.preferences.displayOptions"), Layout.FIRST_ROW_DISTANCE);
+        GridPane.setColumnSpan(titledGroupBg1, 1);
+
+        useAnimations = addSlideToggleButton(pane, ++gridRow, Res.get("setting.preferences.useAnimations"), Layout.TWICE_FIRST_ROW_DISTANCE);
+        useDarkMode = addSlideToggleButton(pane, ++gridRow, Res.get("setting.preferences.useDarkMode"));
+
+        LOG.info("Initialized");
     }
-
 
     @Override
     protected void activate() {
@@ -84,36 +89,6 @@ public class PreferencesView extends ActivatableView {
     protected void deactivate() {
         deactivateGeneralOptions();
         deactivateDisplayPreferences();
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // Initialize
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
-    private void initializeGeneralOptions() {
-        int titledGroupBgRowSpan = 1;
-        TitledGroupBg titledGroupBg = addTitledGroupBg(pane, gridRow, titledGroupBgRowSpan, Res.get("setting.preferences.general"));
-        GridPane.setColumnSpan(titledGroupBg, 1);
-
-        userLanguageComboBox = addComboBox(pane, gridRow, Res.get("shared.language"), Layout.FIRST_ROW_DISTANCE);
-    }
-
-    private void initializeSeparator() {
-        final Separator separator = new Separator(Orientation.VERTICAL);
-        separator.setPadding(new Insets(0, 10, 0, 10));
-        GridPane.setColumnIndex(separator, 1);
-        GridPane.setHalignment(separator, HPos.CENTER);
-        GridPane.setRowIndex(separator, 0);
-        GridPane.setRowSpan(separator, GridPane.REMAINING);
-        pane.getChildren().add(separator);
-    }
-
-    private void initializeDisplayOptions() {
-        TitledGroupBg titledGroupBg = addTitledGroupBg(pane, ++gridRow, 2, Res.get("setting.preferences.displayOptions"), Layout.GROUP_DISTANCE);
-        GridPane.setColumnSpan(titledGroupBg, 1);
-
-        useAnimations = addSlideToggleButton(pane, ++gridRow, Res.get("setting.preferences.useAnimations"));
-        useDarkMode = addSlideToggleButton(pane, ++gridRow, Res.get("setting.preferences.useDarkMode"));
     }
 
     private void activateGeneralOptions() {

@@ -408,14 +408,14 @@
 }
 
 .jfx-text-area {
-    -jfx-focus-color: -bs-rd-green;
-    -jfx-unfocus-color: -bs-rd-grey-line;
-    -fx-background-color: -bs-rd-white;
+    -jfx-focus-color: -bs-color-primary;
+    -jfx-unfocus-color: -bs-background-gray;
+    -fx-background-color: -bs-background-color;
     -fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em;
 }
 
 .jfx-text-area:readonly {
-    -fx-background-color: transparent;
+    -fx-background-color: -bs-background-gray;
 }
 
 .jfx-text-area > .input-line {
