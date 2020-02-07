@@ -13,33 +13,13 @@
     -ims-icon-red: #df1515;
     -ims-icon-gray: #708090;
 
-    /* javafx main color palette */
-    -fx-base: #29292a;
-    -fx-background: #29292a;
-    -fx-control-inner-background: #1d1d21;
-    -fx-dark-text-color: #fcfcfc;
-    -fx-mid-text-color: #dadada;
-    -fx-light-text-color: #cacaca;
-    -fx-text-fill: #dadada;
+    -bs-color-primary: -ims-purple-gray-light;
+    -bs-color-primary-dark: -ims-purple-gray-dark;
+    -bs-text-color: -ims-white;
+    -bs-background-color: -ims-black;
+    -bs-background-gray: #dddddd;
+    -bs-content-background-gray: #f4f4f4;
 
-    /* javafx elements */
-    -fx-accent: -bs-color-primary-dark;
-    -fx-box-border: #1d1d21;
-    -fx-focus-color: #2ea33c;
-    -fx-faint-focus-color: #0f87c3;
-    -fx-selection-bar: -bs-color-primary;
-    -fx-selection-bar-non-focused: #2a7e2e;
-    -fx-default-button: derive(-fx-accent, 95%);
-
-    /* bisq main colors */
-    -bs-color-primary: #25b135;
-    -bs-color-primary-dark: #2ea33c;
-    -bs-text-color: #dadada;
-    -bs-background-color: #29292a;
-    -bs-background-gray: #1d1d21;
-    -bs-content-background-gray: #242424;
-
-    /* fifty shades of gray */
     -bs-color-gray-13: #bbb;
     -bs-color-gray-11: #f2f2f2;
     -bs-color-gray-10: #cfcecf;
@@ -58,7 +38,6 @@
     -bs-color-gray-fafa: #0a0a0a;
     -bs-color-gray-background: #29292a;
 
-    /* lesser used colors */
     -bs-color-blue-5: #0a4576;
     -bs-color-blue-4: #57acc9;
     -bs-color-blue-3: #9bbdc9;
@@ -79,26 +58,25 @@
     -bs-rd-green: #25B135;
     -bs-rd-green-dark: #3EA34A;
 
-    /* other element styling */
-    -bs-rd-nav-selected: #25b135;
-    -bs-rd-nav-deselected: #1d1d21;
-    -bs-rd-nav-background: #2ea33c;
-    -bs-rd-nav-primary-background: #25b135;
-    -bs-rd-nav-primary-border: #44a750;
-    -bs-rd-nav-border: #29292a;
-    -bs-rd-nav-border-color: rgba(46, 46, 49, 0.31);
-    -bs-rd-tab-border: #111;
+    -bs-rd-nav-selected: -ims-purple-gray-dark;
+    -bs-rd-nav-deselected: rgba(255, 255, 255, 0.59);
+    -bs-rd-nav-background: -ims-purple-gray-dark;
+    -bs-rd-nav-primary-background: -ims-purple-gray-light;
+    -bs-rd-nav-primary-border: -ims-purple-gray-light;
+    -bs-rd-nav-border: #535353;
+    -bs-rd-nav-border-color: rgba(255, 255, 255, 0.31);
+    -bs-rd-tab-border: #e2e0e0;
+    -bs-tab-content-area: #ffffff;
 
-    -bs-tab-content-area: #111;
     -bs-content-pane-bg-top: #222226;
     -bs-content-pane-bg-bottom: #29292a;
     -bs-scroll-pane-background: transparent;
     -bs-tab-content-area: transparent;
     -bs-viewport-background: transparent;
 
-    -bs-footer-pane-background: #29292a;
-    -bs-footer-pane-text: #cfcecf;
-    -bs-footer-pane-line: #29292a;
+    -bs-footer-pane-background: -bs-background-color;
+    -bs-footer-pane-text: -bs-text-color;
+    -bs-footer-pane-line: -ims-purple-gray-dark;
 
     -bs-rd-font-balance: #bbbbbb;
     -bs-rd-font-dark-gray: #d4d4d4;
@@ -139,6 +117,24 @@
     -bs-green-soft: derive(-bs-rd-green, 60%);
     -bs-red-soft: derive(-bs-rd-error-red, 60%);
     -bs-progress-bar-track: #272728;
+
+    /* javafx main color palette */
+    -fx-base: #29292a;
+    -fx-background: #29292a;
+    -fx-control-inner-background: #1d1d21;
+    -fx-dark-text-color: #fcfcfc;
+    -fx-mid-text-color: #dadada;
+    -fx-light-text-color: #cacaca;
+    -fx-text-fill: #dadada;
+
+    /* javafx elements */
+    -fx-accent: -bs-color-primary-dark;
+    -fx-box-border: #1d1d21;
+    -fx-focus-color: #2ea33c;
+    -fx-faint-focus-color: #0f87c3;
+    -fx-selection-bar: -bs-color-primary;
+    -fx-selection-bar-non-focused: #2a7e2e;
+    -fx-default-button: derive(-fx-accent, 95%);
 }
 
 /* list view */

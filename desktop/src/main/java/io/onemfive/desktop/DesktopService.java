@@ -49,7 +49,6 @@ public class DesktopService extends BaseService {
     public static final String OPERATION_NOTIFY_UI = "NOTIFY_UI";
 
     public static final String OPERATION_UPDATE_ACTIVE_IDENTITY = "UPDATE_ACTIVE_IDENTITY";
-    public static final String OPERATION_UPDATE_CONTACTS = "UPDATE_CONTACTS";
     public static final String OPERATION_UPDATE_IDENTITIES = "UPDATE_IDENTITIES";
 
     public DesktopService() {
@@ -87,18 +86,6 @@ public class DesktopService extends BaseService {
                         LOG.info("Updating IdentitiesView active DID...");
                         IdentitiesView v = (IdentitiesView)MVC.loadView(IdentitiesView.class, true);
                         v.updateActiveDID(activeIdentity);
-                    });
-                }
-                break;
-            }
-            case OPERATION_UPDATE_CONTACTS: {
-                LOG.info("Update active contacts request...");
-                final List<DID> contacts = (List<DID>)DLC.getValue("contacts", e);
-                if(contacts!=null) {
-                    Platform.runLater(() -> {
-                        LOG.info("Updating IdentitiesView contacts...");
-                        IdentitiesView v = (IdentitiesView)MVC.loadView(IdentitiesView.class, true);
-                        v.updateContacts(contacts);
                     });
                 }
                 break;

@@ -518,7 +518,8 @@ public class HomeView extends InitializableView {
         versionLabel = new AutoTooltipLabel();
         versionLabel.setId("footer-pane");
         versionLabel.setTextAlignment(TextAlignment.CENTER);
-        versionLabel.setAlignment(Pos.BASELINE_CENTER);
+        versionLabel.setAlignment(Pos.BASELINE_RIGHT);
+        versionLabel.setPadding(new Insets(0,0,0,10));
         versionLabel.setText("v" + version);
 //        rootContainer.widthProperty().addListener((ov, oldValue, newValue) -> {
 //            versionLabel.setLayoutX(((double) newValue - versionLabel.getWidth()) / 2);

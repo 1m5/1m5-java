@@ -134,11 +134,11 @@
 }
 
 .jfx-button:hover, .jfx-button:focused {
-    -fx-background-color: derive(-bs-rd-grey-light, -10%);
+    -fx-background-color: derive(-bs-color-primary, -10%);
 }
 
 .action-button:hover, .action-button:focused {
-    -fx-background-color: derive(-bs-color-primary-dark, -10%);
+    -fx-background-color: derive(-bs-color-primary-light, -10%);
 }
 
 .action-button {
@@ -1034,6 +1034,20 @@ textfield */
 
 /*******************************************************************************
  *                                                                             *
+ * Buttons                                                                    *
+ *                                                                             *
+ ******************************************************************************/
+.button-raised {
+    -fx-padding: 0.7em 0.57em;
+    -fx-font-size: 12px;
+    -jfx-button-type: RAISED;
+    -fx-background-color: -bs-color-primary;
+    -fx-pref-width: 100;
+    -fx-text-fill: -ims-white;
+}
+
+/*******************************************************************************
+ *                                                                             *
  * Tab pane                                                                    *
  *                                                                             *
  ******************************************************************************/
@@ -1119,6 +1133,44 @@ textfield */
 
 #form-title {
     -fx-font-weight: bold;
+}
+
+.listView {
+    -fx-background-color: -bs-background-color;
+}
+
+.listView .scroll-bar:horizontal .track,
+.listView .scroll-bar:vertical .track {
+    -fx-background-color:transparent;
+    -fx-border-color:transparent;
+    -fx-background-radius: 0em;
+    -fx-border-radius:2em;
+}
+
+.listView .scroll-bar:horizontal .increment-button ,
+.listView .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:transparent;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+
+.listView .scroll-bar:vertical .increment-button ,
+.listView .scroll-bar:vertical .decrement-button {
+    -fx-background-color:transparent;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+}
+.listView .scroll-bar .increment-arrow,
+.listView .scroll-bar .decrement-arrow{
+    -fx-shape:" ";
+    -fx-padding:0;
+}
+
+.listView .scroll-bar:horizontal .thumb,
+.listView .scroll-bar:vertical .thumb {
+    -fx-background-color:derive(black,90%);
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
 }
 
 /* scroll-pane */

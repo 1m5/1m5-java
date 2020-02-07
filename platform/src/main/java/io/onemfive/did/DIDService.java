@@ -56,9 +56,8 @@ public class    DIDService extends BaseService {
 
     private static final Logger LOG = Logger.getLogger(DIDService.class.getName());
 
-    public static final String OPERATION_GET_NODE_DID = "GET_NODE_DID"; // Node DID
-
     public static final String OPERATION_GET_IDENTITIES = "GET_IDENTITIES";
+    public static final String OPERATION_SET_ACTIVE_IDENTITY = "SET_ACTIVE_IDENTITY";
     public static final String OPERATION_GET_ACTIVE_IDENTITY = "GET_ACTIVE_IDENTITY";
     public static final String OPERATION_VERIFY_IDENTITY = "VERIFY"; // Read/Verify
     public static final String OPERATION_SAVE_IDENTITY = "SAVE"; // Create/Update
@@ -74,8 +73,6 @@ public class    DIDService extends BaseService {
     public static final String OPERATION_GET_CONTACT = "GET_CONTACT";
     public static final String OPERATION_GET_CONTACTS = "GET_CONTACTS";
     public static final String OPERATION_DELETE_CONTACT = "DELETE_CONTACT";
-
-    private static final Pattern layout = Pattern.compile("\\$31\\$(\\d\\d?)\\$(.{43})");
 
     private static final int MAX_IDENTITIES = 100;
     private static final int MAX_CONTACTS = 10000;
@@ -114,14 +111,15 @@ public class    DIDService extends BaseService {
         Route route = e.getRoute();
         String operation = route.getOperation();
         switch(operation) {
-            case OPERATION_GET_NODE_DID: {
-                LOG.info("Received get Node DID: "+nodeDID);
-                GetNodeDIDRequest r = (GetNodeDIDRequest)DLC.getData(GetNodeDIDRequest.class,e);
-                if(r == null) {
-                    r = new GetNodeDIDRequest();
-                    DLC.addData(GetNodeDIDRequest.class,r,e);
+            case OPERATION_SET_ACTIVE_IDENTITY: {
+                LOG.info("Received set active identity....");
+                String fingerprint = (String)DLC.getValue("fingerprint", e);
+                if(fingerprint ==null) {
+                    DLC.addErrorMessage("No Fingerprint", e);
+                    break;
                 }
-                r.did = nodeDID;
+                activeIdentity = loadIdentity(fingerprint, false);
+                DLC.addEntity(activeIdentity, e);
                 break;
             }
             case OPERATION_GET_ACTIVE_IDENTITY: {
