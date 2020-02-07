@@ -148,8 +148,8 @@
 }
 
 .jfx-button, .action-button {
-    -fx-background-color: -bs-rd-grey-light;
-    -fx-text-fill: -bs-rd-font-dark-gray;
+    -fx-background-color: -bs-color-primary;
+    -fx-text-fill: -bs-text-color;
     -fx-font-size: 0.923em;
     -fx-font-weight: normal;
     -fx-background-radius: 2px;
@@ -161,15 +161,15 @@
 }
 
 .jfx-button:hover, .jfx-button:focused {
-    -fx-background-color: derive(-bs-color-primary, -10%);
+    -fx-background-color: derive(-bs-color-primary-dark, -10%);
 }
 
 .action-button:hover, .action-button:focused {
-    -fx-background-color: derive(-bs-color-primary-light, -10%);
+    -fx-background-color: derive(-bs-color-primary-dark, -10%);
 }
 
 .action-button {
-    -fx-background-color: -bs-color-primary-dark;
+    -fx-background-color: -bs-color-primary;
     -fx-text-fill: -bs-rd-white;
 }
 
@@ -265,7 +265,7 @@
 }
 
 .jfx-text-field:readonly, .hyperlink-with-icon {
-    -fx-background-color: -bs-rd-grey-medium-light;
+    -fx-background-color: -bs-background-gray;
     -fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em;
 }
 
