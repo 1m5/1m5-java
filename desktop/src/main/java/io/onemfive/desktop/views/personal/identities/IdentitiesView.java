@@ -101,25 +101,25 @@ public class IdentitiesView extends ActivatableView {
 
         JFXTextField identityAliasTxt = new JFXTextField();
         identityAliasTxt.setLabelFloat(true);
-        identityAliasTxt.setPromptText("Alias");
+        identityAliasTxt.setPromptText(Res.get("shared.alias"));
         identityAliasTxt.setPrefWidth(200);
         addIdentityBox.getChildren().add(identityAliasTxt);
 
         JFXTextField identityPwdText = new JFXTextField();
         identityPwdText.setLabelFloat(true);
-        identityPwdText.setPromptText("Passphrase");
+        identityPwdText.setPromptText(Res.get("shared.passphrase"));
         identityPwdText.setPrefWidth(200);
         addIdentityBox.getChildren().add(identityPwdText);
 
         JFXTextField identityPwd2Text = new JFXTextField();
         identityPwd2Text.setLabelFloat(true);
-        identityPwd2Text.setPromptText("Passphrase Again");
+        identityPwd2Text.setPromptText(Res.get("shared.passphraseAgain"));
         identityPwd2Text.setPrefWidth(200);
         addIdentityBox.getChildren().add(identityPwd2Text);
 
         JFXTextField identityDescription = new JFXTextField();
         identityDescription.setLabelFloat(true);
-        identityDescription.setPromptText("Description");
+        identityDescription.setPromptText(Res.get("shared.description"));
         identityDescription.setPrefWidth(400);
         addIdentityBox.getChildren().add(identityDescription);
 
