@@ -40,8 +40,8 @@ public class CssTheme {
 
     public static void loadSceneStyles(Scene scene, int cssTheme) {
 
-        scene.getStylesheets().add(CssTheme.class.getResource("1m5.css").toExternalForm());
-        scene.getStylesheets().add(CssTheme.class.getResource("images.css").toExternalForm());
+        scene.getStylesheets().add(ONEMFIVE);
+        scene.getStylesheets().add(IMAGES);
 
         switch (cssTheme) {
 
