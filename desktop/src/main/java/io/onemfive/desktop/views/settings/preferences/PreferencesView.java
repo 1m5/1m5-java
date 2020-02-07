@@ -26,6 +26,8 @@
  */
 package io.onemfive.desktop.views.settings.preferences;
 
+import io.onemfive.desktop.CssTheme;
+import io.onemfive.desktop.DesktopApp;
 import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.components.overlays.popups.Popup;
 import io.onemfive.desktop.user.Preferences;
@@ -147,7 +149,10 @@ public class PreferencesView extends ActivatableView {
         useAnimations.setOnAction(e -> Preferences.useAnimations = useAnimations.isSelected());
 
         useDarkMode.setSelected(Preferences.cssTheme == 1);
-        useDarkMode.setOnAction(e -> Preferences.cssTheme = useDarkMode.isSelected() ? 1 : 0);
+        useDarkMode.setOnAction(e -> {
+            Preferences.cssTheme = useDarkMode.isSelected() ? 1 : 0;
+            CssTheme.loadSceneStyles(DesktopApp.scene, Preferences.cssTheme);
+        });
 
     }
 

@@ -55,7 +55,7 @@ public class SettingsView extends ActivatableView {
     @Override
     public void initialize() {
         LOG.info("Initializing...");
-
+        pane = (TabPane)root;
         preferencesTab.setText(Res.get("settings.tab.preferences").toUpperCase());
         networkTab.setText(Res.get("settings.tab.network").toUpperCase());
         aboutTab.setText(Res.get("settings.tab.about").toUpperCase());

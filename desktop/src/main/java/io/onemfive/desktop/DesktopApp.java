@@ -65,7 +65,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
 
     private static Stage stage;
     private boolean popupOpened;
-    private Scene scene;
+    public static Scene scene;
     private boolean shutDownRequested;
     private boolean shutdownOnException = true;
     private ServiceStatus uiServiceStatus = ServiceStatus.NOT_INITIALIZED;
@@ -121,9 +121,9 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
     }
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage s) {
         LOG.info("DesktopApp starting...\n\tThread name: " + Thread.currentThread().getName());
-        this.stage = stage;
+        stage = s;
 
         HomeView homeView = (HomeView) MVC.loadView(HomeView.class, true);
         Rectangle maxWindowBounds = new Rectangle();
