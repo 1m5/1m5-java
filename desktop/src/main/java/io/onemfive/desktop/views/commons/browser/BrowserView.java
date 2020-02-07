@@ -26,6 +26,8 @@
  */
 package io.onemfive.desktop.views.commons.browser;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import io.onemfive.data.ManCon;
 import io.onemfive.data.ManConStatus;
 import io.onemfive.desktop.Resources;
@@ -66,7 +68,7 @@ public class BrowserView extends ActivatableView {
 
     private EventHandler<KeyEvent> keyEventEventHandler;
 
-    private TextField url;
+    private JFXTextField url;
 
     private static boolean usingTOR = true;
     private static boolean usingI2P = false;
@@ -89,13 +91,14 @@ public class BrowserView extends ActivatableView {
         nav.setSpacing(5);
         vBox.getChildren().add(nav);
 
-        url = new TextField();
+        url = new JFXTextField();
         url.setText("1m5://1m5.1m5");
 
         HBox.setHgrow(url, Priority.ALWAYS);
         nav.getChildren().add(url);
 
-        Button go = new Button("Go");
+        JFXButton go = new JFXButton("Go");
+        go.getStyleClass().add("button-raised");
         go.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -126,7 +129,8 @@ public class BrowserView extends ActivatableView {
         });
         nav.getChildren().add(go);
 
-        Button refresh = new Button("Refresh");
+        JFXButton refresh = new JFXButton("Refresh");
+        refresh.getStyleClass().add("button-raised");
         refresh.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -137,7 +141,8 @@ public class BrowserView extends ActivatableView {
         });
         nav.getChildren().add(refresh);
 
-        Button back = new Button("Back");
+        JFXButton back = new JFXButton("Back");
+        back.getStyleClass().add("button-raised");
         back.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -148,7 +153,8 @@ public class BrowserView extends ActivatableView {
         });
         nav.getChildren().add(back);
 
-        Button stop = new Button("Stop");
+        JFXButton stop = new JFXButton("Stop");
+        stop.getStyleClass().add("button-raised");
         stop.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
