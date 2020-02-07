@@ -30,6 +30,7 @@ import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkNode;
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkConfig;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.*;
 import io.onemfive.util.tasks.TaskRunner;
@@ -50,6 +51,7 @@ public class BluetoothSensor extends BaseSensor {
     private String bluetoothBaseDir;
     private File bluetoothDir;
 
+    public static final NetworkConfig config = new NetworkConfig();
     Map<String, RemoteDevice> devices = new HashMap<>();
     Map<String, NetworkPeer> peersInDiscovery = new HashMap<>();
 
@@ -240,9 +242,9 @@ public class BluetoothSensor extends BaseSensor {
         taskRunner.addTask(serviceDiscovery);
 
         // run every minute 20 seconds after service discovery
-        peerDiscovery = new NetworkPeerDiscovery(taskRunner, this, Network.Bluetooth);
-        peerDiscovery.UpdateInterval = 60;
-        peerDiscovery.UpdateIntervalHyper = 60;
+        peerDiscovery = new NetworkPeerDiscovery(taskRunner, this, Network.Bluetooth, config);
+        peerDiscovery.config.UpdateInterval = 60;
+        peerDiscovery.config.UpdateIntervalHyper = 60;
         peerDiscovery.setLongRunning(true);
         peerDiscovery.setDelayed(true);
         peerDiscovery.setFixedDelay(true);

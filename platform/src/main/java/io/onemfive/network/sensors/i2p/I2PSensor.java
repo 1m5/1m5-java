@@ -26,6 +26,7 @@
  */
 package io.onemfive.network.sensors.i2p;
 
+import io.onemfive.network.NetworkConfig;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.*;
@@ -58,6 +59,8 @@ import java.util.logging.Logger;
  */
 public class I2PSensor extends BaseSensor {
 
+    private static final Logger LOG = Logger.getLogger(I2PSensor.class.getName());
+
     /**
      * 1 = ElGamal-2048 / DSA-1024
      * 2 = ECDH-256 / ECDSA-256
@@ -69,7 +72,7 @@ public class I2PSensor extends BaseSensor {
     protected static int ECDH521EDCSA521 = 3;
     protected static int NTRUEncrypt1087GMSS512 = 4;
 
-    private static final Logger LOG = Logger.getLogger(I2PSensor.class.getName());
+    public static final NetworkConfig config = new NetworkConfig();
 
     protected Properties properties;
 
@@ -532,7 +535,7 @@ public class I2PSensor extends BaseSensor {
             establishSession(null, true);
             if(discovery==null) {
                 LOG.info("I2P NetworkPeerDiscovery not instantiated; adding to TaskRunner...");
-                discovery = new NetworkPeerDiscovery(taskRunner, this, Network.I2P);
+                discovery = new NetworkPeerDiscovery(taskRunner, this, Network.I2P, config);
 
                 NetworkPeer seedA1M5 = new NetworkPeer();
                 seedA1M5.setId("+sKVViuz2FPsl/XQ+Da/ivbNfOI=");
@@ -551,7 +554,7 @@ public class I2PSensor extends BaseSensor {
                 seedAI2P.getDid().getPublicKey().isIdentityKey(true);
                 seedAI2P.getDid().getPublicKey().setBase64Encoded(true);
                 if(sensorManager.getPeerManager().savePeer(seedAI2P, true)) {
-                    discovery.seeds.add(seedAI2P);
+                    discovery.config.seeds.add(seedAI2P);
                 }
 //                taskRunner.addTask(discovery);
             }

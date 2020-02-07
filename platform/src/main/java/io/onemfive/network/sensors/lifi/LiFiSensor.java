@@ -28,6 +28,7 @@ package io.onemfive.network.sensors.lifi;
 
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.*;
+import io.onemfive.network.NetworkConfig;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.DLC;
@@ -43,6 +44,8 @@ import static io.onemfive.network.sensors.SensorStatus.NETWORK_CONNECTED;
 public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
 
     private static final Logger LOG = Logger.getLogger(LiFiSensor.class.getName());
+
+    public static final NetworkConfig config = new NetworkConfig();
 
     private LiFiSession session;
 

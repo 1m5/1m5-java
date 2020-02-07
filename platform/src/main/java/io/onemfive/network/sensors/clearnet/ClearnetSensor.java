@@ -31,6 +31,7 @@ import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.*;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkConfig;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
@@ -73,6 +74,8 @@ import java.util.logging.Logger;
  * Clearnet access acting as a Client and Server
  */
 public class ClearnetSensor extends BaseSensor {
+
+    public static final NetworkConfig config = new NetworkConfig();
 
     protected static final Set<String> trustedHosts = new HashSet<>();
 

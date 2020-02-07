@@ -27,15 +27,12 @@
 package io.onemfive.network.sensors.tor;
 
 import io.onemfive.data.*;
-import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.Packet;
-import io.onemfive.network.Request;
+import io.onemfive.network.*;
 import io.onemfive.network.sensors.NetworkPeerDiscovery;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
 import io.onemfive.util.DLC;
 import io.onemfive.network.sensors.SensorStatus;
-import io.onemfive.network.NetworkService;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +50,8 @@ import java.util.logging.Logger;
 public final class TorSensor extends ClearnetSensor {
 
     private static final Logger LOG = Logger.getLogger(TorSensor.class.getName());
+
+    public static final NetworkConfig config = new NetworkConfig();
 
     private NetworkPeerDiscovery discovery;
 
@@ -188,7 +187,7 @@ public final class TorSensor extends ClearnetSensor {
             updateStatus(SensorStatus.NETWORK_CONNECTED);
 
             // Setup Discovery
-//            discovery = new NetworkPeerDiscovery(taskRunner, this, Network.TOR);
+//            discovery = new NetworkPeerDiscovery(taskRunner, this, Network.TOR, config);
 //            NetworkPeer seedA1M5 = new NetworkPeer();
 //            seedA1M5.setId("+sKVViuz2FPsl/XQ+Da/ivbNfOI=");
 //            seedA1M5.getDid().getPublicKey().setAddress("mQENBF43FaEDCACtMtZJu3oSchRgtaUzTmMJRbJmdfSpEaG2nW7U2YinHeMUkIpFCQGu2/OgmCuE4kVEQ4y6kKvqCiMvahtv+OqID0Lk7JEofFpwH8UUUis+p99qnw7RYy1q4IrjBpFSZHLi/nCyZOp4L7jG0CgJEFoZZEd2Uby1vnmePxts7srWkBjlmUWj+e/G89r+ZYpRN7dwdwl69Qk2s3UWTq1xyVyMqg/RuFC9kUgsmkL8vIpO4KYX7DfRKmYT29gfwjrvbVd18oeFECFVU/E6118N4P/8zIj0vhOiuar5hdKiq3oU5ka1hlQqP3IrQz2+feh2Q34+TP/BBEKOvbSv6V/6/6T/ABEBAAG0BUFsaWNliQEuBBMDAgAYBQJeNxWkAhsDBAsJCAcGFQgCCQoLAh4BAAoJEPg2v4r2zXzihH8H/iKc0ZBoWbeP/FykApYjG9m8ze54Pr9noRUw7JDAs6a7Y4IjNuE42NLMMwcxCoekzVmUwMyLrQDW+pLMaZupX2i8yU720F9WMh4f9eC4lXg64IMTnNUZqI4U52wZV22nxiGdGqacHwSSRcG5rHBskdrOJ8BX0QQ7Qt+iw4xyaxMPSPnULiJv3Z+kwLVLbxMQsmtLy7BZW6Pn848oONRNodg9tWn3PA/jTFg4ak+9lzfc1HnAWe/FeQ7O6jZ3h5eAbC4Y9KQqxVI7QzOkwIpRHMbkrVHdEcZMOa36wznC6SCXxpB/uGNrVnCJ0og9RN701QbxOu0XcevMjAOcE5dsC3g=");
