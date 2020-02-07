@@ -51,9 +51,9 @@ public class AboutView extends ActivatableView {
     public void initialize() {
         LOG.info("Initializing...");
         GridPane pane = (GridPane)root;
-        addTitledGroupBg(pane, gridRow, 4, Res.get("setting.about.about1M5"));
 
-        Label label = addLabel(pane, gridRow, Res.get("setting.about.about"), Layout.TWICE_FIRST_ROW_DISTANCE);
+        addTitledGroupBg(pane, gridRow, 4, Res.get("setting.about.about1M5"));
+        Label label = addLabel(pane, gridRow, Res.get("setting.about.about"), Layout.FIRST_ROW_DISTANCE);
         label.setWrapText(true);
         GridPane.setColumnSpan(label, 2);
         GridPane.setHalignment(label, HPos.LEFT);
@@ -64,101 +64,22 @@ public class AboutView extends ActivatableView {
         hyperlinkWithIcon = addHyperlinkWithIcon(pane, ++gridRow, Res.get("setting.about.license"), "https://github.com/1m5/1m5/blob/master/LICENSE");
         GridPane.setColumnSpan(hyperlinkWithIcon, 2);
 
-        addTitledGroupBg(pane, ++gridRow, 2, Res.get("setting.about.support"), Layout.GROUP_DISTANCE);
-
-        label = addLabel(pane, gridRow, Res.get("setting.about.def"), Layout.TWICE_FIRST_ROW_AND_GROUP_DISTANCE);
+        addTitledGroupBg(pane, gridRow, 3, Res.get("setting.about.support"), Layout.GROUP_DISTANCE);
+        label = addLabel(pane, ++gridRow, Res.get("setting.about.def"), Layout.TWICE_FIRST_ROW_DISTANCE);
         label.setWrapText(true);
         GridPane.setColumnSpan(label, 2);
         GridPane.setHalignment(label, HPos.LEFT);
         hyperlinkWithIcon = addHyperlinkWithIcon(pane, ++gridRow, Res.get("setting.about.contribute"), "https://1m5.io/collaborate.html");
         GridPane.setColumnSpan(hyperlinkWithIcon, 2);
 
-
-        label.setWrapText(true);
-        GridPane.setHalignment(label, HPos.LEFT);
-
-        addTitledGroupBg(pane, ++gridRow, 2, Res.get("setting.about.versionDetails"), Layout.GROUP_DISTANCE);
-        addCompactTopLabelTextField(pane, gridRow, Res.get("setting.about.version"), System.getProperty("1m5.version"), Layout.TWICE_FIRST_ROW_AND_GROUP_DISTANCE);
-
-        addTitledGroupBg(pane, ++gridRow, 20, Res.get("setting.about.shortcuts"), Layout.GROUP_DISTANCE);
-
-        // basics
-        addCompactTopLabelTextField(pane, gridRow, Res.get("setting.about.shortcuts.menuNav"),
-                Res.get("setting.about.shortcuts.menuNav.value"),
-                Layout.TWICE_FIRST_ROW_AND_GROUP_DISTANCE);
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.close"),
-                Res.get("setting.about.shortcuts.close.value", "q", "w"));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.closePopup"),
-                Res.get("setting.about.shortcuts.closePopup.value"));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.chatSendMsg"),
-                Res.get("setting.about.shortcuts.chatSendMsg.value"));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.openDispute"),
-                Res.get("setting.about.shortcuts.openDispute.value",
-                        Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "o")));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.walletDetails"),
-                Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "j"));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.openEmergencyBtcWalletTool"),
-                Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "e"));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.openEmergencyBsqWalletTool"),
-                Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "b"));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.showDisputeStatistics"),
-                Res.get("setting.about.shortcuts.showDisputeStatistics.value",
-                        Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "l")));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.showTorLogs"),
-                Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "t"));
-
-        // special
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.removeStuckTrade"),
-                Res.get("setting.about.shortcuts.removeStuckTrade.value",
-                        Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "y")));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.manualPayoutTxWindow"),
-                Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "g"));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.reRepublishAllGovernanceData"),
-                Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "h"));
-
-        // for arbitrators
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.registerArbitrator"),
-                Res.get("setting.about.shortcuts.registerArbitrator.value",
-                        Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "n")));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.registerMediator"),
-                Res.get("setting.about.shortcuts.registerMediator.value",
-                        Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "d")));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.reOpenDispute"),
-                Res.get("setting.about.shortcuts.reOpenDispute.value",
-                        Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "u")));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.openSignPaymentAccountsWindow"),
-                Res.get("setting.about.shortcuts.openSignPaymentAccountsWindow.value",
-                        Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "s")));
-
-        // only for maintainers
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.sendAlertMsg"),
-                Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "m"));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.sendFilter"),
-                Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "f"));
-
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.shortcuts.sendPrivateNotification"),
-                Res.get("setting.about.shortcuts.sendPrivateNotification.value",
-                        Res.get("setting.about.shortcuts.ctrlOrAltOrCmd", "r")));
-
-        // Not added:
-        // allTradesWithReferralId, allOffersWithReferralId -> ReferralId is not used yet
-        // revert tx -> not tested well, high risk
-        // debug window -> not maintained, only for devs working on trade protocol relevant
+        addTitledGroupBg(pane, gridRow, 8, Res.get("setting.about.versions"), Layout.GROUP_DISTANCE);
+        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.version1M5"), System.getProperty("1m5.version"), Layout.TWICE_FIRST_ROW_DISTANCE);
+        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.versionTOR"), "0.3.2.10");
+        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.versionI2P"), "0.9.44");
+        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.versionBT"), "Bluecove 2.1.0");
+        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.versionWiFiDirect"), "Not Registered");
+        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.versionSDR"), "GNU Radio - Not Registered");
+        addCompactTopLabelTextField(pane, ++gridRow, Res.get("setting.about.versionLiFi"), "PureLiFi - Not Registered");
     }
 
     @Override
