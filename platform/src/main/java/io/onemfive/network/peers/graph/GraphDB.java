@@ -346,8 +346,9 @@ public class GraphDB {
 
             LOG.info("Peer status times: {\n" +
                     "\tack received by local peer in: "+(timeAcknowledged-timeSent)+"ms\n"+
-                    "\ttotal acks: "+networkRel.getLastAckTime()+"\n"+
-                    "\tmed round trip latency: "+networkRel.getMedAckLatencyMS()+
+                    "\tlast ack: "+networkRel.getLastAckTime()+"\n"+
+                    "\ttotal acks: "+networkRel.getTotalAcks()+"\n"+
+                    "\tmed round trip latency: "+networkRel.getMedAckLatencyMS()+"\n"+
                     "\tavg round trip latency: "+networkRel.getAvgAckLatencyMS()+"ms\n} of remote peer "+endPeerId+" with start peer "+startPeerId);
 
         } else if(numberPeersByNetwork(startPeerId, network) <= MaxPeersTracked) {

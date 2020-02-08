@@ -24,45 +24,47 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.settings.network;
+package io.onemfive.desktop.views.settings.i2p;
 
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
-import io.onemfive.network.peers.PeerManager;
 import io.onemfive.util.Res;
 import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
-public class NetworkSettingsView extends ActivatableView {
+public class I2PSensorSettingsView extends ActivatableView {
 
     private GridPane pane;
     private int gridRow = 0;
 
-    public NetworkSettingsView() {
+    private String i2PFingerprint = Res.get("settings.net.notKnownYet");
+    private String i2PAddress = Res.get("settings.net.notKnownYet");
+
+    public I2PSensorSettingsView() {
         super();
     }
 
-    public void initialize() {
+    @Override
+    protected void initialize() {
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
         addTitledGroupBg(pane, gridRow, 3, Res.get("settings.net.localNode"));
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.1m5FingerprintLabel"), Res.get("settings.net.notKnownYet"), Layout.FIRST_ROW_DISTANCE);
-        addCompactTopLabelTextAreaWithText(pane, Res.get("settings.net.notKnownYet"), ++gridRow, Res.get("settings.net.1m5AddressLabel"), true);
+        addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.i2pFingerprintLabel"), i2PFingerprint, Layout.FIRST_ROW_DISTANCE);
+        addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("settings.net.i2pAddressLabel"), true);
 
         LOG.info("Initialized");
     }
 
     @Override
-    public void activate() {
+    protected void activate() {
 
     }
 
     @Override
-    public void deactivate() {
+    protected void deactivate() {
 
     }
 
 }
-

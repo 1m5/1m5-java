@@ -68,7 +68,9 @@ public class PeerManager implements Runnable {
     private Properties properties;
 
     protected NetworkService service;
-    protected NetworkNode localNode = new NetworkNode();
+
+    private NetworkNode localNode = new NetworkNode();
+
     protected TaskRunner taskRunner;
 
     public static Integer MaxPeersTracked = 100000;
@@ -168,6 +170,7 @@ public class PeerManager implements Runnable {
     }
 
     public Boolean savePeer(NetworkPeer networkPeer, boolean autoCreate) {
+        boolean successful = false;
         if(networkPeer.getId()==null) {
             LOG.warning("Can not save Network Peer; id must be provided.");
             return false;
@@ -177,17 +180,16 @@ public class PeerManager implements Runnable {
             if(local1M5Peer.getId().equals(networkPeer.getId())) {
                 // This is a local peer
                 localNode.addNetworkPeer(networkPeer);
-                return true;
+                LOG.info("Local Node updated:\n\t"+localNode.toString());
+                successful = true;
             } else if(localNode.getNetworkPeer(networkPeer.getNetwork()) != null
                     || peerDB.loadPeerByIdAndNetwork(local1M5Peer.getId(), networkPeer.getNetwork()) != null) {
-                return graphDB.relateByNetwork(local1M5Peer.getId(), networkPeer.getNetwork(), networkPeer.getId()) != null;
+                successful = graphDB.relateByNetwork(local1M5Peer.getId(), networkPeer.getNetwork(), networkPeer.getId()) != null;
             } else {
                 LOG.warning("No local peer for network="+networkPeer.getNetwork().name()+". Unable to relate.");
-                return false;
             }
-        } else {
-            return false;
         }
+        return successful;
     }
 
     public NetworkPeer loadPeer(String id) {
@@ -252,7 +254,8 @@ public class PeerManager implements Runnable {
 
     public void updateLocalNode(NetworkPeer np) {
         if(localNode==null) {
-            localNode = new NetworkNode();
+            // First call is by local node authentication
+            localNode = peerDB.loadNode(np.getId());
         }
         if(localNode.getNetworkPeer().getId()!=null) {
             // 1M5 Local Node already set so update all incoming local peers to its id

@@ -50,7 +50,7 @@ public class PeerManagerTest {
         properties.setProperty("1m5.network.peers.dir","/home/objectorange/Projects/1m5/1m5/platform/src/test/resources");
         properties.setProperty("1m5.peers.db.cleanOnRestart","true");
         mgr.init(properties);
-        mgr.localNode.getNetworkPeer().setId("1234");
+        mgr.getLocalNode().getNetworkPeer().setId("1234");
         AuthNRequest request = new AuthNRequest();
         request.identityPublicKey = new PublicKey("ABCDEFG");
         request.alias = "Alice";
@@ -73,7 +73,6 @@ public class PeerManagerTest {
         assert npLoaded != null && "123456".equals(npLoaded.getDid().getPublicKey().getFingerprint());
     }
 
-    @Ignore
     @Test
     public void relationships() {
         /**
@@ -115,48 +114,73 @@ public class PeerManagerTest {
          */
 
         // Node A
-        NetworkPeer pA = mgr.localNode.getNetworkPeer();
+
+        NetworkPeer pA = new NetworkPeer();
+        pA.setId("pA");
         pA.getDid().setUsername("Alice");
-        pA.getDid().getPublicKey().setAddress("1m5-A");
-        mgr.savePeer(pA, true);
+        pA.getDid().getPublicKey().setAddress("Alice-1m5-Address");
+        pA.getDid().getPublicKey().setFingerprint("Alice-1m5-Fingerprint");
+        mgr.updateLocalNode(pA);
         NetworkPeer pAI2P = new NetworkPeer(Network.I2P);
-        pAI2P.getDid().getPublicKey().setAddress("i2p-A");
-        mgr.savePeer(pAI2P, true);
+        pAI2P.setId(pA.getId());
+        pAI2P.getDid().getPublicKey().setAddress("Alice-i2p-Address");
+        pAI2P.getDid().getPublicKey().setFingerprint("Alice-i2p-Fingerprint");
+        mgr.updateLocalNode(pAI2P);
         NetworkPeer pATor = new NetworkPeer(Network.TOR);
-        pATor.getDid().getPublicKey().setAddress("tor-A");
-        mgr.savePeer(pATor, true);
+        pATor.setId(pA.getId());
+        pATor.getDid().getPublicKey().setAddress("Alice-tor-Address");
+        pATor.getDid().getPublicKey().setFingerprint("Alice-tor-Fingerprint");
+        mgr.updateLocalNode(pATor);
         NetworkPeer pABT = new NetworkPeer(Network.Bluetooth);
-        pABT.getDid().getPublicKey().setAddress("bt-A");
-        mgr.savePeer(pABT, true);
+        pABT.setId(pA.getId());
+        pABT.getDid().getPublicKey().setAddress("Alice-bt-Address");
+        pABT.getDid().getPublicKey().setFingerprint("Alice-bt-Fingerprint");
+        mgr.updateLocalNode(pABT);
 
         // Node B
         NetworkPeer pB = new NetworkPeer();
+        pB.setId("pB");
         pB.getDid().setUsername("Bob");
-        pB.getDid().getPublicKey().setAddress("1m5-B");
+        pB.getDid().getPublicKey().setAddress("Bob-1m5-Address");
+        pB.getDid().getPublicKey().setFingerprint("Bob-1m5-Fingeprint");
         mgr.savePeer(pB, true);
         NetworkPeer pBI2P = new NetworkPeer(Network.I2P);
-        pBI2P.getDid().getPublicKey().setAddress("i2p-B");
+        pBI2P.setId(pB.getId());
+        pBI2P.getDid().getPublicKey().setAddress("Bob-i2p-Address");
+        pBI2P.getDid().getPublicKey().setFingerprint("Bob-i2p-Fingerprint");
         mgr.savePeer(pBI2P, true);
         NetworkPeer pBTor = new NetworkPeer(Network.TOR);
-        pBTor.getDid().getPublicKey().setAddress("tor-B");
+        pBTor.setId(pB.getId());
+        pBTor.getDid().getPublicKey().setAddress("Bob-tor-Address");
+        pBTor.getDid().getPublicKey().setFingerprint("Bob-tor-Fingerprint");
         mgr.savePeer(pBTor, true);
         NetworkPeer pBBT = new NetworkPeer(Network.Bluetooth);
-        pBBT.getDid().getPublicKey().setAddress("bt-B");
+        pBBT.setId(pB.getId());
+        pBBT.getDid().getPublicKey().setAddress("Bob-bt-Address");
+        pBBT.getDid().getPublicKey().setFingerprint("Bob-bt-Fingerprint");
         mgr.savePeer(pBBT, true);
 
         // Node C
         NetworkPeer pC = new NetworkPeer();
+        pC.setId("pC");
         pC.getDid().setUsername("Charlie");
-        pC.getDid().getPublicKey().setAddress("1m5-C");
+        pC.getDid().getPublicKey().setAddress("Charlie-1m5-Address");
+        pC.getDid().getPublicKey().setFingerprint("Charlie-1m5-Fingerprint");
         mgr.savePeer(pC, true);
         NetworkPeer pCI2P = new NetworkPeer(Network.I2P);
-        pCI2P.getDid().getPublicKey().setAddress("i2p-C");
+        pCI2P.setId(pC.getId());
+        pCI2P.getDid().getPublicKey().setAddress("Charlie-i2p-Address");
+        pCI2P.getDid().getPublicKey().setFingerprint("Charlie-i2p-Fingerprint");
         mgr.savePeer(pCI2P, true);
         NetworkPeer pCTor = new NetworkPeer(Network.TOR);
-        pCTor.getDid().getPublicKey().setAddress("tor-C");
+        pCTor.setId(pC.getId());
+        pCTor.getDid().getPublicKey().setAddress("Charlie-tor-Address");
+        pCTor.getDid().getPublicKey().setFingerprint("Charlie-tor-Fingerprint");
         mgr.savePeer(pCTor, true);
         NetworkPeer pCBT = new NetworkPeer(Network.Bluetooth);
-        pCBT.getDid().getPublicKey().setAddress("bt-C");
+        pCBT.setId(pC.getId());
+        pCBT.getDid().getPublicKey().setAddress("Charlie-bt-Address");
+        pCBT.getDid().getPublicKey().setFingerprint("Charlie-bt-Fingerprint");
         mgr.savePeer(pCBT, true);
 
         long sent = 10 *60*1000;

@@ -43,7 +43,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import static io.onemfive.did.HashRequest.UNKNOWN_HASH_ALGORITHM;
 
@@ -52,7 +51,7 @@ import static io.onemfive.did.HashRequest.UNKNOWN_HASH_ALGORITHM;
  *
  * @author objectorange
  */
-public class    DIDService extends BaseService {
+public class DIDService extends BaseService {
 
     private static final Logger LOG = Logger.getLogger(DIDService.class.getName());
 

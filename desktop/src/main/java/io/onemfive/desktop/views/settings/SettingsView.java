@@ -32,6 +32,7 @@ import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.settings.about.AboutView;
+import io.onemfive.desktop.views.settings.i2p.I2PSensorSettingsView;
 import io.onemfive.desktop.views.settings.network.NetworkSettingsView;
 import io.onemfive.desktop.views.settings.preferences.PreferencesView;
 import io.onemfive.util.Res;
@@ -47,7 +48,7 @@ public class SettingsView extends ActivatableView {
     private Scene scene;
     private TabPane pane;
     @FXML
-    private Tab preferencesTab, networkTab, aboutTab;
+    private Tab preferencesTab, networkTab, i2pTab, aboutTab;
 
     private Navigation.Listener navigationListener;
     private ChangeListener<Tab> tabChangeListener;
@@ -58,6 +59,7 @@ public class SettingsView extends ActivatableView {
         pane = (TabPane)root;
         preferencesTab.setText(Res.get("settings.tab.preferences").toUpperCase());
         networkTab.setText(Res.get("settings.tab.network").toUpperCase());
+        i2pTab.setText(Res.get("settings.tab.i2p").toUpperCase());
         aboutTab.setText(Res.get("settings.tab.about").toUpperCase());
 
         navigationListener = viewPath -> {
@@ -70,6 +72,8 @@ public class SettingsView extends ActivatableView {
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, PreferencesView.class);
             else if (newValue == networkTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class);
+            else if (newValue == i2pTab)
+                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, I2PSensorSettingsView.class);
             else if (newValue == aboutTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, AboutView.class);
         };
@@ -87,6 +91,8 @@ public class SettingsView extends ActivatableView {
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, PreferencesView.class);
         else if (selectedItem == networkTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class);
+        else if (selectedItem == i2pTab)
+            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, I2PSensorSettingsView.class);
         else if (selectedItem == aboutTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, AboutView.class);
     }
@@ -103,6 +109,7 @@ public class SettingsView extends ActivatableView {
 
         if (view instanceof PreferencesView) tab = preferencesTab;
         else if (view instanceof NetworkSettingsView) tab = networkTab;
+        else if (view instanceof I2PSensorSettingsView) tab = i2pTab;
         else if (view instanceof AboutView) tab = aboutTab;
         else throw new IllegalArgumentException("Navigation to " + viewClass + " is not supported");
 
