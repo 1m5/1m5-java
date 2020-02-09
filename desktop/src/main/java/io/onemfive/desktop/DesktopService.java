@@ -36,6 +36,14 @@ import io.onemfive.data.*;
 import io.onemfive.data.route.Route;
 import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.desktop.views.home.HomeView;
+import io.onemfive.desktop.views.ops.network.bluetooth.BluetoothSensorOpsView;
+import io.onemfive.desktop.views.ops.network.fullspectrum.FullSpectrumRadioSensorOpsView;
+import io.onemfive.desktop.views.ops.network.i2p.I2PSensorOpsView;
+import io.onemfive.desktop.views.ops.network.ims.IMSOpsView;
+import io.onemfive.desktop.views.ops.network.lifi.LiFiSensorOpsView;
+import io.onemfive.desktop.views.ops.network.satellite.SatelliteSensorOpsView;
+import io.onemfive.desktop.views.ops.network.tor.TORSensorOpsView;
+import io.onemfive.desktop.views.ops.network.wifidirect.WifiDirectSensorOpsView;
 import io.onemfive.desktop.views.personal.identities.IdentitiesView;
 import io.onemfive.desktop.views.settings.network.bluetooth.BluetoothSensorSettingsView;
 import io.onemfive.desktop.views.settings.network.i2p.I2PSensorSettingsView;
@@ -43,6 +51,8 @@ import io.onemfive.desktop.views.settings.network.ims.IMSSettingsView;
 import io.onemfive.desktop.views.settings.network.tor.TORSensorSettingsView;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.SensorManager;
+import io.onemfive.network.sensors.SensorStatus;
+import io.onemfive.network.sensors.SensorStatusListener;
 import io.onemfive.util.DLC;
 import javafx.application.Platform;
 
@@ -140,36 +150,40 @@ public class DesktopService extends BaseService {
                     EventMessage em = (EventMessage)e.getMessage();
                     String sensorID = em.getName();
                     String sensorStatus = (String)em.getMessage();
+                    SensorStatus status = SensorStatus.valueOf(sensorStatus);
+                    SensorStatusListener listener = null;
                     switch (sensorID) {
                         case "io.onemfive.network.sensors.tor.TorSensor": {
-
+                            listener = (SensorStatusListener)MVC.loadView(TORSensorOpsView.class, true);
                             break;
                         }
                         case "io.onemfive.network.sensors.i2p.I2PSensor": {
-
-                            break;
-                        }
-                        case "io.onemfive.network.sensors.bluetooth.BluetoothSensor": {
-
+                            listener = (SensorStatusListener)MVC.loadView(I2PSensorOpsView.class, true);
                             break;
                         }
                         case "io.onemfive.network.sensors.wifidirect.WiFiDirectSensor": {
-
+                            listener = (SensorStatusListener)MVC.loadView(WifiDirectSensorOpsView.class, true);
+                            break;
+                        }
+                        case "io.onemfive.network.sensors.bluetooth.BluetoothSensor": {
+                            listener = (SensorStatusListener)MVC.loadView(BluetoothSensorOpsView.class, true);
                             break;
                         }
                         case "io.onemfive.network.sensors.satellite.SatelliteSensor": {
-
+                            listener = (SensorStatusListener)MVC.loadView(SatelliteSensorOpsView.class, true);
                             break;
                         }
                         case "io.onemfive.network.sensors.fullspectrum.FullSpectrumRadioSensor": {
-
+                            listener = (SensorStatusListener)MVC.loadView(FullSpectrumRadioSensorOpsView.class, true);
                             break;
                         }
                         case "io.onmfive.network.sensors.lifi.LiFiSensor": {
-
+                            listener = (SensorStatusListener)MVC.loadView(LiFiSensorOpsView.class, true);
                             break;
                         }
                     }
+                    if(listener!=null)
+                        listener.statusUpdated(status);
                 });
             }
         });
@@ -188,35 +202,35 @@ public class DesktopService extends BaseService {
                     TopicListener aware = null;
                     switch (np.getNetwork()) {
                         case IMS: {
-                            aware = (TopicListener)MVC.loadView(IMSSettingsView.class, true);
+                            aware = (TopicListener)MVC.loadView(IMSOpsView.class, true);
                             break;
                         }
                         case TOR: {
-                            aware = (TopicListener)MVC.loadView(TORSensorSettingsView.class, true);
+                            aware = (TopicListener)MVC.loadView(TORSensorOpsView.class, true);
                             break;
                         }
                         case I2P: {
-                            aware = (TopicListener)MVC.loadView(I2PSensorSettingsView.class, true);
-                            break;
-                        }
-                        case Bluetooth: {
-                            aware = (TopicListener)MVC.loadView(BluetoothSensorSettingsView.class, true);
+                            aware = (TopicListener)MVC.loadView(I2PSensorOpsView.class, true);
                             break;
                         }
                         case WiFiDirect: {
-
+                            aware = (TopicListener)MVC.loadView(WifiDirectSensorOpsView.class, true);
+                            break;
+                        }
+                        case Bluetooth: {
+                            aware = (TopicListener)MVC.loadView(BluetoothSensorOpsView.class, true);
                             break;
                         }
                         case Satellite: {
-
+                            aware = (TopicListener)MVC.loadView(SatelliteSensorOpsView.class, true);
                             break;
                         }
                         case FSRadio: {
-
+                            aware = (TopicListener)MVC.loadView(FullSpectrumRadioSensorOpsView.class, true);
                             break;
                         }
                         case LiFi: {
-
+                            aware = (TopicListener)MVC.loadView(LiFiSensorOpsView.class, true);
                             break;
                         }
                     }

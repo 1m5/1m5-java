@@ -33,9 +33,13 @@ import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.settings.SettingsView;
 import io.onemfive.desktop.views.settings.network.bluetooth.BluetoothSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.fullspectrum.FullSpectrumRadioSensorSettingsView;
 import io.onemfive.desktop.views.settings.network.i2p.I2PSensorSettingsView;
 import io.onemfive.desktop.views.settings.network.ims.IMSSettingsView;
+import io.onemfive.desktop.views.settings.network.lifi.LiFiSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.satellite.SatelliteSensorSettingsView;
 import io.onemfive.desktop.views.settings.network.tor.TORSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.wifidirect.WifiDirectSensorSettingsView;
 import io.onemfive.util.Res;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
@@ -45,7 +49,7 @@ public class NetworkSettingsView extends ActivatableView {
 
     private TabPane pane;
     @FXML
-    private Tab imsTab, torTab, i2pTab, bluetoothTab;
+    private Tab imsTab, torTab, i2pTab, wifiDirectTab, bluetoothTab, satelliteTab, fsRadioTab, lifiTab;
 
     private Navigation.Listener navigationListener;
     private ChangeListener<Tab> tabChangeListener;
@@ -57,7 +61,11 @@ public class NetworkSettingsView extends ActivatableView {
         imsTab.setText(Res.get("settings.network.tab.ims").toUpperCase());
         torTab.setText(Res.get("settings.network.tab.tor").toUpperCase());
         i2pTab.setText(Res.get("settings.network.tab.i2p").toUpperCase());
+        wifiDirectTab.setText(Res.get("settings.network.tab.wifiDirect").toUpperCase());
         bluetoothTab.setText(Res.get("settings.network.tab.bluetooth").toUpperCase());
+        satelliteTab.setText(Res.get("settings.network.tab.satellite").toUpperCase());
+        fsRadioTab.setText(Res.get("settings.network.tab.fsRadio").toUpperCase());
+        lifiTab.setText(Res.get("settings.network.tab.lifi").toUpperCase());
 
         navigationListener = viewPath -> {
             if (viewPath.size() == 4 && viewPath.indexOf(NetworkSettingsView.class) == 2)
@@ -71,8 +79,16 @@ public class NetworkSettingsView extends ActivatableView {
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, TORSensorSettingsView.class);
             else if (newValue == i2pTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, I2PSensorSettingsView.class);
+            else if (newValue == wifiDirectTab)
+                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, WifiDirectSensorSettingsView.class);
             else if (newValue == bluetoothTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, BluetoothSensorSettingsView.class);
+            else if (newValue == satelliteTab)
+                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, SatelliteSensorSettingsView.class);
+            else if (newValue == fsRadioTab)
+                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, FullSpectrumRadioSensorSettingsView.class);
+            else if (newValue == lifiTab)
+                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, LiFiSensorSettingsView.class);
         };
 
         LOG.info("Initialized.");
@@ -90,8 +106,16 @@ public class NetworkSettingsView extends ActivatableView {
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, TORSensorSettingsView.class);
         else if (selectedItem == i2pTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, I2PSensorSettingsView.class);
+        else if (selectedItem == wifiDirectTab)
+            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, WifiDirectSensorSettingsView.class);
         else if (selectedItem == bluetoothTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, BluetoothSensorSettingsView.class);
+        else if (selectedItem == satelliteTab)
+            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, SatelliteSensorSettingsView.class);
+        else if (selectedItem == fsRadioTab)
+            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, FullSpectrumRadioSensorSettingsView.class);
+        else if (selectedItem == lifiTab)
+            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class, LiFiSensorSettingsView.class);
     }
 
     @Override
@@ -107,7 +131,11 @@ public class NetworkSettingsView extends ActivatableView {
         if (view instanceof IMSSettingsView) tab = imsTab;
         else if (view instanceof TORSensorSettingsView) tab = torTab;
         else if (view instanceof I2PSensorSettingsView) tab = i2pTab;
+        else if (view instanceof WifiDirectSensorSettingsView) tab = wifiDirectTab;
         else if (view instanceof BluetoothSensorSettingsView) tab = bluetoothTab;
+        else if (view instanceof SatelliteSensorSettingsView) tab = satelliteTab;
+        else if (view instanceof FullSpectrumRadioSensorSettingsView) tab = fsRadioTab;
+        else if (view instanceof LiFiSensorSettingsView) tab = lifiTab;
         else throw new IllegalArgumentException("Navigation to " + viewClass + " is not supported");
 
         if (tab.getContent() != null && tab.getContent() instanceof ScrollPane) {

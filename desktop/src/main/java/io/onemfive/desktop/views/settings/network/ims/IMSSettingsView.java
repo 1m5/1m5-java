@@ -26,28 +26,18 @@
  */
 package io.onemfive.desktop.views.settings.network.ims;
 
-import io.onemfive.data.NetworkPeer;
 import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
-import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.util.Res;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
-public class IMSSettingsView extends ActivatableView implements TopicListener {
+public class IMSSettingsView extends ActivatableView {
 
     private GridPane pane;
     private int gridRow = 0;
-
-    private String imsFingerprint = Res.get("settings.network.notKnownYet");
-    private String imsAddress = Res.get("settings.network.notKnownYet");
-
-    private TextField imsFingerprintTextField;
-    private TextArea imsAddressTextField;
 
     public IMSSettingsView() {
         super();
@@ -57,14 +47,9 @@ public class IMSSettingsView extends ActivatableView implements TopicListener {
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 3, Res.get("settings.network.localNode"));
-        GridPane.setColumnSpan(localNodeGroup, 1);
-        imsFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.1m5.fingerprintLabel"), imsFingerprint, Layout.FIRST_ROW_DISTANCE).second;
-        imsAddressTextField = addCompactTopLabelTextAreaWithText(pane, imsAddress, ++gridRow, Res.get("settings.network.1m5.addressLabel"), true).second;
-
         // Config
-//        TitledGroupBg configGroup = addTitledGroupBg(pane, ++gridRow, 1, Res.get("settings.network.config"), Layout.FIRST_ROW_DISTANCE);
-//        GridPane.setColumnSpan(configGroup, 1);
+        TitledGroupBg configGroup = addTitledGroupBg(pane, gridRow, 1, Res.get("settings.network.config"), Layout.FIRST_ROW_DISTANCE);
+        GridPane.setColumnSpan(configGroup, 1);
 
         LOG.info("Initialized");
     }
@@ -77,21 +62,6 @@ public class IMSSettingsView extends ActivatableView implements TopicListener {
     @Override
     public void deactivate() {
 
-    }
-
-    @Override
-    public void modelUpdated(String name, Object object) {
-        if(object instanceof NetworkPeer) {
-            NetworkPeer peer = (NetworkPeer)object;
-            imsFingerprint = peer.getDid().getPublicKey().getFingerprint();
-            imsAddress = peer.getDid().getPublicKey().getAddress();
-            if(imsFingerprintTextField!=null) {
-                imsFingerprintTextField.setText(imsFingerprint);
-            }
-            if(imsAddressTextField!=null) {
-                imsAddressTextField.setText(imsAddress);
-            }
-        }
     }
 
 }

@@ -297,6 +297,7 @@ public class HomeView extends InitializableView {
 //        setupBadge(daoButtonWithBadge, model.getNumDAONotifications(), model.getShowDAONotifications());
 //        setupBadge(supportButtonWithBadge, model.getNumSupportResponses(), model.getShowSupportResponses());
 //        setupBadge(settingsButtonWithBadge, model.getNumSettingsNotifications(), model.getShowNumSettingsNotifications());
+//        setupBadge(opsButtonWithBadge, model.getNumOpsNotifications(), model.getShowNumOpsNotifications());
 
         MVC.navigation.addListener(viewPath -> {
             if (viewPath.size() != 2 || viewPath.indexOf(HomeView.class) != 0)
@@ -322,7 +323,6 @@ public class HomeView extends InitializableView {
         splashScreen.setMinHeight(DesktopApp.HEIGHT);
         splashScreen.setMinWidth(DesktopApp.WIDTH);
         rootContainer.getChildren().addAll(baseApplicationContainer, splashScreen);
-//        rootContainer.getChildren().addAll(baseApplicationContainer);
 
 //        model.getShowAppScreen().addListener((ov, oldValue, newValue) -> {
 //            if (newValue) {
@@ -587,13 +587,13 @@ public class HomeView extends InitializableView {
         Label i2pNetworkLabel = new AutoTooltipLabel();
         i2pNetworkLabel.setId("footer-pane");
 
-        // Bluetooth Network
-        Label bluetoothNetworkLabel = new AutoTooltipLabel();
-        bluetoothNetworkLabel.setId("footer-pane");
-
         // WiFi-Direct Network
         Label wifiDirectNetworkLabel = new AutoTooltipLabel();
         wifiDirectNetworkLabel.setId("footer-pane");
+
+        // Bluetooth Network
+        Label bluetoothNetworkLabel = new AutoTooltipLabel();
+        bluetoothNetworkLabel.setId("footer-pane");
 
         // Satellite Network
         Label satelliteNetworkLabel = new AutoTooltipLabel();
