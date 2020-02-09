@@ -121,8 +121,6 @@ public class PeerManager implements Runnable {
                 LOG.info("Peer Graph Id Index not found; creating...");
                 // No Indexes...set them up
                 graphDB.getGraphDb().schema().indexFor(PEER_LABEL).withName("Peer.id").on("id").create();
-//                neo4jDB.getGraphDb().schema().indexFor(PEER_LABEL).withName("Peer.address").on("address").create();
-//                neo4jDB.getGraphDb().schema().indexFor(PEER_LABEL).withName("Peer.network").on("network").create();
                 LOG.info("Peer Graph Id Index created.");
             }
             tx.success();
