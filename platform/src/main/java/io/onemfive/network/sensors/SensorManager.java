@@ -41,6 +41,7 @@ import io.onemfive.network.sensors.tor.TorSensor;
 import io.onemfive.network.sensors.wifidirect.WiFiDirectSensor;
 import io.onemfive.util.AppThread;
 import io.onemfive.util.DLC;
+import io.onemfive.util.tasks.TaskRunner;
 
 import java.io.File;
 import java.net.URL;
@@ -87,12 +88,17 @@ public final class SensorManager {
     private final Map<String, Sensor> registeredSensors = new HashMap<>();
     private final Map<String, Sensor> activeSensors = new HashMap<>();
     private final Map<String, Sensor> blockedSensors = new HashMap<>();
-    private final Map<String, List<SensorStatusListener>> sensorListeners = new HashMap<>();
+
     private static final List<ManConStatusListener> manConStatusListeners = new ArrayList<>();
+
+    private Properties properties;
+    private TaskRunner taskRunner;
 
     private PeerManager peerManager;
 
     private NetworkService networkService;
+
+    private VerifySensorsRunning verifySensorsRunningTask;
 
     private Long manCon0TestLastSucceeded = 0L;
     private Long manCon1TestLastSucceeded = 0L;
@@ -132,7 +138,12 @@ public final class SensorManager {
             Network.LiFi
     );
 
+    public SensorManager(TaskRunner runner) {
+        taskRunner = runner;
+    }
+
     public boolean init(final Properties properties) {
+        this.properties = properties;
         registeredSensors.put(ClearnetSensor.class.getName(), new ClearnetSensor(this));
         registeredSensors.put(TorSensor.class.getName(), new TorSensor(this));
         registeredSensors.put(I2PSensor.class.getName(), new I2PSensor(this));
@@ -154,6 +165,11 @@ public final class SensorManager {
                 }
             }).start();
         }
+        verifySensorsRunningTask = new VerifySensorsRunning(taskRunner, this);
+        verifySensorsRunningTask.setDelayed(true);
+        verifySensorsRunningTask.setDelayTimeMS(10 * 1000L);
+        verifySensorsRunningTask.setPeriodicity(60 * 1000L);
+        taskRunner.addTask(verifySensorsRunningTask);
         return true;
     }
 
@@ -388,6 +404,10 @@ public final class SensorManager {
                 LOG.info(sensorID + " reporting waiting....");
                 break;
             }
+            case NETWORK_UNAVAILABLE: {
+                LOG.info(sensorID + " reporting network unavailable....");
+                break;
+            }
             case NETWORK_WARMUP: {
                 LOG.info(sensorID + " reporting network warming up....");
                 break;
@@ -512,6 +532,10 @@ public final class SensorManager {
 
     public void setNetworkService(NetworkService networkService) {
         this.networkService = networkService;
+    }
+
+    Properties getProperties() {
+        return properties;
     }
 
     public void setPeerManager(PeerManager peerManager) {

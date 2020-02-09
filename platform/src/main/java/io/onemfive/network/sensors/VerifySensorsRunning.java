@@ -24,39 +24,35 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network;
+package io.onemfive.network.sensors;
 
-import io.onemfive.data.NetworkNode;
-import io.onemfive.network.peers.PeerManager;
-import io.onemfive.network.sensors.Sensor;
-import io.onemfive.network.sensors.SensorManager;
-import io.onemfive.util.tasks.BaseTask;
+import io.onemfive.network.NetworkTask;
 import io.onemfive.util.tasks.TaskRunner;
 
-/**
- *
- *
- * @author objectorange
- */
-public abstract class NetworkTask extends BaseTask {
+import java.util.logging.Logger;
 
-    protected Sensor sensor;
-    protected SensorManager sensorManager;
-    protected PeerManager peerManager;
-    protected NetworkNode localNode;
+public class VerifySensorsRunning extends NetworkTask {
 
-    public NetworkTask(String taskName, TaskRunner taskRunner, SensorManager sensorManager) {
-        super(taskName, taskRunner);
-        this.sensorManager = sensorManager;
-        peerManager = sensorManager.getPeerManager();
-        localNode = peerManager.getLocalNode();
+    private Logger LOG = Logger.getLogger(VerifySensorsRunning.class.getName());
+
+    public VerifySensorsRunning(TaskRunner taskRunner, SensorManager sensorManager) {
+        super(VerifySensorsRunning.class.getName(), taskRunner, sensorManager);
     }
 
-    public NetworkTask(String taskName, TaskRunner taskRunner, Sensor sensor) {
-        super(taskName, taskRunner);
-        this.sensor = sensor;
-        sensorManager = sensor.getSensorManager();
-        peerManager = sensorManager.getPeerManager();
-        localNode = peerManager.getLocalNode();
+    @Override
+    public Boolean execute() {
+        LOG.info("Starting...");
+        running = true;
+        for(Sensor sensor : sensorManager.getRegisteredSensors().values()) {
+            if(sensor.getStatus()==SensorStatus.NETWORK_UNAVAILABLE) {
+                LOG.info("Attempting to start Unavailable Sensor: "+sensor.getClass().getName());
+                if(sensor.start(sensorManager.getProperties())) {
+                    sensorManager.getActiveSensors().put(sensor.getClass().getName(), sensor);
+                }
+            }
+        }
+        running = false;
+        LOG.info("Completed.");
+        return true;
     }
 }

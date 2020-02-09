@@ -526,12 +526,14 @@ public class NetworkService extends BaseService {
             LOG.warning("IOException caught while building sensors directory: \n"+e.getLocalizedMessage());
         }
 
-        // Sensor Manager
-        sensorManager = new SensorManager();
-        sensorManager.setNetworkService(this);
-
-        // TODO: use global TaskRunner instance
         taskRunner = new TaskRunner(4, 4);
+        Thread taskRunnerThread = new Thread(taskRunner, "NetworkService-TaskRunnerThread");
+        taskRunnerThread.setDaemon(true);
+        taskRunnerThread.start();
+
+        // Sensor Manager
+        sensorManager = new SensorManager(taskRunner);
+        sensorManager.setNetworkService(this);
 
         // Peer Manager
         peerManager = new PeerManager(taskRunner);

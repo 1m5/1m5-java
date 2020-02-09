@@ -49,7 +49,7 @@ public class TaskRunner implements Runnable {
     private ScheduledThreadPoolExecutor scheduledExecutor;
 
 //    private long periodicity = 1000; // every second check to see if a task needs running
-    private long periodicity = 60 * 60 * 1000; // every second check to see if a task needs running
+    private long periodicity = 30 * 1000; // every 30 seconds check to see if a task needs running
     private List<Task> tasks = new ArrayList<>();
     private Status status = Status.Shutdown;
     private long runUntil = 0L;
@@ -112,7 +112,7 @@ public class TaskRunner implements Runnable {
     @Override
     public void run() {
         status = Status.Running;
-        LOG.info("Task Runner running...");
+        LOG.info(Thread.currentThread().getName()+" running...");
         while(status == Status.Running) {
             for (final Task t : tasks) {
                 if(t.getPeriodicity() == -1) {
@@ -184,7 +184,7 @@ public class TaskRunner implements Runnable {
                 }
             }
         }
-        LOG.info("Task Runner Stopped.");
+        LOG.info(Thread.currentThread().getName()+" Stopped.");
         status = Status.Shutdown;
     }
 

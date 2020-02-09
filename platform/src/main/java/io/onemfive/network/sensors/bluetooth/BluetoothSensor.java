@@ -192,12 +192,12 @@ public class BluetoothSensor extends BaseSensor {
         }
         NetworkNode localNode = sensorManager.getPeerManager().getLocalNode();
         try {
+            String localAddress = LocalDevice.getLocalDevice().getBluetoothAddress();
             localPeer = localNode.getNetworkPeer(Network.Bluetooth);
             if(localPeer==null) {
                 localPeer = new NetworkPeer(Network.Bluetooth);
                 localNode.addNetworkPeer(localPeer);
             }
-            String localAddress = LocalDevice.getLocalDevice().getBluetoothAddress();
             localPeer.getDid().setUsername(LocalDevice.getLocalDevice().getFriendlyName());
             localPeer.getDid().getPublicKey().setAddress(localAddress);
             localPeer.getDid().setPassphrase(localNode.getNetworkPeer().getDid().getPassphrase());
@@ -215,7 +215,8 @@ public class BluetoothSensor extends BaseSensor {
             sensorManager.getPeerManager().savePeer(localPeer, true);
         } catch (BluetoothStateException e) {
             if(e.getLocalizedMessage().contains("Bluetooth Device is not available")) {
-                updateStatus(SensorStatus.NETWORK_UNAVAILABLE);
+                if(getStatus()!=SensorStatus.NETWORK_UNAVAILABLE)
+                    updateStatus(SensorStatus.NETWORK_UNAVAILABLE);
                 LOG.warning("Bluetooth either not installed on machine or not turned on.");
             } else {
                 LOG.warning(e.getLocalizedMessage());
@@ -224,7 +225,7 @@ public class BluetoothSensor extends BaseSensor {
         }
 
         if(taskRunner==null) {
-            taskRunner = new TaskRunner(4,4);
+            taskRunner = new TaskRunner(2,3);
         }
 
         // TODO: Increase periodicity once a threshold of known peers is established
