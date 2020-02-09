@@ -27,6 +27,7 @@
 package io.onemfive.desktop.views.settings.network.i2p;
 
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
@@ -48,7 +49,6 @@ public class I2PSensorSettingsView extends ActivatableView implements TopicListe
     private TextField i2PFingerprintTextField;
     private TextArea i2PAddressTextArea;
 
-
     public I2PSensorSettingsView() {
         super();
     }
@@ -58,9 +58,15 @@ public class I2PSensorSettingsView extends ActivatableView implements TopicListe
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        addTitledGroupBg(pane, gridRow, 3, Res.get("settings.network.localNode"));
-        i2PFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.i2pFingerprintLabel"), i2PFingerprint, Layout.FIRST_ROW_DISTANCE).second;
-        i2PAddressTextArea = addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("settings.network.i2pAddressLabel"), true).second;
+        // Local Node
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 3, Res.get("settings.network.localNode"));
+        GridPane.setColumnSpan(localNodeGroup, 1);
+        i2PFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.i2p.fingerprintLabel"), i2PFingerprint, Layout.FIRST_ROW_DISTANCE).second;
+        i2PAddressTextArea = addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("settings.network.i2p.addressLabel"), true).second;
+
+        // Config
+//        TitledGroupBg configGroup = addTitledGroupBg(pane, ++gridRow, 1, Res.get("settings.network.config"), Layout.FIRST_ROW_DISTANCE);
+//        GridPane.setColumnSpan(configGroup, 1);
 
         LOG.info("Initialized");
     }

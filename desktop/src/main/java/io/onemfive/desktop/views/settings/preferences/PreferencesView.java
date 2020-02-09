@@ -67,12 +67,10 @@ public class PreferencesView extends ActivatableView {
 
         TitledGroupBg titledGroupBg = addTitledGroupBg(pane, gridRow, 2, Res.get("setting.preferences.general"));
         GridPane.setColumnSpan(titledGroupBg, 1);
-
         userLanguageComboBox = addComboBox(pane, ++gridRow, Res.get("shared.language"), Layout.FIRST_ROW_DISTANCE);
 
         TitledGroupBg titledGroupBg1 = addTitledGroupBg(pane, ++gridRow, 3, Res.get("setting.preferences.displayOptions"), Layout.FIRST_ROW_DISTANCE);
         GridPane.setColumnSpan(titledGroupBg1, 1);
-
         useAnimations = addSlideToggleButton(pane, ++gridRow, Res.get("setting.preferences.useAnimations"), Layout.TWICE_FIRST_ROW_DISTANCE);
         useDarkMode = addSlideToggleButton(pane, ++gridRow, Res.get("setting.preferences.useDarkMode"));
 

@@ -27,6 +27,7 @@
 package io.onemfive.desktop.views.settings.network.tor;
 
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
@@ -58,9 +59,14 @@ public class TORSensorSettingsView extends ActivatableView implements TopicListe
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        addTitledGroupBg(pane, gridRow, 3, Res.get("settings.network.localNode"));
-        torFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.torFingerprintLabel"), torFingerprint, Layout.FIRST_ROW_DISTANCE).second;
-        torAddressTextArea = addCompactTopLabelTextAreaWithText(pane, torAddress, ++gridRow, Res.get("settings.network.torAddressLabel"), true).second;
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 3, Res.get("settings.network.localNode"));
+        GridPane.setColumnSpan(localNodeGroup, 1);
+        torFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.tor.fingerprintLabel"), torFingerprint, Layout.FIRST_ROW_DISTANCE).second;
+        torAddressTextArea = addCompactTopLabelTextAreaWithText(pane, torAddress, ++gridRow, Res.get("settings.network.tor.addressLabel"), true).second;
+
+        // Config
+//        TitledGroupBg configGroup = addTitledGroupBg(pane, ++gridRow, 1, Res.get("settings.network.config"), Layout.FIRST_ROW_DISTANCE);
+//        GridPane.setColumnSpan(configGroup, 1);
 
         LOG.info("Initialized");
     }

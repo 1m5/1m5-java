@@ -27,6 +27,7 @@
 package io.onemfive.desktop.views.settings.network.bluetooth;
 
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
@@ -57,9 +58,14 @@ public class BluetoothSensorSettingsView extends ActivatableView implements Topi
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        addTitledGroupBg(pane, gridRow, 3, Res.get("settings.network.localNode"));
-        bluetoothFriendlynameTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.bluetoothFriendlyNameLabel"), bluetoothFriendlyName, Layout.FIRST_ROW_DISTANCE).second;
-        bluetoothAddressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.bluetoothAddressLabel"), bluetoothAddress).second;
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 3, Res.get("settings.network.localNode"));
+        GridPane.setColumnSpan(localNodeGroup, 1);
+        bluetoothFriendlynameTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.bluetooth.friendlyNameLabel"), bluetoothFriendlyName, Layout.FIRST_ROW_DISTANCE).second;
+        bluetoothAddressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.bluetooth.addressLabel"), bluetoothAddress).second;
+
+        // Config
+//        TitledGroupBg configGroup = addTitledGroupBg(pane, ++gridRow, 1, Res.get("settings.network.config"), Layout.FIRST_ROW_DISTANCE);
+//        GridPane.setColumnSpan(configGroup, 1);
 
         LOG.info("Initialized");
     }
