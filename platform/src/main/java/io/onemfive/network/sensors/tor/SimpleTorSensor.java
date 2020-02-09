@@ -47,21 +47,21 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public final class TorSensor extends ClearnetSensor {
+public final class SimpleTorSensor extends ClearnetSensor {
 
-    private static final Logger LOG = Logger.getLogger(TorSensor.class.getName());
+    private static final Logger LOG = Logger.getLogger(SimpleTorSensor.class.getName());
 
     public static final NetworkConfig config = new NetworkConfig();
 
     private NetworkPeerDiscovery discovery;
 
-    public TorSensor() {
+    public SimpleTorSensor() {
         super(Network.TOR);
         // Setup local Tor instance as proxy for Tor Client
         proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1",9050));
     }
 
-    public TorSensor(SensorManager sensorManager) {
+    public SimpleTorSensor(SensorManager sensorManager) {
         super(sensorManager, Network.TOR);
         // Setup local Tor instance as proxy for Tor Client
         proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1",9050));
@@ -230,7 +230,7 @@ public final class TorSensor extends ClearnetSensor {
     public static void main(String[] args) {
         Properties p = new Properties();
         p.setProperty("1m5.dir.sensors","/home/objectorange/1m5/platform/services/io.onemfive.network.NetworkService/sensors");
-        TorSensor s = new TorSensor();
+        SimpleTorSensor s = new SimpleTorSensor();
         s.start(p);
         try {
             URL duckduckGoOnion = new URL("https://3g2upl4pq6kufc4m.onion/");

@@ -48,6 +48,12 @@
             <artifactId>common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Derby DB -->
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>10.14.2.0</version>
+        </dependency>
         <!-- Neo4j DB -->
         <dependency>
             <groupId>org.neo4j</groupId>
@@ -59,14 +65,7 @@
             <artifactId>neo4j-cypher</artifactId>
             <version>3.5.14</version>
         </dependency>
-        <!-- Derby DB -->
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-            <version>10.14.2.0</version>
-        </dependency>
 		<!-- Crypto -->
-		<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpg-jdk15on -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpg-jdk15on</artifactId>
@@ -98,6 +97,8 @@
 			<artifactId>javax-websocket-server-impl</artifactId>
 			<version>9.4.15.v20190215</version>
 		</dependency>
+        <!-- TOR -->
+
 		<!-- I2P -->
 		<dependency>
 			<groupId>net.i2p</groupId>
@@ -130,7 +131,15 @@
 			<artifactId>bluecove-gpl</artifactId>
 			<version>2.1.0</version>
 		</dependency>
+        <!-- Radio - WiFi Direct -->
+
 		<!-- Radio - GNU Radio -->
+
+        <!-- LiFi- PureLiFi -->
+
+        <!-- Bisq -->
+
+        <!-- Bitcoin -->
 
 		<!-- Monero -->
 		<dependency>
@@ -138,6 +147,7 @@
 			<artifactId>monero-java</artifactId>
 			<version>0.2.1</version>
 		</dependency>
+        <!-- Komodo -->
 
 		<!-- Test -->
 		<dependency>
