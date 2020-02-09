@@ -26,18 +26,28 @@
  */
 package io.onemfive.desktop.views.settings.network;
 
+import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
-import io.onemfive.network.peers.PeerManager;
+import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.util.Res;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
-public class NetworkSettingsView extends ActivatableView {
+public class NetworkSettingsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
+
+    private String imsFingerprint = Res.get("settings.net.notKnownYet");
+    private String imsAddress = Res.get("settings.net.notKnownYet");
+
+    private TextField imsFingerprintTextField;
+    private TextArea imsAddressTextField;
 
     public NetworkSettingsView() {
         super();
@@ -48,8 +58,8 @@ public class NetworkSettingsView extends ActivatableView {
         pane = (GridPane)root;
 
         addTitledGroupBg(pane, gridRow, 3, Res.get("settings.net.localNode"));
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.1m5FingerprintLabel"), Res.get("settings.net.notKnownYet"), Layout.FIRST_ROW_DISTANCE);
-        addCompactTopLabelTextAreaWithText(pane, Res.get("settings.net.notKnownYet"), ++gridRow, Res.get("settings.net.1m5AddressLabel"), true);
+        imsFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.1m5FingerprintLabel"), imsFingerprint, Layout.FIRST_ROW_DISTANCE).second;
+        imsAddressTextField = addCompactTopLabelTextAreaWithText(pane, imsAddress, ++gridRow, Res.get("settings.net.1m5AddressLabel"), true).second;
 
         LOG.info("Initialized");
     }
@@ -62,6 +72,21 @@ public class NetworkSettingsView extends ActivatableView {
     @Override
     public void deactivate() {
 
+    }
+
+    @Override
+    public void modelUpdated(String name, Object object) {
+        if(object instanceof NetworkPeer) {
+            NetworkPeer peer = (NetworkPeer)object;
+            imsFingerprint = peer.getDid().getPublicKey().getFingerprint();
+            imsAddress = peer.getDid().getPublicKey().getAddress();
+            if(imsFingerprintTextField!=null) {
+                imsFingerprintTextField.setText(imsFingerprint);
+            }
+            if(imsAddressTextField!=null) {
+                imsAddressTextField.setText(imsAddress);
+            }
+        }
     }
 
 }

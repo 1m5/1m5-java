@@ -26,8 +26,9 @@
  */
 package io.onemfive.data;
 
+import io.onemfive.util.RandomUtil;
+
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Events
@@ -45,12 +46,13 @@ public final class EventMessage extends BaseMessage {
         PEER_STATUS,
         SENSOR_STATUS,
         SERVICE_STATUS,
+        DID_STATUS,
         HTML,
         JSON,
         TEXT
     }
 
-    private Long id = new Random(4763128720251739L).nextLong();
+    private Long id = RandomUtil.nextRandomLong();
 
     private String type;
     private String name;

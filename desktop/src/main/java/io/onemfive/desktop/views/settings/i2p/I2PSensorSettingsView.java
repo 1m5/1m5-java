@@ -26,20 +26,29 @@
  */
 package io.onemfive.desktop.views.settings.i2p;
 
+import io.onemfive.data.Network;
+import io.onemfive.data.NetworkPeer;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
+import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.util.Res;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
-public class I2PSensorSettingsView extends ActivatableView {
+public class I2PSensorSettingsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
 
     private String i2PFingerprint = Res.get("settings.net.notKnownYet");
     private String i2PAddress = Res.get("settings.net.notKnownYet");
+
+    private TextField i2PFingerprintTextField;
+    private TextArea i2PAddressTextArea;
+
 
     public I2PSensorSettingsView() {
         super();
@@ -51,8 +60,8 @@ public class I2PSensorSettingsView extends ActivatableView {
         pane = (GridPane)root;
 
         addTitledGroupBg(pane, gridRow, 3, Res.get("settings.net.localNode"));
-        addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.i2pFingerprintLabel"), i2PFingerprint, Layout.FIRST_ROW_DISTANCE);
-        addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("settings.net.i2pAddressLabel"), true);
+        i2PFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.i2pFingerprintLabel"), i2PFingerprint, Layout.FIRST_ROW_DISTANCE).second;
+        i2PAddressTextArea = addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("settings.net.i2pAddressLabel"), true).second;
 
         LOG.info("Initialized");
     }
@@ -65,6 +74,21 @@ public class I2PSensorSettingsView extends ActivatableView {
     @Override
     protected void deactivate() {
 
+    }
+
+    @Override
+    public void modelUpdated(String name, Object object) {
+        if(object instanceof NetworkPeer) {
+            NetworkPeer peer = (NetworkPeer)object;
+            i2PFingerprint = peer.getDid().getPublicKey().getFingerprint();
+            i2PAddress = peer.getDid().getPublicKey().getAddress();
+            if(i2PFingerprintTextField!=null) {
+                i2PFingerprintTextField.setText(i2PFingerprint);
+            }
+            if(i2PAddressTextArea!=null) {
+                i2PAddressTextArea.setText(i2PAddress);
+            }
+        }
     }
 
 }

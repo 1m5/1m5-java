@@ -26,6 +26,7 @@
  */
 package io.onemfive.network.sensors;
 
+import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkService;
 import io.onemfive.network.NetworkPacket;
@@ -39,6 +40,7 @@ import io.onemfive.network.sensors.satellite.SatelliteSensor;
 import io.onemfive.network.sensors.tor.TorSensor;
 import io.onemfive.network.sensors.wifidirect.WiFiDirectSensor;
 import io.onemfive.util.AppThread;
+import io.onemfive.util.DLC;
 
 import java.io.File;
 import java.net.URL;
@@ -496,13 +498,14 @@ public final class SensorManager {
         }
         // Now update the Service's status based on the this Sensor's status
         networkService.determineStatus(sensorStatus);
-        // Now update listeners
-        if(sensorListeners.get(sensorID)!=null) {
-            List<SensorStatusListener> sslList = sensorListeners.get(sensorID);
-            for(SensorStatusListener ssl : sslList) {
-                ssl.statusUpdated(sensorStatus);
-            }
-        }
+
+        // Publish to Notification Service
+        Envelope e = Envelope.eventFactory(EventMessage.Type.SENSOR_STATUS);
+        EventMessage em = (EventMessage)e.getMessage();
+        em.setName(sensorID);
+        em.setMessage(sensorStatus);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
+        sendToBus(e);
         // Now update Man Con status
         determineManConAvailability();
     }
@@ -584,21 +587,6 @@ public final class SensorManager {
 
     public void suspend(Envelope envelope) {
         networkService.suspend(envelope);
-    }
-
-    public boolean registerSensorStatusListener(String sensorId, SensorStatusListener listener) {
-        sensorListeners.putIfAbsent(sensorId, new ArrayList<>());
-        if(!sensorListeners.get(sensorId).contains(listener)) {
-            sensorListeners.get(sensorId).add(listener);
-        }
-        return true;
-    }
-
-    public boolean unregisterSensorStatusListener(String sensorId, SensorStatusListener listener) {
-        if(sensorListeners.get(sensorId)!=null) {
-            sensorListeners.get(sensorId).remove(listener);
-        }
-        return true;
     }
 
     public static void registerManConStatusListener(ManConStatusListener listener) {

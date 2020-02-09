@@ -207,6 +207,7 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
             localI2PPeer.getDid().getPublicKey().setBase64Encoded(true);
             localI2PPeer.getDid().getPublicKey().setFingerprint(fingerprint);
             localI2PPeer.getDid().getPublicKey().setType(algorithm);
+            localI2PPeer.setId(sensor.getSensorManager().getPeerManager().getLocalNode().getNetworkPeer().getId());
             sensor.getSensorManager().getPeerManager().savePeer(localI2PPeer, true);
         }
         LOG.info("I2PSensor Address in base64: " + localI2PPeer.getDid().getPublicKey().getAddress());

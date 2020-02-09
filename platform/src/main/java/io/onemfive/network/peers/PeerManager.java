@@ -26,16 +26,15 @@
  */
 package io.onemfive.network.peers;
 
-import io.onemfive.data.AuthNRequest;
-import io.onemfive.data.Network;
-import io.onemfive.data.NetworkNode;
-import io.onemfive.data.NetworkPeer;
+import io.onemfive.core.notification.NotificationService;
+import io.onemfive.data.*;
 import io.onemfive.network.peers.db.PeerDB;
 import io.onemfive.network.Request;
 import io.onemfive.network.Response;
 import io.onemfive.network.peers.graph.GraphDB;
 import io.onemfive.network.*;
 import io.onemfive.network.peers.graph.P2PRelationship;
+import io.onemfive.util.DLC;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.RandomUtil;
 import io.onemfive.util.tasks.TaskRunner;
@@ -188,6 +187,15 @@ public class PeerManager implements Runnable {
             } else {
                 LOG.warning("No local peer for network="+networkPeer.getNetwork().name()+". Unable to relate.");
             }
+            if(successful) {
+                // Publish to Notification Service
+                Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
+                EventMessage em = (EventMessage)e.getMessage();
+                em.setName(PeerManager.class.getName());
+                em.setMessage(networkPeer);
+                DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
+                service.sendToBus(e);
+            }
         }
         return successful;
     }
@@ -243,6 +251,13 @@ public class PeerManager implements Runnable {
             try {
                 if(peerDB.savePeer(localPeer, true) && graphDB.savePeer(localPeer, true)) {
                     LOG.info("Local Peer updated.");
+                    // Publish to Notification Service
+                    Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
+                    EventMessage em = (EventMessage)e.getMessage();
+                    em.setName(PeerManager.class.getName());
+                    em.setMessage(localPeer);
+                    DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
+                    service.sendToBus(e);
                 }
             } catch (Exception e) {
                 LOG.warning(e.getLocalizedMessage());
@@ -265,6 +280,13 @@ public class PeerManager implements Runnable {
             if(peerDB.savePeer(np, true) && graphDB.savePeer(np, true)) {
                 localNode.addNetworkPeer(np);
                 LOG.info("Added to Local Node: " + np);
+                // Publish to Notification Service
+                Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
+                EventMessage em = (EventMessage)e.getMessage();
+                em.setName(PeerManager.class.getName());
+                em.setMessage(np);
+                DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
+                service.sendToBus(e);
             }
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());

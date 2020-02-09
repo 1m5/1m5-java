@@ -26,18 +26,24 @@
  */
 package io.onemfive.desktop;
 
+import io.onemfive.OneMFivePlatform;
 import io.onemfive.core.BaseService;
 import io.onemfive.core.MessageProducer;
 import io.onemfive.core.ServiceStatusListener;
+import io.onemfive.core.notification.NotificationService;
+import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.*;
 import io.onemfive.data.route.Route;
+import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.personal.identities.IdentitiesView;
+import io.onemfive.desktop.views.settings.i2p.I2PSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.NetworkSettingsView;
+import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.util.DLC;
 import javafx.application.Platform;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -123,24 +129,104 @@ public class DesktopService extends BaseService {
             HomeView v = (HomeView)MVC.loadView(HomeView.class, true);
             v.updateManConBox();
         }));
-//        Envelope e = Envelope.documentFactory();
-//        SubscriptionRequest request = new SubscriptionRequest(EventMessage.Type.HTML, new Subscription() {
-//            @Override
-//            public void notifyOfEvent(Envelope envelope) {
-//                final byte[] content = (byte[])DLC.getContent(envelope);
-//                final URL url = envelope.getURL();
-//                if(content!=null) {
-//                    Platform.runLater(() -> {
-//                        LOG.info("Updating BrowserView content...");
-//                        BrowserView v = (BrowserView)MVC.loadView(BrowserView.class, true);
-//                        v.updateContent(content, url);
-//                    });
-//                }
-//            }
-//        });
-//        DLC.addData(SubscriptionRequest.class, request, e);
-//        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
-//        OneMFivePlatform.sendRequest(e);
+        Envelope e = Envelope.documentFactory();
+        SubscriptionRequest sensorStatusRequest = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, new Subscription() {
+            @Override
+            public void notifyOfEvent(Envelope e) {
+                Platform.runLater(() -> {
+                    LOG.info("Updating UI with Sensor Status...");
+                    EventMessage em = (EventMessage)e.getMessage();
+                    String sensorID = em.getName();
+                    String sensorStatus = (String)em.getMessage();
+                    switch (sensorID) {
+                        case "io.onemfive.network.sensors.tor.TorSensor": {
+
+                            break;
+                        }
+                        case "io.onemfive.network.sensors.i2p.I2PSensor": {
+
+                            break;
+                        }
+                        case "io.onemfive.network.sensors.bluetooth.BluetoothSensor": {
+
+                            break;
+                        }
+                        case "io.onemfive.network.sensors.wifidirect.WiFiDirectSensor": {
+
+                            break;
+                        }
+                        case "io.onemfive.network.sensors.satellite.SatelliteSensor": {
+
+                            break;
+                        }
+                        case "io.onemfive.network.sensors.fullspectrum.FullSpectrumRadioSensor": {
+
+                            break;
+                        }
+                        case "io.onmfive.network.sensors.lifi.LiFiSensor": {
+
+                            break;
+                        }
+                    }
+                });
+            }
+        });
+        DLC.addData(SubscriptionRequest.class, sensorStatusRequest, e);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
+        OneMFivePlatform.sendRequest(e);
+
+        Envelope e2 = Envelope.documentFactory();
+        SubscriptionRequest sensorStatusRequest2 = new SubscriptionRequest(EventMessage.Type.PEER_STATUS, PeerManager.class.getName(),
+        new Subscription() {
+            @Override
+            public void notifyOfEvent(Envelope e) {
+                Platform.runLater(() -> {
+                    LOG.info("Updating UI with Peer status...");
+                    EventMessage em = (EventMessage)e.getMessage();
+                    NetworkPeer np = (NetworkPeer)em.getMessage();
+                    TopicListener aware = null;
+                    switch (np.getNetwork()) {
+                        case IMS: {
+                            aware = (TopicListener)MVC.loadView(NetworkSettingsView.class, true);
+                            break;
+                        }
+                        case TOR: {
+
+                            break;
+                        }
+                        case I2P: {
+                            aware = (TopicListener)MVC.loadView(I2PSensorSettingsView.class, true);
+                            break;
+                        }
+                        case Bluetooth: {
+
+                            break;
+                        }
+                        case WiFiDirect: {
+
+                            break;
+                        }
+                        case Satellite: {
+
+                            break;
+                        }
+                        case FSRadio: {
+
+                            break;
+                        }
+                        case LiFi: {
+
+                            break;
+                        }
+                    }
+                    if(aware!=null)
+                        aware.modelUpdated(NetworkPeer.class.getName(), np);
+                });
+            }
+        });
+        DLC.addData(SubscriptionRequest.class, sensorStatusRequest2, e2);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e2);
+        OneMFivePlatform.sendRequest(e2);
         return true;
     }
 }

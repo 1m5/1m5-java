@@ -538,8 +538,7 @@ public class NetworkService extends BaseService {
         peerManager.setNetworkService(this);
         sensorManager.setPeerManager(peerManager);
         if(peerManager.init(properties) && sensorManager.init(properties)) {
-            Subscription subscription = this::routeIn;
-
+//            Subscription subscription = this::routeIn;
             // Subscribe to Text notifications
 //            SubscriptionRequest r = new SubscriptionRequest(EventMessage.Type.TEXT, subscription);
 //            Envelope e = Envelope.documentFactory();
@@ -547,12 +546,12 @@ public class NetworkService extends BaseService {
 //            DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
 //            producer.send(e);
 
-            // Subscribe to DID status notifications
-            SubscriptionRequest r2 = new SubscriptionRequest(EventMessage.Type.PEER_STATUS, subscription);
-            Envelope e2 = Envelope.documentFactory();
-            DLC.addData(SubscriptionRequest.class, r2, e2);
-            DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e2);
-            producer.send(e2);
+            // Subscribe to DIDService Peer status notifications
+//            SubscriptionRequest r2 = new SubscriptionRequest(EventMessage.Type.PEER_STATUS, DIDService.class.getName(), subscription);
+//            Envelope e2 = Envelope.documentFactory();
+//            DLC.addData(SubscriptionRequest.class, r2, e2);
+//            DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e2);
+//            sendToBus(e2);
 
             // Credentials
             // TODO: All of this needs moved to the DIDService's node directory
@@ -609,7 +608,7 @@ public class NetworkService extends BaseService {
             DLC.addData(AuthNRequest.class, ar, e3);
             DLC.addRoute(KeyRingService.class, KeyRingService.OPERATION_AUTHN, e3);
             // Comment out for now
-            producer.send(e3);
+            sendToBus(e3);
 
             updateStatus(ServiceStatus.WAITING);
             LOG.info("Network Service Started.");

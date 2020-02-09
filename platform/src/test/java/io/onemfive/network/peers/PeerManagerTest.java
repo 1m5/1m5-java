@@ -73,6 +73,7 @@ public class PeerManagerTest {
         assert npLoaded != null && "123456".equals(npLoaded.getDid().getPublicKey().getFingerprint());
     }
 
+    @Ignore
     @Test
     public void relationships() {
         /**

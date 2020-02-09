@@ -37,9 +37,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -58,9 +56,8 @@ public class MVC {
     }
 
     public static final Navigation navigation = new Navigation();
-    public static final Map<String,Object> model = new HashMap<>();
 
-    private static final HashMap<Object, BaseView> viewCache = new HashMap<>();
+    private static final HashMap<String, BaseView> viewCache = new HashMap<>();
 
     public static Executor getExecutor() {
         return executor;
@@ -75,33 +72,18 @@ public class MVC {
         return loadView(viewClass, true);
     }
 
-    public static View loadView(Class<? extends View> viewClass, boolean useCache) {
+    public synchronized static View loadView(Class<? extends View> viewClass, boolean useCache) {
         BaseView view = null;
-        if (viewCache.containsKey(viewClass) && useCache) {
-            view = viewCache.get(viewClass);
+        if (viewCache.containsKey(viewClass.getName()) && useCache) {
+            view = viewCache.get(viewClass.getName());
         } else {
             URL loc = viewClass.getResource(viewClass.getSimpleName()+".fxml");
+            FXMLLoader loader = new FXMLLoader(loc);
             try {
-                Node n = FXMLLoader.load(loc);
-                if(n!=null) {
-                    try {
-                        view = (BaseView)Class.forName(viewClass.getName()).getConstructor().newInstance();
-                        view.setRoot(n);
-                        if(useCache) {
-                            viewCache.put(viewClass, view);
-                        }
-                    } catch (InstantiationException e) {
-                        LOG.warning(e.getLocalizedMessage());
-                    } catch (IllegalAccessException e) {
-                        LOG.warning(e.getLocalizedMessage());
-                    } catch (InvocationTargetException e) {
-                        LOG.warning(e.getLocalizedMessage());
-                    } catch (NoSuchMethodException e) {
-                        LOG.warning(e.getLocalizedMessage());
-                    } catch (ClassNotFoundException e) {
-                        LOG.warning(e.getLocalizedMessage());
-                    }
-                }
+                loader.load();
+                view = loader.getController();
+                if(useCache)
+                    viewCache.put(viewClass.getName(), view);
             } catch (IOException e) {
                 LOG.warning(e.getLocalizedMessage());
             }
