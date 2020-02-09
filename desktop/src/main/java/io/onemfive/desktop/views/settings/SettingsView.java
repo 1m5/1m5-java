@@ -32,23 +32,23 @@ import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.settings.about.AboutView;
+import io.onemfive.desktop.views.settings.bluetooth.BluetoothSensorSettingsView;
 import io.onemfive.desktop.views.settings.i2p.I2PSensorSettingsView;
 import io.onemfive.desktop.views.settings.network.NetworkSettingsView;
 import io.onemfive.desktop.views.settings.preferences.PreferencesView;
+import io.onemfive.desktop.views.settings.tor.TORSensorSettingsView;
 import io.onemfive.util.Res;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
 public class SettingsView extends ActivatableView {
 
-    private Scene scene;
     private TabPane pane;
     @FXML
-    private Tab preferencesTab, networkTab, i2pTab, aboutTab;
+    private Tab preferencesTab, networkTab, torTab, i2pTab, bluetoothTab, aboutTab;
 
     private Navigation.Listener navigationListener;
     private ChangeListener<Tab> tabChangeListener;
@@ -59,7 +59,9 @@ public class SettingsView extends ActivatableView {
         pane = (TabPane)root;
         preferencesTab.setText(Res.get("settings.tab.preferences").toUpperCase());
         networkTab.setText(Res.get("settings.tab.network").toUpperCase());
+        torTab.setText(Res.get("settings.tab.tor").toUpperCase());
         i2pTab.setText(Res.get("settings.tab.i2p").toUpperCase());
+        bluetoothTab.setText(Res.get("settings.tab.bluetooth").toUpperCase());
         aboutTab.setText(Res.get("settings.tab.about").toUpperCase());
 
         navigationListener = viewPath -> {
@@ -72,8 +74,12 @@ public class SettingsView extends ActivatableView {
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, PreferencesView.class);
             else if (newValue == networkTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class);
+            else if (newValue == torTab)
+                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, TORSensorSettingsView.class);
             else if (newValue == i2pTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, I2PSensorSettingsView.class);
+            else if (newValue == bluetoothTab)
+                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, BluetoothSensorSettingsView.class);
             else if (newValue == aboutTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, AboutView.class);
         };
@@ -91,8 +97,12 @@ public class SettingsView extends ActivatableView {
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, PreferencesView.class);
         else if (selectedItem == networkTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class);
+        else if (selectedItem == torTab)
+            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, TORSensorSettingsView.class);
         else if (selectedItem == i2pTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, I2PSensorSettingsView.class);
+        else if (selectedItem == bluetoothTab)
+            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, BluetoothSensorSettingsView.class);
         else if (selectedItem == aboutTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, AboutView.class);
     }
@@ -109,7 +119,9 @@ public class SettingsView extends ActivatableView {
 
         if (view instanceof PreferencesView) tab = preferencesTab;
         else if (view instanceof NetworkSettingsView) tab = networkTab;
+        else if (view instanceof TORSensorSettingsView) tab = torTab;
         else if (view instanceof I2PSensorSettingsView) tab = i2pTab;
+        else if (view instanceof BluetoothSensorSettingsView) tab = bluetoothTab;
         else if (view instanceof AboutView) tab = aboutTab;
         else throw new IllegalArgumentException("Navigation to " + viewClass + " is not supported");
 

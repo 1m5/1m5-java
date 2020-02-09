@@ -37,8 +37,10 @@ import io.onemfive.data.route.Route;
 import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.personal.identities.IdentitiesView;
+import io.onemfive.desktop.views.settings.bluetooth.BluetoothSensorSettingsView;
 import io.onemfive.desktop.views.settings.i2p.I2PSensorSettingsView;
 import io.onemfive.desktop.views.settings.network.NetworkSettingsView;
+import io.onemfive.desktop.views.settings.tor.TORSensorSettingsView;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.util.DLC;
@@ -176,8 +178,7 @@ public class DesktopService extends BaseService {
         OneMFivePlatform.sendRequest(e);
 
         Envelope e2 = Envelope.documentFactory();
-        SubscriptionRequest sensorStatusRequest2 = new SubscriptionRequest(EventMessage.Type.PEER_STATUS, PeerManager.class.getName(),
-        new Subscription() {
+        SubscriptionRequest sensorStatusRequest2 = new SubscriptionRequest(EventMessage.Type.PEER_STATUS, PeerManager.class.getName(), new Subscription() {
             @Override
             public void notifyOfEvent(Envelope e) {
                 Platform.runLater(() -> {
@@ -191,7 +192,7 @@ public class DesktopService extends BaseService {
                             break;
                         }
                         case TOR: {
-
+                            aware = (TopicListener)MVC.loadView(TORSensorSettingsView.class, true);
                             break;
                         }
                         case I2P: {
@@ -199,7 +200,7 @@ public class DesktopService extends BaseService {
                             break;
                         }
                         case Bluetooth: {
-
+                            aware = (TopicListener)MVC.loadView(BluetoothSensorSettingsView.class, true);
                             break;
                         }
                         case WiFiDirect: {

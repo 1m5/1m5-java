@@ -33,6 +33,7 @@ import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkConfig;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.*;
+import io.onemfive.util.Wait;
 import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
@@ -207,10 +208,11 @@ public class BluetoothSensor extends BaseSensor {
                 // TODO: Remove hard-coding
                 localPeer.getDid().getPublicKey().addAttribute("uuid", "11111111111111111111111111111123");
             }
-            if(localNode.getNetworkPeer()!=null && localNode.getNetworkPeer().getId()!=null) {
-                localPeer.setId(localNode.getNetworkPeer().getId());
-                sensorManager.getPeerManager().savePeer(localPeer, true);
+            while(localNode.getNetworkPeer().getId()==null) {
+                Wait.aMs(100);
             }
+            localPeer.setId(localNode.getNetworkPeer().getId());
+            sensorManager.getPeerManager().savePeer(localPeer, true);
         } catch (BluetoothStateException e) {
             if(e.getLocalizedMessage().contains("Bluetooth Device is not available")) {
                 updateStatus(SensorStatus.NETWORK_UNAVAILABLE);
