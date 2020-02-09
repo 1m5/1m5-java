@@ -56,10 +56,10 @@ public class NetworkPeerDiscovery extends NetworkTask  {
         for(NetworkPeer sp : config.seeds) {
             // Do we have at least one reliable Peer for this Network?
             if(sp.getNetwork()==network && peerManager.isReliable(sp)) {
-                return config.UpdateInterval * 1000L; // wait for UI seconds
+                return config.UpdateInterval * 1000L;
             }
         }
-        return config.UpdateIntervalHyper * 1000L; // Every five seconds until we have a reliable seed.
+        return config.UpdateIntervalHyper * 1000L;
     }
 
     @Override

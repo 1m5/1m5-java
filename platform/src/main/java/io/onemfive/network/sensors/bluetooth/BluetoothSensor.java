@@ -240,7 +240,6 @@ public class BluetoothSensor extends BaseSensor {
         serviceDiscovery.setPeriodicity(60 * 1000L);
         serviceDiscovery.setLongRunning(true);
         serviceDiscovery.setDelayed(true);
-        serviceDiscovery.setFixedDelay(true);
         serviceDiscovery.setDelayTimeMS(20 * 1000L);
         taskRunner.addTask(serviceDiscovery);
 
@@ -250,7 +249,6 @@ public class BluetoothSensor extends BaseSensor {
         peerDiscovery.config.UpdateIntervalHyper = 60;
         peerDiscovery.setLongRunning(true);
         peerDiscovery.setDelayed(true);
-        peerDiscovery.setFixedDelay(true);
         peerDiscovery.setDelayTimeMS(40 * 1000L);
         taskRunner.addTask(peerDiscovery);
 
