@@ -60,7 +60,7 @@ public class NetworkSettingsView extends ActivatableView {
         bluetoothTab.setText(Res.get("settings.network.tab.bluetooth").toUpperCase());
 
         navigationListener = viewPath -> {
-            if (viewPath.size() == 4 && viewPath.indexOf(SettingsView.class) == 1)
+            if (viewPath.size() == 4 && viewPath.indexOf(NetworkSettingsView.class) == 2)
                 loadView(viewPath.tip());
         };
 

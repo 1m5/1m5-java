@@ -29,27 +29,27 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.layout.AnchorPane?>
-<JFXTabPane fx:id="root" fx:controller="io.onemfive.desktop.views.settings.services.ServicesSettingsView"
+<JFXTabPane fx:id="root" fx:controller="io.onemfive.desktop.views.settings.services.monetary.MonetarySettingsView"
             AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
             AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"
             xmlns:fx="http://javafx.com/fxml">
 
-    <Tab fx:id="identityTab" closable="false">
+    <Tab fx:id="komodoTab" closable="false">
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
                     AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
     </Tab>
-    <Tab fx:id="infovaultTab" closable="false">
+    <Tab fx:id="moneroTab" closable="false">
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
                     AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
     </Tab>
-    <Tab fx:id="keyringTab" closable="false">
+    <Tab fx:id="bitcoinTab" closable="false">
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
                     AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
     </Tab>
-    <Tab fx:id="monetaryTab" closable="false">
+    <Tab fx:id="bisqTab" closable="false">
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
                     AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
