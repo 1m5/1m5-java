@@ -538,23 +538,7 @@ public class NetworkService extends BaseService {
         peerManager.setNetworkService(this);
         sensorManager.setPeerManager(peerManager);
         if(peerManager.init(properties) && sensorManager.init(properties)) {
-//            Subscription subscription = this::routeIn;
-            // Subscribe to Text notifications
-//            SubscriptionRequest r = new SubscriptionRequest(EventMessage.Type.TEXT, subscription);
-//            Envelope e = Envelope.documentFactory();
-//            DLC.addData(SubscriptionRequest.class, r, e);
-//            DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
-//            producer.send(e);
-
-            // Subscribe to DIDService Peer status notifications
-//            SubscriptionRequest r2 = new SubscriptionRequest(EventMessage.Type.PEER_STATUS, DIDService.class.getName(), subscription);
-//            Envelope e2 = Envelope.documentFactory();
-//            DLC.addData(SubscriptionRequest.class, r2, e2);
-//            DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e2);
-//            sendToBus(e2);
-
-            // Credentials
-            // TODO: All of this needs moved to the DIDService's node directory
+            // Local 1M5 Peer Credentials
             String username = "Alice";
             String passphrase = null;
             try {
@@ -581,9 +565,6 @@ public class NetworkService extends BaseService {
                 return false;
             }
 
-            peerManager.getLocalNode().getNetworkPeer().getDid().setUsername(username);
-            peerManager.getLocalNode().getNetworkPeer().getDid().setPassphrase(passphrase);
-
             // 3. Request local Peer
             Envelope e3 = Envelope.documentFactory();
             DLC.addRoute(NetworkService.class, NetworkService.OPERATION_RECEIVE_LOCAL_AUTHN_PEER, e3);
@@ -607,9 +588,7 @@ public class NetworkService extends BaseService {
 
             DLC.addData(AuthNRequest.class, ar, e3);
             DLC.addRoute(KeyRingService.class, KeyRingService.OPERATION_AUTHN, e3);
-            // Comment out for now
             sendToBus(e3);
-
             updateStatus(ServiceStatus.WAITING);
             LOG.info("Network Service Started.");
         } else {
