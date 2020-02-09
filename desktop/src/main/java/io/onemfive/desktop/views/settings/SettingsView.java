@@ -32,11 +32,11 @@ import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.settings.about.AboutView;
-import io.onemfive.desktop.views.settings.bluetooth.BluetoothSensorSettingsView;
-import io.onemfive.desktop.views.settings.i2p.I2PSensorSettingsView;
 import io.onemfive.desktop.views.settings.network.NetworkSettingsView;
+import io.onemfive.desktop.views.settings.network.ims.IMSSettingsView;
+import io.onemfive.desktop.views.settings.platform.PlatformSettingsView;
 import io.onemfive.desktop.views.settings.preferences.PreferencesView;
-import io.onemfive.desktop.views.settings.tor.TORSensorSettingsView;
+import io.onemfive.desktop.views.settings.services.ServicesSettingsView;
 import io.onemfive.util.Res;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
@@ -48,7 +48,7 @@ public class SettingsView extends ActivatableView {
 
     private TabPane pane;
     @FXML
-    private Tab preferencesTab, networkTab, torTab, i2pTab, bluetoothTab, aboutTab;
+    private Tab preferencesTab, servicesTab, networkTab, platformTab, aboutTab;
 
     private Navigation.Listener navigationListener;
     private ChangeListener<Tab> tabChangeListener;
@@ -58,10 +58,9 @@ public class SettingsView extends ActivatableView {
         LOG.info("Initializing...");
         pane = (TabPane)root;
         preferencesTab.setText(Res.get("settings.tab.preferences").toUpperCase());
+        servicesTab.setText(Res.get("settings.tab.services").toUpperCase());
         networkTab.setText(Res.get("settings.tab.network").toUpperCase());
-        torTab.setText(Res.get("settings.tab.tor").toUpperCase());
-        i2pTab.setText(Res.get("settings.tab.i2p").toUpperCase());
-        bluetoothTab.setText(Res.get("settings.tab.bluetooth").toUpperCase());
+        platformTab.setText(Res.get("settings.tab.platform").toUpperCase());
         aboutTab.setText(Res.get("settings.tab.about").toUpperCase());
 
         navigationListener = viewPath -> {
@@ -72,14 +71,12 @@ public class SettingsView extends ActivatableView {
         tabChangeListener = (ov, oldValue, newValue) -> {
             if (newValue == preferencesTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, PreferencesView.class);
+            else if (newValue == servicesTab)
+                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, ServicesSettingsView.class);
             else if (newValue == networkTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class);
-            else if (newValue == torTab)
-                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, TORSensorSettingsView.class);
-            else if (newValue == i2pTab)
-                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, I2PSensorSettingsView.class);
-            else if (newValue == bluetoothTab)
-                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, BluetoothSensorSettingsView.class);
+            else if (newValue == platformTab)
+                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, PlatformSettingsView.class);
             else if (newValue == aboutTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, AboutView.class);
         };
@@ -95,14 +92,12 @@ public class SettingsView extends ActivatableView {
         Tab selectedItem = pane.getSelectionModel().getSelectedItem();
         if (selectedItem == preferencesTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, PreferencesView.class);
+        else if (selectedItem == servicesTab)
+            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, ServicesSettingsView.class);
         else if (selectedItem == networkTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, NetworkSettingsView.class);
-        else if (selectedItem == torTab)
-            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, TORSensorSettingsView.class);
-        else if (selectedItem == i2pTab)
-            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, I2PSensorSettingsView.class);
-        else if (selectedItem == bluetoothTab)
-            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, BluetoothSensorSettingsView.class);
+        else if (selectedItem == platformTab)
+            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, PlatformSettingsView.class);
         else if (selectedItem == aboutTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, AboutView.class);
     }
@@ -118,10 +113,9 @@ public class SettingsView extends ActivatableView {
         View view = MVC.loadView(viewClass);
 
         if (view instanceof PreferencesView) tab = preferencesTab;
+        else if (view instanceof ServicesSettingsView) tab = servicesTab;
         else if (view instanceof NetworkSettingsView) tab = networkTab;
-        else if (view instanceof TORSensorSettingsView) tab = torTab;
-        else if (view instanceof I2PSensorSettingsView) tab = i2pTab;
-        else if (view instanceof BluetoothSensorSettingsView) tab = bluetoothTab;
+        else if (view instanceof PlatformSettingsView) tab = platformTab;
         else if (view instanceof AboutView) tab = aboutTab;
         else throw new IllegalArgumentException("Navigation to " + viewClass + " is not supported");
 

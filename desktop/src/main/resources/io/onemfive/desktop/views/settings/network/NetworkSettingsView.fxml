@@ -25,21 +25,33 @@
 
     For more information, please refer to <http://unlicense.org/>
 -->
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.*?>
-<GridPane fx:id="root" fx:controller="io.onemfive.desktop.views.settings.network.NetworkSettingsView"
-          hgap="5.0" vgap="5.0"
-          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-          xmlns:fx="http://javafx.com/fxml">
+<?import com.jfoenix.controls.JFXTabPane?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.AnchorPane?>
+<JFXTabPane fx:id="root" fx:controller="io.onemfive.desktop.views.settings.network.NetworkSettingsView"
+            AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+            AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"
+            xmlns:fx="http://javafx.com/fxml">
 
-    <padding>
-        <Insets bottom="10.0" left="15.0" top="15.0" right="15"/>
-    </padding>
-
-    <columnConstraints>
-        <ColumnConstraints hgrow="ALWAYS"/>
-    </columnConstraints>
-</GridPane>
-
-
+    <Tab fx:id="imsTab" closable="false">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+    </Tab>
+    <Tab fx:id="torTab" closable="false">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+    </Tab>
+    <Tab fx:id="i2pTab" closable="false">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+    </Tab>
+    <Tab fx:id="bluetoothTab" closable="false">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+    </Tab>
+</JFXTabPane>

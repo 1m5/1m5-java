@@ -24,31 +24,32 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.settings.bluetooth;
+package io.onemfive.desktop.views.settings.network.i2p;
 
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.util.Res;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
-public class BluetoothSensorSettingsView extends ActivatableView implements TopicListener {
+public class I2PSensorSettingsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
 
-    private String bluetoothFriendlyName = Res.get("settings.net.notKnownYet");
-    private String bluetoothAddress = Res.get("settings.net.notKnownYet");
+    private String i2PFingerprint = Res.get("settings.network.notKnownYet");
+    private String i2PAddress = Res.get("settings.network.notKnownYet");
 
-    private TextField bluetoothFriendlynameTextField;
-    private TextField bluetoothAddressTextField;
+    private TextField i2PFingerprintTextField;
+    private TextArea i2PAddressTextArea;
 
 
-    public BluetoothSensorSettingsView() {
+    public I2PSensorSettingsView() {
         super();
     }
 
@@ -57,9 +58,9 @@ public class BluetoothSensorSettingsView extends ActivatableView implements Topi
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        addTitledGroupBg(pane, gridRow, 3, Res.get("settings.net.localNode"));
-        bluetoothFriendlynameTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.bluetoothFriendlyNameLabel"), bluetoothFriendlyName, Layout.FIRST_ROW_DISTANCE).second;
-        bluetoothAddressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.bluetoothAddressLabel"), bluetoothAddress).second;
+        addTitledGroupBg(pane, gridRow, 3, Res.get("settings.network.localNode"));
+        i2PFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.i2pFingerprintLabel"), i2PFingerprint, Layout.FIRST_ROW_DISTANCE).second;
+        i2PAddressTextArea = addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("settings.network.i2pAddressLabel"), true).second;
 
         LOG.info("Initialized");
     }
@@ -78,13 +79,13 @@ public class BluetoothSensorSettingsView extends ActivatableView implements Topi
     public void modelUpdated(String name, Object object) {
         if(object instanceof NetworkPeer) {
             NetworkPeer peer = (NetworkPeer)object;
-            bluetoothFriendlyName = peer.getDid().getUsername();
-            bluetoothAddress = peer.getDid().getPublicKey().getAddress();
-            if(bluetoothFriendlynameTextField !=null) {
-                bluetoothFriendlynameTextField.setText(bluetoothFriendlyName);
+            i2PFingerprint = peer.getDid().getPublicKey().getFingerprint();
+            i2PAddress = peer.getDid().getPublicKey().getAddress();
+            if(i2PFingerprintTextField!=null) {
+                i2PFingerprintTextField.setText(i2PFingerprint);
             }
-            if(bluetoothAddressTextField !=null) {
-                bluetoothAddressTextField.setText(bluetoothAddress);
+            if(i2PAddressTextArea!=null) {
+                i2PAddressTextArea.setText(i2PAddress);
             }
         }
     }

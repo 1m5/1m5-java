@@ -24,32 +24,31 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.settings.tor;
+package io.onemfive.desktop.views.settings.network.bluetooth;
 
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.util.Res;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
-public class TORSensorSettingsView extends ActivatableView implements TopicListener {
+public class BluetoothSensorSettingsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
 
-    private String torFingerprint = Res.get("settings.net.notKnownYet");
-    private String torAddress = Res.get("settings.net.notKnownYet");
+    private String bluetoothFriendlyName = Res.get("settings.network.notKnownYet");
+    private String bluetoothAddress = Res.get("settings.network.notKnownYet");
 
-    private TextField torFingerprintTextField;
-    private TextArea torAddressTextArea;
+    private TextField bluetoothFriendlynameTextField;
+    private TextField bluetoothAddressTextField;
 
 
-    public TORSensorSettingsView() {
+    public BluetoothSensorSettingsView() {
         super();
     }
 
@@ -58,9 +57,9 @@ public class TORSensorSettingsView extends ActivatableView implements TopicListe
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        addTitledGroupBg(pane, gridRow, 3, Res.get("settings.net.localNode"));
-        torFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.torFingerprintLabel"), torFingerprint, Layout.FIRST_ROW_DISTANCE).second;
-        torAddressTextArea = addCompactTopLabelTextAreaWithText(pane, torAddress, ++gridRow, Res.get("settings.net.torAddressLabel"), true).second;
+        addTitledGroupBg(pane, gridRow, 3, Res.get("settings.network.localNode"));
+        bluetoothFriendlynameTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.bluetoothFriendlyNameLabel"), bluetoothFriendlyName, Layout.FIRST_ROW_DISTANCE).second;
+        bluetoothAddressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.bluetoothAddressLabel"), bluetoothAddress).second;
 
         LOG.info("Initialized");
     }
@@ -79,13 +78,13 @@ public class TORSensorSettingsView extends ActivatableView implements TopicListe
     public void modelUpdated(String name, Object object) {
         if(object instanceof NetworkPeer) {
             NetworkPeer peer = (NetworkPeer)object;
-            torFingerprint = peer.getDid().getPublicKey().getFingerprint();
-            torAddress = peer.getDid().getPublicKey().getAddress();
-            if(torFingerprintTextField !=null) {
-                torFingerprintTextField.setText(torFingerprint);
+            bluetoothFriendlyName = peer.getDid().getUsername();
+            bluetoothAddress = peer.getDid().getPublicKey().getAddress();
+            if(bluetoothFriendlynameTextField !=null) {
+                bluetoothFriendlynameTextField.setText(bluetoothFriendlyName);
             }
-            if(torAddressTextArea !=null) {
-                torAddressTextArea.setText(torAddress);
+            if(bluetoothAddressTextField !=null) {
+                bluetoothAddressTextField.setText(bluetoothAddress);
             }
         }
     }

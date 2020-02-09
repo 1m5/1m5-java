@@ -24,16 +24,18 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.system;
+package io.onemfive.network.sensors.tor.control;
 
-import io.onemfive.desktop.views.InitializableView;
+import java.io.IOException;
 
-public class SystemView extends InitializableView {
+/**
+ * An exception raised when Tor tells us about an error.
+ */
+public class TorControlTimeoutError extends IOException {
 
-    @Override
-    protected void initialize() {
-        LOG.info("Initializing...");
+    static final long serialVersionUID = 4;
 
-        LOG.info("Initialized.");
+    public TorControlTimeoutError(String s) {
+        super(s);
     }
 }

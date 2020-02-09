@@ -37,10 +37,10 @@ import io.onemfive.data.route.Route;
 import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.personal.identities.IdentitiesView;
-import io.onemfive.desktop.views.settings.bluetooth.BluetoothSensorSettingsView;
-import io.onemfive.desktop.views.settings.i2p.I2PSensorSettingsView;
-import io.onemfive.desktop.views.settings.network.NetworkSettingsView;
-import io.onemfive.desktop.views.settings.tor.TORSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.bluetooth.BluetoothSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.i2p.I2PSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.ims.IMSSettingsView;
+import io.onemfive.desktop.views.settings.network.tor.TORSensorSettingsView;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.util.DLC;
@@ -188,7 +188,7 @@ public class DesktopService extends BaseService {
                     TopicListener aware = null;
                     switch (np.getNetwork()) {
                         case IMS: {
-                            aware = (TopicListener)MVC.loadView(NetworkSettingsView.class, true);
+                            aware = (TopicListener)MVC.loadView(IMSSettingsView.class, true);
                             break;
                         }
                         case TOR: {

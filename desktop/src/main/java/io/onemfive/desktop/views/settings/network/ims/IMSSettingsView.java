@@ -24,9 +24,8 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.settings.i2p;
+package io.onemfive.desktop.views.settings.network.ims;
 
-import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
@@ -38,41 +37,39 @@ import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
-public class I2PSensorSettingsView extends ActivatableView implements TopicListener {
+public class IMSSettingsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
 
-    private String i2PFingerprint = Res.get("settings.net.notKnownYet");
-    private String i2PAddress = Res.get("settings.net.notKnownYet");
+    private String imsFingerprint = Res.get("settings.network.notKnownYet");
+    private String imsAddress = Res.get("settings.network.notKnownYet");
 
-    private TextField i2PFingerprintTextField;
-    private TextArea i2PAddressTextArea;
+    private TextField imsFingerprintTextField;
+    private TextArea imsAddressTextField;
 
-
-    public I2PSensorSettingsView() {
+    public IMSSettingsView() {
         super();
     }
 
-    @Override
-    protected void initialize() {
+    public void initialize() {
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        addTitledGroupBg(pane, gridRow, 3, Res.get("settings.net.localNode"));
-        i2PFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.net.i2pFingerprintLabel"), i2PFingerprint, Layout.FIRST_ROW_DISTANCE).second;
-        i2PAddressTextArea = addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("settings.net.i2pAddressLabel"), true).second;
+        addTitledGroupBg(pane, gridRow, 3, Res.get("settings.network.localNode"));
+        imsFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.1m5FingerprintLabel"), imsFingerprint, Layout.FIRST_ROW_DISTANCE).second;
+        imsAddressTextField = addCompactTopLabelTextAreaWithText(pane, imsAddress, ++gridRow, Res.get("settings.network.1m5AddressLabel"), true).second;
 
         LOG.info("Initialized");
     }
 
     @Override
-    protected void activate() {
+    public void activate() {
 
     }
 
     @Override
-    protected void deactivate() {
+    public void deactivate() {
 
     }
 
@@ -80,15 +77,16 @@ public class I2PSensorSettingsView extends ActivatableView implements TopicListe
     public void modelUpdated(String name, Object object) {
         if(object instanceof NetworkPeer) {
             NetworkPeer peer = (NetworkPeer)object;
-            i2PFingerprint = peer.getDid().getPublicKey().getFingerprint();
-            i2PAddress = peer.getDid().getPublicKey().getAddress();
-            if(i2PFingerprintTextField!=null) {
-                i2PFingerprintTextField.setText(i2PFingerprint);
+            imsFingerprint = peer.getDid().getPublicKey().getFingerprint();
+            imsAddress = peer.getDid().getPublicKey().getAddress();
+            if(imsFingerprintTextField!=null) {
+                imsFingerprintTextField.setText(imsFingerprint);
             }
-            if(i2PAddressTextArea!=null) {
-                i2PAddressTextArea.setText(i2PAddress);
+            if(imsAddressTextField!=null) {
+                imsAddressTextField.setText(imsAddress);
             }
         }
     }
 
 }
+

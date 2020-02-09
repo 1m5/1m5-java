@@ -40,7 +40,7 @@ import io.onemfive.desktop.util.Transitions;
 import io.onemfive.desktop.views.*;
 import io.onemfive.desktop.views.commons.CommonsView;
 import io.onemfive.desktop.views.community.CommunityView;
-import io.onemfive.desktop.views.system.SystemView;
+import io.onemfive.desktop.views.ops.OpsView;
 import io.onemfive.desktop.views.personal.PersonalView;
 import io.onemfive.desktop.views.settings.SettingsView;
 import io.onemfive.desktop.views.support.SupportView;
@@ -138,15 +138,15 @@ public class HomeView extends InitializableView {
 //        supportButton.disableProperty().setValue(true);
         final ToggleButton settingsButton = new NavButton(SettingsView.class, Res.get("homeView.menu.settings").toUpperCase());
 //        settingsButton.disableProperty().setValue(true);
-        final ToggleButton systemButton = new NavButton(SystemView.class, Res.get("homeView.menu.system").toUpperCase());
-//        manconButton.disableProperty().setValue(true);
+        final ToggleButton opsButton = new NavButton(OpsView.class, Res.get("homeView.menu.ops").toUpperCase());
+//        opsButton.disableProperty().setValue(true);
 
         Badge personalButtonWithBadge = new Badge(personalButton);
         Badge communityButtonWithBadge = new Badge(communityButton);
         Badge commonsButtonWithBadge = new Badge(commonsButton);
         Badge supportButtonWithBadge = new Badge(supportButton);
         Badge settingsButtonWithBadge = new Badge(settingsButton);
-        Badge systemButtonWithBadge = new Badge(systemButton);
+        Badge opsButtonWithBadge = new Badge(opsButton);
 
         DecimalFormat currencyFormat = (DecimalFormat) NumberFormat.getNumberInstance(LocaleUtil.currentLocale);
         currencyFormat.setMinimumFractionDigits(0);
@@ -167,7 +167,7 @@ public class HomeView extends InitializableView {
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT5, keyEvent)) {
                         settingsButton.fire();
                     } else if (KeystrokeUtil.isAltOrCtrlPressed(KeyCode.DIGIT6, keyEvent)) {
-                        systemButton.fire();
+                        opsButton.fire();
                     }
                 });
             }
@@ -240,7 +240,7 @@ public class HomeView extends InitializableView {
         HBox secondaryNav = new HBox(
                 supportButton, getNavigationSeparator(),
                 settingsButton, getNavigationSeparator(),
-                systemButton);
+                opsButton);
 
         secondaryNav.getStyleClass().add("nav-secondary");
         HBox.setHgrow(secondaryNav, Priority.NEVER);

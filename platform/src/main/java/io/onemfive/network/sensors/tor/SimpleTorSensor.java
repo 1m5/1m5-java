@@ -31,13 +31,17 @@ import io.onemfive.network.*;
 import io.onemfive.network.sensors.NetworkPeerDiscovery;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
+import io.onemfive.network.sensors.tor.control.ConfigEntry;
+import io.onemfive.network.sensors.tor.control.DebuggingEventHandler;
+import io.onemfive.network.sensors.tor.control.TorControlConnection;
 import io.onemfive.util.DLC;
 import io.onemfive.network.sensors.SensorStatus;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.*;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -55,16 +59,21 @@ public final class SimpleTorSensor extends ClearnetSensor {
 
     private NetworkPeerDiscovery discovery;
 
+    public static final String HOST = "127.0.0.1";
+    public static final Integer PORT_SOCKS = 9050;
+    public static final Integer PORT_CONTROL = 9100;
+    public static final Integer PORT_HIDDEN_SERVICE = 9151;
+
     public SimpleTorSensor() {
         super(Network.TOR);
         // Setup local Tor instance as proxy for Tor Client
-        proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1",9050));
+        proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(HOST, PORT_SOCKS));
     }
 
     public SimpleTorSensor(SensorManager sensorManager) {
         super(sensorManager, Network.TOR);
         // Setup local Tor instance as proxy for Tor Client
-        proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1",9050));
+        proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(HOST, PORT_SOCKS));
     }
 
     private File sensorDir;
@@ -224,19 +233,61 @@ public final class SimpleTorSensor extends ClearnetSensor {
         if(sendOut(request)) {
             byte[] content = (byte[])DLC.getContent(envelope);
             LOG.info("Content length: "+content.length);
+            LOG.info("Content: "+new String(content));
         }
     }
 
+    private static TorControlConnection getConnection(String[] args, boolean daemon) throws IOException {
+        Socket s = new Socket("127.0.0.1", 9051);
+        TorControlConnection conn = new TorControlConnection(s);
+//        conn.launchThread(daemon);
+        conn.authenticate(new byte[0]);
+        return conn;
+    }
+
+    private static TorControlConnection getConnection(String[] args) throws IOException {
+        return getConnection(args, true);
+    }
+
     public static void main(String[] args) {
-        Properties p = new Properties();
-        p.setProperty("1m5.dir.sensors","/home/objectorange/1m5/platform/services/io.onemfive.network.NetworkService/sensors");
-        SimpleTorSensor s = new SimpleTorSensor();
-        s.start(p);
+//        Properties p = new Properties();
+//        p.setProperty("1m5.dir.sensors","/home/objectorange/1m5/platform/services/io.onemfive.network.NetworkService/sensors");
+//        SimpleTorSensor s = new SimpleTorSensor();
+//        s.start(p);
+//        try {
+//            URL duckduckGoOnion = new URL("https://3g2upl4pq6kufc4m.onion/");
+//            s.get(duckduckGoOnion);
+//        } catch (MalformedURLException e) {
+//            System.out.println(e.getLocalizedMessage());
+//        }
+
         try {
-            URL duckduckGoOnion = new URL("https://3g2upl4pq6kufc4m.onion/");
-            s.get(duckduckGoOnion);
-        } catch (MalformedURLException e) {
-            System.out.println(e.getLocalizedMessage());
+            TorControlConnection conn = getConnection(args);
+//            Map<String,String> m = conn.getInfo(Arrays.asList("stream-status","orconn-status","circuit-status","version"));
+//            for (Iterator<Map.Entry<String, String>> i = m.entrySet().iterator(); i.hasNext(); ) {
+//                Map.Entry<String,String> e = i.next();
+//                System.out.println("KEY: "+e.getKey());
+//                System.out.println("VAL: "+e.getValue());
+//            }
+
+//            conn.setEventHandler(new DebuggingEventHandler(new PrintWriter(System.out, true)));
+//            conn.setEvents(Arrays.asList("EXTENDED", "CIRC", "ORCONN", "INFO", "NOTICE", "WARN", "ERR", "HS_DESC", "HS_DESC_CONTENT" ));
+//            TorControlConnection.CreateHiddenServiceResult result = conn.createHiddenService(10026);
+//            System.out.println("ServiceID: "+result.serviceID);
+//            System.out.println("PrivateKey: "+result.privateKey);
+//            conn.destroyHiddenService(result.serviceID);
+//            result = conn.createHiddenService(10026, result.privateKey);
+//            System.out.println("ServiceID: "+result.serviceID);
+//            System.out.println("PrivateKey: "+result.privateKey);
+
+            List<ConfigEntry> lst = conn.getConf(Arrays.asList(""));
+            for (Iterator<ConfigEntry> i = lst.iterator(); i.hasNext(); ) {
+                ConfigEntry e = i.next();
+                System.out.println("KEY: "+e.key);
+                System.out.println("VAL: "+e.value);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
