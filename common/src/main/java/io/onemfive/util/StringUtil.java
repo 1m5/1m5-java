@@ -29,7 +29,7 @@ package io.onemfive.util;
 public class StringUtil {
 
     public static String capitalizeFirst(String input) {
-        char[] ic = input.toLowerCase().toCharArray();
+        char[] ic = input.toCharArray();
         char[] oc = new char[ic.length];
         int i=0;
         for(char c : ic) {
@@ -43,7 +43,7 @@ public class StringUtil {
     }
 
     public static String capitalize(String input) {
-        char[] ic = input.toLowerCase().toCharArray();
+        char[] ic = input.toCharArray();
         char[] oc = new char[ic.length];
         int i=0;
         boolean next = false;
