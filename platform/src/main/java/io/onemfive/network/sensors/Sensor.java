@@ -29,6 +29,7 @@ package io.onemfive.network.sensors;
 import io.onemfive.core.LifeCycle;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
+import io.onemfive.network.NetworkConfig;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.util.tasks.TaskRunner;
 
@@ -55,4 +56,6 @@ public interface Sensor extends LifeCycle {
     void setSensorManager(SensorManager sensorManager);
     SensorManager getSensorManager();
     File getDirectory();
+    NetworkConfig getConfig();
+    void updateConfig(NetworkConfig config);
 }

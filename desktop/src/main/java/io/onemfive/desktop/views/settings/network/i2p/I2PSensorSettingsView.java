@@ -26,11 +26,21 @@
  */
 package io.onemfive.desktop.views.settings.network.i2p;
 
+import io.onemfive.desktop.user.Preferences;
+import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
+import io.onemfive.network.NetworkConfig;
+import io.onemfive.network.sensors.i2p.I2PSensor;
+import io.onemfive.util.Res;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
+import net.i2p.router.Router;
+
+import static io.onemfive.desktop.util.FormBuilder.addSlideToggleButton;
 
 public class I2PSensorSettingsView extends ActivatableView  {
 
+    private NetworkConfig config;
     private GridPane pane;
     private int gridRow = 0;
 
@@ -38,22 +48,44 @@ public class I2PSensorSettingsView extends ActivatableView  {
         super();
     }
 
+    private ToggleButton hiddenMode;
+    private ToggleButton routerEmbedded;
+
     @Override
     protected void initialize() {
         LOG.info("Initializing...");
         pane = (GridPane)root;
+
+        routerEmbedded = addSlideToggleButton(pane, ++gridRow, Res.get("settings.network.i2p.routerEmbedded"));
+        hiddenMode = addSlideToggleButton(pane, gridRow, Res.get("settings.network.i2p.hiddenMode"));
+
+        // TODO: Request NetworkConfig for I2P Sensor.
 
         LOG.info("Initialized");
     }
 
     @Override
     protected void activate() {
-
+        hiddenMode.setSelected(false);
+        hiddenMode.setOnAction(e -> {
+            LOG.info("hiddenMode="+hiddenMode.isSelected());
+        });
+        routerEmbedded.setSelected(true);
+        routerEmbedded.setOnAction(e -> {
+            LOG.info("routerEmbedded="+routerEmbedded.isSelected());
+        });
+        routerEmbedded.disableProperty().setValue(true);
     }
 
     @Override
     protected void deactivate() {
+        hiddenMode.setOnAction(null);
+        routerEmbedded.setOnAction(null);
+    }
 
+    public void setConfig(NetworkConfig config) {
+        this.hiddenMode.setSelected("true".equals(config.params.get(Router.PROP_HIDDEN)));
+        this.routerEmbedded.setSelected("embedded".equals(config.params.get(I2PSensor.ROUTER_LOCATION)));
     }
 
 }

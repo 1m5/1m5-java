@@ -26,6 +26,7 @@
  */
 package io.onemfive.network.sensors;
 
+import io.onemfive.network.NetworkConfig;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
@@ -50,6 +51,7 @@ public abstract class BaseSensor implements Sensor {
 
     private static final Logger LOG = Logger.getLogger(BaseSensor.class.getName());
 
+    protected NetworkConfig config = new NetworkConfig();
     protected NetworkPeer localPeer;
     protected Network network;
     protected SensorManager sensorManager;
@@ -71,6 +73,17 @@ public abstract class BaseSensor implements Sensor {
 
     public SensorManager getSensorManager() {
         return sensorManager;
+    }
+
+    @Override
+    public void updateConfig(NetworkConfig config) {
+        this.config = config;
+        restart();
+    }
+
+    @Override
+    public NetworkConfig getConfig() {
+        return config;
     }
 
     public void updateStatus(SensorStatus sensorStatus) {

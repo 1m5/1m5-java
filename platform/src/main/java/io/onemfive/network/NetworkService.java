@@ -59,6 +59,9 @@ public class NetworkService extends BaseService {
 
     private static final Logger LOG = Logger.getLogger(NetworkService.class.getName());
 
+    public static final String OPERATION_GET_NETWORK_CONFIG = "GET_NETWORK_CONFIG";
+    public static final String OPERATION_UPDATE_NETWORK_CONFIG = "UPDATE_NETWORK_CONFIG";
+
     public static final String OPERATION_SEND = "SEND";
     public static final String OPERATION_REPLY = "REPLY";
 //    public static final String OPERATION_UPDATE_LOCAL_PEER = "updateLocalDID";
@@ -107,6 +110,18 @@ public class NetworkService extends BaseService {
         // Incoming from internal Service requesting external Service
         Route r = e.getRoute();
         switch (r.getOperation()) {
+            case OPERATION_GET_NETWORK_CONFIG: {
+                Network network = (Network)DLC.getValue("network", e);
+                DLC.addData(NetworkConfig.class, sensorManager.getSensor(network).getConfig(), e);
+                break;
+            }
+            case OPERATION_UPDATE_NETWORK_CONFIG: {
+                NetworkConfig config = (NetworkConfig)DLC.getData(NetworkConfig.class, e);
+                if(config!=null) {
+                    sensorManager.getSensor(config.network).updateConfig(config);
+                }
+                break;
+            }
             case OPERATION_SEND : {
                 // A desire to send a packet to another Peer from an internal service
                 Request request = null;

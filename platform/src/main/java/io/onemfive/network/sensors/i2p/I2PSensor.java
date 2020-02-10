@@ -61,6 +61,8 @@ public class I2PSensor extends BaseSensor {
 
     private static final Logger LOG = Logger.getLogger(I2PSensor.class.getName());
 
+    public static final String ROUTER_LOCATION = "ROUTER_LOCATION";
+
     /**
      * 1 = ElGamal-2048 / DSA-1024
      * 2 = ECDH-256 / ECDSA-256
@@ -72,7 +74,7 @@ public class I2PSensor extends BaseSensor {
     protected static int ECDH521EDCSA521 = 3;
     protected static int NTRUEncrypt1087GMSS512 = 4;
 
-    public static final NetworkConfig config = new NetworkConfig();
+    public final NetworkConfig config = new NetworkConfig();
 
     public static final NetworkPeer seedAI2P;
 
@@ -169,6 +171,7 @@ public class I2PSensor extends BaseSensor {
         // I2P Sensor Starting
         LOG.info("Loading I2P properties...");
         properties = p;
+        config.params.put(ROUTER_LOCATION, "embedded");
         updateStatus(SensorStatus.STARTING);
         isTest = "true".equals(properties.getProperty("1m5.sensors.i2p.isTest"));
         // Look for another instance installed
@@ -400,7 +403,11 @@ public class I2PSensor extends BaseSensor {
             router = routerContext.router();
             // Override hidden mode even when in I2P defined 'strict' countries
             // TODO: Turn this back on by default but let end user change it
-            router.saveConfig(Router.PROP_HIDDEN, properties.getProperty("hidden"));
+            if(config.params.get(Router.PROP_HIDDEN)!=null) {
+                router.saveConfig(Router.PROP_HIDDEN, (String)config.params.get(Router.PROP_HIDDEN));
+            }
+            router.saveConfig(Router.PROP_HIDDEN, "false");
+            LOG.info("I2P Router - Hidden Mode: "+router.getConfigSetting(Router.PROP_HIDDEN));
             router.setKillVMOnEnd(false);
             routerContext.addShutdownTask(new RouterStopper());
             // Hard code to INFO for now for troubleshooting; need to move to configuration

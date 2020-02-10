@@ -26,12 +26,17 @@
  */
 package io.onemfive.network;
 
+import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class NetworkConfig {
+
+    public Network network = Network.IMS; // Default
     // Seeds
     public final List<NetworkPeer> seeds = new ArrayList<>();
     // Banned
@@ -52,4 +57,6 @@ public class NetworkConfig {
     public int MinAckRP = 20;
     // Super Reliable Peer Min Acks
     public int MinAckSRP = 10000;
+
+    public Map<String,Object> params = new HashMap<>();
 }
