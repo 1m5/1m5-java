@@ -26,12 +26,9 @@
  */
 package io.onemfive.desktop.views.settings.services.identity;
 
-import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.views.ActivatableView;
-import io.onemfive.util.Res;
 import javafx.scene.layout.GridPane;
 
-import static io.onemfive.desktop.util.FormBuilder.addTitledGroupBg;
 
 public class IdentitySettingsView extends ActivatableView {
 
@@ -46,7 +43,7 @@ public class IdentitySettingsView extends ActivatableView {
     protected void initialize() {
         LOG.info("Initializing...");
         pane = (GridPane)root;
-        TitledGroupBg titledGroupBg = addTitledGroupBg(pane, gridRow, 2, Res.get("setting.preferences.general"));
+
         LOG.info("Initialized");
     }
 

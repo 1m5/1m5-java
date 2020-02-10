@@ -54,7 +54,6 @@ public class P2PRelationship implements JSONSerializable {
         TOR,
         I2P,
         Bluetooth,
-        BluetoothLE,
         WiFiDirect,
         Satellite,
         FSRadio,

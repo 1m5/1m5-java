@@ -31,12 +31,10 @@ import io.onemfive.desktop.Navigation;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.home.HomeView;
+import io.onemfive.desktop.views.ops.dashboard.DashboardOpsView;
 import io.onemfive.desktop.views.ops.network.NetworkOpsView;
 import io.onemfive.desktop.views.ops.platform.PlatformOpsView;
 import io.onemfive.desktop.views.ops.services.ServicesOpsView;
-import io.onemfive.desktop.views.settings.network.NetworkSettingsView;
-import io.onemfive.desktop.views.settings.platform.PlatformSettingsView;
-import io.onemfive.desktop.views.settings.services.ServicesSettingsView;
 import io.onemfive.util.Res;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
@@ -48,7 +46,7 @@ public class OpsView extends ActivatableView {
 
     private TabPane pane;
     @FXML
-    private Tab servicesTab, networkTab, platformTab;
+    private Tab dashboardTab, servicesTab, networkTab, platformTab;
 
     private Navigation.Listener navigationListener;
     private ChangeListener<Tab> tabChangeListener;
@@ -57,6 +55,7 @@ public class OpsView extends ActivatableView {
     public void initialize() {
         LOG.info("Initializing...");
         pane = (TabPane)root;
+        dashboardTab.setText(Res.get("ops.tab.dashboard").toUpperCase());
         servicesTab.setText(Res.get("ops.tab.services").toUpperCase());
         networkTab.setText(Res.get("ops.tab.network").toUpperCase());
         platformTab.setText(Res.get("ops.tab.platform").toUpperCase());
@@ -67,7 +66,9 @@ public class OpsView extends ActivatableView {
         };
 
         tabChangeListener = (ov, oldValue, newValue) -> {
-            if (newValue == servicesTab)
+            if (newValue == dashboardTab)
+                MVC.navigation.navigateTo(HomeView.class, OpsView.class, DashboardOpsView.class);
+            else if (newValue == servicesTab)
                 MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class);
             else if (newValue == networkTab)
                 MVC.navigation.navigateTo(HomeView.class, OpsView.class, NetworkOpsView.class);
@@ -84,7 +85,9 @@ public class OpsView extends ActivatableView {
         MVC.navigation.addListener(navigationListener);
 
         Tab selectedItem = pane.getSelectionModel().getSelectedItem();
-        if (selectedItem == servicesTab)
+        if (selectedItem == dashboardTab)
+            MVC.navigation.navigateTo(HomeView.class, OpsView.class, DashboardOpsView.class);
+        else if (selectedItem == servicesTab)
             MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class);
         else if (selectedItem == networkTab)
             MVC.navigation.navigateTo(HomeView.class, OpsView.class, NetworkOpsView.class);
@@ -100,9 +103,10 @@ public class OpsView extends ActivatableView {
 
     private void loadView(Class<? extends View> viewClass) {
         final Tab tab;
-        View view = MVC.loadView(viewClass);
 
-        if (view instanceof ServicesOpsView) tab = servicesTab;
+        View view = MVC.loadView(viewClass);
+        if (view instanceof DashboardOpsView) tab = dashboardTab;
+        else if (view instanceof ServicesOpsView) tab = servicesTab;
         else if (view instanceof NetworkOpsView) tab = networkTab;
         else if (view instanceof PlatformOpsView) tab = platformTab;
         else throw new IllegalArgumentException("Navigation to " + viewClass + " is not supported");

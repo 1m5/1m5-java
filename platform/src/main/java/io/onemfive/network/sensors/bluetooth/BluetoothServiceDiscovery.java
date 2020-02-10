@@ -82,9 +82,9 @@ public class BluetoothServiceDiscovery extends NetworkTask implements DiscoveryL
                 synchronized (serviceSearchCompletedEvent) {
                     currentDevice = device;
                     currentPeer = new NetworkPeer(Network.Bluetooth);
-                    currentPeer.getDid().getPublicKey().setAlias(device.getFriendlyName(true));
+                    currentPeer.getDid().setUsername(device.getFriendlyName(true));
                     currentPeer.getDid().getPublicKey().setAddress(device.getBluetoothAddress());
-                    LOG.info("Searching services on " + currentPeer.getDid().getPublicKey().getAlias() + " address=" + currentPeer.getDid().getPublicKey().getAddress());
+                    LOG.info("Searching services on " + currentPeer.getDid().getUsername() + " address=" + currentPeer.getDid().getPublicKey().getAddress());
                     LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(attrIDs, searchUuidSet, device, this);
                     serviceSearchCompletedEvent.wait();
                 }

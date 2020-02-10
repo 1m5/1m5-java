@@ -24,18 +24,17 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.settings.services.infovault;
+package io.onemfive.desktop.views.ops.dashboard;
 
 import io.onemfive.desktop.views.ActivatableView;
 import javafx.scene.layout.GridPane;
 
-
-public class InfovaultSettingsView extends ActivatableView {
+public class DashboardOpsView extends ActivatableView {
 
     private GridPane pane;
     private int gridRow = 0;
 
-    public InfovaultSettingsView() {
+    public DashboardOpsView() {
         super();
     }
 
