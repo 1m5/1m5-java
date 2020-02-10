@@ -34,6 +34,7 @@ import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.SensorStatusListener;
 import io.onemfive.util.Res;
+import io.onemfive.util.StringUtil;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
@@ -45,12 +46,14 @@ public class BluetoothSensorOpsView extends ActivatableView implements SensorSta
     private GridPane pane;
     private int gridRow = 0;
 
-    private String bluetoothFriendlyName = Res.get("ops.network.notKnownYet");
-    private String bluetoothAddress = Res.get("ops.network.notKnownYet");
+    private String friendlyName = Res.get("ops.network.notKnownYet");
+    private String address = Res.get("ops.network.notKnownYet");
+    private TextField friendlynameTextField;
+    private TextField addressTextField;
 
-    private TextField bluetoothFriendlynameTextField;
-    private TextField bluetoothAddressTextField;
-
+    private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
+    private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
+    private TextField sensorStatusTextField;
 
     public BluetoothSensorOpsView() {
         super();
@@ -63,8 +66,12 @@ public class BluetoothSensorOpsView extends ActivatableView implements SensorSta
 
         TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 3, Res.get("ops.network.localNode"));
         GridPane.setColumnSpan(localNodeGroup, 1);
-        bluetoothFriendlynameTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.bluetooth.friendlyNameLabel"), bluetoothFriendlyName, Layout.FIRST_ROW_DISTANCE).second;
-        bluetoothAddressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.bluetooth.addressLabel"), bluetoothAddress).second;
+        friendlynameTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.bluetooth.friendlyNameLabel"), friendlyName, Layout.FIRST_ROW_DISTANCE).second;
+        addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.bluetooth.addressLabel"), address).second;
+
+        TitledGroupBg statusGroup = addTitledGroupBg(pane, ++gridRow, 2, Res.get("ops.network.status"), Layout.FIRST_ROW_DISTANCE);
+        GridPane.setColumnSpan(statusGroup, 1);
+        sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.TWICE_FIRST_ROW_DISTANCE).second;
 
         LOG.info("Initialized");
     }
@@ -81,20 +88,25 @@ public class BluetoothSensorOpsView extends ActivatableView implements SensorSta
 
     @Override
     public void statusUpdated(SensorStatus sensorStatus) {
-
+        if(this.sensorStatus != sensorStatus) {
+            this.sensorStatus = sensorStatus;
+            if(sensorStatusField != null) {
+                sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
+            }
+        }
     }
 
     @Override
     public void modelUpdated(String name, Object object) {
         if(object instanceof NetworkPeer) {
             NetworkPeer peer = (NetworkPeer)object;
-            bluetoothFriendlyName = peer.getDid().getUsername();
-            bluetoothAddress = peer.getDid().getPublicKey().getAddress();
-            if(bluetoothFriendlynameTextField !=null) {
-                bluetoothFriendlynameTextField.setText(bluetoothFriendlyName);
+            friendlyName = peer.getDid().getUsername();
+            address = peer.getDid().getPublicKey().getAddress();
+            if(friendlynameTextField !=null) {
+                friendlynameTextField.setText(friendlyName);
             }
-            if(bluetoothAddressTextField !=null) {
-                bluetoothAddressTextField.setText(bluetoothAddress);
+            if(addressTextField !=null) {
+                addressTextField.setText(address);
             }
         }
     }

@@ -34,6 +34,7 @@ import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.SensorStatusListener;
 import io.onemfive.util.Res;
+import io.onemfive.util.StringUtil;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -47,9 +48,12 @@ public class SatelliteSensorOpsView extends ActivatableView implements SensorSta
 
     private String satelliteFingerprint = Res.get("ops.network.notKnownYet");
     private String satelliteAddress = Res.get("ops.network.notKnownYet");
-
     private TextField satelliteFingerprintTextField;
     private TextArea satelliteAddressTextArea;
+
+    private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
+    private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
+    private TextField sensorStatusTextField;
 
     public SatelliteSensorOpsView() {
         super();
@@ -64,6 +68,10 @@ public class SatelliteSensorOpsView extends ActivatableView implements SensorSta
         GridPane.setColumnSpan(localNodeGroup, 1);
         satelliteFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.satellite.fingerprintLabel"), satelliteFingerprint, Layout.FIRST_ROW_DISTANCE).second;
         satelliteAddressTextArea = addCompactTopLabelTextAreaWithText(pane, satelliteAddress, ++gridRow, Res.get("ops.network.satellite.addressLabel"), true).second;
+
+        TitledGroupBg statusGroup = addTitledGroupBg(pane, ++gridRow, 2, Res.get("ops.network.status"), Layout.FIRST_ROW_DISTANCE);
+        GridPane.setColumnSpan(statusGroup, 1);
+        sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.TWICE_FIRST_ROW_DISTANCE).second;
 
         LOG.info("Initialized");
     }
@@ -80,7 +88,12 @@ public class SatelliteSensorOpsView extends ActivatableView implements SensorSta
 
     @Override
     public void statusUpdated(SensorStatus sensorStatus) {
-
+        if(this.sensorStatus != sensorStatus) {
+            this.sensorStatus = sensorStatus;
+            if(sensorStatusField != null) {
+                sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
+            }
+        }
     }
 
     @Override

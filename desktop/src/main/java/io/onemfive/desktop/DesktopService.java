@@ -53,6 +53,13 @@ import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.SensorStatusListener;
+import io.onemfive.network.sensors.bluetooth.BluetoothSensor;
+import io.onemfive.network.sensors.fullspectrum.FullSpectrumRadioSensor;
+import io.onemfive.network.sensors.i2p.I2PSensor;
+import io.onemfive.network.sensors.lifi.LiFiSensor;
+import io.onemfive.network.sensors.satellite.SatelliteSensor;
+import io.onemfive.network.sensors.tor.SimpleTorSensor;
+import io.onemfive.network.sensors.wifidirect.WiFiDirectSensor;
 import io.onemfive.util.DLC;
 import javafx.application.Platform;
 
@@ -141,56 +148,141 @@ public class DesktopService extends BaseService {
             HomeView v = (HomeView)MVC.loadView(HomeView.class, true);
             v.updateManConBox();
         }));
-        Envelope e = Envelope.documentFactory();
-        SubscriptionRequest sensorStatusRequest = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, new Subscription() {
+
+        // Tor Sensor Status
+        Envelope eTor = Envelope.documentFactory();
+        SubscriptionRequest subscriptionRequestTor = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, SimpleTorSensor.class.getName(),
+        new Subscription() {
             @Override
             public void notifyOfEvent(Envelope e) {
                 Platform.runLater(() -> {
-                    LOG.info("Updating UI with Sensor Status...");
+                    LOG.info("Updating UI with TOR Sensor Status...");
                     EventMessage em = (EventMessage)e.getMessage();
-                    String sensorID = em.getName();
-                    String sensorStatus = (String)em.getMessage();
-                    SensorStatus status = SensorStatus.valueOf(sensorStatus);
-                    SensorStatusListener listener = null;
-                    switch (sensorID) {
-                        case "io.onemfive.network.sensors.tor.TorSensor": {
-                            listener = (SensorStatusListener)MVC.loadView(TORSensorOpsView.class, true);
-                            break;
-                        }
-                        case "io.onemfive.network.sensors.i2p.I2PSensor": {
-                            listener = (SensorStatusListener)MVC.loadView(I2PSensorOpsView.class, true);
-                            break;
-                        }
-                        case "io.onemfive.network.sensors.wifidirect.WiFiDirectSensor": {
-                            listener = (SensorStatusListener)MVC.loadView(WifiDirectSensorOpsView.class, true);
-                            break;
-                        }
-                        case "io.onemfive.network.sensors.bluetooth.BluetoothSensor": {
-                            listener = (SensorStatusListener)MVC.loadView(BluetoothSensorOpsView.class, true);
-                            break;
-                        }
-                        case "io.onemfive.network.sensors.satellite.SatelliteSensor": {
-                            listener = (SensorStatusListener)MVC.loadView(SatelliteSensorOpsView.class, true);
-                            break;
-                        }
-                        case "io.onemfive.network.sensors.fullspectrum.FullSpectrumRadioSensor": {
-                            listener = (SensorStatusListener)MVC.loadView(FullSpectrumRadioSensorOpsView.class, true);
-                            break;
-                        }
-                        case "io.onmfive.network.sensors.lifi.LiFiSensor": {
-                            listener = (SensorStatusListener)MVC.loadView(LiFiSensorOpsView.class, true);
-                            break;
-                        }
-                    }
-                    if(listener!=null)
-                        listener.statusUpdated(status);
+                    SensorStatus status = (SensorStatus)em.getMessage();
+                    SensorStatusListener listener = (SensorStatusListener)MVC.loadView(TORSensorOpsView.class, true);
+                    listener.statusUpdated(status);
                 });
             }
         });
-        DLC.addData(SubscriptionRequest.class, sensorStatusRequest, e);
-        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
-        OneMFivePlatform.sendRequest(e);
+        DLC.addData(SubscriptionRequest.class, subscriptionRequestTor, eTor);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, eTor);
+        OneMFivePlatform.sendRequest(eTor);
 
+        // I2P Sensor Status
+        Envelope eI2P = Envelope.documentFactory();
+        SubscriptionRequest subscriptionRequestI2P = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, I2PSensor.class.getName(),
+                new Subscription() {
+                    @Override
+                    public void notifyOfEvent(Envelope e) {
+                        Platform.runLater(() -> {
+                            LOG.info("Updating UI with I2P Sensor Status...");
+                            EventMessage em = (EventMessage)e.getMessage();
+                            SensorStatus status = (SensorStatus)em.getMessage();
+                            SensorStatusListener listener = (SensorStatusListener)MVC.loadView(I2PSensorOpsView.class, true);
+                            listener.statusUpdated(status);
+                        });
+                    }
+                });
+        DLC.addData(SubscriptionRequest.class, subscriptionRequestI2P, eI2P);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, eI2P);
+        OneMFivePlatform.sendRequest(eI2P);
+
+        // WiFi Direct Sensor Status
+        Envelope eWFD = Envelope.documentFactory();
+        SubscriptionRequest subscriptionRequestWFD = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, WiFiDirectSensor.class.getName(),
+                new Subscription() {
+                    @Override
+                    public void notifyOfEvent(Envelope e) {
+                        Platform.runLater(() -> {
+                            LOG.info("Updating UI with WiFi-Direct Sensor Status...");
+                            EventMessage em = (EventMessage)e.getMessage();
+                            SensorStatus status = (SensorStatus)em.getMessage();
+                            SensorStatusListener listener = (SensorStatusListener)MVC.loadView(WifiDirectSensorOpsView.class, true);
+                            listener.statusUpdated(status);
+                        });
+                    }
+                });
+        DLC.addData(SubscriptionRequest.class, subscriptionRequestWFD, eWFD);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, eWFD);
+        OneMFivePlatform.sendRequest(eWFD);
+
+        // Bluetooth Sensor Status
+        Envelope eBT = Envelope.documentFactory();
+        SubscriptionRequest subscriptionRequestBT = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, BluetoothSensor.class.getName(),
+                new Subscription() {
+                    @Override
+                    public void notifyOfEvent(Envelope e) {
+                        Platform.runLater(() -> {
+                            LOG.info("Updating UI with Bluetooth Sensor Status...");
+                            EventMessage em = (EventMessage)e.getMessage();
+                            SensorStatus status = (SensorStatus)em.getMessage();
+                            SensorStatusListener listener = (SensorStatusListener)MVC.loadView(BluetoothSensorOpsView.class, true);
+                            listener.statusUpdated(status);
+                        });
+                    }
+                });
+        DLC.addData(SubscriptionRequest.class, subscriptionRequestBT, eBT);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, eBT);
+        OneMFivePlatform.sendRequest(eBT);
+
+        // Satellite Sensor Status
+        Envelope eSat = Envelope.documentFactory();
+        SubscriptionRequest subscriptionRequestSat = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, SatelliteSensor.class.getName(),
+                new Subscription() {
+                    @Override
+                    public void notifyOfEvent(Envelope e) {
+                        Platform.runLater(() -> {
+                            LOG.info("Updating UI with Satellite Sensor Status...");
+                            EventMessage em = (EventMessage)e.getMessage();
+                            SensorStatus status = (SensorStatus)em.getMessage();
+                            SensorStatusListener listener = (SensorStatusListener)MVC.loadView(SatelliteSensorOpsView.class, true);
+                            listener.statusUpdated(status);
+                        });
+                    }
+                });
+        DLC.addData(SubscriptionRequest.class, subscriptionRequestSat, eSat);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, eSat);
+        OneMFivePlatform.sendRequest(eSat);
+
+        // Full Spectrum Radio Sensor Status
+        Envelope eFSR = Envelope.documentFactory();
+        SubscriptionRequest subscriptionRequestFSR = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, FullSpectrumRadioSensor.class.getName(),
+                new Subscription() {
+                    @Override
+                    public void notifyOfEvent(Envelope e) {
+                        Platform.runLater(() -> {
+                            LOG.info("Updating UI with Full Spectrum Radio Sensor Status...");
+                            EventMessage em = (EventMessage)e.getMessage();
+                            SensorStatus status = (SensorStatus)em.getMessage();
+                            SensorStatusListener listener = (SensorStatusListener)MVC.loadView(FullSpectrumRadioSensorOpsView.class, true);
+                            listener.statusUpdated(status);
+                        });
+                    }
+                });
+        DLC.addData(SubscriptionRequest.class, subscriptionRequestFSR, eFSR);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, eFSR);
+        OneMFivePlatform.sendRequest(eFSR);
+
+        // LiFi Sensor Status
+        Envelope eLF = Envelope.documentFactory();
+        SubscriptionRequest subscriptionRequestLF = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, LiFiSensor.class.getName(),
+                new Subscription() {
+                    @Override
+                    public void notifyOfEvent(Envelope e) {
+                        Platform.runLater(() -> {
+                            LOG.info("Updating UI with LiFi Sensor Status...");
+                            EventMessage em = (EventMessage)e.getMessage();
+                            SensorStatus status = (SensorStatus)em.getMessage();
+                            SensorStatusListener listener = (SensorStatusListener)MVC.loadView(LiFiSensorOpsView.class, true);
+                            listener.statusUpdated(status);
+                        });
+                    }
+                });
+        DLC.addData(SubscriptionRequest.class, subscriptionRequestLF, eLF);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, eLF);
+        OneMFivePlatform.sendRequest(eLF);
+
+        // Peer Status
         Envelope e2 = Envelope.documentFactory();
         SubscriptionRequest sensorStatusRequest2 = new SubscriptionRequest(EventMessage.Type.PEER_STATUS, PeerManager.class.getName(), new Subscription() {
             @Override
