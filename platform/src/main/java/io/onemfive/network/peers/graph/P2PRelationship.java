@@ -146,7 +146,6 @@ public class P2PRelationship implements JSONSerializable {
             case TOR: return P2PRelationship.RelType.TOR;
             case I2P: return P2PRelationship.RelType.I2P;
             case Bluetooth: return P2PRelationship.RelType.Bluetooth;
-            case BluetoothLE: return P2PRelationship.RelType.BluetoothLE;
             case WiFiDirect: return P2PRelationship.RelType.WiFiDirect;
             case Satellite: return P2PRelationship.RelType.Satellite;
             case FSRadio: return P2PRelationship.RelType.FSRadio;

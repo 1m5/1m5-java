@@ -61,7 +61,7 @@ public class NetworkService extends BaseService {
 
     public static final String OPERATION_SEND = "SEND";
     public static final String OPERATION_REPLY = "REPLY";
-    public static final String OPERATION_UPDATE_LOCAL_PEER = "updateLocalDID";
+//    public static final String OPERATION_UPDATE_LOCAL_PEER = "updateLocalDID";
     public static final String OPERATION_RECEIVE_LOCAL_AUTHN_PEER = "receiveLocalPeer";
 
     private SensorManager sensorManager;
@@ -192,10 +192,10 @@ public class NetworkService extends BaseService {
                 sensor.sendOut(response);
                 break;
             }
-            case OPERATION_UPDATE_LOCAL_PEER: {
-                LOG.info("Update local Peer...");
-                peerManager.updateLocalNode((NetworkPeer)DLC.getData(NetworkPeer.class,e));break;
-            }
+//            case OPERATION_UPDATE_LOCAL_PEER: {
+//                LOG.info("Update local Peer...");
+//                peerManager.updateLocalNode((NetworkPeer)DLC.getData(NetworkPeer.class,e));break;
+//            }
             case OPERATION_RECEIVE_LOCAL_AUTHN_PEER: {
                 LOG.info("Receive Local AuthN Peer...");
                 peerManager.updateLocalAuthNPeer(((AuthNRequest) DLC.getData(AuthNRequest.class,e)));break;
@@ -216,26 +216,26 @@ public class NetworkService extends BaseService {
         deadLetter(envelope);
     }
 
-    private void routeIn(Envelope envelope) {
-        LOG.info("Route In from Notification Service...");
-        DID fromDid = envelope.getDID();
-        LOG.info("From DID pulled from Envelope.");
-        // -- Ensure saved ---
-        NetworkPeer fromPeer = new NetworkPeer();
-        fromPeer.setDid(fromDid);
-        peerManager.savePeer(fromPeer,true);
-        // ----------
-        EventMessage m = (EventMessage)envelope.getMessage();
-        Object msg = m.getMessage();
-        if(msg instanceof NetworkPeer) {
-            LOG.info("Route in NetworkPeer for update...");
-            peerManager.updateLocalNode((NetworkPeer)msg);
-            LOG.info("DID with I2P Addresses saved; Network Service ready for requests.");
-        } else {
-            LOG.warning("EnvelopeMessage message "+msg.getClass().getName()+" not handled.");
-            deadLetter(envelope);
-        }
-    }
+//    private void routeIn(Envelope envelope) {
+//        LOG.info("Route In from Notification Service...");
+//        DID fromDid = envelope.getDID();
+//        LOG.info("From DID pulled from Envelope.");
+//        // -- Ensure saved ---
+//        NetworkPeer fromPeer = new NetworkPeer();
+//        fromPeer.setDid(fromDid);
+//        peerManager.savePeer(fromPeer,true);
+//        // ----------
+//        EventMessage m = (EventMessage)envelope.getMessage();
+//        Object msg = m.getMessage();
+//        if(msg instanceof NetworkPeer) {
+//            LOG.info("Route in NetworkPeer for update...");
+//            peerManager.updateLocalNode((NetworkPeer)msg);
+//            LOG.info("DID with I2P Addresses saved; Network Service ready for requests.");
+//        } else {
+//            LOG.warning("EnvelopeMessage message "+msg.getClass().getName()+" not handled.");
+//            deadLetter(envelope);
+//        }
+//    }
 
     /**
      * Request from an external NetworkPeer to see if this NetworkPeer is online.

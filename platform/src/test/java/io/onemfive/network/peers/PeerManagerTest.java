@@ -121,22 +121,23 @@ public class PeerManagerTest {
         pA.getDid().setUsername("Alice");
         pA.getDid().getPublicKey().setAddress("Alice-1m5-Address");
         pA.getDid().getPublicKey().setFingerprint("Alice-1m5-Fingerprint");
-        mgr.updateLocalNode(pA);
+        mgr.getLocalNode().addNetworkPeer(pA);
+        mgr.savePeer(pA, true);
         NetworkPeer pAI2P = new NetworkPeer(Network.I2P);
         pAI2P.setId(pA.getId());
         pAI2P.getDid().getPublicKey().setAddress("Alice-i2p-Address");
         pAI2P.getDid().getPublicKey().setFingerprint("Alice-i2p-Fingerprint");
-        mgr.updateLocalNode(pAI2P);
+        mgr.savePeer(pAI2P, true);
         NetworkPeer pATor = new NetworkPeer(Network.TOR);
         pATor.setId(pA.getId());
         pATor.getDid().getPublicKey().setAddress("Alice-tor-Address");
         pATor.getDid().getPublicKey().setFingerprint("Alice-tor-Fingerprint");
-        mgr.updateLocalNode(pATor);
+        mgr.savePeer(pATor, true);
         NetworkPeer pABT = new NetworkPeer(Network.Bluetooth);
         pABT.setId(pA.getId());
         pABT.getDid().getPublicKey().setAddress("Alice-bt-Address");
         pABT.getDid().getPublicKey().setFingerprint("Alice-bt-Fingerprint");
-        mgr.updateLocalNode(pABT);
+        mgr.savePeer(pABT, true);
 
         // Node B
         NetworkPeer pB = new NetworkPeer();

@@ -189,7 +189,7 @@ public class PeerManager implements Runnable {
                 // Publish to Notification Service
                 Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
                 EventMessage em = (EventMessage)e.getMessage();
-                em.setName(PeerManager.class.getName());
+                em.setName(networkPeer.getNetwork().name());
                 em.setMessage(networkPeer);
                 DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
                 service.sendToBus(e);
@@ -252,7 +252,7 @@ public class PeerManager implements Runnable {
                     // Publish to Notification Service
                     Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
                     EventMessage em = (EventMessage)e.getMessage();
-                    em.setName(PeerManager.class.getName());
+                    em.setName(Network.IMS.name());
                     em.setMessage(localPeer);
                     DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
                     service.sendToBus(e);
@@ -265,31 +265,31 @@ public class PeerManager implements Runnable {
         }
     }
 
-    public void updateLocalNode(NetworkPeer np) {
-        if(localNode==null) {
-            // First call is by local node authentication
-            localNode = peerDB.loadNode(np.getId());
-        }
-        if(localNode.getNetworkPeer().getId()!=null) {
-            // 1M5 Local Node already set so update all incoming local peers to its id
-            np.setId(localNode.getNetworkPeer().getId());
-        }
-        try {
-            if(peerDB.savePeer(np, true) && graphDB.savePeer(np, true)) {
-                localNode.addNetworkPeer(np);
-                LOG.info("Added to Local Node: " + np);
-                // Publish to Notification Service
-                Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
-                EventMessage em = (EventMessage)e.getMessage();
-                em.setName(PeerManager.class.getName());
-                em.setMessage(np);
-                DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
-                service.sendToBus(e);
-            }
-        } catch (Exception e) {
-            LOG.warning(e.getLocalizedMessage());
-        }
-    }
+//    public void updateLocalNode(NetworkPeer np) {
+//        if(localNode==null) {
+//            // First call is by local node authentication
+//            localNode = peerDB.loadNode(np.getId());
+//        }
+//        if(localNode.getNetworkPeer().getId()!=null) {
+//            // 1M5 Local Node already set so update all incoming local peers to its id
+//            np.setId(localNode.getNetworkPeer().getId());
+//        }
+//        try {
+//            if(peerDB.savePeer(np, true) && graphDB.savePeer(np, true)) {
+//                localNode.addNetworkPeer(np);
+//                LOG.info("Added to Local Node: " + np);
+//                // Publish to Notification Service
+//                Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
+//                EventMessage em = (EventMessage)e.getMessage();
+//                em.setName(PeerManager.class.getName());
+//                em.setMessage(np);
+//                DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
+//                service.sendToBus(e);
+//            }
+//        } catch (Exception e) {
+//            LOG.warning(e.getLocalizedMessage());
+//        }
+//    }
 
     public Request buildRequest(NetworkPeer origination, NetworkPeer destination) {
         Request p = new Request();
