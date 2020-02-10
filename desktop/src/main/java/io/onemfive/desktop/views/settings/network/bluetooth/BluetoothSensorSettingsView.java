@@ -26,13 +26,8 @@
  */
 package io.onemfive.desktop.views.settings.network.bluetooth;
 
-import io.onemfive.desktop.components.TitledGroupBg;
-import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
-import io.onemfive.util.Res;
 import javafx.scene.layout.GridPane;
-
-import static io.onemfive.desktop.util.FormBuilder.*;
 
 public class BluetoothSensorSettingsView extends ActivatableView {
 
@@ -47,10 +42,6 @@ public class BluetoothSensorSettingsView extends ActivatableView {
     protected void initialize() {
         LOG.info("Initializing...");
         pane = (GridPane)root;
-
-        // Config
-        TitledGroupBg configGroup = addTitledGroupBg(pane, gridRow, 1, Res.get("settings.network.config"), Layout.FIRST_ROW_DISTANCE);
-        GridPane.setColumnSpan(configGroup, 1);
 
         LOG.info("Initialized");
     }

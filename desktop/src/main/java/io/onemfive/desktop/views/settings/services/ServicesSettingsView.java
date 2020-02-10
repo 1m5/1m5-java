@@ -32,6 +32,7 @@ import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.settings.SettingsView;
+import io.onemfive.desktop.views.settings.services.dcdn.DCDNSettingsView;
 import io.onemfive.desktop.views.settings.services.identity.IdentitySettingsView;
 import io.onemfive.desktop.views.settings.services.infovault.InfovaultSettingsView;
 import io.onemfive.desktop.views.settings.services.keyring.KeyringSettingsView;
@@ -47,7 +48,7 @@ public class ServicesSettingsView extends ActivatableView {
 
     private TabPane pane;
     @FXML
-    private Tab identityTab, infovaultTab, keyringTab, monetaryTab;
+    private Tab identityTab, infovaultTab, keyringTab, monetaryTab, dcdnTab;
 
     private Navigation.Listener navigationListener;
     private ChangeListener<Tab> tabChangeListener;
@@ -60,6 +61,7 @@ public class ServicesSettingsView extends ActivatableView {
         infovaultTab.setText(Res.get("settings.services.tab.infovault").toUpperCase());
         keyringTab.setText(Res.get("settings.services.tab.keyring").toUpperCase());
         monetaryTab.setText(Res.get("settings.services.tab.monetary").toUpperCase());
+        dcdnTab.setText(Res.get("settings.services.tab.dcdn").toUpperCase());
 
         navigationListener = viewPath -> {
             if (viewPath.size() == 4 && viewPath.indexOf(ServicesSettingsView.class) == 2)
@@ -75,6 +77,8 @@ public class ServicesSettingsView extends ActivatableView {
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, ServicesSettingsView.class, KeyringSettingsView.class);
             else if (newValue == monetaryTab)
                 MVC.navigation.navigateTo(HomeView.class, SettingsView.class, ServicesSettingsView.class, MonetarySettingsView.class);
+            else if (newValue == dcdnTab)
+                MVC.navigation.navigateTo(HomeView.class, SettingsView.class, ServicesSettingsView.class, DCDNSettingsView.class);
         };
 
         LOG.info("Initialized.");
@@ -94,6 +98,8 @@ public class ServicesSettingsView extends ActivatableView {
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, ServicesSettingsView.class, KeyringSettingsView.class);
         else if (selectedItem == monetaryTab)
             MVC.navigation.navigateTo(HomeView.class, SettingsView.class, ServicesSettingsView.class, MonetarySettingsView.class);
+        else if (selectedItem == dcdnTab)
+            MVC.navigation.navigateTo(HomeView.class, SettingsView.class, ServicesSettingsView.class, DCDNSettingsView.class);
     }
 
     @Override
@@ -110,6 +116,7 @@ public class ServicesSettingsView extends ActivatableView {
         else if (view instanceof InfovaultSettingsView) tab = infovaultTab;
         else if (view instanceof KeyringSettingsView) tab = keyringTab;
         else if (view instanceof MonetarySettingsView) tab = monetaryTab;
+        else if (view instanceof DCDNSettingsView) tab = dcdnTab;
         else throw new IllegalArgumentException("Navigation to " + viewClass + " is not supported");
 
         if (tab.getContent() != null && tab.getContent() instanceof ScrollPane) {

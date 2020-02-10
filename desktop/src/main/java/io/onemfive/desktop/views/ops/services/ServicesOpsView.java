@@ -32,6 +32,7 @@ import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.ops.OpsView;
+import io.onemfive.desktop.views.ops.services.dcdn.DCDNOpsView;
 import io.onemfive.desktop.views.ops.services.identity.IdentityOpsView;
 import io.onemfive.desktop.views.ops.services.infovault.InfovaultOpsView;
 import io.onemfive.desktop.views.ops.services.keyring.KeyringOpsView;
@@ -47,7 +48,7 @@ public class ServicesOpsView extends ActivatableView {
 
     private TabPane pane;
     @FXML
-    private Tab identityTab, infovaultTab, keyringTab, monetaryTab;
+    private Tab identityTab, infovaultTab, keyringTab, monetaryTab, dcdnTab;
 
     private Navigation.Listener navigationListener;
     private ChangeListener<Tab> tabChangeListener;
@@ -60,6 +61,7 @@ public class ServicesOpsView extends ActivatableView {
         infovaultTab.setText(Res.get("ops.services.tab.infovault").toUpperCase());
         keyringTab.setText(Res.get("ops.services.tab.keyring").toUpperCase());
         monetaryTab.setText(Res.get("ops.services.tab.monetary").toUpperCase());
+        dcdnTab.setText(Res.get("ops.services.tab.dcdn").toUpperCase());
 
         navigationListener = viewPath -> {
             if (viewPath.size() == 4 && viewPath.indexOf(ServicesOpsView.class) == 2)
@@ -75,6 +77,8 @@ public class ServicesOpsView extends ActivatableView {
                 MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, KeyringOpsView.class);
             else if (newValue == monetaryTab)
                 MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, MonetaryOpsView.class);
+            else if (newValue == dcdnTab)
+                MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, DCDNOpsView.class);
         };
 
         LOG.info("Initialized.");
@@ -94,6 +98,8 @@ public class ServicesOpsView extends ActivatableView {
             MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, KeyringOpsView.class);
         else if (selectedItem == monetaryTab)
             MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, MonetaryOpsView.class);
+        else if (selectedItem == dcdnTab)
+            MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, DCDNOpsView.class);
     }
 
     @Override
@@ -110,6 +116,7 @@ public class ServicesOpsView extends ActivatableView {
         else if (view instanceof InfovaultOpsView) tab = infovaultTab;
         else if (view instanceof KeyringOpsView) tab = keyringTab;
         else if (view instanceof MonetaryOpsView) tab = monetaryTab;
+        else if (view instanceof DCDNOpsView) tab = dcdnTab;
         else throw new IllegalArgumentException("Navigation to " + viewClass + " is not supported");
 
         if (tab.getContent() != null && tab.getContent() instanceof ScrollPane) {

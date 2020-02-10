@@ -24,17 +24,18 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.settings.network.fullspectrum;
+package io.onemfive.desktop.views.settings.services.dcdn;
 
 import io.onemfive.desktop.views.ActivatableView;
 import javafx.scene.layout.GridPane;
 
-public class FullSpectrumRadioSensorSettingsView extends ActivatableView {
+
+public class DCDNSettingsView extends ActivatableView {
 
     private GridPane pane;
     private int gridRow = 0;
 
-    public FullSpectrumRadioSensorSettingsView() {
+    public DCDNSettingsView() {
         super();
     }
 
