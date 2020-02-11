@@ -29,7 +29,6 @@ package io.onemfive.monetary.xmr;
 import io.onemfive.core.*;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.route.Route;
-import io.onemfive.util.Config;
 import io.onemfive.util.DLC;
 import monero.daemon.MoneroDaemon;
 import monero.daemon.MoneroDaemonRpc;
@@ -101,7 +100,9 @@ public class MoneroService extends BaseService {
     public boolean start(Properties p) {
         LOG.info("Starting....");
         updateStatus(ServiceStatus.STARTING);
-//        daemon = new MoneroDaemonRpc("http://localhost:38081");
+        daemon = new MoneroDaemonRpc("http://localhost:38081");
+        LOG.info("Height: "+daemon.getHeight());
+        LOG.info("Fee Est: "+daemon.getFeeEstimate());
         updateStatus(ServiceStatus.RUNNING);
         LOG.info("Started.");
         return true;

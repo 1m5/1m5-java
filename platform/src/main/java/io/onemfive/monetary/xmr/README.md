@@ -3,6 +3,7 @@ Integration with the Monero platform.
 
 ## Monero CLI Installation
 
+https://web.getmonero.org/
 
     Download and extract the latest Monero CLI for your platform.
 
@@ -15,3 +16,10 @@ Integration with the Monero platform.
     Start monero-wallet-rpc (requires --wallet-dir to run tests):
 
     e.g. For wallet name test_wallet_1, user rpc_user, password abc123, stagenet: ./monero-wallet-rpc --router-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./
+
+## Integration
+Lots of issues with Kovri/Sekreta in Monero,
+
+I recommended moving to 1M5 [here](https://github.com/monero-project/monero/pull/6276).
+
+https://github.com/monero-project/monero/blob/master/ANONYMITY_NETWORKS.md
