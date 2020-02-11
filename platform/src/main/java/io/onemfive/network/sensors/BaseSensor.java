@@ -51,7 +51,7 @@ public abstract class BaseSensor implements Sensor {
 
     private static final Logger LOG = Logger.getLogger(BaseSensor.class.getName());
 
-    protected NetworkState config = new NetworkState();
+    protected NetworkState networkState = new NetworkState();
     protected NetworkPeer localPeer;
     protected Network network;
     protected SensorManager sensorManager;
@@ -69,6 +69,7 @@ public abstract class BaseSensor implements Sensor {
     public BaseSensor(SensorManager sensorManager, Network network) {
         this.sensorManager = sensorManager;
         this.network = network;
+        networkState.network = network;
     }
 
     public SensorManager getSensorManager() {
@@ -77,13 +78,13 @@ public abstract class BaseSensor implements Sensor {
 
     @Override
     public void updateConfig(NetworkState config) {
-        this.config = config;
+        this.networkState = config;
         restart();
     }
 
     @Override
-    public NetworkState getConfig() {
-        return config;
+    public NetworkState getNetworkState() {
+        return networkState;
     }
 
     public void updateStatus(SensorStatus sensorStatus) {

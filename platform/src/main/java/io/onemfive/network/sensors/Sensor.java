@@ -56,6 +56,6 @@ public interface Sensor extends LifeCycle {
     void setSensorManager(SensorManager sensorManager);
     SensorManager getSensorManager();
     File getDirectory();
-    NetworkState getConfig();
+    NetworkState getNetworkState();
     void updateConfig(NetworkState config);
 }

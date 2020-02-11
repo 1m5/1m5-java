@@ -26,7 +26,6 @@
  */
 package io.onemfive.network.sensors.i2p;
 
-import io.onemfive.network.NetworkState;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.*;
 import io.onemfive.util.Config;
@@ -71,8 +70,6 @@ public class I2PSensor extends BaseSensor {
     protected static int ECDH256ECDSA256 = 2;
     protected static int ECDH521EDCSA521 = 3;
     protected static int NTRUEncrypt1087GMSS512 = 4;
-
-    public final NetworkState config = new NetworkState();
 
     public static final NetworkPeer seedAI2P;
 
@@ -169,7 +166,7 @@ public class I2PSensor extends BaseSensor {
         // I2P Sensor Starting
         LOG.info("Loading I2P properties...");
         properties = p;
-        config.params.put(ROUTER_LOCATION, "embedded");
+        networkState.params.put(ROUTER_LOCATION, "embedded");
         updateStatus(SensorStatus.STARTING);
         isTest = "true".equals(properties.getProperty("1m5.sensors.i2p.isTest"));
         // Look for another instance installed
@@ -399,13 +396,15 @@ public class I2PSensor extends BaseSensor {
             List<RouterContext> routerContexts = RouterContext.listContexts();
             routerContext = routerContexts.get(0);
             router = routerContext.router();
-            // Override hidden mode even when in I2P defined 'strict' countries
-            // TODO: Turn this back on by default but let end user change it
-            if(config.params.get(Router.PROP_HIDDEN)!=null) {
-                router.saveConfig(Router.PROP_HIDDEN, (String)config.params.get(Router.PROP_HIDDEN));
-            }
-            router.saveConfig(Router.PROP_HIDDEN, "false");
+            // TODO: Give end users ability to change this
+//            if(config.params.get(Router.PROP_HIDDEN)!=null) {
+//                router.saveConfig(Router.PROP_HIDDEN, (String)config.params.get(Router.PROP_HIDDEN));
+//            }
+//            router.saveConfig(Router.PROP_HIDDEN, "false");
             LOG.info("I2P Router - Hidden Mode: "+router.getConfigSetting(Router.PROP_HIDDEN));
+            for(String param : router.getConfigMap().keySet()) {
+                networkState.params.put(param, router.getConfigSetting(param));
+            }
             router.setKillVMOnEnd(false);
             routerContext.addShutdownTask(new RouterStopper());
             // Hard code to INFO for now for troubleshooting; need to move to configuration
@@ -551,7 +550,7 @@ public class I2PSensor extends BaseSensor {
             establishSession(null, true);
             if(discovery==null) {
                 LOG.info("I2P NetworkPeerDiscovery not instantiated; adding to TaskRunner...");
-                discovery = new NetworkPeerDiscovery(taskRunner, this, Network.I2P, config);
+                discovery = new NetworkPeerDiscovery(taskRunner, this, Network.I2P, networkState);
                 seedAI2P.setId(sensorManager.getPeerManager().getLocalNode().getNetworkPeer().getId());
                 sensorManager.getPeerManager().savePeer(seedAI2P, true);
 //                taskRunner.addTask(discovery);

@@ -110,7 +110,7 @@ public class NetworkService extends BaseService {
         switch (r.getOperation()) {
             case OPERATION_GET_NETWORK_CONFIG: {
                 Network network = (Network)DLC.getValue("network", e);
-                DLC.addData(NetworkState.class, sensorManager.getSensor(network).getConfig(), e);
+                DLC.addData(NetworkState.class, sensorManager.getSensor(network).getNetworkState(), e);
                 break;
             }
             case OPERATION_UPDATE_NETWORK_CONFIG: {
