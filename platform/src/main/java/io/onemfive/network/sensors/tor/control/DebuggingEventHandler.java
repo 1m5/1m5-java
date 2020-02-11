@@ -67,7 +67,7 @@ public class DebuggingEventHandler implements EventHandler {
     }
 
     public void hiddenServiceDescriptor(String descriptorId, String descriptor, String msg) {
-        out.info("hiddenServiceEvent: HS_DESC_CONTENT " + msg.trim());
+        out.fine("hiddenServiceEvent: HS_DESC_CONTENT " + msg.trim());
     }
 
     public void unrecognized(String type, String msg) {

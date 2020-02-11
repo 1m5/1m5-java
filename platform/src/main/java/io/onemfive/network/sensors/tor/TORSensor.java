@@ -200,7 +200,8 @@ public final class TORSensor extends ClearnetSensor {
 
             try {
                 TorControlConnection conn = getConnection(null);
-                Map<String, String> m = conn.getInfo(Arrays.asList("stream-status", "orconn-status", "circuit-status", "version"));
+//                Map<String, String> m = conn.getInfo(Arrays.asList("stream-status", "orconn-status", "circuit-status", "version"));
+                Map<String, String> m = conn.getInfo(Arrays.asList("version"));
                 StringBuilder sb = new StringBuilder();
                 sb.append("TOR config:");
                 for (Iterator<Map.Entry<String, String>> i = m.entrySet().iterator(); i.hasNext(); ) {
@@ -220,12 +221,12 @@ public final class TORSensor extends ClearnetSensor {
                 localNode.addNetworkPeer(localTORPeer);
                 if(localTORPeer.getDid().getPublicKey().getAddress()==null) {
                     TorControlConnection.CreateHiddenServiceResult result = conn.createHiddenService(10026);
-                    sb.append("\n\tServiceID: " + result.serviceID);
-                    sb.append("\n\tPrivateKey: " + result.privateKey);
+//                    sb.append("\n\tTOR Hidden Service Address: " + result.serviceID);
+//                    sb.append("\n\tPrivateKey: " + result.privateKey);
                     conn.destroyHiddenService(result.serviceID);
                     result = conn.createHiddenService(10026, result.privateKey);
-                    sb.append("\n\tServiceID: " + result.serviceID);
-                    sb.append("\n\tPrivateKey: " + result.privateKey);
+                    sb.append("\n\tTOR Hidden Service Address: " + result.serviceID);
+//                    sb.append("\n\tPrivateKey: " + result.privateKey);
                     localTORPeer.setId(localNode.getNetworkPeer().getId());
                     localTORPeer.getDid().getPublicKey().setFingerprint(result.serviceID); // used as key
                     localTORPeer.getDid().getPublicKey().setAddress(result.serviceID);
