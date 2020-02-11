@@ -36,6 +36,9 @@ import io.onemfive.data.route.Route;
 import io.onemfive.util.DLC;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Logger;
 
 /**
@@ -72,6 +75,8 @@ public class NotificationService extends BaseService {
      * To publish an EventMessage, ensure the Envelope contains one.
      */
     public static final String OPERATION_PUBLISH = "PUBLISH";
+
+    private ExecutorService pool = Executors.newFixedThreadPool(4);
 
     private Map<String,Map<String,List<Subscription>>> subscriptions;
 
@@ -144,13 +149,7 @@ public class NotificationService extends BaseService {
         } else {
             LOG.info("Notify all "+subs.size()+" unfiltered subscriptions.");
             for(final Subscription sub: subs) {
-                // TODO: Move to WorkerThreadPool to control CPU usage
-                new AppThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        sub.notifyOfEvent(e);
-                    }
-                }).start();
+                pool.execute(() -> sub.notifyOfEvent(e));
             }
         }
 //        LOG.info("With name to filter on: " + m.getName());
@@ -160,13 +159,7 @@ public class NotificationService extends BaseService {
         } else {
             LOG.info("Notify all "+filteredSubs.size()+" filtered subscriptions.");
             for(final Subscription sub: filteredSubs) {
-                // TODO: Move to WorkerThreadPool to control CPU usage
-                new AppThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        sub.notifyOfEvent(e);
-                    }
-                }).start();
+                pool.execute(() -> sub.notifyOfEvent(e));
             }
         }
     }
@@ -196,6 +189,7 @@ public class NotificationService extends BaseService {
         subscriptions.put(EventMessage.Type.BUS_STATUS.name(), buildNewMap());
         subscriptions.put(EventMessage.Type.CLIENT_STATUS.name(), buildNewMap());
         subscriptions.put(EventMessage.Type.PEER_STATUS.name(), buildNewMap());
+        subscriptions.put(EventMessage.Type.NETWORK_STATE_UPDATE.name(), buildNewMap());
         subscriptions.put(EventMessage.Type.SENSOR_STATUS.name(), buildNewMap());
         subscriptions.put(EventMessage.Type.SERVICE_STATUS.name(), buildNewMap());
         subscriptions.put(EventMessage.Type.TEXT.name(), buildNewMap());
