@@ -27,12 +27,21 @@
 package io.onemfive.desktop.views.settings.network.tor;
 
 import io.onemfive.desktop.views.ActivatableView;
+import io.onemfive.network.NetworkState;
+import io.onemfive.network.NetworkStateUpdateListener;
+import io.onemfive.network.sensors.i2p.I2PSensor;
+import io.onemfive.util.Res;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 
-public class TORSensorSettingsView extends ActivatableView {
+import static io.onemfive.desktop.util.FormBuilder.addSlideToggleButton;
+
+public class TORSensorSettingsView extends ActivatableView implements NetworkStateUpdateListener {
 
     private GridPane pane;
     private int gridRow = 0;
+
+    private ToggleButton routerEmbedded;
 
     public TORSensorSettingsView() {
         super();
@@ -43,17 +52,28 @@ public class TORSensorSettingsView extends ActivatableView {
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
+        routerEmbedded = addSlideToggleButton(pane, gridRow, Res.get("settings.network.tor.routerEmbedded"));
+
         LOG.info("Initialized");
     }
 
     @Override
     protected void activate() {
-
+        routerEmbedded.setSelected(false);
+        routerEmbedded.setOnAction(e -> {
+            LOG.info("routerEmbedded="+routerEmbedded.isSelected());
+        });
+        routerEmbedded.disableProperty().setValue(true);
     }
 
     @Override
     protected void deactivate() {
-
+        routerEmbedded.setOnAction(null);
     }
 
+    @Override
+    public void notify(NetworkState networkState) {
+        if(routerEmbedded!=null)
+            routerEmbedded.setSelected("embedded".equals(networkState.params.get(I2PSensor.ROUTER_LOCATION)));
+    }
 }
