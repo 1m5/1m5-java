@@ -30,7 +30,7 @@ import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkNode;
 import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.NetworkConfig;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.*;
 import io.onemfive.util.Wait;
@@ -52,7 +52,7 @@ public class BluetoothSensor extends BaseSensor {
     private String bluetoothBaseDir;
     private File bluetoothDir;
 
-    public static final NetworkConfig config = new NetworkConfig();
+    public static final NetworkState config = new NetworkState();
     Map<String, RemoteDevice> devices = new HashMap<>();
     Map<String, NetworkPeer> peersInDiscovery = new HashMap<>();
 

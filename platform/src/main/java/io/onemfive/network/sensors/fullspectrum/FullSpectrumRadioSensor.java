@@ -28,10 +28,8 @@ package io.onemfive.network.sensors.fullspectrum;
 
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
-import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.NetworkConfig;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -53,7 +51,7 @@ public class FullSpectrumRadioSensor extends BaseSensor {
 
     private Logger LOG = Logger.getLogger(FullSpectrumRadioSensor.class.getName());
 
-    public static final NetworkConfig config = new NetworkConfig();
+    public static final NetworkState config = new NetworkState();
 
     public FullSpectrumRadioSensor() {
         super(Network.FSRadio);

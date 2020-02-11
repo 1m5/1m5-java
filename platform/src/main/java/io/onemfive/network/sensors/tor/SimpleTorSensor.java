@@ -32,14 +32,12 @@ import io.onemfive.network.sensors.NetworkPeerDiscovery;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
 import io.onemfive.network.sensors.tor.control.ConfigEntry;
-import io.onemfive.network.sensors.tor.control.DebuggingEventHandler;
 import io.onemfive.network.sensors.tor.control.TorControlConnection;
 import io.onemfive.util.DLC;
 import io.onemfive.network.sensors.SensorStatus;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -55,7 +53,7 @@ public final class SimpleTorSensor extends ClearnetSensor {
 
     private static final Logger LOG = Logger.getLogger(SimpleTorSensor.class.getName());
 
-    public static final NetworkConfig config = new NetworkConfig();
+    public static final NetworkState config = new NetworkState();
 
     private NetworkPeerDiscovery discovery;
 

@@ -26,21 +26,20 @@
  */
 package io.onemfive.desktop.views.settings.network.i2p;
 
-import io.onemfive.desktop.user.Preferences;
-import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
-import io.onemfive.network.NetworkConfig;
+import io.onemfive.network.NetworkState;
+import io.onemfive.network.NetworkStateUpdateListener;
 import io.onemfive.network.sensors.i2p.I2PSensor;
 import io.onemfive.util.Res;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import net.i2p.router.Router;
 
+import static io.onemfive.desktop.util.FormBuilder.addCompactTopLabelTextField;
 import static io.onemfive.desktop.util.FormBuilder.addSlideToggleButton;
 
-public class I2PSensorSettingsView extends ActivatableView  {
-
-    private NetworkConfig config;
+public class I2PSensorSettingsView extends ActivatableView implements NetworkStateUpdateListener {
 
     private GridPane pane;
     private int gridRow = 0;
@@ -51,16 +50,18 @@ public class I2PSensorSettingsView extends ActivatableView  {
 
     private ToggleButton hiddenMode;
     private ToggleButton routerEmbedded;
+    private TextField sharePercentage;
 
     @Override
     protected void initialize() {
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        routerEmbedded = addSlideToggleButton(pane, ++gridRow, Res.get("settings.network.i2p.routerEmbedded"));
-        hiddenMode = addSlideToggleButton(pane, gridRow, Res.get("settings.network.i2p.hiddenMode"));
+        routerEmbedded = addSlideToggleButton(pane, gridRow, Res.get("settings.network.i2p.routerEmbedded"));
+        hiddenMode = addSlideToggleButton(pane, ++gridRow, Res.get("settings.network.i2p.hiddenMode"));
+        sharePercentage = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.i2p.sharePercentage"), String.valueOf(Router.DEFAULT_SHARE_PERCENTAGE)).second;
 
-        // TODO: Request NetworkConfig for I2P Sensor.
+        // TODO: Register as NetworkConfig listener
 
         LOG.info("Initialized");
     }
@@ -84,10 +85,14 @@ public class I2PSensorSettingsView extends ActivatableView  {
         routerEmbedded.setOnAction(null);
     }
 
-    public void setConfig(NetworkConfig config) {
-        this.hiddenMode.setSelected("true".equals(config.params.get(Router.PROP_HIDDEN)));
-        this.routerEmbedded.setSelected("embedded".equals(config.params.get(I2PSensor.ROUTER_LOCATION)));
-        config.params.get(Router.PROP_BANDWIDTH_SHARE_PERCENTAGE);
+    @Override
+    public void notify(NetworkState state) {
+        if(hiddenMode!=null)
+            hiddenMode.setSelected("true".equals(state.params.get(Router.PROP_HIDDEN)));
+        if(routerEmbedded!=null)
+            routerEmbedded.setSelected("embedded".equals(state.params.get(I2PSensor.ROUTER_LOCATION)));
+        if(sharePercentage!=null)
+            sharePercentage.setText((String)state.params.get(Router.PROP_BANDWIDTH_SHARE_PERCENTAGE));
     }
 
 }

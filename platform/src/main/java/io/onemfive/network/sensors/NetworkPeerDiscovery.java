@@ -28,7 +28,7 @@ package io.onemfive.network.sensors;
 
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.NetworkConfig;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.NetworkTask;
 import io.onemfive.network.ops.PingRequestOp;
 import io.onemfive.util.RandomUtil;
@@ -40,11 +40,11 @@ public class NetworkPeerDiscovery extends NetworkTask  {
 
     private Logger LOG = Logger.getLogger(NetworkPeerDiscovery.class.getName());
 
-    public NetworkConfig config;
+    public NetworkState config;
 
     public final Network network;
 
-    public NetworkPeerDiscovery(TaskRunner taskRunner, Sensor sensor, Network network, NetworkConfig config) {
+    public NetworkPeerDiscovery(TaskRunner taskRunner, Sensor sensor, Network network, NetworkState config) {
         super(network.name()+"NetworkPeerDiscovery", taskRunner, sensor);
         this.network = network;
         this.config = config;

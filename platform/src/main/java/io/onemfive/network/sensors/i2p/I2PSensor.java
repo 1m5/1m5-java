@@ -26,15 +26,13 @@
  */
 package io.onemfive.network.sensors.i2p;
 
-import io.onemfive.network.NetworkConfig;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.*;
 import io.onemfive.util.Config;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.*;
 import net.i2p.client.*;
-import net.i2p.crypto.SigType;
 import net.i2p.data.DataHelper;
 import net.i2p.router.CommSystemFacade;
 import net.i2p.router.Router;
@@ -74,7 +72,7 @@ public class I2PSensor extends BaseSensor {
     protected static int ECDH521EDCSA521 = 3;
     protected static int NTRUEncrypt1087GMSS512 = 4;
 
-    public final NetworkConfig config = new NetworkConfig();
+    public final NetworkState config = new NetworkState();
 
     public static final NetworkPeer seedAI2P;
 

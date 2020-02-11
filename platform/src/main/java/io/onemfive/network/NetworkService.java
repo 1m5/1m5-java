@@ -29,8 +29,6 @@ package io.onemfive.network;
 import io.onemfive.core.*;
 import io.onemfive.data.AuthNRequest;
 import io.onemfive.core.keyring.KeyRingService;
-import io.onemfive.core.notification.NotificationService;
-import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.route.ExternalRoute;
 import io.onemfive.network.peers.PeerManager;
 import io.onemfive.util.*;
@@ -112,11 +110,11 @@ public class NetworkService extends BaseService {
         switch (r.getOperation()) {
             case OPERATION_GET_NETWORK_CONFIG: {
                 Network network = (Network)DLC.getValue("network", e);
-                DLC.addData(NetworkConfig.class, sensorManager.getSensor(network).getConfig(), e);
+                DLC.addData(NetworkState.class, sensorManager.getSensor(network).getConfig(), e);
                 break;
             }
             case OPERATION_UPDATE_NETWORK_CONFIG: {
-                NetworkConfig config = (NetworkConfig)DLC.getData(NetworkConfig.class, e);
+                NetworkState config = (NetworkState)DLC.getData(NetworkState.class, e);
                 if(config!=null) {
                     sensorManager.getSensor(config.network).updateConfig(config);
                 }

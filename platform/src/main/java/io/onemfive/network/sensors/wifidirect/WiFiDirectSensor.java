@@ -28,7 +28,7 @@ package io.onemfive.network.sensors.wifidirect;
 
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
-import io.onemfive.network.NetworkConfig;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
@@ -43,7 +43,7 @@ public class WiFiDirectSensor extends BaseSensor {
 
     public static Logger LOG = Logger.getLogger(WiFiDirectSensor.class.getName());
 
-    public static final NetworkConfig config = new NetworkConfig();
+    public static final NetworkState config = new NetworkState();
 
     public WiFiDirectSensor() {
         super(Network.WiFiDirect);

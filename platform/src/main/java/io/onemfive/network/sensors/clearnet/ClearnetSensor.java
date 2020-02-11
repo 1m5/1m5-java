@@ -30,10 +30,8 @@ import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.*;
 import io.onemfive.data.Network;
-import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.NetworkConfig;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.Packet;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -75,7 +73,7 @@ import java.util.logging.Logger;
  */
 public class ClearnetSensor extends BaseSensor {
 
-    public static final NetworkConfig config = new NetworkConfig();
+    public static final NetworkState config = new NetworkState();
 
     protected static final Set<String> trustedHosts = new HashSet<>();
 

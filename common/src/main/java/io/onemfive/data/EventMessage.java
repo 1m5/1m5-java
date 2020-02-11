@@ -47,6 +47,7 @@ public final class EventMessage extends BaseMessage {
         SENSOR_STATUS,
         SERVICE_STATUS,
         DID_STATUS,
+        NETWORK_STATE_UPDATE,
         HTML,
         JSON,
         TEXT
