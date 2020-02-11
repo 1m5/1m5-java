@@ -37,7 +37,7 @@ import io.onemfive.network.sensors.fullspectrum.FullSpectrumRadioSensor;
 import io.onemfive.network.sensors.i2p.I2PSensor;
 import io.onemfive.network.sensors.lifi.LiFiSensor;
 import io.onemfive.network.sensors.satellite.SatelliteSensor;
-import io.onemfive.network.sensors.tor.SimpleTorSensor;
+import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.network.sensors.wifidirect.WiFiDirectSensor;
 import io.onemfive.util.AppThread;
 import io.onemfive.util.DLC;
@@ -145,7 +145,7 @@ public final class SensorManager {
     public boolean init(final Properties properties) {
         this.properties = properties;
         registeredSensors.put(ClearnetSensor.class.getName(), new ClearnetSensor(this));
-        registeredSensors.put(SimpleTorSensor.class.getName(), new SimpleTorSensor(this));
+        registeredSensors.put(TORSensor.class.getName(), new TORSensor(this));
         registeredSensors.put(I2PSensor.class.getName(), new I2PSensor(this));
         registeredSensors.put(BluetoothSensor.class.getName(), new BluetoothSensor(this));
 //        registeredSensors.put(WiFiDirectSensor.class.getName(), new WiFiDirectSensor(this));
@@ -190,7 +190,7 @@ public final class SensorManager {
                             selected = findRelay(packet);
                     } else {
                         if(isNetworkReady(Network.TOR))
-                            selected = activeSensors.get(SimpleTorSensor.class.getName());
+                            selected = activeSensors.get(TORSensor.class.getName());
                         else
                             selected = findRelay(packet);
                     }
@@ -284,8 +284,8 @@ public final class SensorManager {
         } else if(activeSensors.get(I2PSensor.class.getName())!=null
                 && activeSensors.get(I2PSensor.class.getName()).getStatus()==SensorStatus.NETWORK_CONNECTED) {
             ManConStatus.MAX_AVAILABLE_MANCON = ManCon.HIGH;
-        } else if(activeSensors.get(SimpleTorSensor.class.getName())!=null
-                && activeSensors.get(SimpleTorSensor.class.getName()).getStatus()==SensorStatus.NETWORK_CONNECTED) {
+        } else if(activeSensors.get(TORSensor.class.getName())!=null
+                && activeSensors.get(TORSensor.class.getName()).getStatus()==SensorStatus.NETWORK_CONNECTED) {
             ManConStatus.MAX_AVAILABLE_MANCON = ManCon.LOW;
         } else {
             ManConStatus.MAX_AVAILABLE_MANCON = ManCon.NONE;
@@ -331,7 +331,7 @@ public final class SensorManager {
     public Sensor getSensor(Network network) {
         switch (network) {
             case HTTPS: return activeSensors.get(ClearnetSensor.class.getName());
-            case TOR: return activeSensors.get(SimpleTorSensor.class.getName());
+            case TOR: return activeSensors.get(TORSensor.class.getName());
             case I2P: return activeSensors.get(I2PSensor.class.getName());
             case Bluetooth: return activeSensors.get(BluetoothSensor.class.getName());
             case WiFiDirect: return activeSensors.get(WiFiDirectSensor.class.getName());
@@ -565,7 +565,7 @@ public final class SensorManager {
     public boolean isNetworkReady(Network network) {
         switch (network) {
             case HTTPS: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(ClearnetSensor.class.getName());
-            case TOR: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(SimpleTorSensor.class.getName());
+            case TOR: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(TORSensor.class.getName());
             case I2P: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(I2PSensor.class.getName());
             case Bluetooth: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(BluetoothSensor.class.getName());
             case WiFiDirect: return SensorStatus.NETWORK_CONNECTED == getSensorStatus(WiFiDirectSensor.class.getName());

@@ -49,9 +49,9 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public final class SimpleTorSensor extends ClearnetSensor {
+public final class TORSensor extends ClearnetSensor {
 
-    private static final Logger LOG = Logger.getLogger(SimpleTorSensor.class.getName());
+    private static final Logger LOG = Logger.getLogger(TORSensor.class.getName());
 
     public static final NetworkState config = new NetworkState();
 
@@ -62,13 +62,13 @@ public final class SimpleTorSensor extends ClearnetSensor {
     public static final Integer PORT_CONTROL = 9100;
     public static final Integer PORT_HIDDEN_SERVICE = 9151;
 
-    public SimpleTorSensor() {
+    public TORSensor() {
         super(Network.TOR);
         // Setup local Tor instance as proxy for Tor Client
         proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(HOST, PORT_SOCKS));
     }
 
-    public SimpleTorSensor(SensorManager sensorManager) {
+    public TORSensor(SensorManager sensorManager) {
         super(sensorManager, Network.TOR);
         // Setup local Tor instance as proxy for Tor Client
         proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(HOST, PORT_SOCKS));
