@@ -35,7 +35,6 @@ import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.SensorStatusListener;
 import io.onemfive.util.Res;
 import io.onemfive.util.StringUtil;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
@@ -46,10 +45,8 @@ public class TORSensorOpsView extends ActivatableView implements SensorStatusLis
     private GridPane pane;
     private int gridRow = 0;
 
-    private String torFingerprint = Res.get("ops.network.notKnownYet");
-    private String torAddress = Res.get("ops.network.notKnownYet");
-    private TextField torFingerprintTextField;
-    private TextArea torAddressTextArea;
+    private String address = Res.get("ops.network.notKnownYet");
+    private TextField addressTextField;
 
     private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
     private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
@@ -66,8 +63,7 @@ public class TORSensorOpsView extends ActivatableView implements SensorStatusLis
 
         TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 3, Res.get("ops.network.localNode"));
         GridPane.setColumnSpan(localNodeGroup, 1);
-        torFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.fingerprintLabel"), torFingerprint, Layout.FIRST_ROW_DISTANCE).second;
-        torAddressTextArea = addCompactTopLabelTextAreaWithText(pane, torAddress, ++gridRow, Res.get("ops.network.tor.addressLabel"), true).second;
+        addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.addressLabel"), address, Layout.FIRST_ROW_DISTANCE).second;
 
         TitledGroupBg statusGroup = addTitledGroupBg(pane, ++gridRow, 2, Res.get("ops.network.status"), Layout.FIRST_ROW_DISTANCE);
         GridPane.setColumnSpan(statusGroup, 1);
@@ -100,13 +96,9 @@ public class TORSensorOpsView extends ActivatableView implements SensorStatusLis
     public void modelUpdated(String name, Object object) {
         if(object instanceof NetworkPeer) {
             NetworkPeer peer = (NetworkPeer)object;
-            torFingerprint = peer.getDid().getPublicKey().getFingerprint();
-            torAddress = peer.getDid().getPublicKey().getAddress();
-            if(torFingerprintTextField !=null) {
-                torFingerprintTextField.setText(torFingerprint);
-            }
-            if(torAddressTextArea !=null) {
-                torAddressTextArea.setText(torAddress);
+            address = peer.getDid().getPublicKey().getAddress();
+            if(addressTextField !=null) {
+                addressTextField.setText(address);
             }
         }
     }

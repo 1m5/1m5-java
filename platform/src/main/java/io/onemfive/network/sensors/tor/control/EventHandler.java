@@ -47,7 +47,7 @@ public interface EventHandler {
      * <b>circID</b> is the alphanumeric identifier of the affected circuit,
      * and <b>path</b> is a comma-separated list of alphanumeric ServerIDs.
      */
-    public void circuitStatus(String status, String circID, String path);
+    void circuitStatus(String status, String circID, String path);
     /**
      * Invoked when a stream's status has changed.
      * Possible values for <b>status</b> are:
@@ -65,30 +65,30 @@ public interface EventHandler {
      * <b>streamID</b> is the alphanumeric identifier of the affected stream,
      * and its <b>target</b> is specified as address:port.
      */
-    public void streamStatus(String status, String streamID, String target);
+    void streamStatus(String status, String streamID, String target);
     /**
      * Invoked when the status of a connection to an OR has changed.
      * Possible values for <b>status</b> are ["LAUNCHED" | "CONNECTED" | "FAILED" | "CLOSED"].
      * <b>orName</b> is the alphanumeric identifier of the OR affected.
      */
-    public void orConnStatus(String status, String orName);
+    void orConnStatus(String status, String orName);
     /**
      * Invoked once per second. <b>read</b> and <b>written</b> are
      * the number of bytes read and written, respectively, in
      * the last second.
      */
-    public void bandwidthUsed(long read, long written);
+    void bandwidthUsed(long read, long written);
     /**
      * Invoked whenever Tor learns about new ORs.  The <b>orList</b> object
      * contains the alphanumeric ServerIDs associated with the new ORs.
      */
-    public void newDescriptors(java.util.List<String> orList);
+    void newDescriptors(java.util.List<String> orList);
     /**
      * Invoked when Tor logs a message.
      * <b>severity</b> is one of ["DEBUG" | "INFO" | "NOTICE" | "WARN" | "ERR"],
      * and <b>msg</b> is the message string.
      */
-    public void message(String severity, String msg);
+    void message(String severity, String msg);
 
     /**
      * Invoked when Tor has information about a hidden service.
@@ -96,7 +96,7 @@ public interface EventHandler {
      * @param action is the message action
      * @param msg    is the message string.
      */
-    public void hiddenServiceEvent(String action, String msg);
+    void hiddenServiceEvent(String action, String msg);
 
     /**
      * Invoked when Tor reports an error regarding a hidden service.
@@ -105,7 +105,7 @@ public interface EventHandler {
      *               NO_REASON]
      * @param msg
      */
-    public void hiddenServiceFailedEvent(String reason, String msg);
+    void hiddenServiceFailedEvent(String reason, String msg);
 
     /**
      * Invoked when Tor has a hidden service descriptor ready.
@@ -114,16 +114,16 @@ public interface EventHandler {
      * @param descriptor
      * @param msg
      */
-    public void hiddenServiceDescriptor(String descriptorId, String descriptor, String msg);
+    void hiddenServiceDescriptor(String descriptorId, String descriptor, String msg);
 
     /**
      * Invoked when an unspecified message is received. <type> is the message type,
      * and <msg> is the message string.
      */
-    public void unrecognized(String type, String msg);
+    void unrecognized(String type, String msg);
 
     /**
      * Invoked when the Tor Control Connection takes longer than one minute to respond.
      */
-    public void timeout();
+    void timeout();
 }

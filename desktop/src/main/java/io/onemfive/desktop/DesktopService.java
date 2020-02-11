@@ -45,11 +45,6 @@ import io.onemfive.desktop.views.ops.network.satellite.SatelliteSensorOpsView;
 import io.onemfive.desktop.views.ops.network.tor.TORSensorOpsView;
 import io.onemfive.desktop.views.ops.network.wifidirect.WifiDirectSensorOpsView;
 import io.onemfive.desktop.views.personal.identities.IdentitiesView;
-import io.onemfive.desktop.views.settings.network.bluetooth.BluetoothSensorSettingsView;
-import io.onemfive.desktop.views.settings.network.i2p.I2PSensorSettingsView;
-import io.onemfive.desktop.views.settings.network.ims.IMSSettingsView;
-import io.onemfive.desktop.views.settings.network.tor.TORSensorSettingsView;
-import io.onemfive.network.peers.PeerManager;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.SensorStatusListener;
@@ -58,7 +53,7 @@ import io.onemfive.network.sensors.fullspectrum.FullSpectrumRadioSensor;
 import io.onemfive.network.sensors.i2p.I2PSensor;
 import io.onemfive.network.sensors.lifi.LiFiSensor;
 import io.onemfive.network.sensors.satellite.SatelliteSensor;
-import io.onemfive.network.sensors.tor.SimpleTorSensor;
+import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.network.sensors.wifidirect.WiFiDirectSensor;
 import io.onemfive.util.DLC;
 import javafx.application.Platform;
@@ -151,7 +146,7 @@ public class DesktopService extends BaseService {
 
         // Tor Sensor Status
         Envelope eTorStatus = Envelope.documentFactory();
-        SubscriptionRequest subscriptionRequestTorStatus = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, SimpleTorSensor.class.getName(),
+        SubscriptionRequest subscriptionRequestTorStatus = new SubscriptionRequest(EventMessage.Type.SENSOR_STATUS, TORSensor.class.getName(),
         new Subscription() {
             @Override
             public void notifyOfEvent(Envelope e) {

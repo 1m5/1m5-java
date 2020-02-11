@@ -202,6 +202,10 @@ public class PeerManager implements Runnable {
         return peerDB.loadPeerById(id);
     }
 
+    public NetworkPeer loadPeerByIdAndNetwork(String id, Network network) {
+        return peerDB.loadPeerByIdAndNetwork(id, network);
+    }
+
     public Boolean isLocal(NetworkPeer p) {
         if(localNode.getNetworkPeer().getId()!=null && localNode.getNetworkPeer().getId().equals(p.getId()))
             return true;

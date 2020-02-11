@@ -28,6 +28,7 @@ package io.onemfive.network.sensors.tor.control;
 
 /** A single key-value pair from Tor's configuration. */
 public class ConfigEntry {
+
     public ConfigEntry(String k, String v) {
         key = k;
         value = v;
