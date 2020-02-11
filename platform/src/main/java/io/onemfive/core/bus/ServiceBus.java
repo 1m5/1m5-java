@@ -320,8 +320,8 @@ public final class ServiceBus implements MessageProducer, LifeCycle, ServiceRegi
         NetworkService networkService = new NetworkService(this, this);
         registeredServices.put(NetworkService.class.getName(), networkService);
 
-//        BisqService bisqService = new BisqService(this, this);
-//        registeredServices.put(BisqService.class.getName(), bisqService);
+//        DEXService dexService = new DEXService(this, this);
+//        registeredServices.put(DEXService.class.getName(), dexService);
 //
 //        BitcoinService bitcoinService = new BitcoinService(this, this);
 //        registeredServices.put(BitcoinService.class.getName(), bitcoinService);
