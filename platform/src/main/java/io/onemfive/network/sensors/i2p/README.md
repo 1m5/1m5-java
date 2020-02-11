@@ -7,6 +7,14 @@ to be copied to resources/io/onemfive/core/sensors/i2p/bote/certificates keeping
     - /installer/resources/certificates/reseed
     - /installer/resources/certificates/ssl
 
+## Integration
+
+### Embedded
+Current integration method. External support to come later.
+
+### External
+Control via: https://github.com/i2p/i2p.itoopie
+
 ## Installation
 Currently, 1M5 embeds I2P router within the sensor. In the future,
 external I2P router will be supported. When that happens, the following
