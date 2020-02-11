@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.monetary.bsq;
+package io.onemfive.monetary.dex;
 
 import io.onemfive.core.BaseService;
 import io.onemfive.core.MessageProducer;
@@ -41,14 +41,14 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public class BisqService extends BaseService {
+public class DEXService extends BaseService {
 
-    private static final Logger LOG = Logger.getLogger(BisqService.class.getName());
+    private static final Logger LOG = Logger.getLogger(DEXService.class.getName());
 
-    public BisqService() {
+    public DEXService() {
     }
 
-    public BisqService(MessageProducer producer, ServiceStatusListener listener) {
+    public DEXService(MessageProducer producer, ServiceStatusListener listener) {
         super(producer, listener);
     }
 
@@ -66,7 +66,7 @@ public class BisqService extends BaseService {
     public boolean start(Properties p) {
         LOG.info("Starting....");
         updateStatus(ServiceStatus.STARTING);
-        
+
         updateStatus(ServiceStatus.RUNNING);
         LOG.info("Started.");
         return true;
@@ -95,7 +95,7 @@ public class BisqService extends BaseService {
     }
 
     public static void main(String[] args) {
-        BisqService service = new BisqService();
+        DEXService service = new DEXService();
         Properties props = new Properties();
         for(String arg : args) {
             String[] nvp = arg.split("=");

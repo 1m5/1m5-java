@@ -33,7 +33,7 @@ import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.desktop.views.ops.OpsView;
 import io.onemfive.desktop.views.ops.services.ServicesOpsView;
-import io.onemfive.desktop.views.ops.services.monetary.bisq.BisqOpsView;
+import io.onemfive.desktop.views.ops.services.monetary.dex.DEXOpsView;
 import io.onemfive.desktop.views.ops.services.monetary.bitcoin.BitcoinOpsView;
 import io.onemfive.desktop.views.ops.services.monetary.komodo.KomodoOpsView;
 import io.onemfive.desktop.views.ops.services.monetary.monero.MoneroOpsView;
@@ -48,7 +48,7 @@ public class MonetaryOpsView extends ActivatableView {
 
     private TabPane pane;
     @FXML
-    private Tab komodoTab, moneroTab, bitcoinTab, bisqTab;
+    private Tab komodoTab, moneroTab, bitcoinTab, dexTab;
 
     private Navigation.Listener navigationListener;
     private ChangeListener<Tab> tabChangeListener;
@@ -60,7 +60,7 @@ public class MonetaryOpsView extends ActivatableView {
         komodoTab.setText(Res.get("ops.services.monetary.tab.komodo").toUpperCase());
         moneroTab.setText(Res.get("ops.services.monetary.tab.monero").toUpperCase());
         bitcoinTab.setText(Res.get("ops.services.monetary.tab.bitcoin").toUpperCase());
-        bisqTab.setText(Res.get("ops.services.monetary.tab.bisq").toUpperCase());
+        dexTab.setText(Res.get("ops.services.monetary.tab.dex").toUpperCase());
 
         navigationListener = viewPath -> {
             if (viewPath.size() == 5 && viewPath.indexOf(MonetaryOpsView.class) == 3)
@@ -74,8 +74,8 @@ public class MonetaryOpsView extends ActivatableView {
                 MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, MonetaryOpsView.class, MoneroOpsView.class);
             else if (newValue == bitcoinTab)
                 MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, MonetaryOpsView.class, BitcoinOpsView.class);
-            else if (newValue == bisqTab)
-                MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, MonetaryOpsView.class, BisqOpsView.class);
+            else if (newValue == dexTab)
+                MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, MonetaryOpsView.class, DEXOpsView.class);
         };
 
         LOG.info("Initialized.");
@@ -93,8 +93,8 @@ public class MonetaryOpsView extends ActivatableView {
             MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, MonetaryOpsView.class, MoneroOpsView.class);
         else if (selectedItem == bitcoinTab)
             MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, MonetaryOpsView.class, BitcoinOpsView.class);
-        else if (selectedItem == bisqTab)
-            MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, MonetaryOpsView.class, BisqOpsView.class);
+        else if (selectedItem == dexTab)
+            MVC.navigation.navigateTo(HomeView.class, OpsView.class, ServicesOpsView.class, MonetaryOpsView.class, DEXOpsView.class);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class MonetaryOpsView extends ActivatableView {
         if (view instanceof KomodoOpsView) tab = komodoTab;
         else if (view instanceof MoneroOpsView) tab = moneroTab;
         else if (view instanceof BitcoinOpsView) tab = bitcoinTab;
-        else if (view instanceof BisqOpsView) tab = bisqTab;
+        else if (view instanceof DEXOpsView) tab = dexTab;
         else throw new IllegalArgumentException("Navigation to " + viewClass + " is not supported");
 
         if (tab.getContent() != null && tab.getContent() instanceof ScrollPane) {

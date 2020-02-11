@@ -24,11 +24,37 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.monetary.bsq;
+package io.onemfive.desktop.views.settings.services.monetary.dex;
 
-import org.junit.Ignore;
+import io.onemfive.desktop.views.ActivatableView;
+import javafx.scene.layout.GridPane;
 
-// TODO: Complete the test to remove ignore
-@Ignore
-public class BisqServiceTest {
+
+public class DEXSettingsView extends ActivatableView {
+
+    private GridPane pane;
+    private int gridRow = 0;
+
+    public DEXSettingsView() {
+        super();
+    }
+
+    @Override
+    protected void initialize() {
+        LOG.info("Initializing...");
+        pane = (GridPane)root;
+
+        LOG.info("Initialized");
+    }
+
+    @Override
+    protected void activate() {
+
+    }
+
+    @Override
+    protected void deactivate() {
+
+    }
+
 }

@@ -61,7 +61,7 @@ public class I2PSensor extends BaseSensor {
 
     private static final Logger LOG = Logger.getLogger(I2PSensor.class.getName());
 
-    public static final String ROUTER_LOCATION = "ROUTER_LOCATION";
+    public static final String ROUTER_LOCATION = "1m5.network.i2p.location";
 
     /**
      * 1 = ElGamal-2048 / DSA-1024

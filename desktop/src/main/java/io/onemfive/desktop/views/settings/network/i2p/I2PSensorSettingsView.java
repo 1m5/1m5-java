@@ -41,6 +41,7 @@ import static io.onemfive.desktop.util.FormBuilder.addSlideToggleButton;
 public class I2PSensorSettingsView extends ActivatableView  {
 
     private NetworkConfig config;
+
     private GridPane pane;
     private int gridRow = 0;
 
@@ -86,6 +87,7 @@ public class I2PSensorSettingsView extends ActivatableView  {
     public void setConfig(NetworkConfig config) {
         this.hiddenMode.setSelected("true".equals(config.params.get(Router.PROP_HIDDEN)));
         this.routerEmbedded.setSelected("embedded".equals(config.params.get(I2PSensor.ROUTER_LOCATION)));
+        config.params.get(Router.PROP_BANDWIDTH_SHARE_PERCENTAGE);
     }
 
 }

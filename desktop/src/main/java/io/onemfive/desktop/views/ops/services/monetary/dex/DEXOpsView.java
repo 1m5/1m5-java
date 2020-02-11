@@ -24,17 +24,17 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.desktop.views.ops.services.monetary.bisq;
+package io.onemfive.desktop.views.ops.services.monetary.dex;
 
 import io.onemfive.desktop.views.ActivatableView;
 import javafx.scene.layout.GridPane;
 
-public class BisqOpsView extends ActivatableView {
+public class DEXOpsView extends ActivatableView {
 
     private GridPane pane;
     private int gridRow = 0;
 
-    public BisqOpsView() {
+    public DEXOpsView() {
         super();
     }
 
