@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.i2p;
+package io.onemfive.network.sensors.i2p.external;
 
-public class I2PEmbedded {
+public class I2PExternal {
 }
