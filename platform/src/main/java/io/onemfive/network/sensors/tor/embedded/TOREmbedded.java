@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor;
+package io.onemfive.network.sensors.tor.embedded;
 
-public class TORExternal {
+public class TOREmbedded {
 }
