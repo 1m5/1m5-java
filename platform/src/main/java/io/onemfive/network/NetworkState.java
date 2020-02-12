@@ -28,6 +28,7 @@ package io.onemfive.network;
 
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.sensors.SensorStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +38,8 @@ import java.util.Map;
 public class NetworkState {
 
     public Network network = Network.IMS; // Default
+    public NetworkPeer localPeer;
+    public SensorStatus sensorStatus;
     // Seeds
     public final List<NetworkPeer> seeds = new ArrayList<>();
     // Banned

@@ -28,17 +28,12 @@ package io.onemfive.network.sensors.tor;
 
 import io.onemfive.data.*;
 import io.onemfive.network.*;
-import io.onemfive.network.sensors.NetworkPeerDiscovery;
-import io.onemfive.network.sensors.SensorManager;
-import io.onemfive.network.sensors.clearnet.ClearnetSensor;
-import io.onemfive.network.sensors.tor.external.control.DebuggingEventHandler;
-import io.onemfive.network.sensors.tor.external.control.TorControlConnection;
-import io.onemfive.util.DLC;
-import io.onemfive.network.sensors.SensorStatus;
+import io.onemfive.network.sensors.*;
+import io.onemfive.network.sensors.tor.embedded.TOREmbedded;
+import io.onemfive.network.sensors.tor.external.TORExternal;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -49,35 +44,23 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public final class TORSensor extends ClearnetSensor {
+public final class TORSensor extends BaseSensor {
 
     private static final Logger LOG = Logger.getLogger(TORSensor.class.getName());
 
-    public static final NetworkState config = new NetworkState();
-
     private NetworkPeerDiscovery discovery;
 
-    public static final String HOST = "127.0.0.1";
-    public static final Integer PORT_SOCKS = 9050;
-    public static final Integer PORT_CONTROL = 9100;
-    public static final Integer PORT_HIDDEN_SERVICE = 9151;
+    private TOR tor;
 
-    private String serviceID;
-    private String privateKey;
+    private File sensorDir;
 
     public TORSensor() {
         super(Network.TOR);
-        // Setup local Tor instance as proxy for Tor Client
-        proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(HOST, PORT_SOCKS));
     }
 
     public TORSensor(SensorManager sensorManager) {
         super(sensorManager, Network.TOR);
-        // Setup local Tor instance as proxy for Tor Client
-        proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(HOST, PORT_SOCKS));
     }
-
-    private File sensorDir;
 
     public String[] getOperationEndsWith() {
         return new String[]{".onion"};
@@ -96,13 +79,9 @@ public final class TORSensor extends ClearnetSensor {
     @Override
     public boolean sendOut(NetworkPacket packet) {
         LOG.info("Tor Sensor sending request...");
-//        Envelope e = packet.getEnvelope();
-        boolean successful = super.sendOut(packet);
+        boolean successful = tor.sendOut(packet);
         if (successful) {
             LOG.info("Tor Sensor successful response received.");
-            // Change flag to LOW so Client Server Sensor will pick it back up
-//            e.setManCon(ManCon.LOW);
-//            DLC.addRoute(NetworkService.class, NetworkService.OPERATION_REPLY, e);
             if (!getStatus().equals(SensorStatus.NETWORK_CONNECTED)) {
                 LOG.info("Tor Network status changed back to CONNECTED.");
                 updateStatus(SensorStatus.NETWORK_CONNECTED);
@@ -111,58 +90,9 @@ public final class TORSensor extends ClearnetSensor {
         return successful;
     }
 
-    protected void handleFailure(Message m) {
-        if(m!=null && m.getErrorMessages()!=null && m.getErrorMessages().size()>0) {
-            boolean blocked = false;
-            for (String err : m.getErrorMessages()) {
-                LOG.warning("HTTP Error Message (Tor): " + err);
-                if(!blocked) {
-                    switch (err) {
-                        case "403": {
-                            // Forbidden
-                            LOG.info("Received HTTP 403 response (Tor): Forbidden. Tor Sensor considered blocked.");
-                            updateStatus(SensorStatus.NETWORK_BLOCKED);
-                            blocked = true;
-                            break;
-                        }
-                        case "408": {
-                            // Request Timeout
-                            LOG.info("Received HTTP 408 response (Tor): Request Timeout. Tor Sensor considered blocked.");
-                            updateStatus(SensorStatus.NETWORK_BLOCKED);
-                            blocked = true;
-                            break;
-                        }
-                        case "410": {
-                            // Gone
-                            LOG.info("Received HTTP 410 response (Tor): Gone. Tor Sensor considered blocked.");
-                            updateStatus(SensorStatus.NETWORK_BLOCKED);
-                            blocked = true;
-                            break;
-                        }
-                        case "418": {
-                            // I'm a teapot
-                            LOG.warning("Received HTTP 418 response (Tor): I'm a teapot. Tor Sensor ignoring.");
-                            break;
-                        }
-                        case "451": {
-                            // Unavailable for legal reasons; your IP address might be denied access to the resource
-                            LOG.info("Received HTTP 451 response (Tor): unavailable for legal reasons. Tor Sensor considered blocked.");
-                            // Notify Sensor Manager Tor is getting blocked
-                            updateStatus(SensorStatus.NETWORK_BLOCKED);
-                            blocked = true;
-                            break;
-                        }
-                        case "511": {
-                            // Network Authentication Required
-                            LOG.info("Received HTTP511 response (Tor): network authentication required. Tor Sensor considered blocked.");
-                            updateStatus(SensorStatus.NETWORK_BLOCKED);
-                            blocked = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+    @Override
+    public SensorSession establishSession(String address, Boolean autoConnect) {
+        return null;
     }
 
     @Override
@@ -173,70 +103,36 @@ public final class TORSensor extends ClearnetSensor {
 
     @Override
     public boolean start(Properties properties) {
-        properties.setProperty("1m5.sensors.clearnet.client.enable","true");
-        if(super.start(properties)) {
-            LOG.info("Starting TOR Sensor...");
-            updateStatus(SensorStatus.STARTING);
-            String sensorsDirStr = properties.getProperty("1m5.dir.sensors");
-            if(sensorsDirStr==null) {
-                LOG.warning("1m5.dir.sensors property is null. Please set prior to instantiating Tor Sensor.");
+        LOG.info("Starting TOR Sensor...");
+        updateStatus(SensorStatus.STARTING);
+        String sensorsDirStr = properties.getProperty("1m5.dir.sensors");
+        if(sensorsDirStr==null) {
+            LOG.warning("1m5.dir.sensors property is null. Please set prior to instantiating Tor Sensor.");
+            return false;
+        }
+        try {
+            sensorDir = new File(new File(sensorsDirStr),"tor");
+            if(!sensorDir.exists() && !sensorDir.mkdir()) {
+                LOG.warning("Unable to create Tor sensor directory.");
                 return false;
+            } else {
+                properties.put("1m5.dir.sensors.tor",sensorDir.getCanonicalPath());
             }
-            try {
-                sensorDir = new File(new File(sensorsDirStr),"tor");
-                if(!sensorDir.exists() && !sensorDir.mkdir()) {
-                    LOG.warning("Unable to create Tor sensor directory.");
-                    return false;
-                } else {
-                    properties.put("1m5.dir.sensors.tor",sensorDir.getCanonicalPath());
-                }
-            } catch (IOException e) {
-                LOG.warning("IOException caught while building Tor sensor directory: \n"+e.getLocalizedMessage());
-                return false;
-            }
+        } catch (IOException e) {
+            LOG.warning("IOException caught while building Tor sensor directory: \n"+e.getLocalizedMessage());
+            return false;
+        }
 
-            try {
-                TorControlConnection conn = getConnection(null);
-//                Map<String, String> m = conn.getInfo(Arrays.asList("stream-status", "orconn-status", "circuit-status", "version"));
-                Map<String, String> m = conn.getInfo(Arrays.asList("version"));
-                StringBuilder sb = new StringBuilder();
-                sb.append("TOR config:");
-                for (Iterator<Map.Entry<String, String>> i = m.entrySet().iterator(); i.hasNext(); ) {
-                    Map.Entry<String, String> e = i.next();
-                    sb.append("\n\t"+e.getKey()+"="+e.getValue());
-                }
-                conn.setEventHandler(new DebuggingEventHandler(LOG));
-                conn.setEvents(Arrays.asList("EXTENDED", "CIRC", "ORCONN", "INFO", "NOTICE", "WARN", "ERR", "HS_DESC", "HS_DESC_CONTENT"));
+        if("true".equals(properties.getProperty("settings.network.tor.routerEmbedded")))
+            tor = new TOREmbedded(this, networkState, sensorManager);
+        else
+            tor = new TORExternal(this, networkState, sensorManager);
 
-                NetworkNode localNode = sensorManager.getPeerManager().getLocalNode();
-                NetworkPeer imsPeer = localNode.getNetworkPeer();
-                NetworkPeer localTORPeer = sensorManager.getPeerManager().loadPeerByIdAndNetwork(imsPeer.getId(), Network.TOR);
-                if(localTORPeer==null) {
-                    localTORPeer = new NetworkPeer(Network.TOR, localNode.getNetworkPeer().getDid().getUsername(), localNode.getNetworkPeer().getDid().getPassphrase());
-                    localTORPeer.setId(imsPeer.getId());
-                }
-                localNode.addNetworkPeer(localTORPeer);
-                if(localTORPeer.getDid().getPublicKey().getAddress()==null) {
-                    TorControlConnection.CreateHiddenServiceResult result = conn.createHiddenService(10026);
-//                    sb.append("\n\tTOR Hidden Service Address: " + result.serviceID);
-//                    sb.append("\n\tPrivateKey: " + result.privateKey);
-                    conn.destroyHiddenService(result.serviceID);
-                    result = conn.createHiddenService(10026, result.privateKey);
-                    sb.append("\n\tTOR Hidden Service Address: " + result.serviceID);
-//                    sb.append("\n\tPrivateKey: " + result.privateKey);
-                    localTORPeer.setId(localNode.getNetworkPeer().getId());
-                    localTORPeer.getDid().getPublicKey().setFingerprint(result.serviceID); // used as key
-                    localTORPeer.getDid().getPublicKey().setAddress(result.serviceID);
-                }
-                sensorManager.getPeerManager().savePeer(localTORPeer, true);
-                LOG.info(sb.toString());
-            } catch (IOException ex) {
-                LOG.warning(ex.getLocalizedMessage());
-                updateStatus(SensorStatus.NETWORK_UNAVAILABLE);
-                return false;
-            }
-
+        if(tor.start(properties)) {
             updateStatus(SensorStatus.NETWORK_CONNECTED);
+        } else {
+            return false;
+        }
 
             // Setup Discovery
 //            discovery = new NetworkPeerDiscovery(taskRunner, this, Network.TOR, config);
@@ -260,71 +156,30 @@ public final class TORSensor extends ClearnetSensor {
 //            }
 //            taskRunner.addTask(discovery);
             return true;
-        } else {
-            LOG.warning("Clearnet Sensor failed to start. Unable to start Tor Sensor (Clearnet Sensor is its parent - Tor sets up as a proxy).");
-            return false;
-        }
     }
 
-    public void get(URL url) {
-        // Get URL
-        Request request = new Request();
-        Envelope envelope = Envelope.documentFactory();
-        envelope.setURL(url);
-        envelope.setAction(Envelope.Action.GET);
-        request.setEnvelope(envelope);
-        if(sendOut(request)) {
-            byte[] content = (byte[])DLC.getContent(envelope);
-            LOG.info("Content length: "+content.length);
-            LOG.info("Content: "+new String(content));
-        }
+    @Override
+    public boolean pause() {
+        return tor.pause();
     }
 
-    private static TorControlConnection getConnection(String[] args, boolean daemon) throws IOException {
-        Socket s = new Socket("127.0.0.1", 9051);
-        TorControlConnection conn = new TorControlConnection(s);
-//        conn.launchThread(daemon);
-        conn.authenticate(new byte[0]);
-        return conn;
+    @Override
+    public boolean unpause() {
+        return tor.unpause();
     }
 
-    private static TorControlConnection getConnection(String[] args) throws IOException {
-        return getConnection(args, true);
+    @Override
+    public boolean restart() {
+        return tor.restart();
     }
 
-    public static void main(String[] args) {
-//        Properties p = new Properties();
-//        p.setProperty("1m5.dir.sensors","/home/objectorange/1m5/platform/services/io.onemfive.network.NetworkService/sensors");
-//        SimpleTorSensor s = new SimpleTorSensor();
-//        s.start(p);
-//        try {
-//            URL duckduckGoOnion = new URL("https://3g2upl4pq6kufc4m.onion/");
-//            s.get(duckduckGoOnion);
-//        } catch (MalformedURLException e) {
-//            System.out.println(e.getLocalizedMessage());
-//        }
-
-        try {
-            TorControlConnection conn = getConnection(args);
-            Map<String,String> m = conn.getInfo(Arrays.asList("stream-status","orconn-status","circuit-status","version"));
-            for (Iterator<Map.Entry<String, String>> i = m.entrySet().iterator(); i.hasNext(); ) {
-                Map.Entry<String,String> e = i.next();
-                System.out.println("KEY: "+e.getKey());
-                System.out.println("VAL: "+e.getValue());
-            }
-
-            conn.setEventHandler(new DebuggingEventHandler(LOG));
-            conn.setEvents(Arrays.asList("EXTENDED", "CIRC", "ORCONN", "INFO", "NOTICE", "WARN", "ERR", "HS_DESC", "HS_DESC_CONTENT" ));
-            TorControlConnection.CreateHiddenServiceResult result = conn.createHiddenService(10026);
-            System.out.println("ServiceID: "+result.serviceID);
-            System.out.println("PrivateKey: "+result.privateKey);
-            conn.destroyHiddenService(result.serviceID);
-            result = conn.createHiddenService(10026, result.privateKey);
-            System.out.println("ServiceID: "+result.serviceID);
-            System.out.println("PrivateKey: "+result.privateKey);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public boolean shutdown() {
+        return tor.shutdown();
     }
 
+    @Override
+    public boolean gracefulShutdown() {
+        return tor.gracefulShutdown();
+    }
 }

@@ -157,6 +157,10 @@ public class ClearnetSensor extends BaseSensor {
         super(sensorManager, network);
     }
 
+    public void setProxy(Proxy proxy) {
+        this.proxy = proxy;
+    }
+
     public String registerHandler(AsynchronousEnvelopeHandler handler) {
         String nextHandlerIdStr = String.valueOf(nextHandlerId++);
         handlers.put(nextHandlerIdStr, handler);

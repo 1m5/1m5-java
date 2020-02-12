@@ -24,60 +24,11 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor.embedded;
+package io.onemfive.network.sensors.tor;
 
+import io.onemfive.core.LifeCycle;
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.NetworkState;
-import io.onemfive.network.sensors.SensorManager;
-import io.onemfive.network.sensors.tor.TOR;
-import io.onemfive.network.sensors.tor.TORSensor;
 
-import java.util.Properties;
-
-public class TOREmbedded implements TOR {
-
-    private TORSensor torSensor;
-    private NetworkState networkState;
-    private SensorManager sensorManager;
-
-    public TOREmbedded(TORSensor torSensor, NetworkState networkState, SensorManager sensorManager) {
-        this.torSensor = torSensor;
-        this.networkState = networkState;
-        this.sensorManager = sensorManager;
-    }
-
-    @Override
-    public boolean sendOut(NetworkPacket packet) {
-        return false;
-    }
-
-    @Override
-    public boolean start(Properties properties) {
-        return false;
-    }
-
-    @Override
-    public boolean pause() {
-        return false;
-    }
-
-    @Override
-    public boolean unpause() {
-        return false;
-    }
-
-    @Override
-    public boolean restart() {
-        return false;
-    }
-
-    @Override
-    public boolean shutdown() {
-        return false;
-    }
-
-    @Override
-    public boolean gracefulShutdown() {
-        return false;
-    }
+public interface TOR extends LifeCycle {
+    boolean sendOut(NetworkPacket packet);
 }

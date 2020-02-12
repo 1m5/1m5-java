@@ -89,6 +89,7 @@ public abstract class BaseSensor implements Sensor {
 
     public void updateStatus(SensorStatus sensorStatus) {
         this.sensorStatus = sensorStatus;
+        networkState.sensorStatus = sensorStatus;
         // Might be null during localized testing
         if(sensorManager != null) {
             sensorManager.updateSensorStatus(this.getClass().getName(), sensorStatus);
