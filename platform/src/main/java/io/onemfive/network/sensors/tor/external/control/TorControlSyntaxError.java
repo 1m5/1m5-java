@@ -24,18 +24,16 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor.control;
+package io.onemfive.network.sensors.tor.external.control;
 
 import java.io.IOException;
 
 /**
- * An exception raised when Tor tells us about an error.
+ * An exception raised when Tor behaves in an unexpected way.
  */
-public class TorControlTimeoutError extends IOException {
+public class TorControlSyntaxError extends IOException {
 
-    static final long serialVersionUID = 4;
+    static final long serialVersionUID = 3;
 
-    public TorControlTimeoutError(String s) {
-        super(s);
-    }
+    public TorControlSyntaxError(String s) { super(s); }
 }

@@ -24,39 +24,18 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor.control;
+package io.onemfive.network.sensors.tor.external.control;
 
 import java.io.IOException;
 
 /**
  * An exception raised when Tor tells us about an error.
  */
-public class TorControlError extends IOException {
+public class TorControlTimeoutError extends IOException {
 
-    static final long serialVersionUID = 3;
+    static final long serialVersionUID = 4;
 
-    private final int errorType;
-
-    public TorControlError(int type, String s) {
+    public TorControlTimeoutError(String s) {
         super(s);
-        errorType = type;
-    }
-
-    public TorControlError(String s) {
-        this(-1, s);
-    }
-
-    public int getErrorType() {
-        return errorType;
-    }
-
-    public String getErrorMsg() {
-        try {
-            if (errorType == -1)
-                return null;
-            return TorControlCommands.ERROR_MSGS[errorType];
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            return "Unrecongized error #"+errorType;
-        }
     }
 }

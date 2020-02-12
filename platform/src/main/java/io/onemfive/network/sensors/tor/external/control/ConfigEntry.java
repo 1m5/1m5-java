@@ -24,16 +24,22 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor.control;
+package io.onemfive.network.sensors.tor.external.control;
 
-import java.io.IOException;
+/** A single key-value pair from Tor's configuration. */
+public class ConfigEntry {
 
-/**
- * An exception raised when Tor behaves in an unexpected way.
- */
-public class TorControlSyntaxError extends IOException {
-
-    static final long serialVersionUID = 3;
-
-    public TorControlSyntaxError(String s) { super(s); }
+    public ConfigEntry(String k, String v) {
+        key = k;
+        value = v;
+        is_default = false;
+    }
+    public ConfigEntry(String k) {
+        key = k;
+        value = "";
+        is_default = true;
+    }
+    public final String key;
+    public final String value;
+    public final boolean is_default;
 }

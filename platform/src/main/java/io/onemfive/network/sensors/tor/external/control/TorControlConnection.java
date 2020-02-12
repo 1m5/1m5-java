@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor.control;
+package io.onemfive.network.sensors.tor.external.control;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -31,16 +31,13 @@ import io.onemfive.network.*;
 import io.onemfive.network.sensors.NetworkPeerDiscovery;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.clearnet.ClearnetSensor;
-import io.onemfive.network.sensors.tor.control.ConfigEntry;
-import io.onemfive.network.sensors.tor.control.DebuggingEventHandler;
-import io.onemfive.network.sensors.tor.control.TorControlConnection;
+import io.onemfive.network.sensors.tor.external.control.DebuggingEventHandler;
+import io.onemfive.network.sensors.tor.external.control.TorControlConnection;
 import io.onemfive.util.DLC;
 import io.onemfive.network.sensors.SensorStatus;
-import io.onemfive.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.*;
 import java.util.*;
 import java.util.logging.Logger;

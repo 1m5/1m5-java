@@ -24,22 +24,39 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor.control;
+package io.onemfive.network.sensors.tor.external.control;
 
-/** A single key-value pair from Tor's configuration. */
-public class ConfigEntry {
+import java.io.IOException;
 
-    public ConfigEntry(String k, String v) {
-        key = k;
-        value = v;
-        is_default = false;
+/**
+ * An exception raised when Tor tells us about an error.
+ */
+public class TorControlError extends IOException {
+
+    static final long serialVersionUID = 3;
+
+    private final int errorType;
+
+    public TorControlError(int type, String s) {
+        super(s);
+        errorType = type;
     }
-    public ConfigEntry(String k) {
-        key = k;
-        value = "";
-        is_default = true;
+
+    public TorControlError(String s) {
+        this(-1, s);
     }
-    public final String key;
-    public final String value;
-    public final boolean is_default;
+
+    public int getErrorType() {
+        return errorType;
+    }
+
+    public String getErrorMsg() {
+        try {
+            if (errorType == -1)
+                return null;
+            return TorControlCommands.ERROR_MSGS[errorType];
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            return "Unrecongized error #"+errorType;
+        }
+    }
 }
