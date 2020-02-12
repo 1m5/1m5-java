@@ -29,6 +29,7 @@ package io.onemfive.network.sensors.tor;
 import io.onemfive.data.*;
 import io.onemfive.network.*;
 import io.onemfive.network.sensors.*;
+import io.onemfive.network.sensors.i2p.I2PSensorSession;
 import io.onemfive.network.sensors.tor.embedded.TOREmbedded;
 import io.onemfive.network.sensors.tor.external.TORExternal;
 
@@ -53,6 +54,7 @@ public final class TORSensor extends BaseSensor {
     private TOR tor;
 
     private File sensorDir;
+    protected final Map<String, SensorSession> sessions = new HashMap<>();
 
     public TORSensor() {
         super(Network.TOR);
@@ -92,7 +94,16 @@ public final class TORSensor extends BaseSensor {
 
     @Override
     public SensorSession establishSession(String address, Boolean autoConnect) {
-        return null;
+        if(sessions.get("default")==null) {
+            SensorSession sensorSession = new TORSensorSession(this);
+            sensorSession.init(properties);
+            sensorSession.open(null);
+            if (autoConnect) {
+                sensorSession.connect();
+            }
+            sessions.put("default", sensorSession);
+        }
+        return sessions.get("default");
     }
 
     @Override
