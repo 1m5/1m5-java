@@ -28,63 +28,148 @@ package io.onemfive.network.sensors.tor.external;
 
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.NetworkState;
 import io.onemfive.network.Request;
-import io.onemfive.network.sensors.SensorManager;
+import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.sensors.SensorStatus;
-import io.onemfive.network.sensors.clearnet.ClearnetSensor;
-import io.onemfive.network.sensors.tor.TOR;
+import io.onemfive.network.sensors.clearnet.ClearnetSession;
+import io.onemfive.network.sensors.tor.TORHiddenService;
 import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.network.sensors.tor.external.control.DebuggingEventHandler;
-import io.onemfive.network.sensors.tor.external.control.TorControlConnection;
+import io.onemfive.network.sensors.tor.external.control.TORControlConnection;
 import io.onemfive.util.DLC;
+import net.i2p.data.Base64;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Logger;
 
-public class TORExternal implements TOR {
+public class TORSensorSessionExternal extends ClearnetSession {
 
-    private static final Logger LOG = Logger.getLogger(TORExternal.class.getName());
+    private static final Logger LOG = Logger.getLogger(TORSensorSessionExternal.class.getName());
 
     public static final String HOST = "127.0.0.1";
     public static final Integer PORT_SOCKS = 9050;
     public static final Integer PORT_CONTROL = 9100;
     public static final Integer PORT_HIDDEN_SERVICE = 9151;
 
-    private TORSensor torSensor;
-    private NetworkState networkState;
-    private SensorManager sensorManager;
-    private ClearnetSensor clearnetSensor;
-    private TorControlConnection controlConnection;
+    private TORControlConnection controlConnection;
+    private TORSensor sensor;
 
-    public TORExternal(TORSensor torSensor, NetworkState networkState, SensorManager sensorManager) {
-        this.torSensor = torSensor;
-        this.networkState = networkState;
-        this.sensorManager = sensorManager;
-        clearnetSensor = new ClearnetSensor(sensorManager, Network.TOR);
-        clearnetSensor.setProxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(HOST, PORT_SOCKS)));
+    public TORSensorSessionExternal(TORSensor torSensor) {
+        super(torSensor, new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(HOST, PORT_SOCKS)));
+        this.sensor = torSensor;
+    }
+
+    /**
+     * Create TOR hidden service using external TOR daemon.
+     * Supplied username will be used as local file name to save private key to.
+     */
+    @Override
+    public boolean open(String username) {
+        this.address = username;
+        NetworkNode localNode = sensor.getSensorManager().getPeerManager().getLocalNode();
+        NetworkPeer localTORPeer;
+        if(localNode.getNetworkPeer(Network.TOR)!=null) {
+            localTORPeer = localNode.getNetworkPeer(Network.TOR);
+        } else {
+            localTORPeer = new NetworkPeer(Network.TOR, localNode.getNetworkPeer().getDid().getUsername(), localNode.getNetworkPeer().getDid().getPassphrase());
+            localNode.addNetworkPeer(localTORPeer);
+        }
+        // read the local TOR address key from the address file if it exists
+        File addressFile = new File(sensor.getDirectory(), username);
+        FileReader fileReader = null;
+        String json = null;
+        try {
+            fileReader = new FileReader(addressFile);
+            char[] addressBuffer = new char[(int)addressFile.length()];
+            fileReader.read(addressBuffer);
+            byte[] localTORPrivKey = Base64.decode(new String(addressBuffer));
+            json = new String(localTORPrivKey);
+        } catch (IOException e) {
+            LOG.info("Destination key file doesn't exist or isn't readable." + e);
+        } catch (Exception e) {
+            // Won't happen, inputStream != null
+            LOG.warning(e.getLocalizedMessage());
+        } finally {
+            if (fileReader != null) {
+                try {
+                    fileReader.close();
+                } catch (IOException e) {
+                    LOG.warning("Error closing file: " + addressFile.getAbsolutePath() + ": " + e);
+                }
+            }
+        }
+        TORHiddenService hiddenService;
+        try {
+            controlConnection = getControlConnection();
+//                Map<String, String> m = conn.getInfo(Arrays.asList("stream-status", "orconn-status", "circuit-status", "version"));
+            Map<String, String> m = controlConnection.getInfo(Arrays.asList("version"));
+            StringBuilder sb = new StringBuilder();
+            sb.append("TOR config:");
+            for (Iterator<Map.Entry<String, String>> i = m.entrySet().iterator(); i.hasNext(); ) {
+                Map.Entry<String, String> e = i.next();
+                sb.append("\n\t"+e.getKey()+"="+e.getValue());
+            }
+            LOG.info(sb.toString());
+            controlConnection.setEventHandler(new DebuggingEventHandler(LOG));
+            controlConnection.setEvents(Arrays.asList("EXTENDED", "CIRC", "ORCONN", "INFO", "NOTICE", "WARN", "ERR", "HS_DESC", "HS_DESC_CONTENT"));
+            if(json==null) {
+                hiddenService = controlConnection.createHiddenService(TORHiddenService.randomTORPort());
+                LOG.info("TOR Hidden Service Created: " + hiddenService.serviceID + " on port: "+hiddenService.port);
+//                controlConnection.destroyHiddenService(hiddenService.serviceID);
+//                hiddenService = controlConnection.createHiddenService(hiddenService.port, hiddenService.privateKey);
+//                LOG.info("TOR Hidden Service Created: " + hiddenService.serviceID + " on port: "+hiddenService.port);
+            } else {
+                hiddenService = new TORHiddenService();
+                hiddenService.fromJSON(json);
+                if(controlConnection.isHSAvailable(hiddenService.serviceID)) {
+                    LOG.info("TOR Hidden service available: "+hiddenService.serviceID + " on port: "+hiddenService.port);
+                } else {
+                    LOG.info("TOR Hidden service not available; creating: "+hiddenService.serviceID);
+                    hiddenService = controlConnection.createHiddenService(hiddenService.port, hiddenService.privateKey);
+                    LOG.info("TOR Hidden Service created: " + hiddenService.serviceID+ " on port: "+hiddenService.port);
+                }
+            }
+        } catch (IOException e) {
+            LOG.warning(e.getLocalizedMessage());
+            return false;
+        } catch (NoSuchAlgorithmException e) {
+            LOG.warning("TORAlgorithm not supported: "+e.getLocalizedMessage());
+            return false;
+        }
+        localTORPeer.setId(localNode.getNetworkPeer().getId());
+        localTORPeer.getDid().getPublicKey().setFingerprint(hiddenService.serviceID); // used as key
+        localTORPeer.getDid().getPublicKey().setAddress(hiddenService.serviceID);
+        sensor.getNetworkState().localPeer = localTORPeer;
+        return false;
     }
 
     @Override
-    public boolean sendOut(NetworkPacket packet) {
-        if(!clearnetSensor.sendOut(packet)) {
+    public Boolean send(NetworkPacket packet) {
+        if(!sensor.sendOut(packet)) {
             handleFailure(packet.getEnvelope().getMessage());
             return false;
         }
         return true;
     }
 
-    private TorControlConnection getControlConnection() throws IOException {
+    @Override
+    public Boolean send(NetworkOp op) {
+        return sensor.sendOut(op);
+    }
+
+    private TORControlConnection getControlConnection() throws IOException {
         Socket s = new Socket("127.0.0.1", 9051);
-        TorControlConnection conn = new TorControlConnection(s);
+        TORControlConnection conn = new TORControlConnection(s);
         conn.authenticate(new byte[0]);
         return conn;
     }
@@ -96,7 +181,7 @@ public class TORExternal implements TOR {
         envelope.setURL(url);
         envelope.setAction(Envelope.Action.GET);
         request.setEnvelope(envelope);
-        if(sendOut(request)) {
+        if(send(request)) {
             byte[] content = (byte[]) DLC.getContent(envelope);
             LOG.info("Content length: "+content.length);
             LOG.info("Content: "+new String(content));
@@ -113,21 +198,21 @@ public class TORExternal implements TOR {
                         case "403": {
                             // Forbidden
                             LOG.info("Received HTTP 403 response (Tor): Forbidden. Tor Sensor considered blocked.");
-                            torSensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
+                            sensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
                             blocked = true;
                             break;
                         }
                         case "408": {
                             // Request Timeout
                             LOG.info("Received HTTP 408 response (Tor): Request Timeout. Tor Sensor considered blocked.");
-                            torSensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
+                            sensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
                             blocked = true;
                             break;
                         }
                         case "410": {
                             // Gone
                             LOG.info("Received HTTP 410 response (Tor): Gone. Tor Sensor considered blocked.");
-                            torSensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
+                            sensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
                             blocked = true;
                             break;
                         }
@@ -140,14 +225,14 @@ public class TORExternal implements TOR {
                             // Unavailable for legal reasons; your IP address might be denied access to the resource
                             LOG.info("Received HTTP 451 response (Tor): unavailable for legal reasons. Tor Sensor considered blocked.");
                             // Notify Sensor Manager Tor is getting blocked
-                            torSensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
+                            sensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
                             blocked = true;
                             break;
                         }
                         case "511": {
                             // Network Authentication Required
                             LOG.info("Received HTTP511 response (Tor): network authentication required. Tor Sensor considered blocked.");
-                            torSensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
+                            sensor.updateStatus(SensorStatus.NETWORK_BLOCKED);
                             blocked = true;
                             break;
                         }
@@ -155,83 +240,6 @@ public class TORExternal implements TOR {
                 }
             }
         }
-    }
-
-    @Override
-    public boolean start(Properties properties) {
-        properties.setProperty("1m5.sensors.clearnet.client.enable","true");
-        if(clearnetSensor.start(properties)) {
-            try {
-                controlConnection = getControlConnection();
-//                Map<String, String> m = conn.getInfo(Arrays.asList("stream-status", "orconn-status", "circuit-status", "version"));
-                Map<String, String> m = controlConnection.getInfo(Arrays.asList("version"));
-                StringBuilder sb = new StringBuilder();
-                sb.append("TOR config:");
-                for (Iterator<Map.Entry<String, String>> i = m.entrySet().iterator(); i.hasNext(); ) {
-                    Map.Entry<String, String> e = i.next();
-                    sb.append("\n\t"+e.getKey()+"="+e.getValue());
-                }
-                controlConnection.setEventHandler(new DebuggingEventHandler(LOG));
-                controlConnection.setEvents(Arrays.asList("EXTENDED", "CIRC", "ORCONN", "INFO", "NOTICE", "WARN", "ERR", "HS_DESC", "HS_DESC_CONTENT"));
-
-                NetworkNode localNode = sensorManager.getPeerManager().getLocalNode();
-                NetworkPeer imsPeer = localNode.getNetworkPeer();
-                NetworkPeer localTORPeer = sensorManager.getPeerManager().loadPeerByIdAndNetwork(imsPeer.getId(), Network.TOR);
-                if(localTORPeer==null) {
-                    localTORPeer = new NetworkPeer(Network.TOR, localNode.getNetworkPeer().getDid().getUsername(), localNode.getNetworkPeer().getDid().getPassphrase());
-                    localTORPeer.setId(imsPeer.getId());
-                }
-                localNode.addNetworkPeer(localTORPeer);
-                if(localTORPeer.getDid().getPublicKey().getAddress()==null) {
-                    TorControlConnection.CreateHiddenServiceResult result = controlConnection.createHiddenService(10026);
-//                    sb.append("\n\tTOR Hidden Service Address: " + result.serviceID);
-//                    sb.append("\n\tPrivateKey: " + result.privateKey);
-                    controlConnection.destroyHiddenService(result.serviceID);
-                    result = controlConnection.createHiddenService(10026, result.privateKey);
-                    sb.append("\n\tTOR Hidden Service Address: " + result.serviceID);
-//                    sb.append("\n\tPrivateKey: " + result.privateKey);
-                    localTORPeer.setId(localNode.getNetworkPeer().getId());
-                    localTORPeer.getDid().getPublicKey().setFingerprint(result.serviceID); // used as key
-                    localTORPeer.getDid().getPublicKey().setAddress(result.serviceID);
-                    networkState.localPeer = localTORPeer;
-                }
-                sensorManager.getPeerManager().savePeer(localTORPeer, true);
-                LOG.info(sb.toString());
-            } catch (IOException ex) {
-                LOG.warning(ex.getLocalizedMessage());
-                torSensor.updateStatus(SensorStatus.NETWORK_UNAVAILABLE);
-                return false;
-            }
-        } else {
-            LOG.warning("Clearnet Sensor failed to start. Unable to start Tor Sensor External (Clearnet Sensor set up with TOR as proxy).");
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean pause() {
-        return false;
-    }
-
-    @Override
-    public boolean unpause() {
-        return false;
-    }
-
-    @Override
-    public boolean restart() {
-        return false;
-    }
-
-    @Override
-    public boolean shutdown() {
-        return clearnetSensor.shutdown();
-    }
-
-    @Override
-    public boolean gracefulShutdown() {
-        return clearnetSensor.gracefulShutdown();
     }
 
 //    public static void main(String[] args) {

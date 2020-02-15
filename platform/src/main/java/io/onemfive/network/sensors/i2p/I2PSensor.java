@@ -58,7 +58,7 @@ public class I2PSensor extends BaseSensor {
 
     private static final Logger LOG = Logger.getLogger(I2PSensor.class.getName());
 
-    public static final String ROUTER_LOCATION = "1m5.network.i2p.location";
+    public static final String I2P_ROUTER_EMBEDDED = "settings.network.i2p.routerEmbedded";
 
     /**
      * 1 = ElGamal-2048 / DSA-1024
@@ -98,6 +98,7 @@ public class I2PSensor extends BaseSensor {
     private static final Long BLOCK_TIME_UNTIL_RESTART = 3 * 60 * 1000L; // 4 minutes
     private Integer restartAttempts = 0;
     private static final Integer RESTART_ATTEMPTS_UNTIL_HARD_RESTART = 3;
+    private boolean embedded = true;
     private boolean isTest = false;
 
     // Tasks
@@ -127,16 +128,19 @@ public class I2PSensor extends BaseSensor {
 
     @Override
     public SensorSession establishSession(String address, Boolean autoConnect) {
-        if(sessions.get("default")==null) {
-            SensorSession sensorSession = new I2PSensorSession(this);
+        if(address==null) {
+            address = "default";
+        }
+        if(sessions.get(address)==null) {
+            SensorSession sensorSession = embedded ? new I2PSensorSessionEmbedded(this) : new I2PSensorSessionExternal(this);
             sensorSession.init(properties);
             sensorSession.open(null);
             if (autoConnect) {
                 sensorSession.connect();
             }
-            sessions.put("default", sensorSession);
+            sessions.put(address, sensorSession);
         }
-        return sessions.get("default");
+        return sessions.get(address);
     }
 
     /**
@@ -166,7 +170,9 @@ public class I2PSensor extends BaseSensor {
         // I2P Sensor Starting
         LOG.info("Loading I2P properties...");
         properties = p;
-        networkState.params.put(ROUTER_LOCATION, "embedded");
+        String isEmbeddedParam = p.getProperty(I2P_ROUTER_EMBEDDED);
+        embedded = "true".equals(isEmbeddedParam);
+        networkState.params.put(I2P_ROUTER_EMBEDDED, isEmbeddedParam);
         updateStatus(SensorStatus.STARTING);
         isTest = "true".equals(properties.getProperty("1m5.sensors.i2p.isTest"));
         // Look for another instance installed
@@ -550,7 +556,7 @@ public class I2PSensor extends BaseSensor {
             establishSession(null, true);
             if(discovery==null) {
                 LOG.info("I2P NetworkPeerDiscovery not instantiated; adding to TaskRunner...");
-                discovery = new NetworkPeerDiscovery(taskRunner, this, Network.I2P, networkState);
+                discovery = new NetworkPeerDiscovery(taskRunner, this);
                 seedAI2P.setId(sensorManager.getPeerManager().getLocalNode().getNetworkPeer().getId());
                 sensorManager.getPeerManager().savePeer(seedAI2P, true);
 //                taskRunner.addTask(discovery);

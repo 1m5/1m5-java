@@ -50,6 +50,7 @@ public abstract class SignalBase implements Signal, JSONSerializable {
 
     protected Integer id;
     protected String name;
+    protected String address;
     protected Integer port = 0;
     protected Integer score = 0;
     protected Boolean active = true;
@@ -61,6 +62,11 @@ public abstract class SignalBase implements Signal, JSONSerializable {
 
     public SignalBase() {
         id = RandomUtil.nextRandomInteger();
+    }
+
+    @Override
+    public String getAddress() {
+        return address;
     }
 
     @Override

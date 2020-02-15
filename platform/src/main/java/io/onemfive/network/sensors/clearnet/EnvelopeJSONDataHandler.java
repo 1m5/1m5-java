@@ -38,6 +38,7 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -59,18 +60,18 @@ public class EnvelopeJSONDataHandler extends DefaultHandler implements Asynchron
 
     private static Logger LOG = Logger.getLogger(EnvelopeJSONDataHandler.class.getName());
 
-    protected ClearnetSensor sensor;
     private Map<Long,ClientHold> requests = new HashMap<>();
     private String id;
     private String serviceName;
     private String[] parameters;
-    protected Map<String,ClearnetSession> activeSessions = new HashMap<>();
+    protected ClearnetSession session;
+    private HttpSession activeSession;
 
     public EnvelopeJSONDataHandler() {}
 
-    public void setSensor(ClearnetSensor sensor) {
-        this.sensor = sensor;
-        id = sensor.registerHandler(this);
+    @Override
+    public void setSession(ClearnetSession session) {
+        this.session = session;
     }
 
     public void setServiceName(String serviceName) {
@@ -112,33 +113,23 @@ public class EnvelopeJSONDataHandler extends DefaultHandler implements Asynchron
             return;
         }
 
-        // Clean out old sessions
         long now = System.currentTimeMillis();
-        List<ClearnetSession> expiredSessions = new ArrayList<>();
-        for(ClearnetSession session : activeSessions.values()) {
-            if(session.getLastRequestTime() + now > ClearnetSession.SESSION_INACTIVITY_INTERVAL * 1000)
-                expiredSessions.add(session);
-        }
-        for(ClearnetSession session : expiredSessions) {
-            activeSessions.remove(session.getId());
-        }
-
-        // Check for new sessions and add to active users when new
-        String sessionId = request.getSession().getId();
-//        LOG.info("Session ID: "+sessionId);
-        if(activeSessions.get(sessionId) == null) {
+        if(!request.getSession().getId().equals(activeSession.getId())) {
+            activeSession = request.getSession();
             request.getSession().setMaxInactiveInterval(ClearnetSession.SESSION_INACTIVITY_INTERVAL);
-            activeSessions.put(sessionId, new ClearnetSession(sessionId));
-        } else {
-            activeSessions.get(sessionId).setLastRequestTime(now);
+            session.setSessionId(activeSession.getId());
+        } else if(session.getLastRequestTime() + now > ClearnetSession.SESSION_INACTIVITY_INTERVAL * 1000){
+            request.getSession().invalidate();
+            activeSession = request.getSession(true);
+            request.getSession().setMaxInactiveInterval(ClearnetSession.SESSION_INACTIVITY_INTERVAL);
+            session.setSessionId(activeSession.getId());
         }
 
-        Envelope envelope = parseEnvelope(target, request, sessionId);
+        session.setLastRequestTime(now);
+
+        Envelope envelope = parseEnvelope(target, request, session.sessionId);
         ClientHold clientHold = new ClientHold(target, baseRequest, request, response, envelope);
         requests.put(envelope.getId(), clientHold);
-
-        // Add Routes Last first as it's a stack: Setup for return call
-        DLC.addRoute(NetworkService.class, NetworkService.OPERATION_REPLY, envelope);
 
         route(envelope); // asynchronous call upon; returns upon reaching Message Channel's queue in Service Bus
 
@@ -156,7 +147,7 @@ public class EnvelopeJSONDataHandler extends DefaultHandler implements Asynchron
     }
 
     protected void route(Envelope e) {
-        sensor.sendIn(e);
+        session.sendIn(e);
     }
 
     public void reply(Envelope e) {
@@ -164,7 +155,6 @@ public class EnvelopeJSONDataHandler extends DefaultHandler implements Asynchron
         HttpServletResponse response = hold.getResponse();
         LOG.info("Updating session status from response...");
         String sessionId = (String)e.getHeader(ClearnetSession.class.getName());
-        ClearnetSession activeSession = activeSessions.get(sessionId);
         if(activeSession==null) {
             // session expired before response received so kill
             LOG.warning("Expired session before response received: sessionId="+sessionId);
@@ -173,10 +163,9 @@ public class EnvelopeJSONDataHandler extends DefaultHandler implements Asynchron
             LOG.info("Active session found");
             DID eDID = e.getDID();
             LOG.info("DID in header: "+eDID);
-            if(!activeSession.getAuthenticated() && eDID.getAuthenticated()) {
-                LOG.info("Updating active session and DID to authenticated.");
-                activeSession.setAuthenticated(true);
-                activeSession.getDid().setAuthenticated(true);
+            if(!session.getAuthenticated() && eDID.getAuthenticated()) {
+                LOG.info("Updating active session to authenticated.");
+                session.setAuthenticated(true);
             }
             respond(unpackEnvelopeContent(e), "application/json", response, 200);
         }
@@ -193,13 +182,17 @@ public class EnvelopeJSONDataHandler extends DefaultHandler implements Asynchron
 
     protected Envelope parseEnvelope(String target, HttpServletRequest request, String sessionId) {
 //        LOG.info("Parsing request into Envelope...");
+        String json = request.getParameter("env");
+        if(json==null) {
+            LOG.warning("No Envelope in env parameter.");
+            return null;
+        }
+        Envelope e = new Envelope();
+        e.fromJSON(json);
 
-        Envelope e = Envelope.documentFactory();
-        // Flag as LOW for HTTP - this is required to ensure ClearnetServerSensor is selected in reply
-        e.setManCon(ManCon.LOW);
         // Must set id in header for asynchronous support
-        e.setHeader(ClearnetSensor.HANDLER_ID, id);
-        e.setHeader(ClearnetSession.class.getName(), sessionId);
+        e.setHeader(ClearnetSession.HANDLER_ID, id);
+        e.setHeader(ClearnetSession.SESSION_ID, sessionId);
 
         // Set path
         e.setCommandPath(target.startsWith("/")?target.substring(1):target); // strip leading slash if present

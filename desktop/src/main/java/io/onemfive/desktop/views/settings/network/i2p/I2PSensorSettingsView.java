@@ -90,7 +90,7 @@ public class I2PSensorSettingsView extends ActivatableView implements NetworkSta
         if(hiddenMode!=null)
             hiddenMode.setSelected("true".equals(networkState.params.get(Router.PROP_HIDDEN)));
         if(routerEmbedded!=null)
-            routerEmbedded.setSelected("embedded".equals(networkState.params.get(I2PSensor.ROUTER_LOCATION)));
+            routerEmbedded.setSelected("embedded".equals(networkState.params.get(I2PSensor.I2P_ROUTER_EMBEDDED)));
         if(sharePercentage!=null)
             sharePercentage.setText((String)networkState.params.get(Router.PROP_BANDWIDTH_SHARE_PERCENTAGE));
     }

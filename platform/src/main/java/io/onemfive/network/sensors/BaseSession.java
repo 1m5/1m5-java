@@ -38,6 +38,7 @@ public abstract class BaseSession implements SensorSession {
     protected Properties properties;
     protected Status status = SensorSession.Status.STOPPED;
     private List<SessionListener> listeners = new ArrayList<>();
+    protected String address;
 
     public BaseSession() {
         id = RandomUtil.nextRandomInteger();
@@ -46,6 +47,11 @@ public abstract class BaseSession implements SensorSession {
     @Override
     public Integer getId() {
         return id;
+    }
+
+    @Override
+    public String getAddress() {
+        return address;
     }
 
     @Override

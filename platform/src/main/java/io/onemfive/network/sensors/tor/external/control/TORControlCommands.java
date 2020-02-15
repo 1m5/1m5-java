@@ -26,7 +26,7 @@
  */
 package io.onemfive.network.sensors.tor.external.control;
 
-public interface TorControlCommands {
+public interface TORControlCommands {
 
     short CMD_ERROR = 0x0000;
     short CMD_DONE = 0x0001;

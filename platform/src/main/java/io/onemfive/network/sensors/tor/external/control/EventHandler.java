@@ -29,8 +29,8 @@ package io.onemfive.network.sensors.tor.external.control;
 /**
  * Abstract interface whose methods are invoked when Tor sends us an event.
  *
- * @see TorControlConnection#setEventHandler
- * @see TorControlConnection#setEvents
+ * @see TORControlConnection#setEventHandler
+ * @see TORControlConnection#setEvents
  */
 public interface EventHandler {
     /**

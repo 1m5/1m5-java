@@ -26,6 +26,9 @@
  */
 package io.onemfive.network.sensors.tor.external.control;
 
+import io.onemfive.network.sensors.tor.TORAlgorithms;
+import io.onemfive.network.sensors.tor.TORHiddenService;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +40,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,11 +54,14 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** A connection to a running Tor process as specified in control-spec.txt. */
-public class TorControlConnection implements TorControlCommands {
+public class TORControlConnection implements TORControlCommands {
+
+    private static final Logger LOG = Logger.getLogger(TORControlConnection.class.getName());
 
     private final LinkedList<Waiter> waiters;
     private final BufferedReader input;
@@ -108,18 +115,18 @@ public class TorControlConnection implements TorControlCommands {
     /** Create a new TorControlConnection to communicate with Tor over
      * a given socket.  After calling this constructor, it is typical to
      * call launchThread and authenticate. */
-    public TorControlConnection(Socket connection) throws IOException {
+    public TORControlConnection(Socket connection) throws IOException {
         this(connection.getInputStream(), connection.getOutputStream());
     }
 
     /** Create a new TorControlConnection to communicate with Tor over
      * an arbitrary pair of data streams.
      */
-    public TorControlConnection(InputStream i, OutputStream o) {
+    public TORControlConnection(InputStream i, OutputStream o) {
         this(new InputStreamReader(i), new OutputStreamWriter(o));
     }
 
-    public TorControlConnection(Reader i, Writer o) {
+    public TORControlConnection(Reader i, Writer o) {
         this.output = o;
         if (i instanceof BufferedReader)
             this.input = (BufferedReader) i;
@@ -178,13 +185,13 @@ public class TorControlConnection implements TorControlCommands {
                     return reply;
                 }
                 // received half of a reply before the connection broke down
-                throw new TorControlSyntaxError("Connection to Tor " +
+                throw new TORControlSyntaxError("Connection to Tor " +
                         " broke down while receiving reply!");
             }
             if (debugOutput != null)
                 debugOutput.println("<< "+line);
             if (line.length() < 4)
-                throw new TorControlSyntaxError("Line (\""+line+"\") too short");
+                throw new TORControlSyntaxError("Line (\""+line+"\") too short");
             String status = line.substring(0,3);
             c = line.charAt(3);
             String msg = line.substring(4);
@@ -230,12 +237,12 @@ public class TorControlConnection implements TorControlCommands {
             throw new IOException("Interrupted");
         } catch (TimeoutException e) {
             if(null != handler) handler.timeout();
-            throw new TorControlTimeoutError("We did not receive a response after one minute of waiting.");
+            throw new TORControlTimeoutError("We did not receive a response after one minute of waiting.");
         }
         for (Iterator<ReplyLine> i = lst.iterator(); i.hasNext(); ) {
             ReplyLine c = i.next();
             if (! c.status.startsWith("2"))
-                throw new TorControlError(Integer.valueOf(c.status),"Error reply: "+c.msg);
+                throw new TORControlError(Integer.valueOf(c.status),"Error reply: "+c.msg);
         }
         return lst;
     }
@@ -711,8 +718,6 @@ public class TorControlConnection implements TorControlCommands {
         return m;
     }
 
-
-
     /** Return the value of the information field 'key' */
     public String getInfo(String key) throws IOException {
         List<String> lst = new ArrayList<String>();
@@ -877,27 +882,19 @@ public class TorControlConnection implements TorControlCommands {
      *
      * @throws IOException
      */
-    public CreateHiddenServiceResult createHiddenService(Integer port) throws IOException {
+    public TORHiddenService createHiddenService(Integer port) throws IOException, NoSuchAlgorithmException {
         return createHiddenService(port, -1, "NEW:BEST");
     }
 
-    public CreateHiddenServiceResult createHiddenService(Integer virtPort, Integer targetPort) throws IOException {
+    public TORHiddenService createHiddenService(Integer virtPort, Integer targetPort) throws IOException, NoSuchAlgorithmException {
         return createHiddenService(virtPort, targetPort, "NEW:BEST");
     }
 
-    /**
-     * supported algorithms according to
-     * https://github.com/torproject/torspec/raw/4421149986369b4f746fc02a5d78c7337fe5d4ea/control-spec.txt
-     */
-    private final static String[] algorithms = { "RSA1024", "ED25519-V3" };
-
-
-    public CreateHiddenServiceResult createHiddenService(Integer port, String private_key) throws IOException {
+    public TORHiddenService createHiddenService(Integer port, String private_key) throws IOException, NoSuchAlgorithmException {
         return createHiddenService(port, -1, private_key);
     }
 
-    public CreateHiddenServiceResult createHiddenService(Integer virtPort, Integer targetPort, String private_key)
-            throws IOException {
+    public TORHiddenService createHiddenService(Integer virtPort, Integer targetPort, String private_key) throws IOException, NoSuchAlgorithmException {
 
         // assemble port string
         String port = virtPort.toString();
@@ -911,12 +908,11 @@ public class TorControlConnection implements TorControlCommands {
          * the Tor binary do the math.
          */
         List<ReplyLine> result = null;
-        for (String algorithm : algorithms)
+        for (String algorithm : TORAlgorithms.toArray())
             try {
-                result = sendAndWaitForResponse(
-                        "ADD_ONION " + getPemPrivateKey(private_key, algorithm) + " Port=" + port + "\r\n", null);
+                result = sendAndWaitForResponse("ADD_ONION " + getPemPrivateKey(private_key, algorithm) + " Port=" + port + "\r\n", null);
                 break;
-            } catch (TorControlError e) {
+            } catch (TORControlError e) {
                 if (e.getErrorType() != 513)
                     throw e;
             }
@@ -926,45 +922,19 @@ public class TorControlConnection implements TorControlCommands {
         if (null == result)
             throw new IOException("We should not be here. Contact the developers!");
 
-        CreateHiddenServiceResult creationResult = new CreateHiddenServiceResult(result.get(0).msg.replace("ServiceID=", ""),
-                private_key.contains("NEW") ? result.get(1).msg.replace("PrivateKey=", "") : private_key);
+        TORHiddenService torHiddenService = new TORHiddenService(result.get(0).msg.replace("ServiceID=", ""),
+                    private_key.contains("NEW") ? result.get(1).msg.replace("PrivateKey=", "") : private_key);
 
         /*
-         * by asking for the service we just created, Tor is going to aquire a suitable
-         * hidden service descriptor. When such a descriptor is not found in Tors local
-         * cache, Tor tries to publish the descriptor or at least the onion address. The
+         * by asking for the service we just created, TOR is going to acquire a suitable
+         * hidden service descriptor. When such a descriptor is not found in TORs local
+         * cache, TOR tries to publish the descriptor or at least the onion address. The
          * nice thing about that is that a HSFETCH (i.e. what isHSAvailable does),
-         * triggers HS_DESC and HS_DESC_CONTENT events when Tor gets the information.
+         * triggers HS_DESC and HS_DESC_CONTENT events when TOR gets the information.
          */
-        isHSAvailable(creationResult.serviceID);
+        isHSAvailable(torHiddenService.serviceID);
 
-        return creationResult;
-    }
-
-    public class CreateHiddenServiceResult {
-        public final String serviceID;
-        public final String privateKey;
-
-        public CreateHiddenServiceResult(String serviceID, String privateKey) throws IOException {
-            this.serviceID = serviceID;
-
-            if (privateKey.startsWith("-----BEGIN")) // we reused a key
-                this.privateKey = privateKey;
-            else {
-                String type;
-                if (privateKey.startsWith(algorithms[0])) // i.e. RSA1024
-                    type = "RSA";
-                else if (privateKey.startsWith(algorithms[1])) // i.e. ED25519-V3
-                    type = "OPENSSH";
-                else
-                    throw new IOException(
-                            "Unsupported private_key algorithm. Did Tor get a new key type for hidden services?");
-
-                this.privateKey = "-----BEGIN " + type + " PRIVATE KEY-----\n"
-                        + privateKey.substring(privateKey.indexOf(":") + 1) + "\n-----END " + type
-                        + " PRIVATE KEY-----";
-            }
-        }
+        return torHiddenService;
     }
 
     private String getPemPrivateKey(String keyBytes, String algorithm) {
@@ -1048,7 +1018,7 @@ public class TorControlConnection implements TorControlCommands {
      * @throws IOException
      */
     public AuthChallengeResult authChallenge(byte[] clientNonce) throws IOException {
-
+        
         List<ReplyLine> result = sendAndWaitForResponse(
                 "AUTHCHALLENGE SAFECOOKIE " + byteArrayToHexString(clientNonce) + "\r\n",
                 null);

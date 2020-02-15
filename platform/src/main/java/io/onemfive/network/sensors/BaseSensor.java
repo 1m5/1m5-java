@@ -110,7 +110,7 @@ public abstract class BaseSensor implements Sensor {
     }
 
     public void connected(SensorSession session) {
-        LOG.info("Radio Session reporting connection.");
+        LOG.info("Session reporting connection.");
         if(getStatus()!=NETWORK_CONNECTED) {
             updateStatus(NETWORK_CONNECTED);
             routerStatusChanged();
@@ -124,7 +124,7 @@ public abstract class BaseSensor implements Sensor {
      * @param session session to report disconnect to
      */
     public void disconnected(SensorSession session) {
-        LOG.info("Sensor Session reporting disconnection.");
+        LOG.info("Session reporting disconnection.");
         if(disconnected()) {
             updateStatus(NETWORK_STOPPED);
             routerStatusChanged();

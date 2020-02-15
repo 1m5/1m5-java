@@ -27,57 +27,63 @@
 package io.onemfive.network.sensors.tor.embedded;
 
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.NetworkState;
-import io.onemfive.network.sensors.SensorManager;
-import io.onemfive.network.sensors.tor.TOR;
+import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.sensors.clearnet.ClearnetSession;
 import io.onemfive.network.sensors.tor.TORSensor;
 
-import java.util.Properties;
+import java.util.logging.Logger;
 
-public class TOREmbedded implements TOR {
+
+public class TORSensorSessionEmbedded extends ClearnetSession {
+
+    private static final Logger LOG = Logger.getLogger(TORSensorSessionEmbedded.class.getName());
 
     private TORSensor torSensor;
-    private NetworkState networkState;
-    private SensorManager sensorManager;
 
-    public TOREmbedded(TORSensor torSensor, NetworkState networkState, SensorManager sensorManager) {
+    public TORSensorSessionEmbedded(TORSensor torSensor) {
+        super(torSensor);
         this.torSensor = torSensor;
-        this.networkState = networkState;
-        this.sensorManager = sensorManager;
     }
 
     @Override
-    public boolean sendOut(NetworkPacket packet) {
+    public Boolean send(NetworkPacket packet) {
+        LOG.warning("Not yet implemented.");
+        return null;
+    }
+
+    @Override
+    public Boolean send(NetworkOp op) {
+        LOG.warning("Not yet implemented.");
+        return null;
+    }
+
+    @Override
+    public boolean open(String address) {
+        LOG.warning("Not yet implemented.");
         return false;
     }
 
     @Override
-    public boolean start(Properties properties) {
+    public boolean connect() {
+        LOG.warning("Not yet implemented.");
         return false;
     }
 
     @Override
-    public boolean pause() {
+    public boolean disconnect() {
+        LOG.warning("Not yet implemented.");
         return false;
     }
 
     @Override
-    public boolean unpause() {
+    public boolean isConnected() {
+        LOG.warning("Not yet implemented.");
         return false;
     }
 
     @Override
-    public boolean restart() {
-        return false;
-    }
-
-    @Override
-    public boolean shutdown() {
-        return false;
-    }
-
-    @Override
-    public boolean gracefulShutdown() {
+    public boolean close() {
+        LOG.warning("Not yet implemented.");
         return false;
     }
 }

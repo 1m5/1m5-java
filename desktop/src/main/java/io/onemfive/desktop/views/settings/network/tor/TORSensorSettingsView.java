@@ -29,7 +29,7 @@ package io.onemfive.desktop.views.settings.network.tor;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.network.NetworkState;
 import io.onemfive.network.NetworkStateUpdateListener;
-import io.onemfive.network.sensors.i2p.I2PSensor;
+import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.util.Res;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
@@ -74,6 +74,6 @@ public class TORSensorSettingsView extends ActivatableView implements NetworkSta
     @Override
     public void notify(NetworkState networkState) {
         if(routerEmbedded!=null)
-            routerEmbedded.setSelected("embedded".equals(networkState.params.get(I2PSensor.ROUTER_LOCATION)));
+            routerEmbedded.setSelected("embedded".equals(networkState.params.get(TORSensor.TOR_ROUTER_EMBEDDED)));
     }
 }

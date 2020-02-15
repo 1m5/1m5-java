@@ -61,9 +61,9 @@ public class EnvelopeProxyDataHandler extends DefaultHandler implements Asynchro
 
     private static Logger LOG = Logger.getLogger(EnvelopeProxyDataHandler.class.getName());
 
-    protected ClearnetSensor sensor;
+    protected ClearnetSession session;
     protected Map<Long,ClientHold> requests = new HashMap<>();
-    private String id;
+
     private String serviceName;
     private String[] parameters;
 
@@ -71,9 +71,8 @@ public class EnvelopeProxyDataHandler extends DefaultHandler implements Asynchro
 
     }
 
-    public void setSensor(ClearnetSensor sensor) {
-        this.sensor = sensor;
-        id = sensor.registerHandler(this);
+    public void setSession(ClearnetSession session) {
+        this.session = session;
     }
 
     public void setServiceName(String serviceName) {
@@ -113,10 +112,7 @@ public class EnvelopeProxyDataHandler extends DefaultHandler implements Asynchro
         ClientHold clientHold = new ClientHold(target, baseRequest, request, response, envelope);
         requests.put(envelope.getId(), clientHold);
 
-        // Add Routes Last first as it's a stack: Setup for return call
-        DLC.addRoute(NetworkService.class, NetworkService.OPERATION_SEND, envelope);
-
-        route(envelope); // asynchronous call upon; returns upon reaching Message Channel's queue in Service Bus
+        session.sendIn(envelope); // asynchronous call upon; returns upon reaching Message Channel's queue in Service Bus
 
         if(DLC.getErrorMessages(envelope).size() > 0) {
             // Just 500 for now
@@ -129,10 +125,6 @@ public class EnvelopeProxyDataHandler extends DefaultHandler implements Asynchro
 //            LOG.info("Holding HTTP Request for up to 30 seconds waiting for internal asynch response...");
             clientHold.hold(10 * 60 * 1000); // hold for 10 minutes or until interrupted
         }
-    }
-
-    protected void route(Envelope e) {
-        sensor.sendIn(e);
     }
 
     public void reply(Envelope e) {
@@ -159,10 +151,8 @@ public class EnvelopeProxyDataHandler extends DefaultHandler implements Asynchro
     protected Envelope parseEnvelope(HttpServletRequest request) {
         LOG.info("Parsing request into Envelope...");
         Envelope e = Envelope.documentFactory();
-        // Flag as LOW for HTTP - this is required to ensure ClearnetServerSensor is selected in reply
-        e.setManCon(ManCon.LOW);
         // Must set id in header for asynchronous support
-        e.setHeader(ClearnetSensor.HANDLER_ID, id);
+        e.setHeader(ClearnetSession.HANDLER_ID, session.sessionId);
         String uri = request.getRequestURI();
         LOG.info("URI:"+uri);
         boolean http = uri.startsWith("http://");

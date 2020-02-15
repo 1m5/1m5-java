@@ -64,9 +64,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class I2PSensorSession extends BaseSession implements I2PSessionMuxedListener {
+public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionMuxedListener {
 
-    private static final Logger LOG = Logger.getLogger(I2PSensorSession.class.getName());
+    private static final Logger LOG = Logger.getLogger(I2PSensorSessionEmbedded.class.getName());
 
     // I2CP parameters allowed in the config file
     // Undefined parameters use the I2CP defaults
@@ -88,10 +88,15 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
     private boolean connected = false;
     private I2PSocketManager socketManager;
     private boolean isTest = false;
+    private String address;
 
-    public I2PSensorSession(I2PSensor sensor) {
+    public I2PSensorSessionEmbedded(I2PSensor sensor) {
         super();
         this.sensor = sensor;
+    }
+
+    public String getAddress() {
+        return address;
     }
 
     /**
@@ -100,7 +105,6 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
     @Override
     public boolean init(Properties p) {
         super.init(p);
-        properties = p;
         LOG.info("Initializing I2P Session....");
         // set tunnel names
         properties.setProperty("inbound.nickname", "I2PSensor");
@@ -114,6 +118,7 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
      */
     @Override
     public boolean open(String i2pAddress) {
+        address = i2pAddress;
         NetworkNode localNode = sensor.getSensorManager().getPeerManager().getLocalNode();
         NetworkPeer localI2PPeer;
         if(localNode.getNetworkPeer(Network.I2P)!=null) {
@@ -136,7 +141,6 @@ public class I2PSensorSession extends BaseSession implements I2PSessionMuxedList
             LOG.info("Destination key file doesn't exist or isn't readable." + e);
         } catch (I2PSessionException e) {
             // Won't happen, inputStream != null
-            e.printStackTrace();
             LOG.warning(e.getLocalizedMessage());
         } finally {
             if (fileReader != null) {

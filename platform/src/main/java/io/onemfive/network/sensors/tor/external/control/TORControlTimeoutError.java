@@ -29,11 +29,13 @@ package io.onemfive.network.sensors.tor.external.control;
 import java.io.IOException;
 
 /**
- * An exception raised when Tor behaves in an unexpected way.
+ * An exception raised when Tor tells us about an error.
  */
-public class TorControlSyntaxError extends IOException {
+public class TORControlTimeoutError extends IOException {
 
-    static final long serialVersionUID = 3;
+    static final long serialVersionUID = 4;
 
-    public TorControlSyntaxError(String s) { super(s); }
+    public TORControlTimeoutError(String s) {
+        super(s);
+    }
 }

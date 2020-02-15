@@ -27,7 +27,6 @@
 package io.onemfive.network.sensors;
 
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.ops.NetworkOp;
 
 import java.util.Properties;
@@ -42,6 +41,7 @@ public interface SensorSession {
 
     Integer getId();
     boolean init(Properties properties);
+    String getAddress();
     boolean open(String address);
     boolean connect();
     boolean disconnect();

@@ -87,6 +87,9 @@ public class BluetoothSensor extends BaseSensor {
 
     @Override
     public SensorSession establishSession(String address, Boolean autoConnect) {
+        if(address==null) {
+            address = "default";
+        }
         SensorSession session = sessions.get(address);
         if(session==null) {
             if (session.open(address)) {
@@ -244,9 +247,7 @@ public class BluetoothSensor extends BaseSensor {
         taskRunner.addTask(serviceDiscovery);
 
         // run every minute 20 seconds after service discovery
-        peerDiscovery = new NetworkPeerDiscovery(taskRunner, this, Network.Bluetooth, config);
-        peerDiscovery.config.UpdateInterval = 60;
-        peerDiscovery.config.UpdateIntervalHyper = 60;
+        peerDiscovery = new NetworkPeerDiscovery(taskRunner, this);
         peerDiscovery.setLongRunning(true);
         peerDiscovery.setDelayed(true);
         peerDiscovery.setDelayTimeMS(40 * 1000L);

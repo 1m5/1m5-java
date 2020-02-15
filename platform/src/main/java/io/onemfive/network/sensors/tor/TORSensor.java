@@ -28,10 +28,11 @@ package io.onemfive.network.sensors.tor;
 
 import io.onemfive.data.*;
 import io.onemfive.network.*;
+import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.sensors.*;
-import io.onemfive.network.sensors.i2p.I2PSensorSession;
-import io.onemfive.network.sensors.tor.embedded.TOREmbedded;
-import io.onemfive.network.sensors.tor.external.TORExternal;
+import io.onemfive.network.sensors.clearnet.ClearnetSensor;
+import io.onemfive.network.sensors.tor.embedded.TORSensorSessionEmbedded;
+import io.onemfive.network.sensors.tor.external.TORSensorSessionExternal;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,12 +50,13 @@ public final class TORSensor extends BaseSensor {
 
     private static final Logger LOG = Logger.getLogger(TORSensor.class.getName());
 
+    public static final String TOR_ROUTER_EMBEDDED = "settings.network.tor.routerEmbedded";
+
     private NetworkPeerDiscovery discovery;
 
-    private TOR tor;
-
     private File sensorDir;
-    protected final Map<String, SensorSession> sessions = new HashMap<>();
+    private boolean embedded = false;
+    private final Map<String, SensorSession> sessions = new HashMap<>();
 
     public TORSensor() {
         super(Network.TOR);
@@ -81,7 +83,8 @@ public final class TORSensor extends BaseSensor {
     @Override
     public boolean sendOut(NetworkPacket packet) {
         LOG.info("Tor Sensor sending request...");
-        boolean successful = tor.sendOut(packet);
+        SensorSession sensorSession = establishSession(null, true);
+        boolean successful = sensorSession.send(packet);
         if (successful) {
             LOG.info("Tor Sensor successful response received.");
             if (!getStatus().equals(SensorStatus.NETWORK_CONNECTED)) {
@@ -92,23 +95,31 @@ public final class TORSensor extends BaseSensor {
         return successful;
     }
 
+    public boolean sendOut(NetworkOp op) {
+
+        return false;
+    }
+
     @Override
     public SensorSession establishSession(String address, Boolean autoConnect) {
-        if(sessions.get("default")==null) {
-            SensorSession sensorSession = new TORSensorSession(this);
+        if(address==null) {
+            address = "default";
+        }
+        if(sessions.get(address)==null) {
+            SensorSession sensorSession = embedded ? new TORSensorSessionEmbedded(this) : new TORSensorSessionExternal(this);
+
             sensorSession.init(properties);
             sensorSession.open(null);
             if (autoConnect) {
                 sensorSession.connect();
             }
-            sessions.put("default", sensorSession);
+            sessions.put(address, sensorSession);
         }
-        return sessions.get("default");
+        return sessions.get(address);
     }
 
     @Override
     public boolean sendIn(Envelope envelope) {
-        // TODO: Implement as Tor Hidden Service
         return super.sendIn(envelope);
     }
 
@@ -117,35 +128,33 @@ public final class TORSensor extends BaseSensor {
         LOG.info("Starting TOR Sensor...");
         updateStatus(SensorStatus.STARTING);
         String sensorsDirStr = properties.getProperty("1m5.dir.sensors");
-        if(sensorsDirStr==null) {
+        if (sensorsDirStr == null) {
             LOG.warning("1m5.dir.sensors property is null. Please set prior to instantiating Tor Sensor.");
             return false;
         }
         try {
-            sensorDir = new File(new File(sensorsDirStr),"tor");
-            if(!sensorDir.exists() && !sensorDir.mkdir()) {
+            sensorDir = new File(new File(sensorsDirStr), "tor");
+            if (!sensorDir.exists() && !sensorDir.mkdir()) {
                 LOG.warning("Unable to create Tor sensor directory.");
                 return false;
             } else {
-                properties.put("1m5.dir.sensors.tor",sensorDir.getCanonicalPath());
+                properties.put("1m5.dir.sensors.tor", sensorDir.getCanonicalPath());
             }
         } catch (IOException e) {
-            LOG.warning("IOException caught while building Tor sensor directory: \n"+e.getLocalizedMessage());
+            LOG.warning("IOException caught while building Tor sensor directory: \n" + e.getLocalizedMessage());
             return false;
         }
 
-        if("true".equals(properties.getProperty("settings.network.tor.routerEmbedded")))
-            tor = new TOREmbedded(this, networkState, sensorManager);
-        else
-            tor = new TORExternal(this, networkState, sensorManager);
+        embedded = "true".equals(properties.getProperty(TOR_ROUTER_EMBEDDED));
+        networkState.params.put(TOR_ROUTER_EMBEDDED, String.valueOf(embedded));
 
-        if(tor.start(properties)) {
+        SensorSession torSession = establishSession(null, true);
+        if (torSession.isConnected())
             updateStatus(SensorStatus.NETWORK_CONNECTED);
-        } else {
-            return false;
-        }
+        else
+            updateStatus(SensorStatus.NETWORK_ERROR);
 
-            // Setup Discovery
+        // Setup Discovery
 //            discovery = new NetworkPeerDiscovery(taskRunner, this, Network.TOR, config);
 //            NetworkPeer seedA1M5 = new NetworkPeer();
 //            seedA1M5.setId("+sKVViuz2FPsl/XQ+Da/ivbNfOI=");
@@ -166,31 +175,35 @@ public final class TORSensor extends BaseSensor {
 //                discovery.seeds.add(seedATOR);
 //            }
 //            taskRunner.addTask(discovery);
-            return true;
+        return true;
     }
 
     @Override
     public boolean pause() {
-        return tor.pause();
+        return false;
     }
 
     @Override
     public boolean unpause() {
-        return tor.unpause();
+        return false;
     }
 
     @Override
     public boolean restart() {
-        return tor.restart();
+        return false;
     }
 
     @Override
     public boolean shutdown() {
-        return tor.shutdown();
+        for(SensorSession session : sessions.values()) {
+            session.disconnect();
+            session.close();
+        }
+        return true;
     }
 
     @Override
     public boolean gracefulShutdown() {
-        return tor.gracefulShutdown();
+        return shutdown();
     }
 }

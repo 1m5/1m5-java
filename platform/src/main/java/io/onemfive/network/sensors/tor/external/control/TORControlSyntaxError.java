@@ -24,11 +24,16 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor;
+package io.onemfive.network.sensors.tor.external.control;
 
-import io.onemfive.core.LifeCycle;
-import io.onemfive.network.NetworkPacket;
+import java.io.IOException;
 
-public interface TOR extends LifeCycle {
-    boolean sendOut(NetworkPacket packet);
+/**
+ * An exception raised when Tor behaves in an unexpected way.
+ */
+public class TORControlSyntaxError extends IOException {
+
+    static final long serialVersionUID = 3;
+
+    public TORControlSyntaxError(String s) { super(s); }
 }

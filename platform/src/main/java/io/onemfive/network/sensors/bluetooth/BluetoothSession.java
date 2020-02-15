@@ -109,7 +109,7 @@ class BluetoothSession extends BaseSession {
 
     @Override
     public boolean open(String address) {
-        LOG.info("Establishing session...");
+        LOG.info("Establishing session based on provided address: "+address);
         // Client
         remotePeerAddress = address;
         try {
