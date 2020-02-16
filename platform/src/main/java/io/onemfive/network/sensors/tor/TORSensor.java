@@ -30,7 +30,6 @@ import io.onemfive.data.*;
 import io.onemfive.network.*;
 import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.sensors.*;
-import io.onemfive.network.sensors.clearnet.ClearnetSensor;
 import io.onemfive.network.sensors.tor.embedded.TORSensorSessionEmbedded;
 import io.onemfive.network.sensors.tor.external.TORSensorSessionExternal;
 
@@ -38,6 +37,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+
+import static io.onemfive.network.sensors.clearnet.ClearnetSensor.CLEARNET_SESSIONS_CONFIG;
 
 /**
  * Sets up an HttpClientSensor with the local Tor instance as a proxy (127.0.0.1:9150).
@@ -51,6 +52,8 @@ public final class TORSensor extends BaseSensor {
     private static final Logger LOG = Logger.getLogger(TORSensor.class.getName());
 
     public static final String TOR_ROUTER_EMBEDDED = "settings.network.tor.routerEmbedded";
+    public static final String TOR_HIDDENSERVICES_CONFIG = "settings.network.tor.hiddenServicesConfig";
+    public static final String TOR_HIDDENSERVICE_CONFIG = "settings.network.tor.hiddenServiceConfig";
 
     private NetworkPeerDiscovery discovery;
 
@@ -109,7 +112,7 @@ public final class TORSensor extends BaseSensor {
             SensorSession sensorSession = embedded ? new TORSensorSessionEmbedded(this) : new TORSensorSessionExternal(this);
 
             sensorSession.init(properties);
-            sensorSession.open(null);
+            sensorSession.open(address);
             if (autoConnect) {
                 sensorSession.connect();
             }
@@ -127,6 +130,7 @@ public final class TORSensor extends BaseSensor {
     public boolean start(Properties properties) {
         LOG.info("Starting TOR Sensor...");
         updateStatus(SensorStatus.STARTING);
+        this.properties = properties;
         String sensorsDirStr = properties.getProperty("1m5.dir.sensors");
         if (sensorsDirStr == null) {
             LOG.warning("1m5.dir.sensors property is null. Please set prior to instantiating Tor Sensor.");
@@ -145,10 +149,12 @@ public final class TORSensor extends BaseSensor {
             return false;
         }
 
+        updateStatus(SensorStatus.STARTING);
+
         embedded = "true".equals(properties.getProperty(TOR_ROUTER_EMBEDDED));
         networkState.params.put(TOR_ROUTER_EMBEDDED, String.valueOf(embedded));
 
-        SensorSession torSession = establishSession(null, true);
+        SensorSession torSession = establishSession("private_key", true);
         if (torSession.isConnected())
             updateStatus(SensorStatus.NETWORK_CONNECTED);
         else

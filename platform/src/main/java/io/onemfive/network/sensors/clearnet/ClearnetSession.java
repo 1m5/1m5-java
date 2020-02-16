@@ -59,7 +59,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static io.onemfive.network.sensors.clearnet.ClearnetSensor.SESSION_CONFIG;
+import static io.onemfive.network.sensors.clearnet.ClearnetSensor.CLEARNET_SESSION_CONFIG;
 
 /**
  * TODO: Add Description
@@ -132,6 +132,8 @@ public class ClearnetSession extends BaseSession {
     private long lastRequestTime = System.currentTimeMillis();
     private boolean authenticated = false;
     private boolean connected = false;
+    protected boolean clientsEnabled = true;
+    protected boolean serverEnabled = true;
 
     public ClearnetSession(BaseSensor sensor) {
         super();
@@ -178,8 +180,8 @@ public class ClearnetSession extends BaseSession {
     @Override
     public boolean init(Properties properties) {
         super.init(properties);
-        if(properties.contains(SESSION_CONFIG)) {
-            params = properties.getProperty(SESSION_CONFIG).split(",");
+        if(serverEnabled && properties.get(CLEARNET_SESSION_CONFIG)!=null) {
+            params = properties.getProperty(CLEARNET_SESSION_CONFIG).split(",");
         }
         return true;
     }
@@ -418,98 +420,104 @@ public class ClearnetSession extends BaseSession {
 
     @Override
     public boolean open(String address) {
-        if(address==null) {
-            address = "127.0.0.1"; // default
-        }
-
-        // Server setup
-        String name = params[0];
-        if (name == null) {
-            LOG.warning("Name must be provided for HTTP server.");
-            return false;
-        }
-
-        String type = params[1];
-        if (type == null) {
-            LOG.warning("Type must be provided for HTTP Proxy with name=" + name);
-            return false;
-        }
-
-        String portStr = params[2];
-        if (portStr == null) {
-            LOG.warning("Port must be provided for HTTP server with name=" + name);
-            return false;
-        }
-        int port = Integer.parseInt(portStr);
-
-        if ("proxy".equals(type)) {
-            EnvelopeProxyDataHandler handler = new EnvelopeProxyDataHandler();
-            handler.setSession(this);
-            handler.setServiceName(name);
-            handler.setParameters(params);
-            handlers.addHandler(handler);
-        } else if ("local".equals(type)) {
-
-            String launchOnStartStr = params[3];
-            launchOnStart = "true".equals(launchOnStartStr);
-
-            String spaStr = params[4];
-            boolean spa = "true".equals(spaStr);
-
-            String dataHandlerStr = params[5];
-            AsynchronousEnvelopeHandler dataHandler = null;
-
-            String resourceDirectory = params[6];
-            URL webDirURL = this.getClass().getClassLoader().getResource(resourceDirectory);
-
-            String useSocketStr = params[7];
-
-            String webSocketAdapter = null;
-            if ("true".equals(useSocketStr) && params.length > 8) {
-                webSocketAdapter = params[8];
-            }
-            // TODO: Make Web Socket context path configurable
-
-            SessionHandler sessionHandler = new SessionHandler();
-
-            // TODO: Make data context path configurable
-            ContextHandler dataContext = new ContextHandler();
-            dataContext.setContextPath("/data/*");
-
-            ResourceHandler resourceHandler = new ResourceHandler();
-            resourceHandler.setDirectoriesListed(false);
-            resourceHandler.setWelcomeFiles(new String[]{"index.html"});
-            if (webDirURL != null) {
-                resourceHandler.setResourceBase(webDirURL.toExternalForm());
+        if(serverEnabled) {
+            if (address == null) {
+                address = "127.0.0.1"; // default
             }
 
-            ContextHandler wsContext = null;
-            if ("true".equals(useSocketStr)) {
-                if (webSocketAdapter == null) {
-                    webSocket = new EnvelopeWebSocket(this);
-                    LOG.info("No custom EnvelopWebSocket class provided; using generic one.");
-                } else {
-                    try {
-                        webSocket = (EnvelopeWebSocket) Class.forName(webSocketAdapter).newInstance();
-                        webSocket.setClearnetSession(this);
-                    } catch (InstantiationException e) {
-                        LOG.warning("Unable to instantiate WebSocket of type: " + webSocketAdapter);
-                    } catch (IllegalAccessException e) {
-                        LOG.warning("Illegal Access caught when attempting to instantiate WebSocket of type: " + webSocketAdapter);
-                    } catch (ClassNotFoundException e) {
-                        LOG.warning("WebSocket class " + webSocketAdapter + " not found. Unable to instantiate.");
-                    }
+            // Server setup
+            String name = params[0];
+            if (name == null) {
+                LOG.warning("Name must be provided for HTTP server.");
+                return false;
+            }
+
+            String type = params[1];
+            if (type == null) {
+                LOG.warning("Type must be provided for HTTP Proxy with name=" + name);
+                return false;
+            }
+
+            String portStr = params[2];
+            if (portStr == null) {
+                LOG.warning("Port must be provided for HTTP server with name=" + name);
+                return false;
+            }
+            int port = Integer.parseInt(portStr);
+
+            if ("api".equals(type)) {
+                EnvelopeJSONDataHandler handler = new EnvelopeJSONDataHandler();
+                handler.setSession(this);
+                handler.setServiceName(name);
+                handler.setParameters(params);
+                handlers.addHandler(handler);
+            } else if ("proxy".equals(type)) {
+                EnvelopeProxyDataHandler handler = new EnvelopeProxyDataHandler();
+                handler.setSession(this);
+                handler.setServiceName(name);
+                handler.setParameters(params);
+                handlers.addHandler(handler);
+            } else if ("web".equals(type)) {
+                String launchOnStartStr = params[3];
+                launchOnStart = "true".equals(launchOnStartStr);
+
+                String spaStr = params[4];
+                boolean spa = "true".equals(spaStr);
+
+                String dataHandlerStr = params[5];
+                AsynchronousEnvelopeHandler dataHandler = null;
+
+                String resourceDirectory = params[6];
+                URL webDirURL = this.getClass().getClassLoader().getResource(resourceDirectory);
+
+                String useSocketStr = params[7];
+
+                String webSocketAdapter = null;
+                if ("true".equals(useSocketStr) && params.length > 8) {
+                    webSocketAdapter = params[8];
                 }
-                if (webSocket == null) {
-                    LOG.warning("WebSocket configured to be launched yet unable to instantiate.");
-                    return false;
-                } else {
-                    WebSocketHandler wsHandler = new WebSocketHandler() {
-                        @Override
-                        public void configure(WebSocketServletFactory factory) {
-                            WebSocketPolicy policy = factory.getPolicy();
-                            // set a one hour timeout
-                            policy.setIdleTimeout(60 * 60 * 1000);
+                // TODO: Make Web Socket context path configurable
+
+                SessionHandler sessionHandler = new SessionHandler();
+
+                // TODO: Make data context path configurable
+                ContextHandler dataContext = new ContextHandler();
+                dataContext.setContextPath("/data/*");
+
+                ResourceHandler resourceHandler = new ResourceHandler();
+                resourceHandler.setDirectoriesListed(false);
+                resourceHandler.setWelcomeFiles(new String[]{"index.html"});
+                if (webDirURL != null) {
+                    resourceHandler.setResourceBase(webDirURL.toExternalForm());
+                }
+
+                ContextHandler wsContext = null;
+                if ("true".equals(useSocketStr)) {
+                    if (webSocketAdapter == null) {
+                        webSocket = new EnvelopeWebSocket(this);
+                        LOG.info("No custom EnvelopWebSocket class provided; using generic one.");
+                    } else {
+                        try {
+                            webSocket = (EnvelopeWebSocket) Class.forName(webSocketAdapter).newInstance();
+                            webSocket.setClearnetSession(this);
+                        } catch (InstantiationException e) {
+                            LOG.warning("Unable to instantiate WebSocket of type: " + webSocketAdapter);
+                        } catch (IllegalAccessException e) {
+                            LOG.warning("Illegal Access caught when attempting to instantiate WebSocket of type: " + webSocketAdapter);
+                        } catch (ClassNotFoundException e) {
+                            LOG.warning("WebSocket class " + webSocketAdapter + " not found. Unable to instantiate.");
+                        }
+                    }
+                    if (webSocket == null) {
+                        LOG.warning("WebSocket configured to be launched yet unable to instantiate.");
+                        return false;
+                    } else {
+                        WebSocketHandler wsHandler = new WebSocketHandler() {
+                            @Override
+                            public void configure(WebSocketServletFactory factory) {
+                                WebSocketPolicy policy = factory.getPolicy();
+                                // set a one hour timeout
+                                policy.setIdleTimeout(60 * 60 * 1000);
 //                            policy.setAsyncWriteTimeout(60 * 1000);
 //                            int maxSize = 100 * 1000000;
 //                            policy.setMaxBinaryMessageSize(maxSize);
@@ -517,92 +525,93 @@ public class ClearnetSession extends BaseSession {
 //                            policy.setMaxTextMessageSize(maxSize);
 //                            policy.setMaxTextMessageBufferSize(maxSize);
 
-                            factory.setCreator(new WebSocketCreator() {
-                                @Override
-                                public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-                                    String query = req.getRequestURI().toString();
-                                    if ((query == null) || (query.length() <= 0)) {
-                                        try {
-                                            resp.sendForbidden("Unspecified query");
-                                        } catch (IOException e) {
+                                factory.setCreator(new WebSocketCreator() {
+                                    @Override
+                                    public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
+                                        String query = req.getRequestURI().toString();
+                                        if ((query == null) || (query.length() <= 0)) {
+                                            try {
+                                                resp.sendForbidden("Unspecified query");
+                                            } catch (IOException e) {
 
+                                            }
+                                            return null;
                                         }
-                                        return null;
+                                        return webSocket;
                                     }
-                                    return webSocket;
-                                }
-                            });
-                        }
+                                });
+                            }
 
-                    };
-                    wsContext = new ContextHandler();
-                    wsContext.setContextPath("/api/*");
-                    wsContext.setHandler(wsHandler);
+                        };
+                        wsContext = new ContextHandler();
+                        wsContext.setContextPath("/api/*");
+                        wsContext.setHandler(wsHandler);
+                    }
+                }
+
+                handlers.addHandler(sessionHandler);
+                if (spa) {
+                    handlers.addHandler(new SPAHandler());
+                }
+                handlers.addHandler(dataContext);
+                handlers.addHandler(resourceHandler);
+                if (wsContext != null) {
+                    handlers.addHandler(wsContext);
+                }
+                handlers.addHandler(new DefaultHandler());
+
+                if (dataHandlerStr != null) { // optional
+                    try {
+                        dataHandler = (AsynchronousEnvelopeHandler) Class.forName(dataHandlerStr).newInstance();
+                        dataHandler.setSession(this);
+                        dataHandler.setServiceName(name);
+                        dataHandler.setParameters(params);
+                        dataContext.setHandler(dataHandler);
+                    } catch (InstantiationException e) {
+                        LOG.warning("Data Handler must be implementation of " + AsynchronousEnvelopeHandler.class.getName() + " to ensure asynchronous replies with Envelopes gets returned to calling thread.");
+                        return false;
+                    } catch (IllegalAccessException e) {
+                        LOG.warning("Getting an IllegalAccessException while attempting to instantiate data Handler implementation class " + dataHandlerStr + ". Launch application with appropriate read access.");
+                        return false;
+                    } catch (ClassNotFoundException e) {
+                        LOG.warning("Data Handler implementation " + dataHandlerStr + " not found. Ensure library included.");
+                        return false;
+                    }
                 }
             }
 
-            handlers.addHandler(sessionHandler);
-            if (spa) {
-                handlers.addHandler(new SPAHandler());
-            }
-            handlers.addHandler(dataContext);
-            handlers.addHandler(resourceHandler);
-            if (wsContext != null) {
-                handlers.addHandler(wsContext);
-            }
-            handlers.addHandler(new DefaultHandler());
-
-            if (dataHandlerStr != null) { // optional
-                try {
-                    dataHandler = (AsynchronousEnvelopeHandler) Class.forName(dataHandlerStr).newInstance();
-                    dataHandler.setSession(this);
-                    dataHandler.setServiceName(name);
-                    dataHandler.setParameters(params);
-                    dataContext.setHandler(dataHandler);
-                } catch (InstantiationException e) {
-                    LOG.warning("Data Handler must be implementation of " + AsynchronousEnvelopeHandler.class.getName() + " to ensure asynchronous replies with Envelopes gets returned to calling thread.");
-                    return false;
-                } catch (IllegalAccessException e) {
-                    LOG.warning("Getting an IllegalAccessException while attempting to instantiate data Handler implementation class " + dataHandlerStr + ". Launch application with appropriate read access.");
-                    return false;
-                } catch (ClassNotFoundException e) {
-                    LOG.warning("Data Handler implementation " + dataHandlerStr + " not found. Ensure library included.");
-                    return false;
-                }
-            }
-        }
-
-        server = new Server(new InetSocketAddress(this.address, port));
-        server.setHandler(handlers);
-        LOG.info("Starting HTTP Server for "+ name +" on "+ this.address+":"+ port);
-        try {
-            server.start();
-            LOG.finest(server.dump());
-            LOG.info("HTTP Server for "+ name +" started on "+ this.address+":"+ port);
-        } catch (Exception e1) {
-            LOG.warning("Exception caught while starting HTTP Server for "+ name +" with port "+ port +": "+ e1.getLocalizedMessage());
-            sensor.updateStatus(SensorStatus.ERROR);
-            return false;
-        }
-        if(launchOnStart)
-            BrowserUtil.launch("http://"+ this.address+":"+ port +"/");
-        if (webSocket != null) {
-            LOG.info("Subscribing WebSocket (" + webSocket.getClass().getName() + ") to TEXT notifications...");
-            // Subscribe to Text notifications
-            Subscription subscription = new Subscription() {
-                @Override
-                public void notifyOfEvent(Envelope envelope) {
-                    webSocket.pushEnvelope(envelope);
-                }
-            };
-            SubscriptionRequest r = new SubscriptionRequest(EventMessage.Type.TEXT, subscription);
-            Envelope e = Envelope.documentFactory();
-            DLC.addData(SubscriptionRequest.class, r, e);
-            DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
-            if (!sensor.sendIn(e)) {
+            server = new Server(new InetSocketAddress(this.address, port));
+            server.setHandler(handlers);
+            LOG.info("Starting HTTP Server for " + name + " on " + this.address + ":" + port);
+            try {
+                server.start();
+                LOG.finest(server.dump());
+                LOG.info("HTTP Server for " + name + " started on " + this.address + ":" + port);
+            } catch (Exception e1) {
+                LOG.warning("Exception caught while starting HTTP Server for " + name + " with port " + port + ": " + e1.getLocalizedMessage());
                 sensor.updateStatus(SensorStatus.ERROR);
-                LOG.warning("Error sending subscription request to Notification Service for Web Socket.");
                 return false;
+            }
+            if (launchOnStart)
+                BrowserUtil.launch("http://" + this.address + ":" + port + "/");
+            if (webSocket != null) {
+                LOG.info("Subscribing WebSocket (" + webSocket.getClass().getName() + ") to TEXT notifications...");
+                // Subscribe to Text notifications
+                Subscription subscription = new Subscription() {
+                    @Override
+                    public void notifyOfEvent(Envelope envelope) {
+                        webSocket.pushEnvelope(envelope);
+                    }
+                };
+                SubscriptionRequest r = new SubscriptionRequest(EventMessage.Type.TEXT, subscription);
+                Envelope e = Envelope.documentFactory();
+                DLC.addData(SubscriptionRequest.class, r, e);
+                DLC.addRoute(NotificationService.class, NotificationService.OPERATION_SUBSCRIBE, e);
+                if (!sensor.sendIn(e)) {
+                    sensor.updateStatus(SensorStatus.ERROR);
+                    LOG.warning("Error sending subscription request to Notification Service for Web Socket.");
+                    return false;
+                }
             }
         }
         return true;
@@ -610,140 +619,142 @@ public class ClearnetSession extends BaseSession {
 
     @Override
     public boolean connect() {
-        boolean trustAllCerts = "true".equals(properties.get("1m5.network.sensors.clearnet.client.trustallcerts"));
-        SSLContext trustAllSSLContext = null;
-        try {
-            if (trustAllCerts) {
-                LOG.info("Initialize SSLContext with trustallcerts...");
-                trustAllSSLContext = SSLContext.getInstance("TLS");
-                trustAllSSLContext.init(null, trustAllTrustManager, new java.security.SecureRandom());
-            }
-        } catch (NoSuchAlgorithmException e) {
-            LOG.warning(e.getLocalizedMessage());
-            return false;
-        } catch (KeyManagementException e) {
-            LOG.warning(e.getLocalizedMessage());
-            return false;
-        }
-
-        try {
-            LOG.info("Setting up HTTP spec clients for http, https, and strong https....");
-            httpSpec = new ConnectionSpec
-                    .Builder(ConnectionSpec.CLEARTEXT)
-                    .build();
-            if (proxy == null) {
-                LOG.info("Setting up http client...");
-                httpClient = new OkHttpClient.Builder()
-                        .connectionSpecs(Collections.singletonList(httpSpec))
-                        .retryOnConnectionFailure(true)
-                        .followRedirects(true)
-                        .build();
-            } else {
-                LOG.info("Setting up http client with proxy...");
-                httpClient = new OkHttpClient.Builder()
-                        .connectionSpecs(Arrays.asList(httpSpec))
-                        .retryOnConnectionFailure(true)
-                        .followRedirects(true)
-                        .proxy(proxy)
-                        .build();
+        if(clientsEnabled) {
+            boolean trustAllCerts = "true".equals(properties.get("1m5.network.sensors.clearnet.client.trustallcerts"));
+            SSLContext trustAllSSLContext = null;
+            try {
+                if (trustAllCerts) {
+                    LOG.info("Initialize SSLContext with trustallcerts...");
+                    trustAllSSLContext = SSLContext.getInstance("TLS");
+                    trustAllSSLContext.init(null, trustAllTrustManager, new java.security.SecureRandom());
+                }
+            } catch (NoSuchAlgorithmException e) {
+                LOG.warning(e.getLocalizedMessage());
+                return false;
+            } catch (KeyManagementException e) {
+                LOG.warning(e.getLocalizedMessage());
+                return false;
             }
 
-            LOG.info("Setting https.protocols to system property...");
-            System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,TLSv1.3");
+            try {
+                LOG.info("Setting up HTTP spec clients for http, https, and strong https....");
+                httpSpec = new ConnectionSpec
+                        .Builder(ConnectionSpec.CLEARTEXT)
+                        .build();
+                if (proxy == null) {
+                    LOG.info("Setting up http client...");
+                    httpClient = new OkHttpClient.Builder()
+                            .connectionSpecs(Collections.singletonList(httpSpec))
+                            .retryOnConnectionFailure(true)
+                            .followRedirects(true)
+                            .build();
+                } else {
+                    LOG.info("Setting up http client with proxy...");
+                    httpClient = new OkHttpClient.Builder()
+                            .connectionSpecs(Arrays.asList(httpSpec))
+                            .retryOnConnectionFailure(true)
+                            .followRedirects(true)
+                            .proxy(proxy)
+                            .build();
+                }
 
-            httpsCompatibleSpec = new ConnectionSpec
-                    .Builder(ConnectionSpec.COMPATIBLE_TLS)
+                LOG.info("Setting https.protocols to system property...");
+                System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,TLSv1.3");
+
+                httpsCompatibleSpec = new ConnectionSpec
+                        .Builder(ConnectionSpec.COMPATIBLE_TLS)
 //                    .supportsTlsExtensions(true)
 //                    .allEnabledTlsVersions()
 //                    .allEnabledCipherSuites()
-                    .build();
+                        .build();
 
-            if (proxy == null) {
-                LOG.info("Setting up https client...");
-                if (trustAllCerts) {
-                    LOG.info("Trust All Certs HTTPS Compatible Client building...");
-                    httpsCompatibleClient = new OkHttpClient.Builder()
-                            .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
-                            .hostnameVerifier(trustAllHostnameVerifier)
-                            .build();
+                if (proxy == null) {
+                    LOG.info("Setting up https client...");
+                    if (trustAllCerts) {
+                        LOG.info("Trust All Certs HTTPS Compatible Client building...");
+                        httpsCompatibleClient = new OkHttpClient.Builder()
+                                .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
+                                .hostnameVerifier(trustAllHostnameVerifier)
+                                .build();
+                    } else {
+                        LOG.info("Standard HTTPS Compatible Client building...");
+                        httpsCompatibleClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Arrays.asList(httpsCompatibleSpec))
+                                .build();
+                    }
                 } else {
-                    LOG.info("Standard HTTPS Compatible Client building...");
-                    httpsCompatibleClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Arrays.asList(httpsCompatibleSpec))
-                            .build();
+                    LOG.info("Setting up https client with proxy...");
+                    if (trustAllCerts) {
+                        LOG.info("Trust All Certs HTTPS Compatible Client with Proxy building...");
+                        httpsCompatibleClient = new OkHttpClient.Builder()
+                                .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
+                                .hostnameVerifier(trustAllHostnameVerifier)
+                                .proxy(proxy)
+                                .build();
+                    } else {
+                        LOG.info("Standard HTTPS Compatible Client with Proxy building...");
+                        httpsCompatibleClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Arrays.asList(httpsCompatibleSpec))
+                                .proxy(proxy)
+                                .build();
+                    }
                 }
-            } else {
-                LOG.info("Setting up https client with proxy...");
-                if (trustAllCerts) {
-                    LOG.info("Trust All Certs HTTPS Compatible Client with Proxy building...");
-                    httpsCompatibleClient = new OkHttpClient.Builder()
-                            .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
-                            .hostnameVerifier(trustAllHostnameVerifier)
-                            .proxy(proxy)
-                            .build();
+
+                httpsStrongSpec = new ConnectionSpec
+                        .Builder(ConnectionSpec.MODERN_TLS)
+                        .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_3)
+                        .cipherSuites(
+                                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                                CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                                CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
+                        .build();
+
+                if (proxy == null) {
+                    LOG.info("Setting up strong https client...");
+                    if (trustAllCerts) {
+                        LOG.info("Trust All Certs Strong HTTPS Compatible Client building...");
+                        httpsStrongClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Collections.singletonList(httpsStrongSpec))
+                                .retryOnConnectionFailure(true)
+                                .followSslRedirects(true)
+                                .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
+                                .hostnameVerifier(trustAllHostnameVerifier)
+                                .build();
+                    } else {
+                        LOG.info("Standard Strong HTTPS Compatible Client building...");
+                        httpsStrongClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Collections.singletonList(httpsStrongSpec))
+                                .retryOnConnectionFailure(true)
+                                .followSslRedirects(true)
+                                .build();
+                    }
                 } else {
-                    LOG.info("Standard HTTPS Compatible Client with Proxy building...");
-                    httpsCompatibleClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Arrays.asList(httpsCompatibleSpec))
-                            .proxy(proxy)
-                            .build();
+                    LOG.info("Setting up strong https client with proxy...");
+                    if (trustAllCerts) {
+                        LOG.info("Trust All Certs Strong HTTPS Compatible Client with Proxy building...");
+                        httpsStrongClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Collections.singletonList(httpsStrongSpec))
+                                .retryOnConnectionFailure(true)
+                                .followSslRedirects(true)
+                                .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
+                                .hostnameVerifier(trustAllHostnameVerifier)
+                                .proxy(proxy)
+                                .build();
+                    } else {
+                        LOG.info("Standard Strong HTTPS Compatible Client with Proxy building...");
+                        httpsStrongClient = new OkHttpClient.Builder()
+                                .connectionSpecs(Collections.singletonList(httpsStrongSpec))
+                                .retryOnConnectionFailure(true)
+                                .followSslRedirects(true)
+                                .proxy(proxy)
+                                .build();
+                    }
                 }
+
+            } catch (Exception e) {
+                LOG.warning("Exception caught launching Clearnet Sensor clients: " + e.getLocalizedMessage());
+                return false;
             }
-
-            httpsStrongSpec = new ConnectionSpec
-                    .Builder(ConnectionSpec.MODERN_TLS)
-                    .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_3)
-                    .cipherSuites(
-                            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                            CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                            CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
-                    .build();
-
-            if (proxy == null) {
-                LOG.info("Setting up strong https client...");
-                if (trustAllCerts) {
-                    LOG.info("Trust All Certs Strong HTTPS Compatible Client building...");
-                    httpsStrongClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Collections.singletonList(httpsStrongSpec))
-                            .retryOnConnectionFailure(true)
-                            .followSslRedirects(true)
-                            .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
-                            .hostnameVerifier(trustAllHostnameVerifier)
-                            .build();
-                } else {
-                    LOG.info("Standard Strong HTTPS Compatible Client building...");
-                    httpsStrongClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Collections.singletonList(httpsStrongSpec))
-                            .retryOnConnectionFailure(true)
-                            .followSslRedirects(true)
-                            .build();
-                }
-            } else {
-                LOG.info("Setting up strong https client with proxy...");
-                if (trustAllCerts) {
-                    LOG.info("Trust All Certs Strong HTTPS Compatible Client with Proxy building...");
-                    httpsStrongClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Collections.singletonList(httpsStrongSpec))
-                            .retryOnConnectionFailure(true)
-                            .followSslRedirects(true)
-                            .sslSocketFactory(trustAllSSLContext.getSocketFactory(), trustAllX509TrustManager)
-                            .hostnameVerifier(trustAllHostnameVerifier)
-                            .proxy(proxy)
-                            .build();
-                } else {
-                    LOG.info("Standard Strong HTTPS Compatible Client with Proxy building...");
-                    httpsStrongClient = new OkHttpClient.Builder()
-                            .connectionSpecs(Collections.singletonList(httpsStrongSpec))
-                            .retryOnConnectionFailure(true)
-                            .followSslRedirects(true)
-                            .proxy(proxy)
-                            .build();
-                }
-            }
-
-        } catch (Exception e) {
-            LOG.warning("Exception caught launching Clearnet Sensor clients: " + e.getLocalizedMessage());
-            return false;
         }
         connected = true;
         return true;

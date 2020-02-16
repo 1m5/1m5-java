@@ -31,6 +31,7 @@ import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.SensorStatusListener;
 import io.onemfive.util.Res;
@@ -61,7 +62,7 @@ public class TORSensorOpsView extends ActivatableView implements SensorStatusLis
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 3, Res.get("ops.network.localNode"));
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 2, Res.get("ops.network.localNode"));
         GridPane.setColumnSpan(localNodeGroup, 1);
         addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.addressLabel"), address, Layout.FIRST_ROW_DISTANCE).second;
 
@@ -84,6 +85,7 @@ public class TORSensorOpsView extends ActivatableView implements SensorStatusLis
 
     @Override
     public void statusUpdated(SensorStatus sensorStatus) {
+        LOG.info("SensorStatus received to update model.");
         if(this.sensorStatus != sensorStatus) {
             this.sensorStatus = sensorStatus;
             if(sensorStatusField != null) {
@@ -95,11 +97,16 @@ public class TORSensorOpsView extends ActivatableView implements SensorStatusLis
     @Override
     public void modelUpdated(String name, Object object) {
         if(object instanceof NetworkPeer) {
+            LOG.info("NetworkPeer received to update model.");
             NetworkPeer peer = (NetworkPeer)object;
             address = peer.getDid().getPublicKey().getAddress();
             if(addressTextField !=null) {
                 addressTextField.setText(address);
             }
+        } else if(object instanceof NetworkState) {
+            LOG.info("NetworkState received to update model.");
+            NetworkState networkState = (NetworkState)object;
+
         }
     }
 

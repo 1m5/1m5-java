@@ -37,6 +37,7 @@ import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.network.sensors.tor.external.control.DebuggingEventHandler;
 import io.onemfive.network.sensors.tor.external.control.TORControlConnection;
 import io.onemfive.util.DLC;
+import io.onemfive.util.FileUtil;
 import net.i2p.data.Base64;
 
 import java.io.File;
@@ -50,6 +51,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 public class TORSensorSessionExternal extends ClearnetSession {
@@ -67,6 +69,8 @@ public class TORSensorSessionExternal extends ClearnetSession {
     public TORSensorSessionExternal(TORSensor torSensor) {
         super(torSensor, new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(HOST, PORT_SOCKS)));
         this.sensor = torSensor;
+        clientsEnabled = true; // Need to use clients proxied
+        serverEnabled = false; // Embedded Server not used; use external TOR daemon
     }
 
     /**
@@ -74,8 +78,7 @@ public class TORSensorSessionExternal extends ClearnetSession {
      * Supplied username will be used as local file name to save private key to.
      */
     @Override
-    public boolean open(String username) {
-        this.address = username;
+    public boolean open(String privateKeyName) {
         NetworkNode localNode = sensor.getSensorManager().getPeerManager().getLocalNode();
         NetworkPeer localTORPeer;
         if(localNode.getNetworkPeer(Network.TOR)!=null) {
@@ -85,17 +88,17 @@ public class TORSensorSessionExternal extends ClearnetSession {
             localNode.addNetworkPeer(localTORPeer);
         }
         // read the local TOR address key from the address file if it exists
-        File addressFile = new File(sensor.getDirectory(), username);
+        String torSensorDir = properties.getProperty("1m5.dir.sensors.tor");
+        File privKeyFile = new File(torSensorDir, privateKeyName);
         FileReader fileReader = null;
         String json = null;
         try {
-            fileReader = new FileReader(addressFile);
-            char[] addressBuffer = new char[(int)addressFile.length()];
+            fileReader = new FileReader(privKeyFile);
+            char[] addressBuffer = new char[(int)privKeyFile.length()];
             fileReader.read(addressBuffer);
-            byte[] localTORPrivKey = Base64.decode(new String(addressBuffer));
-            json = new String(localTORPrivKey);
+            json = new String(addressBuffer);
         } catch (IOException e) {
-            LOG.info("Destination key file doesn't exist or isn't readable." + e);
+            LOG.info("Private key file doesn't exist or isn't readable." + e);
         } catch (Exception e) {
             // Won't happen, inputStream != null
             LOG.warning(e.getLocalizedMessage());
@@ -104,7 +107,7 @@ public class TORSensorSessionExternal extends ClearnetSession {
                 try {
                     fileReader.close();
                 } catch (IOException e) {
-                    LOG.warning("Error closing file: " + addressFile.getAbsolutePath() + ": " + e);
+                    LOG.warning("Error closing file: " + privKeyFile.getAbsolutePath() + ": " + e);
                 }
             }
         }
@@ -123,11 +126,18 @@ public class TORSensorSessionExternal extends ClearnetSession {
             controlConnection.setEventHandler(new DebuggingEventHandler(LOG));
             controlConnection.setEvents(Arrays.asList("EXTENDED", "CIRC", "ORCONN", "INFO", "NOTICE", "WARN", "ERR", "HS_DESC", "HS_DESC_CONTENT"));
             if(json==null) {
+                // Private key file doesn't exist or is unreadable so create a new hidden service
                 hiddenService = controlConnection.createHiddenService(TORHiddenService.randomTORPort());
                 LOG.info("TOR Hidden Service Created: " + hiddenService.serviceID + " on port: "+hiddenService.port);
 //                controlConnection.destroyHiddenService(hiddenService.serviceID);
 //                hiddenService = controlConnection.createHiddenService(hiddenService.port, hiddenService.privateKey);
 //                LOG.info("TOR Hidden Service Created: " + hiddenService.serviceID + " on port: "+hiddenService.port);
+                // Now save the private key
+                if(!privKeyFile.exists() && !privKeyFile.createNewFile()) {
+                    LOG.warning("Unable to create file: "+privKeyFile.getAbsolutePath());
+                    return false;
+                }
+                FileUtil.writeFile(hiddenService.toJSON().getBytes(), privKeyFile.getAbsolutePath());
             } else {
                 hiddenService = new TORHiddenService();
                 hiddenService.fromJSON(json);
@@ -146,6 +156,7 @@ public class TORSensorSessionExternal extends ClearnetSession {
             LOG.warning("TORAlgorithm not supported: "+e.getLocalizedMessage());
             return false;
         }
+        address = hiddenService.serviceID;
         localTORPeer.setId(localNode.getNetworkPeer().getId());
         localTORPeer.getDid().getPublicKey().setFingerprint(hiddenService.serviceID); // used as key
         localTORPeer.getDid().getPublicKey().setAddress(hiddenService.serviceID);

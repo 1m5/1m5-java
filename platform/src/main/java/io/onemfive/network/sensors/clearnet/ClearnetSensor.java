@@ -32,7 +32,6 @@ import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.network.sensors.SensorStatus;
-import org.eclipse.jetty.server.Server;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,8 +49,8 @@ public class ClearnetSensor extends BaseSensor {
      * Configuration of Sessions in the form:
      *      name, port, launch on start, concrete implementation of io.onemfive.network.sensors.clearnet.AsynchronousEnvelopeHandler, run websocket, relative resource directory|n,...}
      */
-    public static final String SESSIONS_CONFIG = "settings.network.clearnet.sessionConfigs";
-    public static final String SESSION_CONFIG = "settings.network.clearnet.sessionConfig";
+    public static final String CLEARNET_SESSIONS_CONFIG = "settings.network.clearnet.sessionConfigs";
+    public static final String CLEARNET_SESSION_CONFIG = "settings.network.clearnet.sessionConfig";
 
     private boolean isTest = false;
     private boolean clientsEnabled = false;
@@ -94,7 +93,7 @@ public class ClearnetSensor extends BaseSensor {
         if(sessions.get(spec)==null) {
             SensorSession sensorSession = new ClearnetSession(this);
             props = new Properties();
-            props.setProperty(SESSION_CONFIG, spec);
+            props.setProperty(CLEARNET_SESSION_CONFIG, spec);
             sensorSession.init(props);
             sensorSession.open("127.0.0.1");
             if (autoConnect) {
@@ -134,7 +133,7 @@ public class ClearnetSensor extends BaseSensor {
             LOG.warning("IOException caught while building Clearnet sensor directory: \n" + e.getLocalizedMessage());
             return false;
         }
-        String sessionsConfig = properties.getProperty(SESSIONS_CONFIG);
+        String sessionsConfig = properties.getProperty(CLEARNET_SESSIONS_CONFIG);
         LOG.info("Building sessions from configuration: " + sessionsConfig);
         String[] sessionsSpecs = sessionsConfig.split(":");
         LOG.info("Number of sessions to start: " + sessionsSpecs.length);
