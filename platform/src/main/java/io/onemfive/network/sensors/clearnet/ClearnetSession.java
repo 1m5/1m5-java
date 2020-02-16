@@ -125,7 +125,7 @@ public class ClearnetSession extends BaseSession {
     protected Proxy proxy = null;
     private BaseSensor sensor;
     protected String sessionId;
-    protected String address;
+    protected String address = "127.0.0.1";
     protected Boolean launchOnStart = false;
     public static final String SESSION_ID = "1m5.sensors.clearnet.session.id";
     public static final String HANDLER_ID = "1m5.sensors.clearnet.handler.id";
@@ -421,10 +421,9 @@ public class ClearnetSession extends BaseSession {
     @Override
     public boolean open(String address) {
         if(serverEnabled) {
-            if (address == null) {
-                address = "127.0.0.1"; // default
+            if (address != null) {
+                this.address = address;
             }
-
             // Server setup
             String name = params[0];
             if (name == null) {

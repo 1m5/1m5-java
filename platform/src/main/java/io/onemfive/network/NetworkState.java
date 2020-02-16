@@ -26,6 +26,7 @@
  */
 package io.onemfive.network;
 
+import io.onemfive.core.ServiceStatus;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.sensors.SensorStatus;
@@ -40,6 +41,8 @@ public class NetworkState {
     public Network network = Network.IMS; // Default
     public NetworkPeer localPeer;
     public SensorStatus sensorStatus;
+    public ServiceStatus serviceStatus;
+    public Integer port;
     // Seeds
     public final List<NetworkPeer> seeds = new ArrayList<>();
     // Banned

@@ -244,7 +244,11 @@ public class PeerManager implements Runnable {
             try {
                 if(peerDB.savePeer(localPeer, true) && graphDB.savePeer(localPeer, true)) {
                     LOG.info("Local Peer updated.");
-                    // Publish to Notification Service
+                    // Update Network Service Network State and publish to Model Listeners
+                    service.getNetworkState().localPeer = localPeer;
+                    service.updateModelListeners();
+                    // Publish to Notification Service for Peer Listeners
+                    // TODO: Do we still need to publish this
                     Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
                     EventMessage em = (EventMessage)e.getMessage();
                     em.setName(Network.IMS.name());

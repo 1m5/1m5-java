@@ -159,6 +159,7 @@ public class TORSensorSessionExternal extends ClearnetSession {
             return false;
         }
         address = hiddenService.serviceID;
+        sensor.getNetworkState().port = hiddenService.port;
         while(localNode.getNetworkPeer().getId()==null) {
             Wait.aMs(100);
         }
