@@ -45,15 +45,18 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
     private GridPane pane;
     private int gridRow = 0;
 
+    private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
+    private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
+    private TextField sensorStatusTextField;
+
     private String i2PFingerprint = Res.get("ops.network.notKnownYet");
     private TextField i2PFingerprintTextField;
 
     private String i2PAddress = Res.get("ops.network.notKnownYet");
     private TextArea i2PAddressTextArea;
 
-    private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
-    private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
-    private TextField sensorStatusTextField;
+    private String port = Res.get("ops.network.notKnownYet");
+    private TextField portTextField;
 
     public I2PSensorOpsView() {
         super();
@@ -64,15 +67,16 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        // Local Node
-        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 3, Res.get("ops.network.localNode"));
-        GridPane.setColumnSpan(localNodeGroup, 1);
-        i2PFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.fingerprintLabel"), i2PFingerprint, Layout.FIRST_ROW_DISTANCE).second;
-        i2PAddressTextArea = addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("ops.network.i2p.addressLabel"), true).second;
-
-        TitledGroupBg statusGroup = addTitledGroupBg(pane, ++gridRow, 2, Res.get("ops.network.status"), Layout.FIRST_ROW_DISTANCE);
+        TitledGroupBg statusGroup = addTitledGroupBg(pane, gridRow, 2, Res.get("ops.network.status"));
         GridPane.setColumnSpan(statusGroup, 1);
-        sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.TWICE_FIRST_ROW_DISTANCE).second;
+        sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.FIRST_ROW_DISTANCE).second;
+
+        // Local Node
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 4, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
+        GridPane.setColumnSpan(localNodeGroup, 1);
+        i2PFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.fingerprintLabel"), i2PFingerprint, Layout.TWICE_FIRST_ROW_DISTANCE).second;
+        i2PAddressTextArea = addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("ops.network.i2p.addressLabel"), true).second;
+        portTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.portLabel"), port).second;
 
         LOG.info("Initialized");
     }
@@ -106,6 +110,12 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
                     i2PAddressTextArea.setText(i2PAddress);
                 if(i2PFingerprintTextField!=null)
                     i2PFingerprintTextField.setText(i2PFingerprint);
+            }
+            if(networkState.port != null) {
+                port = String.valueOf(networkState.port);
+                if(portTextField!=null) {
+                    portTextField.setText(port);
+                }
             }
         } else {
             LOG.warning("Received unknown model update with name: "+name);

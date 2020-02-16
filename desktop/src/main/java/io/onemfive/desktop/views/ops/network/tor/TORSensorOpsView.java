@@ -44,12 +44,15 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
     private GridPane pane;
     private int gridRow = 0;
 
-    private String address = Res.get("ops.network.notKnownYet");
-    private TextField addressTextField;
-
     private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
     private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
     private TextField sensorStatusTextField;
+
+    private String address = Res.get("ops.network.notKnownYet");
+    private TextField addressTextField;
+
+    private String port = Res.get("ops.network.notKnownYet");
+    private TextField portTextField;
 
     public TORSensorOpsView() {
         super();
@@ -60,13 +63,14 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 2, Res.get("ops.network.localNode"));
-        GridPane.setColumnSpan(localNodeGroup, 1);
-        addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.addressLabel"), address, Layout.FIRST_ROW_DISTANCE).second;
-
-        TitledGroupBg statusGroup = addTitledGroupBg(pane, ++gridRow, 2, Res.get("ops.network.status"), Layout.FIRST_ROW_DISTANCE);
+        TitledGroupBg statusGroup = addTitledGroupBg(pane, gridRow, 2, Res.get("ops.network.status"));
         GridPane.setColumnSpan(statusGroup, 1);
-        sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.TWICE_FIRST_ROW_DISTANCE).second;
+        sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.FIRST_ROW_DISTANCE).second;
+
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 3, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
+        GridPane.setColumnSpan(localNodeGroup, 1);
+        addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.addressLabel"), address, Layout.TWICE_FIRST_ROW_DISTANCE).second;
+        portTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.portLabel"), port).second;
 
         LOG.info("Initialized");
     }
@@ -96,6 +100,12 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
                 address = networkState.localPeer.getDid().getPublicKey().getAddress();
                 if(addressTextField!=null)
                     addressTextField.setText(address);
+            }
+            if(networkState.port != null) {
+                port = String.valueOf(networkState.port);
+                if(portTextField!=null) {
+                    portTextField.setText(port);
+                }
             }
         } else {
             LOG.warning("Received unknown model update with name: "+name);

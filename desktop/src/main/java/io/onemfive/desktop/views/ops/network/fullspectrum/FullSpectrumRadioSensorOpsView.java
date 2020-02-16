@@ -31,8 +31,8 @@ import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.SensorStatus;
-import io.onemfive.network.sensors.SensorStatusListener;
 import io.onemfive.util.Res;
 import io.onemfive.util.StringUtil;
 import javafx.scene.control.TextArea;
@@ -41,19 +41,19 @@ import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
-public class FullSpectrumRadioSensorOpsView extends ActivatableView implements SensorStatusListener, TopicListener {
+public class FullSpectrumRadioSensorOpsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
+
+    private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
+    private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
+    private TextField sensorStatusTextField;
 
     private String fsRadioFingerprint = Res.get("ops.network.notKnownYet");
     private String fsRadioAddress = Res.get("ops.network.notKnownYet");
     private TextField fsRadioFingerprintTextField;
     private TextArea fsRadioAddressTextArea;
-
-    private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
-    private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
-    private TextField sensorStatusTextField;
 
     public FullSpectrumRadioSensorOpsView() {
         super();
@@ -64,14 +64,14 @@ public class FullSpectrumRadioSensorOpsView extends ActivatableView implements S
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 3, Res.get("ops.network.localNode"));
-        GridPane.setColumnSpan(localNodeGroup, 1);
-        fsRadioFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.fullspectrum.fingerprintLabel"), fsRadioFingerprint, Layout.FIRST_ROW_DISTANCE).second;
-        fsRadioAddressTextArea = addCompactTopLabelTextAreaWithText(pane, fsRadioAddress, ++gridRow, Res.get("ops.network.fullspectrum.addressLabel"), true).second;
-
-        TitledGroupBg statusGroup = addTitledGroupBg(pane, ++gridRow, 2, Res.get("ops.network.status"), Layout.FIRST_ROW_DISTANCE);
+        TitledGroupBg statusGroup = addTitledGroupBg(pane, gridRow, 2, Res.get("ops.network.status"));
         GridPane.setColumnSpan(statusGroup, 1);
-        sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.TWICE_FIRST_ROW_DISTANCE).second;
+        sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.FIRST_ROW_DISTANCE).second;
+
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 3, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
+        GridPane.setColumnSpan(localNodeGroup, 1);
+        fsRadioFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.fullspectrum.fingerprintLabel"), fsRadioFingerprint, Layout.TWICE_FIRST_ROW_DISTANCE).second;
+        fsRadioAddressTextArea = addCompactTopLabelTextAreaWithText(pane, fsRadioAddress, ++gridRow, Res.get("ops.network.fullspectrum.addressLabel"), true).second;
 
         LOG.info("Initialized");
     }
@@ -87,27 +87,28 @@ public class FullSpectrumRadioSensorOpsView extends ActivatableView implements S
     }
 
     @Override
-    public void statusUpdated(SensorStatus sensorStatus) {
-        if(this.sensorStatus != sensorStatus) {
-            this.sensorStatus = sensorStatus;
-            if(sensorStatusField != null) {
-                sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
-            }
-        }
-    }
-
-    @Override
     public void modelUpdated(String name, Object object) {
-        if(object instanceof NetworkPeer) {
-            NetworkPeer peer = (NetworkPeer)object;
-            fsRadioFingerprint = peer.getDid().getPublicKey().getFingerprint();
-            fsRadioAddress = peer.getDid().getPublicKey().getAddress();
-            if(fsRadioFingerprintTextField !=null) {
-                fsRadioFingerprintTextField.setText(fsRadioFingerprint);
+        if(object instanceof NetworkState) {
+            LOG.info("NetworkState received to update model.");
+            NetworkState networkState = (NetworkState)object;
+            if(this.sensorStatus != networkState.sensorStatus) {
+                this.sensorStatus = networkState.sensorStatus;
+                if(sensorStatusField != null) {
+                    sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
+                }
             }
-            if(fsRadioAddressTextArea !=null) {
-                fsRadioAddressTextArea.setText(fsRadioAddress);
+            if(networkState.localPeer!=null) {
+                fsRadioFingerprint = networkState.localPeer.getDid().getPublicKey().getFingerprint();
+                fsRadioAddress = networkState.localPeer.getDid().getPublicKey().getAddress();
+                if(fsRadioFingerprintTextField !=null) {
+                    fsRadioFingerprintTextField.setText(fsRadioFingerprint);
+                }
+                if(fsRadioAddressTextArea !=null) {
+                    fsRadioAddressTextArea.setText(fsRadioAddress);
+                }
             }
+        } else {
+            LOG.warning("Received unknown model update with name: "+name);
         }
     }
 

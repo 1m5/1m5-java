@@ -46,14 +46,14 @@ public class BluetoothSensorOpsView extends ActivatableView implements TopicList
     private GridPane pane;
     private int gridRow = 0;
 
+    private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
+    private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
+    private TextField sensorStatusTextField;
+
     private String friendlyName = Res.get("ops.network.notKnownYet");
     private String address = Res.get("ops.network.notKnownYet");
     private TextField friendlynameTextField;
     private TextField addressTextField;
-
-    private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
-    private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
-    private TextField sensorStatusTextField;
 
     public BluetoothSensorOpsView() {
         super();
@@ -64,14 +64,14 @@ public class BluetoothSensorOpsView extends ActivatableView implements TopicList
         LOG.info("Initializing...");
         pane = (GridPane)root;
 
-        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, gridRow, 3, Res.get("ops.network.localNode"));
-        GridPane.setColumnSpan(localNodeGroup, 1);
-        friendlynameTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.bluetooth.friendlyNameLabel"), friendlyName, Layout.FIRST_ROW_DISTANCE).second;
-        addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.bluetooth.addressLabel"), address).second;
-
-        TitledGroupBg statusGroup = addTitledGroupBg(pane, ++gridRow, 2, Res.get("ops.network.status"), Layout.FIRST_ROW_DISTANCE);
+        TitledGroupBg statusGroup = addTitledGroupBg(pane, gridRow, 2, Res.get("ops.network.status"));
         GridPane.setColumnSpan(statusGroup, 1);
-        sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.TWICE_FIRST_ROW_DISTANCE).second;
+        sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.FIRST_ROW_DISTANCE).second;
+
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 3, Res.get("ops.network.localNode"), Layout.FIRST_ROW_DISTANCE);
+        GridPane.setColumnSpan(localNodeGroup, 1);
+        friendlynameTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.bluetooth.friendlyNameLabel"), friendlyName, Layout.TWICE_FIRST_ROW_DISTANCE).second;
+        addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.bluetooth.addressLabel"), address).second;
 
         LOG.info("Initialized");
     }
