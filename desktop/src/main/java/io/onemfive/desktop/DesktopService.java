@@ -55,15 +55,6 @@ import io.onemfive.desktop.views.settings.network.tor.TORSensorSettingsView;
 import io.onemfive.desktop.views.settings.network.wifidirect.WifiDirectSensorSettingsView;
 import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.SensorManager;
-import io.onemfive.network.sensors.SensorStatus;
-import io.onemfive.network.sensors.SensorStatusListener;
-import io.onemfive.network.sensors.bluetooth.BluetoothSensor;
-import io.onemfive.network.sensors.fullspectrum.FullSpectrumRadioSensor;
-import io.onemfive.network.sensors.i2p.I2PSensor;
-import io.onemfive.network.sensors.lifi.LiFiSensor;
-import io.onemfive.network.sensors.satellite.SatelliteSensor;
-import io.onemfive.network.sensors.tor.TORSensor;
-import io.onemfive.network.sensors.wifidirect.WiFiDirectSensor;
 import io.onemfive.util.DLC;
 import javafx.application.Platform;
 
@@ -80,11 +71,19 @@ public class DesktopService extends BaseService {
     public static final String OPERATION_UPDATE_ACTIVE_IDENTITY = "UPDATE_ACTIVE_IDENTITY";
     public static final String OPERATION_UPDATE_IDENTITIES = "UPDATE_IDENTITIES";
 
+    private static DesktopService instance;
+
     public DesktopService() {
+        instance = this;
     }
 
     public DesktopService(MessageProducer producer, ServiceStatusListener listener) {
         super(producer, listener);
+        instance = this;
+    }
+
+    public static void deliver(Envelope e) {
+        instance.producer.send(e);
     }
 
     @Override
