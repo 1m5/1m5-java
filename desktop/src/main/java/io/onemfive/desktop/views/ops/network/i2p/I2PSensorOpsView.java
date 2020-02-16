@@ -26,13 +26,12 @@
  */
 package io.onemfive.desktop.views.ops.network.i2p;
 
-import io.onemfive.data.NetworkPeer;
 import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.SensorStatus;
-import io.onemfive.network.sensors.SensorStatusListener;
 import io.onemfive.util.Res;
 import io.onemfive.util.StringUtil;
 import javafx.scene.control.TextArea;
@@ -41,14 +40,15 @@ import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
-public class I2PSensorOpsView extends ActivatableView implements SensorStatusListener, TopicListener {
+public class I2PSensorOpsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
 
     private String i2PFingerprint = Res.get("ops.network.notKnownYet");
-    private String i2PAddress = Res.get("ops.network.notKnownYet");
     private TextField i2PFingerprintTextField;
+
+    private String i2PAddress = Res.get("ops.network.notKnownYet");
     private TextArea i2PAddressTextArea;
 
     private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
@@ -87,28 +87,28 @@ public class I2PSensorOpsView extends ActivatableView implements SensorStatusLis
 
     }
 
-    @Override
-    public void statusUpdated(SensorStatus sensorStatus) {
-        if(this.sensorStatus != sensorStatus) {
-            this.sensorStatus = sensorStatus;
-            if(sensorStatusField != null) {
-                sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
-            }
-        }
-    }
 
     @Override
     public void modelUpdated(String name, Object object) {
-        if(object instanceof NetworkPeer) {
-            NetworkPeer peer = (NetworkPeer)object;
-            i2PFingerprint = peer.getDid().getPublicKey().getFingerprint();
-            i2PAddress = peer.getDid().getPublicKey().getAddress();
-            if(i2PFingerprintTextField!=null) {
-                i2PFingerprintTextField.setText(i2PFingerprint);
+        if(object instanceof NetworkState) {
+            LOG.info("NetworkState received to update model.");
+            NetworkState networkState = (NetworkState)object;
+            if(this.sensorStatus != networkState.sensorStatus) {
+                this.sensorStatus = networkState.sensorStatus;
+                if(sensorStatusField != null) {
+                    sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
+                }
             }
-            if(i2PAddressTextArea!=null) {
-                i2PAddressTextArea.setText(i2PAddress);
+            if(networkState.localPeer!=null) {
+                i2PAddress = networkState.localPeer.getDid().getPublicKey().getAddress();
+                i2PFingerprint = networkState.localPeer.getDid().getPublicKey().getFingerprint();
+                if(i2PAddressTextArea!=null)
+                    i2PAddressTextArea.setText(i2PAddress);
+                if(i2PFingerprintTextField!=null)
+                    i2PFingerprintTextField.setText(i2PFingerprint);
             }
+        } else {
+            LOG.warning("Received unknown model update with name: "+name);
         }
     }
 

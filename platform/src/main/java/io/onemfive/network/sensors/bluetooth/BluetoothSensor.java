@@ -216,6 +216,7 @@ public class BluetoothSensor extends BaseSensor {
             }
             localPeer.setId(localNode.getNetworkPeer().getId());
             sensorManager.getPeerManager().savePeer(localPeer, true);
+            updateModelListeners();
         } catch (BluetoothStateException e) {
             if(e.getLocalizedMessage().contains("Bluetooth Device is not available")) {
                 if(getStatus()!=SensorStatus.NETWORK_UNAVAILABLE)

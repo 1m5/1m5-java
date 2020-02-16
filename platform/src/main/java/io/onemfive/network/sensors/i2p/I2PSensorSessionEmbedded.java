@@ -217,6 +217,7 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
             }
             localI2PPeer.setId(localNode.getNetworkPeer().getId());
             sensor.getSensorManager().getPeerManager().savePeer(localI2PPeer, true);
+            sensor.updateModelListeners();
         }
         LOG.info("I2PSensor Address in base64: " + localI2PPeer.getDid().getPublicKey().getAddress());
         LOG.info("I2PSensor Fingerprint (hash) in base64: " + localI2PPeer.getDid().getPublicKey().getFingerprint());

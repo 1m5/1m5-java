@@ -26,14 +26,12 @@
  */
 package io.onemfive.desktop.views.ops.network.tor;
 
-import io.onemfive.data.NetworkPeer;
 import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.SensorStatus;
-import io.onemfive.network.sensors.SensorStatusListener;
 import io.onemfive.util.Res;
 import io.onemfive.util.StringUtil;
 import javafx.scene.control.TextField;
@@ -41,7 +39,7 @@ import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
-public class TORSensorOpsView extends ActivatableView implements SensorStatusListener, TopicListener {
+public class TORSensorOpsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
@@ -84,29 +82,23 @@ public class TORSensorOpsView extends ActivatableView implements SensorStatusLis
     }
 
     @Override
-    public void statusUpdated(SensorStatus sensorStatus) {
-        LOG.info("SensorStatus received to update model.");
-        if(this.sensorStatus != sensorStatus) {
-            this.sensorStatus = sensorStatus;
-            if(sensorStatusField != null) {
-                sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
-            }
-        }
-    }
-
-    @Override
     public void modelUpdated(String name, Object object) {
-        if(object instanceof NetworkPeer) {
-            LOG.info("NetworkPeer received to update model.");
-            NetworkPeer peer = (NetworkPeer)object;
-            address = peer.getDid().getPublicKey().getAddress();
-            if(addressTextField !=null) {
-                addressTextField.setText(address);
-            }
-        } else if(object instanceof NetworkState) {
+        if(object instanceof NetworkState) {
             LOG.info("NetworkState received to update model.");
             NetworkState networkState = (NetworkState)object;
-
+            if(this.sensorStatus != networkState.sensorStatus) {
+                this.sensorStatus = networkState.sensorStatus;
+                if(sensorStatusField != null) {
+                    sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
+                }
+            }
+            if(networkState.localPeer!=null) {
+                address = networkState.localPeer.getDid().getPublicKey().getAddress();
+                if(addressTextField!=null)
+                    addressTextField.setText(address);
+            }
+        } else {
+            LOG.warning("Received unknown model update with name: "+name);
         }
     }
 

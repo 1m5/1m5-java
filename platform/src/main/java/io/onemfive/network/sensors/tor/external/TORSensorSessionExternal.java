@@ -167,6 +167,7 @@ public class TORSensorSessionExternal extends ClearnetSession {
         localTORPeer.getDid().getPublicKey().setAddress(hiddenService.serviceID);
         sensor.getNetworkState().localPeer = localTORPeer;
         sensor.getSensorManager().getPeerManager().savePeer(localTORPeer, true);
+        sensor.updateModelListeners();
         return false;
     }
 

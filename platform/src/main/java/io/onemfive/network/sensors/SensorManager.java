@@ -519,13 +519,6 @@ public final class SensorManager {
         // Now update the Service's status based on the this Sensor's status
         networkService.determineStatus(sensorStatus);
 
-        // Publish to Notification Service
-        Envelope e = Envelope.eventFactory(EventMessage.Type.SENSOR_STATUS);
-        EventMessage em = (EventMessage)e.getMessage();
-        em.setName(sensorID);
-        em.setMessage(sensorStatus);
-        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
-        sendToBus(e);
         // Now update Man Con status
         determineManConAvailability();
     }

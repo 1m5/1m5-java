@@ -26,7 +26,10 @@
  */
 package io.onemfive.network.sensors;
 
+import io.onemfive.core.notification.NotificationService;
+import io.onemfive.data.EventMessage;
 import io.onemfive.network.NetworkState;
+import io.onemfive.util.DLC;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.Network;
@@ -88,12 +91,25 @@ public abstract class BaseSensor implements Sensor {
     }
 
     public void updateStatus(SensorStatus sensorStatus) {
-        this.sensorStatus = sensorStatus;
-        networkState.sensorStatus = sensorStatus;
-        // Might be null during localized testing
-        if(sensorManager != null) {
-            sensorManager.updateSensorStatus(this.getClass().getName(), sensorStatus);
+        if(this.sensorStatus!=sensorStatus) {
+            this.sensorStatus = sensorStatus;
+            networkState.sensorStatus = sensorStatus;
+            // Might be null during localized testing
+            if (sensorManager != null) {
+                sensorManager.updateSensorStatus(this.getClass().getName(), sensorStatus);
+            }
+            updateModelListeners();
         }
+    }
+
+    public void updateModelListeners() {
+        // Publish to Notification Service
+        Envelope e = Envelope.eventFactory(EventMessage.Type.NETWORK_STATE_UPDATE);
+        EventMessage em = (EventMessage)e.getMessage();
+        em.setName(network.name());
+        em.setMessage(networkState);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
+        sendIn(e);
     }
 
     @Override

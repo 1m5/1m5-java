@@ -27,5 +27,5 @@
 package io.onemfive.desktop.views;
 
 public interface TopicListener {
-    void modelUpdated(String name, Object object);
+    void modelUpdated(String topic, Object object);
 }

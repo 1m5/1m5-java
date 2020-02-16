@@ -185,15 +185,6 @@ public class PeerManager implements Runnable {
             } else {
                 LOG.warning("No local peer for network="+networkPeer.getNetwork().name()+". Unable to relate.");
             }
-            if(successful) {
-                // Publish to Notification Service
-                Envelope e = Envelope.eventFactory(EventMessage.Type.PEER_STATUS);
-                EventMessage em = (EventMessage)e.getMessage();
-                em.setName(networkPeer.getNetwork().name());
-                em.setMessage(networkPeer);
-                DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
-                service.sendToBus(e);
-            }
         }
         return successful;
     }

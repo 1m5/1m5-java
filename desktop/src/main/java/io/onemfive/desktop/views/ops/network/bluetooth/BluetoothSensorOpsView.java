@@ -31,8 +31,8 @@ import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.SensorStatus;
-import io.onemfive.network.sensors.SensorStatusListener;
 import io.onemfive.util.Res;
 import io.onemfive.util.StringUtil;
 import javafx.scene.control.TextField;
@@ -41,7 +41,7 @@ import javafx.scene.layout.GridPane;
 import static io.onemfive.desktop.util.FormBuilder.addCompactTopLabelTextField;
 import static io.onemfive.desktop.util.FormBuilder.addTitledGroupBg;
 
-public class BluetoothSensorOpsView extends ActivatableView implements SensorStatusListener, TopicListener {
+public class BluetoothSensorOpsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
@@ -87,27 +87,28 @@ public class BluetoothSensorOpsView extends ActivatableView implements SensorSta
     }
 
     @Override
-    public void statusUpdated(SensorStatus sensorStatus) {
-        if(this.sensorStatus != sensorStatus) {
-            this.sensorStatus = sensorStatus;
-            if(sensorStatusField != null) {
-                sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
-            }
-        }
-    }
-
-    @Override
     public void modelUpdated(String name, Object object) {
-        if(object instanceof NetworkPeer) {
-            NetworkPeer peer = (NetworkPeer)object;
-            friendlyName = peer.getDid().getUsername();
-            address = peer.getDid().getPublicKey().getAddress();
-            if(friendlynameTextField !=null) {
-                friendlynameTextField.setText(friendlyName);
+        if(object instanceof NetworkState) {
+            LOG.info("NetworkState received to update model.");
+            NetworkState networkState = (NetworkState)object;
+            if(this.sensorStatus != networkState.sensorStatus) {
+                this.sensorStatus = networkState.sensorStatus;
+                if(sensorStatusField != null) {
+                    sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
+                }
             }
-            if(addressTextField !=null) {
-                addressTextField.setText(address);
+            if(networkState.localPeer!=null) {
+                friendlyName = networkState.localPeer.getDid().getUsername();
+                address = networkState.localPeer.getDid().getPublicKey().getAddress();
+                if(friendlynameTextField !=null) {
+                    friendlynameTextField.setText(friendlyName);
+                }
+                if(addressTextField !=null) {
+                    addressTextField.setText(address);
+                }
             }
+        } else {
+            LOG.warning("Received unknown model update with name: "+name);
         }
     }
 
