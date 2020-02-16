@@ -106,6 +106,11 @@ public class BluetoothSensor extends BaseSensor {
         return establishSession(peer.getDid().getPublicKey().getAddress(), true);
     }
 
+    @Override
+    public void updateConfig(NetworkState config) {
+        LOG.warning("Not implemented.");
+    }
+
     /**
      * Sends UTF-8 content to a Bluetooth Peer.
      * @param packet Envelope containing Packet as data.

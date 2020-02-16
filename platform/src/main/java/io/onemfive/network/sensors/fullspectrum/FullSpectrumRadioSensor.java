@@ -81,6 +81,11 @@ public class FullSpectrumRadioSensor extends BaseSensor {
         return null;
     }
 
+    @Override
+    public void updateConfig(NetworkState config) {
+        LOG.warning("Not implemented.");
+    }
+
     /**
      * Sends UTF-8 content to a Radio Peer using Software Defined Radio (SDR).
      * @param packet Envelope containing SensorRequest as data.

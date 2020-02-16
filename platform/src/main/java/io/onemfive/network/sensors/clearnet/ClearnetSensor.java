@@ -28,6 +28,7 @@ package io.onemfive.network.sensors.clearnet;
 
 import io.onemfive.data.Network;
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
@@ -102,6 +103,11 @@ public class ClearnetSensor extends BaseSensor {
             sessions.put(spec, sensorSession);
         }
         return sessions.get(spec);
+    }
+
+    @Override
+    public void updateConfig(NetworkState config) {
+        LOG.warning("Not implemented.");
     }
 
     @Override

@@ -27,6 +27,7 @@
 package io.onemfive.network.sensors.i2p;
 
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.*;
 import io.onemfive.util.Config;
 import io.onemfive.util.tasks.TaskRunner;
@@ -161,6 +162,18 @@ public class I2PSensor extends BaseSensor {
             i2pDir = new File(i2pBaseDir);
         }
         return i2pDir;
+    }
+
+    @Override
+    public void updateConfig(NetworkState config) {
+        if(networkState.params.get(Router.PROP_HIDDEN)!=null
+                && config.params.get(Router.PROP_HIDDEN)!=null
+                && networkState.params.get(Router.PROP_HIDDEN)!=config.params.get(Router.PROP_HIDDEN)) {
+            // Hidden mode changed so change for Router and restart
+            networkState.params.put(Router.PROP_HIDDEN, config.params.get(Router.PROP_HIDDEN));
+            router.saveConfig(Router.PROP_HIDDEN, (String)networkState.params.get(Router.PROP_HIDDEN));
+            restart();
+        }
     }
 
     @Override
@@ -371,6 +384,8 @@ public class I2PSensor extends BaseSensor {
                 LOG.info("Soft restart of I2P Router...");
                 updateStatus(SensorStatus.RESTARTING);
                 router.restart();
+                updateModelListeners();
+                LOG.info("Router hiddenMode="+router.isHidden());
                 LOG.info("I2P Router soft restart completed.");
             }
             return true;

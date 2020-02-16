@@ -120,6 +120,11 @@ public final class TORSensor extends BaseSensor {
     }
 
     @Override
+    public void updateConfig(NetworkState config) {
+        LOG.warning("Not implemented.");
+    }
+
+    @Override
     public boolean sendIn(Envelope envelope) {
         return super.sendIn(envelope);
     }

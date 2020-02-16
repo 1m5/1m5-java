@@ -79,6 +79,11 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
         return session;
     }
 
+    @Override
+    public void updateConfig(NetworkState config) {
+        LOG.warning("Not implemented.");
+    }
+
     /**
      * Sends UTF-8 content to a Destination using LiFi.
      * @param packet Packet of data for request.
