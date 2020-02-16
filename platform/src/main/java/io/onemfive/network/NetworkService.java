@@ -27,6 +27,7 @@
 package io.onemfive.network;
 
 import io.onemfive.core.*;
+import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.AuthNRequest;
 import io.onemfive.core.keyring.KeyRingService;
 import io.onemfive.data.route.ExternalRoute;
@@ -65,6 +66,7 @@ public class NetworkService extends BaseService {
 //    public static final String OPERATION_UPDATE_LOCAL_PEER = "updateLocalDID";
     public static final String OPERATION_RECEIVE_LOCAL_AUTHN_PEER = "receiveLocalPeer";
 
+    private NetworkState networkState = new NetworkState();
     private SensorManager sensorManager;
     private PeerManager peerManager;
     private File sensorsDirectory;
@@ -81,12 +83,26 @@ public class NetworkService extends BaseService {
         super(producer, serviceStatusListener);
     }
 
+    public NetworkState getNetworkState() {
+        return networkState;
+    }
+
     public PeerManager getPeerManager() {
         return peerManager;
     }
 
     public Properties getProperties() {
         return properties;
+    }
+
+    public void updateModelListeners() {
+        // Publish to Notification Service
+        Envelope e = Envelope.eventFactory(EventMessage.Type.NETWORK_STATE_UPDATE);
+        EventMessage em = (EventMessage)e.getMessage();
+        em.setName(Network.IMS.name());
+        em.setMessage(networkState);
+        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
+        sendToBus(e);
     }
 
     @Override
@@ -391,10 +407,8 @@ public class NetworkService extends BaseService {
                 break;
             }
             case NETWORK_CONNECTED: {
-                if(allSensorsWithStatus(SensorStatus.NETWORK_CONNECTED)) {
-                    LOG.info("All Sensors Connected to their networks, updating SensorService status to RUNNING.");
-                    updateStatus(ServiceStatus.RUNNING);
-                }
+                LOG.info("At least one network connected, updating SensorService status to RUNNING.");
+                updateStatus(ServiceStatus.RUNNING);
                 break;
             }
             case NETWORK_STOPPING: {
@@ -419,12 +433,7 @@ public class NetworkService extends BaseService {
                 break;
             }
             case NETWORK_UNAVAILABLE: {
-                if(currentServiceStatus == ServiceStatus.RUNNING
-                        || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING
-                        || currentServiceStatus == ServiceStatus.DEGRADED_RUNNING
-                        && sensorManager.availableSensorConnected(manCon))
-                    updateStatus(ServiceStatus.DEGRADED_RUNNING);
-                else
+                if(allSensorsWithStatus(SensorStatus.NETWORK_UNAVAILABLE))
                     updateStatus(ServiceStatus.UNAVAILABLE);
                 break;
             }
@@ -495,16 +504,18 @@ public class NetworkService extends BaseService {
             }
             default: LOG.warning("Sensor Status not being handled: "+sensorStatus.name());
         }
+        networkState.serviceStatus = getServiceStatus();
+        updateModelListeners();
     }
 
     private Boolean allSensorsWithStatus(SensorStatus sensorStatus) {
-        LOG.info("Verifying all sensors with status: "+sensorStatus.name());
+        LOG.fine("Verifying all sensors with status: "+sensorStatus.name());
         Collection<Sensor> sensors = sensorManager.getRegisteredSensors().values();
         if(sensors.size() == 0) {
             return false;
         }
         for(Sensor s : sensors) {
-            LOG.info(s.getClass().getName()+" status: "+s.getStatus().name());
+            LOG.fine(s.getClass().getName()+" status: "+s.getStatus().name());
             if(s.getStatus() != sensorStatus){
                 return false;
             }
