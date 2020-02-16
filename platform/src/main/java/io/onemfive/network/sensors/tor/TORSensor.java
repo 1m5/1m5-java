@@ -38,8 +38,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static io.onemfive.network.sensors.clearnet.ClearnetSensor.CLEARNET_SESSIONS_CONFIG;
-
 /**
  * Sets up an HttpClientSensor with the local Tor instance as a proxy (127.0.0.1:9150).
  *

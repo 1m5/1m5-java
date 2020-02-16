@@ -38,6 +38,7 @@ import io.onemfive.network.sensors.tor.external.control.DebuggingEventHandler;
 import io.onemfive.network.sensors.tor.external.control.TORControlConnection;
 import io.onemfive.util.DLC;
 import io.onemfive.util.FileUtil;
+import io.onemfive.util.Wait;
 import net.i2p.data.Base64;
 
 import java.io.File;
@@ -60,7 +61,8 @@ public class TORSensorSessionExternal extends ClearnetSession {
 
     public static final String HOST = "127.0.0.1";
     public static final Integer PORT_SOCKS = 9050;
-    public static final Integer PORT_CONTROL = 9100;
+    public static final Integer PORT_CONTROL = 9051;
+//    public static final Integer PORT_CONTROL = 9100;
     public static final Integer PORT_HIDDEN_SERVICE = 9151;
 
     private TORControlConnection controlConnection;
@@ -157,6 +159,9 @@ public class TORSensorSessionExternal extends ClearnetSession {
             return false;
         }
         address = hiddenService.serviceID;
+        while(localNode.getNetworkPeer().getId()==null) {
+            Wait.aMs(100);
+        }
         localTORPeer.setId(localNode.getNetworkPeer().getId());
         localTORPeer.getDid().getPublicKey().setFingerprint(hiddenService.serviceID); // used as key
         localTORPeer.getDid().getPublicKey().setAddress(hiddenService.serviceID);
@@ -180,7 +185,7 @@ public class TORSensorSessionExternal extends ClearnetSession {
     }
 
     private TORControlConnection getControlConnection() throws IOException {
-        Socket s = new Socket("127.0.0.1", 9051);
+        Socket s = new Socket("127.0.0.1", PORT_CONTROL);
         TORControlConnection conn = new TORControlConnection(s);
         conn.authenticate(new byte[0]);
         return conn;
