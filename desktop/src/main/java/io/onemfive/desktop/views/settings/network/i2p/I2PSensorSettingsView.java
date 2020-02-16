@@ -26,12 +26,12 @@
  */
 package io.onemfive.desktop.views.settings.network.i2p;
 
+import io.onemfive.data.Network;
+import io.onemfive.desktop.MVC;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.network.NetworkState;
-import io.onemfive.network.NetworkStateUpdateListener;
 import io.onemfive.network.sensors.i2p.I2PSensor;
-import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.util.Res;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -53,6 +53,7 @@ public class I2PSensorSettingsView extends ActivatableView implements TopicListe
     private ToggleButton hiddenMode;
     private ToggleButton routerEmbedded;
     private TextField sharePercentage;
+    private TextField ipv6Address;
 
     @Override
     protected void initialize() {
@@ -63,8 +64,6 @@ public class I2PSensorSettingsView extends ActivatableView implements TopicListe
         hiddenMode = addSlideToggleButton(pane, ++gridRow, Res.get("settings.network.i2p.hiddenMode"));
         sharePercentage = addCompactTopLabelTextField(pane, ++gridRow, Res.get("settings.network.i2p.sharePercentage"), String.valueOf(Router.DEFAULT_SHARE_PERCENTAGE)).second;
 
-        // TODO: Register as NetworkConfig listener
-
         LOG.info("Initialized");
     }
 
@@ -73,7 +72,13 @@ public class I2PSensorSettingsView extends ActivatableView implements TopicListe
         hiddenMode.setSelected(false);
         hiddenMode.setOnAction(e -> {
             LOG.info("hiddenMode="+hiddenMode.isSelected());
+//            NetworkState networkState = new NetworkState();
+//            networkState.network = Network.I2P;
+//            networkState.params.put(Router.PROP_HIDDEN, String.valueOf(hiddenMode.isSelected()));
+//            hiddenMode.disableProperty().setValue(true);
+//            MVC.updateNetwork(networkState);
         });
+        hiddenMode.disableProperty().setValue(true);
         routerEmbedded.setSelected(true);
         routerEmbedded.setOnAction(e -> {
             LOG.info("routerEmbedded="+routerEmbedded.isSelected());
@@ -92,8 +97,9 @@ public class I2PSensorSettingsView extends ActivatableView implements TopicListe
         if(object instanceof NetworkState) {
             LOG.info("NetworkState received to update model.");
             NetworkState networkState = (NetworkState)object;
-            if(hiddenMode!=null)
+            if(hiddenMode!=null) {
                 hiddenMode.setSelected("true".equals(networkState.params.get(Router.PROP_HIDDEN)));
+            }
             if(routerEmbedded!=null)
                 routerEmbedded.setSelected("embedded".equals(networkState.params.get(I2PSensor.I2P_ROUTER_EMBEDDED)));
             if(sharePercentage!=null)
