@@ -375,35 +375,31 @@ public class NetworkService extends BaseService {
         LOG.info("Current Sensors Service Status: "+currentServiceStatus+"; Inbound sensor status: "+sensorStatus.name());
         switch (sensorStatus) {
             case INITIALIZING: {
-                if(currentServiceStatus == ServiceStatus.RUNNING)
-                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
+                if(currentServiceStatus == ServiceStatus.NOT_INITIALIZED)
+                    updateStatus(ServiceStatus.INITIALIZING);
                 break;
             }
             case STARTING: {
-                if(currentServiceStatus == ServiceStatus.RUNNING)
-                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
+                if(currentServiceStatus == ServiceStatus.INITIALIZING)
+                    updateStatus(ServiceStatus.STARTING);
                 break;
             }
             case WAITING: {
-                if(currentServiceStatus == ServiceStatus.RUNNING)
-                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
-                else if(currentServiceStatus == ServiceStatus.STARTING)
+                if(currentServiceStatus == ServiceStatus.STARTING)
                     updateStatus(ServiceStatus.WAITING);
                 break;
             }
             case NETWORK_WARMUP: {
-                if(currentServiceStatus == ServiceStatus.RUNNING)
-                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
+                LOG.finer("Network warming up...");
                 break;
             }
             case NETWORK_PORT_CONFLICT: {
-                if(currentServiceStatus == ServiceStatus.RUNNING)
-                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
+                updateStatus(ServiceStatus.PARTIALLY_RUNNING);
+                LOG.warning("Sensor reporting port conflict. Please change ports.");
                 break;
             }
             case NETWORK_CONNECTING: {
-                if(currentServiceStatus == ServiceStatus.RUNNING)
-                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
+                updateStatus(ServiceStatus.DEGRADED_RUNNING);
                 break;
             }
             case NETWORK_CONNECTED: {
@@ -413,13 +409,13 @@ public class NetworkService extends BaseService {
             }
             case NETWORK_STOPPING: {
                 if(currentServiceStatus == ServiceStatus.RUNNING)
-                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
+                    updateStatus(ServiceStatus.DEGRADED_RUNNING);
                 break;
             }
             case NETWORK_STOPPED: {
                 if(currentServiceStatus == ServiceStatus.RUNNING
-                        || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING)
-                    updateStatus(ServiceStatus.DEGRADED_RUNNING);
+                        || currentServiceStatus == ServiceStatus.DEGRADED_RUNNING)
+                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
                 break;
             }
             case NETWORK_BLOCKED: {
@@ -439,20 +435,19 @@ public class NetworkService extends BaseService {
             }
             case NETWORK_ERROR: {
                 if(currentServiceStatus == ServiceStatus.RUNNING
-                        || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING)
-                    updateStatus(ServiceStatus.DEGRADED_RUNNING);
+                        || currentServiceStatus == ServiceStatus.DEGRADED_RUNNING)
+                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
                 break;
             }
             case PAUSING: {
-                if(currentServiceStatus == ServiceStatus.RUNNING
-                        || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING)
+                if(currentServiceStatus == ServiceStatus.RUNNING)
                     updateStatus(ServiceStatus.DEGRADED_RUNNING);
                 break;
             }
             case PAUSED: {
                 if(currentServiceStatus == ServiceStatus.RUNNING
-                        || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING)
-                    updateStatus(ServiceStatus.DEGRADED_RUNNING);
+                        || currentServiceStatus == ServiceStatus.DEGRADED_RUNNING)
+                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
                 break;
             }
             case UNPAUSING: {
@@ -462,16 +457,22 @@ public class NetworkService extends BaseService {
                 break;
             }
             case SHUTTING_DOWN: {
-                break; // Not handling
+                updateStatus(ServiceStatus.DEGRADED_RUNNING);
+                break;
             }
             case GRACEFULLY_SHUTTING_DOWN: {
-                break; // Not handling
+                updateStatus(ServiceStatus.DEGRADED_RUNNING);
+                break;
             }
             case SHUTDOWN: {
                 if(allSensorsWithStatus(SensorStatus.SHUTDOWN)) {
-                    if(getServiceStatus() != ServiceStatus.RESTARTING) {
+                    if(getServiceStatus() == ServiceStatus.RESTARTING) {
+                        start(properties);
+                    } else {
                         updateStatus(ServiceStatus.SHUTDOWN);
                     }
+                } else {
+                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
                 }
                 break;
             }
@@ -482,6 +483,8 @@ public class NetworkService extends BaseService {
                     } else {
                         updateStatus(ServiceStatus.GRACEFULLY_SHUTDOWN);
                     }
+                } else {
+                    updateStatus(ServiceStatus.PARTIALLY_RUNNING);
                 }
                 break;
             }
@@ -494,12 +497,10 @@ public class NetworkService extends BaseService {
             case ERROR: {
                 if(allSensorsWithStatus(SensorStatus.ERROR)) {
                     // Major issues - all sensors error - flag for restart of Service
+                    updateStatus(ServiceStatus.ERROR);
+                } else {
                     updateStatus(ServiceStatus.UNSTABLE);
-                    break;
                 }
-                if(currentServiceStatus == ServiceStatus.RUNNING
-                        || currentServiceStatus == ServiceStatus.PARTIALLY_RUNNING)
-                    updateStatus(ServiceStatus.DEGRADED_RUNNING);
                 break;
             }
             default: LOG.warning("Sensor Status not being handled: "+sensorStatus.name());
