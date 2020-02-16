@@ -53,6 +53,17 @@ public final class TORSensor extends BaseSensor {
     public static final String TOR_HIDDENSERVICES_CONFIG = "settings.network.tor.hiddenServicesConfig";
     public static final String TOR_HIDDENSERVICE_CONFIG = "settings.network.tor.hiddenServiceConfig";
 
+    public static final NetworkPeer seedATOR;
+
+    static {
+        seedATOR = new NetworkPeer(Network.TOR);
+        seedATOR.getDid().getPublicKey().setAddress("TOR Seed Hidden Service Address Here");
+        seedATOR.getDid().getPublicKey().setFingerprint("TOR Seed Hidden Service Address Here");
+        seedATOR.getDid().getPublicKey().setType("RSA1024");
+        seedATOR.getDid().getPublicKey().isIdentityKey(true);
+        seedATOR.getDid().getPublicKey().setBase64Encoded(true);
+    }
+
     private NetworkPeerDiscovery discovery;
 
     private File sensorDir;
@@ -151,7 +162,7 @@ public final class TORSensor extends BaseSensor {
             LOG.warning("IOException caught while building Tor sensor directory: \n" + e.getLocalizedMessage());
             return false;
         }
-
+        networkState.seeds.add(seedATOR);
         updateStatus(SensorStatus.STARTING);
 
         embedded = "true".equals(properties.getProperty(TOR_ROUTER_EMBEDDED));

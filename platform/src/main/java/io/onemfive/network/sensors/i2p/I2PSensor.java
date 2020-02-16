@@ -304,6 +304,8 @@ public class I2PSensor extends BaseSensor {
         if(!copyCertificatesToBaseDir(seedCertificates, sslCertificates))
             return false;
 
+        networkState.seeds.add(seedAI2P);
+
         // Start I2P Router
         LOG.info("Launching I2P Router...");
         new Thread(new RouterStarter()).start();

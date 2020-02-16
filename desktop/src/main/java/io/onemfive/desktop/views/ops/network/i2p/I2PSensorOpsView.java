@@ -62,9 +62,6 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
     private String port = Res.get("ops.network.notKnownYet");
     private TextField portTextField;
 
-    private String maxConnections = Res.get("ops.network.notKnownYet");
-    private TextField maxConnectionsTextField;
-
     public I2PSensorOpsView() {
         super();
     }
@@ -85,7 +82,6 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
         i2PAddressTextArea = addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("ops.network.i2p.addressLabel"), true).second;
         i2PIPv6AddressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.ipv6Label"), i2PIPv6Address).second;
         portTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.portLabel"), port).second;
-        maxConnectionsTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.maxConnectionsLabel"), maxConnections).second;
 
         LOG.info("Initialized");
     }
@@ -130,11 +126,6 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
                 i2PIPv6Address = (String)networkState.params.get("i2np.lastIPv6");
                 if(i2PIPv6AddressTextField!=null)
                     i2PIPv6AddressTextField.setText(i2PIPv6Address);
-            }
-            if(networkState.params.get("i2np.udp.maxConnections")!=null) {
-                maxConnections = (String)networkState.params.get("i2np.udp.maxConnections");
-                if(maxConnectionsTextField!=null)
-                    maxConnectionsTextField.setText(maxConnections);
             }
         } else {
             LOG.warning("Received unknown model update with name: "+name);
