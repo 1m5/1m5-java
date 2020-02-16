@@ -155,7 +155,7 @@ public class DesktopService extends BaseService {
                             LOG.info("Updating UI with 1M5 Network State...");
                             EventMessage em = (EventMessage)e.getMessage();
                             NetworkState state = (NetworkState)em.getMessage();
-                            TopicListener listener = (TopicListener)MVC.loadView(TORSensorOpsView.class, true);
+                            TopicListener listener = (TopicListener)MVC.loadView(IMSOpsView.class, true);
                             listener.modelUpdated(NetworkState.class.getSimpleName(), state);
                         });
                     }
