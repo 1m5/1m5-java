@@ -39,6 +39,7 @@ import io.onemfive.network.sensors.BaseSession;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.util.DLC;
 import io.onemfive.util.JSONParser;
+import io.onemfive.util.Wait;
 import net.i2p.I2PException;
 import net.i2p.client.I2PClientFactory;
 import net.i2p.client.I2PSession;
@@ -211,7 +212,10 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
             localI2PPeer.getDid().getPublicKey().setBase64Encoded(true);
             localI2PPeer.getDid().getPublicKey().setFingerprint(fingerprint);
             localI2PPeer.getDid().getPublicKey().setType(algorithm);
-            localI2PPeer.setId(sensor.getSensorManager().getPeerManager().getLocalNode().getNetworkPeer().getId());
+            while(localNode.getNetworkPeer().getId()==null) {
+                Wait.aMs(100);
+            }
+            localI2PPeer.setId(localNode.getNetworkPeer().getId());
             sensor.getSensorManager().getPeerManager().savePeer(localI2PPeer, true);
         }
         LOG.info("I2PSensor Address in base64: " + localI2PPeer.getDid().getPublicKey().getAddress());
