@@ -37,6 +37,7 @@ import io.onemfive.util.StringUtil;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import net.i2p.router.Router;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
@@ -55,8 +56,14 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
     private String i2PAddress = Res.get("ops.network.notKnownYet");
     private TextArea i2PAddressTextArea;
 
+    private String i2PIPv6Address = Res.get("ops.network.notKnownYet");
+    private TextField i2PIPv6AddressTextField;
+
     private String port = Res.get("ops.network.notKnownYet");
     private TextField portTextField;
+
+    private String maxConnections = Res.get("ops.network.notKnownYet");
+    private TextField maxConnectionsTextField;
 
     public I2PSensorOpsView() {
         super();
@@ -72,11 +79,13 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
         sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.FIRST_ROW_DISTANCE).second;
 
         // Local Node
-        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 4, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 6, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
         GridPane.setColumnSpan(localNodeGroup, 1);
         i2PFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.fingerprintLabel"), i2PFingerprint, Layout.TWICE_FIRST_ROW_DISTANCE).second;
         i2PAddressTextArea = addCompactTopLabelTextAreaWithText(pane, i2PAddress, ++gridRow, Res.get("ops.network.i2p.addressLabel"), true).second;
+        i2PIPv6AddressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.ipv6Label"), i2PIPv6Address).second;
         portTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.portLabel"), port).second;
+        maxConnectionsTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.maxConnectionsLabel"), maxConnections).second;
 
         LOG.info("Initialized");
     }
@@ -116,6 +125,16 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
                 if(portTextField!=null) {
                     portTextField.setText(port);
                 }
+            }
+            if(networkState.params.get("i2np.lastIPv6")!=null) {
+                i2PIPv6Address = (String)networkState.params.get("i2np.lastIPv6");
+                if(i2PIPv6AddressTextField!=null)
+                    i2PIPv6AddressTextField.setText(i2PIPv6Address);
+            }
+            if(networkState.params.get("i2np.udp.maxConnections")!=null) {
+                maxConnections = (String)networkState.params.get("i2np.udp.maxConnections");
+                if(maxConnectionsTextField!=null)
+                    maxConnectionsTextField.setText(maxConnections);
             }
         } else {
             LOG.warning("Received unknown model update with name: "+name);

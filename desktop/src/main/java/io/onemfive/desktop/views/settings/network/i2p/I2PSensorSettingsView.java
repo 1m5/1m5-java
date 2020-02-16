@@ -53,7 +53,6 @@ public class I2PSensorSettingsView extends ActivatableView implements TopicListe
     private ToggleButton hiddenMode;
     private ToggleButton routerEmbedded;
     private TextField sharePercentage;
-    private TextField ipv6Address;
 
     @Override
     protected void initialize() {
@@ -79,11 +78,14 @@ public class I2PSensorSettingsView extends ActivatableView implements TopicListe
 //            MVC.updateNetwork(networkState);
         });
         hiddenMode.disableProperty().setValue(true);
+
         routerEmbedded.setSelected(true);
         routerEmbedded.setOnAction(e -> {
             LOG.info("routerEmbedded="+routerEmbedded.isSelected());
         });
         routerEmbedded.disableProperty().setValue(true);
+
+        sharePercentage.disableProperty().setValue(true);
     }
 
     @Override
