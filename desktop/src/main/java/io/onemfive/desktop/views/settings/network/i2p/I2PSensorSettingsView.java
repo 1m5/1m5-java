@@ -27,9 +27,11 @@
 package io.onemfive.desktop.views.settings.network.i2p;
 
 import io.onemfive.desktop.views.ActivatableView;
+import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.network.NetworkState;
 import io.onemfive.network.NetworkStateUpdateListener;
 import io.onemfive.network.sensors.i2p.I2PSensor;
+import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.util.Res;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -39,7 +41,7 @@ import net.i2p.router.Router;
 import static io.onemfive.desktop.util.FormBuilder.addCompactTopLabelTextField;
 import static io.onemfive.desktop.util.FormBuilder.addSlideToggleButton;
 
-public class I2PSensorSettingsView extends ActivatableView implements NetworkStateUpdateListener {
+public class I2PSensorSettingsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
@@ -86,13 +88,19 @@ public class I2PSensorSettingsView extends ActivatableView implements NetworkSta
     }
 
     @Override
-    public void notify(NetworkState networkState) {
-        if(hiddenMode!=null)
-            hiddenMode.setSelected("true".equals(networkState.params.get(Router.PROP_HIDDEN)));
-        if(routerEmbedded!=null)
-            routerEmbedded.setSelected("embedded".equals(networkState.params.get(I2PSensor.I2P_ROUTER_EMBEDDED)));
-        if(sharePercentage!=null)
-            sharePercentage.setText((String)networkState.params.get(Router.PROP_BANDWIDTH_SHARE_PERCENTAGE));
+    public void modelUpdated(String name, Object object) {
+        if(object instanceof NetworkState) {
+            LOG.info("NetworkState received to update model.");
+            NetworkState networkState = (NetworkState)object;
+            if(hiddenMode!=null)
+                hiddenMode.setSelected("true".equals(networkState.params.get(Router.PROP_HIDDEN)));
+            if(routerEmbedded!=null)
+                routerEmbedded.setSelected("embedded".equals(networkState.params.get(I2PSensor.I2P_ROUTER_EMBEDDED)));
+            if(sharePercentage!=null)
+                sharePercentage.setText((String)networkState.params.get(Router.PROP_BANDWIDTH_SHARE_PERCENTAGE));
+        } else {
+            LOG.warning("Received unknown model update with name: "+name);
+        }
     }
 
 }

@@ -27,8 +27,8 @@
 package io.onemfive.desktop.views.settings.network.tor;
 
 import io.onemfive.desktop.views.ActivatableView;
+import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.network.NetworkState;
-import io.onemfive.network.NetworkStateUpdateListener;
 import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.util.Res;
 import javafx.scene.control.ToggleButton;
@@ -36,7 +36,7 @@ import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.addSlideToggleButton;
 
-public class TORSensorSettingsView extends ActivatableView implements NetworkStateUpdateListener {
+public class TORSensorSettingsView extends ActivatableView implements TopicListener {
 
     private GridPane pane;
     private int gridRow = 0;
@@ -72,8 +72,14 @@ public class TORSensorSettingsView extends ActivatableView implements NetworkSta
     }
 
     @Override
-    public void notify(NetworkState networkState) {
-        if(routerEmbedded!=null)
-            routerEmbedded.setSelected("embedded".equals(networkState.params.get(TORSensor.TOR_ROUTER_EMBEDDED)));
+    public void modelUpdated(String name, Object object) {
+        if(object instanceof NetworkState) {
+            LOG.info("NetworkState received to update model.");
+            NetworkState networkState = (NetworkState)object;
+            if(routerEmbedded!=null)
+                routerEmbedded.setSelected("embedded".equals(networkState.params.get(TORSensor.TOR_ROUTER_EMBEDDED)));
+        } else {
+            LOG.warning("Received unknown model update with name: "+name);
+        }
     }
 }

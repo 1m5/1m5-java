@@ -45,6 +45,14 @@ import io.onemfive.desktop.views.ops.network.satellite.SatelliteSensorOpsView;
 import io.onemfive.desktop.views.ops.network.tor.TORSensorOpsView;
 import io.onemfive.desktop.views.ops.network.wifidirect.WifiDirectSensorOpsView;
 import io.onemfive.desktop.views.personal.identities.IdentitiesView;
+import io.onemfive.desktop.views.settings.network.bluetooth.BluetoothSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.fullspectrum.FullSpectrumRadioSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.i2p.I2PSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.ims.IMSSettingsView;
+import io.onemfive.desktop.views.settings.network.lifi.LiFiSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.satellite.SatelliteSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.tor.TORSensorSettingsView;
+import io.onemfive.desktop.views.settings.network.wifidirect.WifiDirectSensorSettingsView;
 import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorStatus;
@@ -157,6 +165,8 @@ public class DesktopService extends BaseService {
                             NetworkState state = (NetworkState)em.getMessage();
                             TopicListener listener = (TopicListener)MVC.loadView(IMSOpsView.class, true);
                             listener.modelUpdated(NetworkState.class.getSimpleName(), state);
+                            listener = (TopicListener)MVC.loadView(IMSSettingsView.class, true);
+                            listener.modelUpdated(NetworkState.class.getSimpleName(), state);
                         });
                     }
                 });
@@ -175,6 +185,8 @@ public class DesktopService extends BaseService {
                     EventMessage em = (EventMessage)e.getMessage();
                     NetworkState state = (NetworkState)em.getMessage();
                     TopicListener listener = (TopicListener)MVC.loadView(TORSensorOpsView.class, true);
+                    listener.modelUpdated(NetworkState.class.getSimpleName(), state);
+                    listener = (TopicListener)MVC.loadView(TORSensorSettingsView.class, true);
                     listener.modelUpdated(NetworkState.class.getSimpleName(), state);
                 });
             }
@@ -195,6 +207,8 @@ public class DesktopService extends BaseService {
                             NetworkState state = (NetworkState)em.getMessage();
                             TopicListener listener = (TopicListener)MVC.loadView(I2PSensorOpsView.class, true);
                             listener.modelUpdated(NetworkState.class.getSimpleName(), state);
+                            listener = (TopicListener)MVC.loadView(I2PSensorSettingsView.class, true);
+                            listener.modelUpdated(NetworkState.class.getSimpleName(), state);
                         });
                     }
                 });
@@ -213,6 +227,8 @@ public class DesktopService extends BaseService {
                             EventMessage em = (EventMessage)e.getMessage();
                             NetworkState state = (NetworkState)em.getMessage();
                             TopicListener listener = (TopicListener)MVC.loadView(WifiDirectSensorOpsView.class, true);
+                            listener.modelUpdated(NetworkState.class.getSimpleName(), state);
+                            listener = (TopicListener)MVC.loadView(WifiDirectSensorSettingsView.class, true);
                             listener.modelUpdated(NetworkState.class.getSimpleName(), state);
                         });
                     }
@@ -233,6 +249,8 @@ public class DesktopService extends BaseService {
                             NetworkState state = (NetworkState)em.getMessage();
                             TopicListener listener = (TopicListener)MVC.loadView(BluetoothSensorOpsView.class, true);
                             listener.modelUpdated(NetworkState.class.getSimpleName(), state);
+                            listener = (TopicListener)MVC.loadView(BluetoothSensorSettingsView.class, true);
+                            listener.modelUpdated(NetworkState.class.getSimpleName(), state);
                         });
                     }
                 });
@@ -251,6 +269,8 @@ public class DesktopService extends BaseService {
                             EventMessage em = (EventMessage)e.getMessage();
                             NetworkState state = (NetworkState)em.getMessage();
                             TopicListener listener = (TopicListener)MVC.loadView(SatelliteSensorOpsView.class, true);
+                            listener.modelUpdated(NetworkState.class.getSimpleName(), state);
+                            listener = (TopicListener)MVC.loadView(SatelliteSensorSettingsView.class, true);
                             listener.modelUpdated(NetworkState.class.getSimpleName(), state);
                         });
                     }
@@ -271,6 +291,8 @@ public class DesktopService extends BaseService {
                             NetworkState state = (NetworkState)em.getMessage();
                             TopicListener listener = (TopicListener)MVC.loadView(FullSpectrumRadioSensorOpsView.class, true);
                             listener.modelUpdated(NetworkState.class.getSimpleName(), state);
+                            listener = (TopicListener)MVC.loadView(FullSpectrumRadioSensorSettingsView.class, true);
+                            listener.modelUpdated(NetworkState.class.getSimpleName(), state);
                         });
                     }
                 });
@@ -289,6 +311,8 @@ public class DesktopService extends BaseService {
                             EventMessage em = (EventMessage)e.getMessage();
                             NetworkState state = (NetworkState)em.getMessage();
                             TopicListener listener = (TopicListener)MVC.loadView(LiFiSensorOpsView.class, true);
+                            listener.modelUpdated(NetworkState.class.getSimpleName(), state);
+                            listener = (TopicListener)MVC.loadView(LiFiSensorSettingsView.class, true);
                             listener.modelUpdated(NetworkState.class.getSimpleName(), state);
                         });
                     }
