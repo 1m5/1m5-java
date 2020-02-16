@@ -231,6 +231,9 @@ public class BluetoothSensor extends BaseSensor {
             taskRunner = new TaskRunner(2,3);
         }
 
+        networkState.UpdateInterval = 20 * 60; // 20 minutes
+        networkState.UpdateIntervalHyper = 60; // every minute
+
         // TODO: Increase periodicity once a threshold of known peers is established
         // run every minute
         deviceDiscovery = new BluetoothDeviceDiscovery(this, taskRunner);

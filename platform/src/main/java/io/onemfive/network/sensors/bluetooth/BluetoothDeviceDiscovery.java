@@ -35,7 +35,6 @@ import io.onemfive.util.tasks.TaskRunner;
 
 import javax.bluetooth.*;
 import java.io.IOException;
-import java.util.*;
 import java.util.logging.Logger;
 
 public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryListener {
@@ -68,6 +67,7 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
             }
         } catch (BluetoothStateException e) {
             LOG.warning(e.getLocalizedMessage());
+            return false;
         }
         try {
             synchronized (inquiryCompletedEvent) {
@@ -82,13 +82,12 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
                 LOG.warning("PLease turn on the bluetooth radio.");
             } else {
                 LOG.warning(e.getLocalizedMessage());
+                return false;
             }
-            return false;
         } catch (InterruptedException e) {
             LOG.warning(e.getLocalizedMessage());
             return false;
         }
-        running = false;
         return true;
     }
 
@@ -118,8 +117,10 @@ public class BluetoothDeviceDiscovery extends NetworkTask implements DiscoveryLi
         switch (discType) {
             case DiscoveryListener.INQUIRY_COMPLETED : {
                 LOG.info("Bluetooth inquiry completed. Caching peer.");
-                ((BluetoothSensor)sensor).devices.put(currentDevice.getBluetoothAddress(), currentDevice);
-                ((BluetoothSensor)sensor).updateStatus(SensorStatus.NETWORK_CONNECTED);
+                if(currentDevice!=null) {
+                    ((BluetoothSensor) sensor).devices.put(currentDevice.getBluetoothAddress(), currentDevice);
+                    ((BluetoothSensor) sensor).updateStatus(SensorStatus.NETWORK_CONNECTED);
+                }
                 break;
             }
             case DiscoveryListener.INQUIRY_TERMINATED : {
