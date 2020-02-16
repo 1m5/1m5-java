@@ -80,12 +80,6 @@ public abstract class BaseSensor implements Sensor {
     }
 
     @Override
-    public void updateConfig(NetworkState config) {
-        this.networkState = config;
-        restart();
-    }
-
-    @Override
     public NetworkState getNetworkState() {
         return networkState;
     }
