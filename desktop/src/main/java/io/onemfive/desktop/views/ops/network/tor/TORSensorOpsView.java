@@ -84,7 +84,7 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
         addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.addressLabel"), address, Layout.TWICE_FIRST_ROW_DISTANCE).second;
         virtualPortTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.vPortLabel"), virtualPort).second;
         targetPortTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.tPortLabel"), targetPort).second;
-        hiddenServiceHyperLink = addHyperlinkWithIcon(pane, ++gridRow, Res.get("ops.network.tor.hiddenService"), hiddenServiceURL);
+        hiddenServiceHyperLink = addHyperlinkWithIcon(pane, ++gridRow, Res.get("ops.network.tor.hiddenServiceTestLabel"), hiddenServiceURL);
         GridPane.setColumnSpan(hiddenServiceHyperLink, 2);
         hiddenServiceHyperLink.disableProperty().setValue(true);
 
