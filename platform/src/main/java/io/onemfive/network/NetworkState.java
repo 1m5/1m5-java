@@ -42,7 +42,8 @@ public class NetworkState {
     public NetworkPeer localPeer;
     public SensorStatus sensorStatus;
     public ServiceStatus serviceStatus;
-    public Integer port;
+    public Integer virtualPort;
+    public Integer targetPort;
     // Seeds
     public final List<NetworkPeer> seeds = new ArrayList<>();
     // Banned

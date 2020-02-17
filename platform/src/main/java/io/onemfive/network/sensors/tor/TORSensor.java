@@ -115,7 +115,7 @@ public final class TORSensor extends BaseSensor {
     @Override
     public SensorSession establishSession(String address, Boolean autoConnect) {
         if(address==null) {
-            address = "default";
+            address = "127.0.0.1";
         }
         if(sessions.get(address)==null) {
             SensorSession sensorSession = embedded ? new TORSensorSessionEmbedded(this) : new TORSensorSessionExternal(this);
@@ -168,7 +168,7 @@ public final class TORSensor extends BaseSensor {
         embedded = "true".equals(properties.getProperty(TOR_ROUTER_EMBEDDED));
         networkState.params.put(TOR_ROUTER_EMBEDDED, String.valueOf(embedded));
 
-        SensorSession torSession = establishSession("private_key", true);
+        SensorSession torSession = establishSession(null, true);
         if (torSession.isConnected())
             updateStatus(SensorStatus.NETWORK_CONNECTED);
         else

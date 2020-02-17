@@ -51,8 +51,11 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
     private String address = Res.get("ops.network.notKnownYet");
     private TextField addressTextField;
 
-    private String port = Res.get("ops.network.notKnownYet");
-    private TextField portTextField;
+    private String virtualPort = Res.get("ops.network.notKnownYet");
+    private TextField virtualPortTextField;
+
+    private String targetPort = Res.get("ops.network.notKnownYet");
+    private TextField targetPortTextField;
 
     public TORSensorOpsView() {
         super();
@@ -67,10 +70,11 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
         GridPane.setColumnSpan(statusGroup, 1);
         sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.FIRST_ROW_DISTANCE).second;
 
-        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 3, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 4, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
         GridPane.setColumnSpan(localNodeGroup, 1);
         addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.addressLabel"), address, Layout.TWICE_FIRST_ROW_DISTANCE).second;
-        portTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.portLabel"), port).second;
+        virtualPortTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.vPortLabel"), virtualPort).second;
+        targetPortTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.tPortLabel"), targetPort).second;
 
         LOG.info("Initialized");
     }
@@ -101,10 +105,16 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
                 if(addressTextField!=null)
                     addressTextField.setText(address);
             }
-            if(networkState.port != null) {
-                port = String.valueOf(networkState.port);
-                if(portTextField!=null) {
-                    portTextField.setText(port);
+            if(networkState.virtualPort != null) {
+                virtualPort = String.valueOf(networkState.virtualPort);
+                if(virtualPortTextField !=null) {
+                    virtualPortTextField.setText(virtualPort);
+                }
+            }
+            if(networkState.targetPort != null) {
+                targetPort = String.valueOf(networkState.targetPort);
+                if(targetPortTextField !=null) {
+                    targetPortTextField.setText(targetPort);
                 }
             }
         } else {

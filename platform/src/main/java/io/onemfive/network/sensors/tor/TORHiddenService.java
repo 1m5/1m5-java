@@ -37,18 +37,20 @@ import java.util.Map;
 
 public class TORHiddenService implements JSONSerializable {
 
-    public Integer port;
+    public Integer virtualPort;
+    public Integer targetPort;
     public String serviceID;
     public String privateKey;
 
     public TORHiddenService() {}
 
     public TORHiddenService(String serviceID, String privateKey) throws NoSuchAlgorithmException {
-        this(randomTORPort(), serviceID, privateKey);
+        this(randomTORPort(), randomTORPort(), serviceID, privateKey);
     }
 
-    public TORHiddenService(Integer port, String serviceID, String privateKey) throws NoSuchAlgorithmException {
-        this.port = port;
+    public TORHiddenService(Integer virtualPort, Integer targetPort, String serviceID, String privateKey) throws NoSuchAlgorithmException {
+        this.virtualPort = virtualPort;
+        this.targetPort = targetPort;
         this.serviceID = serviceID;
 
         if (privateKey.startsWith("-----BEGIN")) // we reused a key
@@ -74,7 +76,8 @@ public class TORHiddenService implements JSONSerializable {
     @Override
     public Map<String, Object> toMap() {
         Map<String,Object> m = new HashMap<>();
-        if(port!=null) m.put("port", port);
+        if(virtualPort !=null) m.put("virtualPort", virtualPort);
+        if(targetPort != null) m.put("targetPort", targetPort);
         if(serviceID!=null) m.put("serviceID", serviceID);
         if(privateKey!=null) m.put("privateKey", privateKey);
         return m;
@@ -82,7 +85,8 @@ public class TORHiddenService implements JSONSerializable {
 
     @Override
     public void fromMap(Map<String, Object> m) {
-        if(m.get("port")!=null) port = (Integer)m.get("port");
+        if(m.get("virtualPort")!=null) virtualPort = (Integer)m.get("virtualPort");
+        if(m.get("targetPort")!=null) targetPort = (Integer)m.get("targetPort");
         if(m.get("serviceID")!=null) serviceID = (String)m.get("serviceID");
         if(m.get("privateKey")!=null) privateKey = (String)m.get("privateKey");
     }

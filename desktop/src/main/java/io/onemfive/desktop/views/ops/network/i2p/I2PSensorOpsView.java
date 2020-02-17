@@ -37,7 +37,6 @@ import io.onemfive.util.StringUtil;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import net.i2p.router.Router;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
 
@@ -116,8 +115,8 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
                 if(i2PFingerprintTextField!=null)
                     i2PFingerprintTextField.setText(i2PFingerprint);
             }
-            if(networkState.port != null) {
-                port = String.valueOf(networkState.port);
+            if(networkState.virtualPort != null) {
+                port = String.valueOf(networkState.virtualPort);
                 if(portTextField!=null) {
                     portTextField.setText(port);
                 }
