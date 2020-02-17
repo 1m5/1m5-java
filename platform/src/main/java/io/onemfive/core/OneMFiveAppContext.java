@@ -187,7 +187,6 @@ public class OneMFiveAppContext {
                 }
             }
         }
-        LOG.info("1M5 Base Directory: "+baseStr);
 
         configDir = new SecureFile(baseDir, "config");
         if(!configDir.exists() && !configDir.mkdir()) {
