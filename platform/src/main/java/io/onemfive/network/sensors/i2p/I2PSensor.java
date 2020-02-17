@@ -178,7 +178,7 @@ public class I2PSensor extends BaseSensor {
 
     @Override
     public boolean start(Properties p) {
-        // TODO: Support connecting to local I2P Router instance vs launching embedded router if desired
+        // TODO: Support connecting to local external I2P Router instance vs launching embedded router if desired
         LOG.info("Initializing I2P Sensor...");
         // I2P Sensor Starting
         LOG.info("Loading I2P properties...");
@@ -641,22 +641,19 @@ public class I2PSensor extends BaseSensor {
     }
 
     /**
-     *  Copy all certificates found in resources/io/onemfive/core/sensors/i2p/bote/certificates
+     *  Copy all certificates found in io/onemfive/network/sensors/i2p/certificates on classpath
      *  into i2pBaseDir/certificates
      *
      *  @param reseedCertificates destination directory for reseed certificates
      *  @param sslCertificates destination directory for ssl certificates
      */
     private boolean copyCertificatesToBaseDir(File reseedCertificates, File sslCertificates) {
-        final String path = "io/onemfive/i2p";
-        // Android apps are doing this within their startup as unable to extract these files from jars
+        final String path = "io/onemfive/network/sensors/i2p";
         if(!isTest) {
             if(!SystemVersion.isAndroid()) {
-                // Other - extract as jar
                 String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
                 final File jarFile = new File(jarPath);
                 if (jarFile.isFile()) {
-                    // called by a user of the 1M5 Core jar
                     try {
                         final JarFile jar = new JarFile(jarFile);
                         JarEntry entry;
