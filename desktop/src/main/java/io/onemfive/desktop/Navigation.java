@@ -28,15 +28,16 @@ package io.onemfive.desktop;
 
 import io.onemfive.desktop.views.View;
 import io.onemfive.desktop.views.ViewPath;;
-import io.onemfive.desktop.views.commons.browser.BrowserView;
 import io.onemfive.desktop.views.home.HomeView;
+import io.onemfive.desktop.views.personal.PersonalView;
+import io.onemfive.desktop.views.personal.dashboard.DashboardView;
 
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class Navigation {
 
-    private static final ViewPath DEFAULT_VIEW_PATH = ViewPath.to(HomeView.class, BrowserView.class);
+    private static final ViewPath DEFAULT_VIEW_PATH = ViewPath.to(HomeView.class, PersonalView.class, DashboardView.class);
 
     public interface Listener {
 

@@ -51,7 +51,7 @@ public class URLStreamFactoryCustomizer {
         try {
 
             Hashtable handlers = tryExtractInternalHandlerTableFromUrl();
-            //System.out.println(handlers);
+            //LOG.info(handlers);
 
             Consumer<String> wrapStreamHandlerWithScopedProxyHandler = protocol ->
             {

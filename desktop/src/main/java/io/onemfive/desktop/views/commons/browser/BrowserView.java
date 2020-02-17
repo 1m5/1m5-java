@@ -28,11 +28,12 @@ package io.onemfive.desktop.views.commons.browser;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
-import io.onemfive.data.ManCon;
-import io.onemfive.data.ManConStatus;
+import io.onemfive.desktop.MVC;
+import io.onemfive.desktop.Navigation;
 import io.onemfive.desktop.Resources;
 import io.onemfive.desktop.util.KeystrokeUtil;
 import io.onemfive.desktop.views.ActivatableView;
+import io.onemfive.desktop.views.ViewPath;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -41,9 +42,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -68,15 +67,29 @@ public class BrowserView extends ActivatableView {
 
     private EventHandler<KeyEvent> keyEventEventHandler;
 
-    private JFXTextField url;
+    private JFXTextField urlTextField;
 
-    private static boolean usingTOR = true;
-    private static boolean usingI2P = false;
+    private Navigation.Listener navigationListener;
 
     @Override
     protected void initialize() {
         LOG.info("Initializing...");
         super.initialize();
+
+        navigationListener = new Navigation.Listener() {
+            @Override
+            public void onNavigationRequested(ViewPath path) {
+                // ignore
+            }
+
+            @Override
+            public void onNavigationRequested(ViewPath path, Object data) {
+                LOG.info("Path: "+data);
+                if(data!=null)
+                    handlePath((String)data);
+            }
+        };
+        MVC.navigation.addListener(navigationListener);
 
         BorderPane rootContainer = (BorderPane) root;
         engine.setJavaScriptEnabled(true);
@@ -91,40 +104,19 @@ public class BrowserView extends ActivatableView {
         nav.setSpacing(5);
         vBox.getChildren().add(nav);
 
-        url = new JFXTextField();
-        url.setText("1m5://1m5.1m5");
+        urlTextField = new JFXTextField();
+        urlTextField.setText("1m5://1m5.1m5");
 
-        HBox.setHgrow(url, Priority.ALWAYS);
-        nav.getChildren().add(url);
+        HBox.setHgrow(urlTextField, Priority.ALWAYS);
+        nav.getChildren().add(urlTextField);
 
         JFXButton go = new JFXButton("Go");
         go.getStyleClass().add("button-raised");
         go.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                String path = url.getText();
-                LOG.info("Go: "+path);
-                URL newURL;
-                if(path.startsWith("1m5:")) {
-                    path = path.substring("1m5://".length(), path.indexOf(".1m5"));
-                    newURL = Resources.class.getResource("/web/" + path);
-                    path = newURL.toString();
-                    if (!path.endsWith(".html") || !path.endsWith(".htm")) {
-                        path += "/index.html";
-                    }
-                } else if(path.endsWith(".i2p") && !usingI2P) {
-                    LOG.info("Setup I2P Proxy");
-                    setupI2PProxy();
-                    usingI2P = true;
-                } else if(!usingTOR) {
-                    LOG.info("Setup TOR Proxy");
-                    setupTorProxy();
-                    usingTOR = true;
-                }
-                engine.load(path);
-                url.setText(url.getText());
-
-                LOG.info(path+" loaded");
+                String path = urlTextField.getText();
+                handlePath(path);
             }
         });
         nav.getChildren().add(go);
@@ -134,9 +126,9 @@ public class BrowserView extends ActivatableView {
         refresh.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                LOG.info("Refresh: "+url.getText());
+                LOG.info("Refresh: "+ urlTextField.getText());
                 engine.reload();
-                LOG.info(url.getText()+" refreshed");
+                LOG.info(urlTextField.getText()+" refreshed");
             }
         });
         nav.getChildren().add(refresh);
@@ -181,7 +173,7 @@ public class BrowserView extends ActivatableView {
                         if (newState == Worker.State.SUCCEEDED) {
                             String loc = engine.getLocation();
                             if(!loc.startsWith("file:")) {
-                                url.setText(loc);
+                                urlTextField.setText(loc);
                             }
                         }
                     }
@@ -221,12 +213,47 @@ public class BrowserView extends ActivatableView {
             scene = root.getScene();
             scene.addEventHandler(KeyEvent.KEY_RELEASED, keyEventEventHandler);
         }
+        LOG.info("Activated");
     }
 
     @Override
     protected void deactivate() {
         if (scene != null)
             scene.removeEventHandler(KeyEvent.KEY_RELEASED, keyEventEventHandler);
+        LOG.info("Deactivated");
+    }
+
+    private void handlePath(String url) {
+        LOG.info("Go: "+url);
+        URL newURL;
+        String path;
+        if(url.toLowerCase().startsWith("1m5:")) {
+            LOG.info("No proxy used - P2P web.");
+            path = url.substring("1m5://".length(), url.indexOf(".1m5"));
+            newURL = Resources.class.getResource("/web/" + path);
+            path = newURL.toString();
+            if (!path.endsWith(".html") || !path.endsWith(".htm")) {
+                path += "/index.html";
+            }
+        } else if(url.startsWith("http://127.0.0.1") || url.startsWith("http://localhost")) {
+            // Do nothing
+            path = url;
+            LOG.info("No proxy used - localhost.");
+        } else if(url.toLowerCase().endsWith(".i2p")) {
+            LOG.info("Using I2P Proxy...");
+            path = url;
+            Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 4444));
+            URLStreamFactoryCustomizer.useDedicatedProxyForWebkit(proxy, "http, https");
+        } else {
+            LOG.info("Using TOR Proxy...");
+            path = url;
+            Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 9050));
+            URLStreamFactoryCustomizer.useDedicatedProxyForWebkit(proxy, "http, https");
+        }
+        engine.load(path);
+        urlTextField.setText(url);
+
+        LOG.info(path+" loaded");
     }
 
     public void updateContent(byte[] content, URL url) {
@@ -235,17 +262,7 @@ public class BrowserView extends ActivatableView {
         String html = new String(content);
         LOG.info(html);
         engine.loadContent(html);
-        this.url.setText(url.toString());
-    }
-
-    private static void setupTorProxy() {
-        Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 9050));
-        URLStreamFactoryCustomizer.useDedicatedProxyForWebkit(proxy, "http, https");
-    }
-
-    private static void setupI2PProxy() {
-        Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 4444));
-        URLStreamFactoryCustomizer.useDedicatedProxyForWebkit(proxy, "http, https");
+        this.urlTextField.setText(url.toString());
     }
 
 }

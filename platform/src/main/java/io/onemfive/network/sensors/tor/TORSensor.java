@@ -57,8 +57,8 @@ public final class TORSensor extends BaseSensor {
 
     static {
         seedATOR = new NetworkPeer(Network.TOR);
-        seedATOR.getDid().getPublicKey().setAddress("TOR Seed Hidden Service Address Here");
-        seedATOR.getDid().getPublicKey().setFingerprint("TOR Seed Hidden Service Address Here");
+        seedATOR.getDid().getPublicKey().setAddress("gdperlvdnvudsp2t");
+        seedATOR.getDid().getPublicKey().setFingerprint("gdperlvdnvudsp2t");
         seedATOR.getDid().getPublicKey().setType("RSA1024");
         seedATOR.getDid().getPublicKey().isIdentityKey(true);
         seedATOR.getDid().getPublicKey().setBase64Encoded(true);

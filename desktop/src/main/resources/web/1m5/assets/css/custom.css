@@ -98,7 +98,7 @@ small.text-dark.smallbold {
 	color: #212121;
 }
 .text-green {
-    color: #33FF00!important;
+    color: #8072ba!important;
 }
 .hrlight {
 	border-top-color:#F4F1EC;
@@ -128,7 +128,7 @@ i#teamicons {
     padding-bottom: 5px;
 }
 .timeline-horizontal::before {
-    background-color: #212121!important;	
+    background-color: #212121!important;
 }
 .timeline-item::before {
     border: 2px solid #212121;
@@ -150,14 +150,14 @@ img.donationlogo {
     color: #212121;
 }
 .text-success {
-    color: #33FF00!important;
+    color: #8072ba!important;
     font-weight: 700;
 }
 .text-circle {
     color: #F4F1EC!important;
 }
 .timeline::before {
-    background-color: #33FF00;
+    background-color: #8072ba;
 }
 .card-body {
     padding: 8px 0px 8px 15px;
@@ -176,7 +176,7 @@ img.donationlogo {
 :root {
     --blue: #00407B;
     --lightblue:#1976D2;
-    --green:#33FF00;
+    --green:#8072ba;
     --white: #fff;
     --gray: #FAFBFB;
     --primary: #212121;
@@ -194,7 +194,7 @@ img.donationlogo {
     background:#00407B;
 }
 .bg-green {
-    background:#33FF00;
+    background:#8072ba;
 }
 .bg-lightblue {
     background:#1976D2;
@@ -210,8 +210,8 @@ a.btn.btn-sm.btn-round.btn-dark.link-topright .fa {
 	font-size: 20px;
 }
 .navbar-stick-dark .link-topright  {
-    color: #33FF00;
-    border-color: #33FF00;
+    color: #8072ba;
+    border-color: #8072ba;
 }
 .header-scrolled [data-navbar="sticky"] .link-topright  {
     color: #F4F1EC;

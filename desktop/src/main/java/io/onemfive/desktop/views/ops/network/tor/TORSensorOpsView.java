@@ -26,10 +26,16 @@
  */
 package io.onemfive.desktop.views.ops.network.tor;
 
+import io.onemfive.desktop.MVC;
+import io.onemfive.desktop.components.HyperlinkWithIcon;
 import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
+import io.onemfive.desktop.views.ViewPath;
+import io.onemfive.desktop.views.commons.CommonsView;
+import io.onemfive.desktop.views.commons.browser.BrowserView;
+import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.util.Res;
@@ -57,6 +63,9 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
     private String targetPort = Res.get("ops.network.notKnownYet");
     private TextField targetPortTextField;
 
+    private String hiddenServiceURL = "http://127.0.0.1";
+    private HyperlinkWithIcon hiddenServiceHyperLink;
+
     public TORSensorOpsView() {
         super();
     }
@@ -70,11 +79,14 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
         GridPane.setColumnSpan(statusGroup, 1);
         sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.FIRST_ROW_DISTANCE).second;
 
-        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 4, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
+        TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 5, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
         GridPane.setColumnSpan(localNodeGroup, 1);
         addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.addressLabel"), address, Layout.TWICE_FIRST_ROW_DISTANCE).second;
         virtualPortTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.vPortLabel"), virtualPort).second;
         targetPortTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.tPortLabel"), targetPort).second;
+        hiddenServiceHyperLink = addHyperlinkWithIcon(pane, ++gridRow, Res.get("ops.network.tor.hiddenService"), hiddenServiceURL);
+        GridPane.setColumnSpan(hiddenServiceHyperLink, 2);
+        hiddenServiceHyperLink.disableProperty().setValue(true);
 
         LOG.info("Initialized");
     }
@@ -115,6 +127,11 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
                 targetPort = String.valueOf(networkState.targetPort);
                 if(targetPortTextField !=null) {
                     targetPortTextField.setText(targetPort);
+                }
+                hiddenServiceURL = "http://127.0.0.1:"+targetPort+"/test";
+                if(hiddenServiceHyperLink!=null) {
+                    hiddenServiceHyperLink.setOnAction(e -> MVC.navigation.navigateTo(ViewPath.to(HomeView.class, CommonsView.class, BrowserView.class), hiddenServiceURL));
+                    hiddenServiceHyperLink.disableProperty().set(false);
                 }
             }
         } else {
