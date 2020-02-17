@@ -216,8 +216,7 @@ public class TORControlConnection implements TORControlCommands {
         return reply;
     }
 
-    protected synchronized List<ReplyLine> sendAndWaitForResponse(String s,
-                                                                  String rest) throws IOException {
+    protected synchronized List<ReplyLine> sendAndWaitForResponse(String s, String rest) throws IOException {
         if(parseThreadException != null) throw parseThreadException;
         checkThread();
         Waiter w = new Waiter();
@@ -241,8 +240,9 @@ public class TORControlConnection implements TORControlCommands {
         }
         for (Iterator<ReplyLine> i = lst.iterator(); i.hasNext(); ) {
             ReplyLine c = i.next();
-            if (! c.status.startsWith("2"))
-                throw new TORControlError(Integer.valueOf(c.status),"Error reply: "+c.msg);
+            if (! c.status.startsWith("2")) {
+                throw new TORControlError(Integer.valueOf(c.status), "Error ("+Integer.valueOf(c.status)+") reply: " + c.msg);
+            }
         }
         return lst;
     }
@@ -1018,7 +1018,7 @@ public class TORControlConnection implements TORControlCommands {
      * @throws IOException
      */
     public AuthChallengeResult authChallenge(byte[] clientNonce) throws IOException {
-        
+
         List<ReplyLine> result = sendAndWaitForResponse(
                 "AUTHCHALLENGE SAFECOOKIE " + byteArrayToHexString(clientNonce) + "\r\n",
                 null);
