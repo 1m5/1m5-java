@@ -574,9 +574,10 @@ public class I2PSensor extends BaseSensor {
             if(discovery==null) {
                 LOG.info("I2P NetworkPeerDiscovery not instantiated; adding to TaskRunner...");
                 discovery = new NetworkPeerDiscovery(taskRunner, this);
+                // ensure id set
                 seedAI2P.setId(sensorManager.getPeerManager().getLocalNode().getNetworkPeer().getId());
                 sensorManager.getPeerManager().savePeer(seedAI2P, true);
-//                taskRunner.addTask(discovery);
+                taskRunner.addTask(discovery);
             }
         }
     }

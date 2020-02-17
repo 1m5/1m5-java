@@ -27,9 +27,9 @@
 package io.onemfive.network.sensors;
 
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.NetworkTask;
 import io.onemfive.network.ops.PingRequestOp;
-import io.onemfive.network.ops.PingResponseOp;
 import io.onemfive.util.RandomUtil;
 import io.onemfive.util.tasks.TaskRunner;
 
@@ -60,17 +60,8 @@ public class NetworkPeerDiscovery extends NetworkTask  {
         LOG.info("Running Network Peer Discovery...");
         running = true;
         long totalKnown = peerManager.totalPeersByNetwork(localNode.getNetworkPeer().getId(), sensor.getNetwork());
-        if(totalKnown < 2) {
-            LOG.info("No Network peers beyond a seed is known. Just use seeds.");
-            // Launch Seeds
-            for (NetworkPeer seed : sensor.getNetworkState().seeds) {
-                if(!seed.getId().equals(localNode.getNetworkPeer().getId())
-                        && sendPingRequest(seed.getDid().getPublicKey().getAddress(), seed.getPort())) {
-                    LOG.info("Sent Peer Status Request to Seed Peer.");
-                } else {
-                    LOG.warning("A problem occurred attempting to send out Peer Status Request.");
-                }
-            }
+        if(totalKnown==0) {
+            LOG.warning("No Peers to use for Discovery. Please provide at least one seed.");
         } else if(totalKnown < sensor.getNetworkState().MaxPT) {
             LOG.info(totalKnown+" known peers less than Maximum Peers Tracked of "+ sensor.getNetworkState().MaxPT+"; continuing peer discovery...");
             NetworkPeer p = peerManager.getRandomPeer(sensor.getNetwork());

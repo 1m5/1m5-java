@@ -159,7 +159,7 @@ public class PeerManager implements Runnable {
     }
 
     public NetworkPeer getRandomPeer(Network network) {
-        return peerDB.randomPeer(network);
+        return peerDB.randomPeer(localNode.getNetworkPeer(network));
     }
 
     public NetworkPeer findPeerByAddress(String address) {

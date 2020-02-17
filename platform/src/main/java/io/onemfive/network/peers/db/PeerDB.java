@@ -148,14 +148,14 @@ public class PeerDB {
         return true;
     }
 
-    public NetworkPeer randomPeer(Network network) {
+    public NetworkPeer randomPeer(NetworkPeer fromPeer) {
         NetworkPeer p = null;
         ResultSet rs = null;
         int total = 0;
         synchronized (peersCountByNetworkLock) {
             try {
                 peersCountByNetwork.clearParameters();
-                peersCountByNetwork.setString(1, network.name());
+                peersCountByNetwork.setString(1, fromPeer.getNetwork().name());
                 rs = peersCountByNetwork.executeQuery();
                 if (rs.next()) {
                     total = rs.getInt(0);
@@ -171,27 +171,35 @@ public class PeerDB {
                     }
             }
         }
-        int random = RandomUtil.nextRandomInteger(0, total);
-        rs = null;
-        synchronized (peersByNetworkLock) {
-            try {
-                peersByNetwork.clearParameters();
-                peersByNetwork.setString(1, network.name());
-                peersByNetwork.execute("set schema 'SAMP'");
-                rs = peersByNetwork.executeQuery();
-                if (rs.first()) {
-                    rs.absolute(random);
-                    p = toPeer(rs);
-                }
-            } catch (SQLException e) {
-                LOG.warning(e.getLocalizedMessage());
-            } finally {
-                if (rs != null)
-                    try {
-                        rs.close();
-                    } catch (SQLException e) {
-                        LOG.warning(e.getLocalizedMessage());
+        boolean samePeer = true;
+        int max = 4; // Fail-safe
+        int currentCount = 0;
+        while(samePeer) {
+            int random = RandomUtil.nextRandomInteger(0, total);
+            rs = null;
+            synchronized (peersByNetworkLock) {
+                try {
+                    peersByNetwork.clearParameters();
+                    peersByNetwork.setString(1, fromPeer.getNetwork().name());
+                    peersByNetwork.execute("set schema 'SAMP'");
+                    rs = peersByNetwork.executeQuery();
+                    if (rs.first()) {
+                        rs.absolute(random);
+                        p = toPeer(rs);
                     }
+                } catch (SQLException e) {
+                    LOG.warning(e.getLocalizedMessage());
+                } finally {
+                    if (rs != null)
+                        try {
+                            rs.close();
+                        } catch (SQLException e) {
+                            LOG.warning(e.getLocalizedMessage());
+                        }
+                }
+            }
+            if(p==null || !fromPeer.getId().equals(p.getId()) || ++currentCount > max) {
+                samePeer = false;
             }
         }
         return p;
