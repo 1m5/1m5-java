@@ -59,10 +59,7 @@ import net.i2p.util.SecureFileOutputStream;
 
 import java.io.*;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionMuxedListener {
@@ -84,7 +81,6 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
             "outbound.backupQuantity",
     });
 
-    private I2PSensor sensor;
     private I2PSession i2pSession;
     private boolean connected = false;
     private I2PSocketManager socketManager;
@@ -92,8 +88,7 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
     private String address;
 
     public I2PSensorSessionEmbedded(I2PSensor sensor) {
-        super();
-        this.sensor = sensor;
+        super(sensor);
     }
 
     public String getAddress() {
@@ -217,8 +212,8 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
             }
             localI2PPeer.setId(localNode.getNetworkPeer().getId());
             sensor.getSensorManager().getPeerManager().savePeer(localI2PPeer, true);
-            if(sensor.router.getConfigSetting("i2np.udp.port") != null) {
-                sensor.getNetworkState().virtualPort = Integer.parseInt(sensor.router.getConfigSetting("i2np.udp.port"));
+            if(((I2PSensor)sensor).router.getConfigSetting("i2np.udp.port") != null) {
+                sensor.getNetworkState().virtualPort = Integer.parseInt(((I2PSensor)sensor).router.getConfigSetting("i2np.udp.port"));
             }
             sensor.getNetworkState().localPeer = localI2PPeer;
             sensor.updateModelListeners();
@@ -344,7 +339,18 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
     }
 
     @Override
-    public Boolean send(NetworkOp op) {
+    public boolean send(NetworkRequestOp requestOp) {
+        waitingOps.put(requestOp.id, requestOp);
+        return send((NetworkOp)requestOp);
+    }
+
+    @Override
+    public boolean notify(NetworkNotifyOp notifyOp) {
+        return send(notifyOp);
+    }
+
+    private boolean send(NetworkOp op) {
+        op.start = System.currentTimeMillis();
         String content = op.toJSON();
         LOG.info("Content to send: " + content);
         if (content.length() > 31500) {
@@ -362,7 +368,6 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
             byte[] payload = m.makeI2PDatagram(content.getBytes());
             if(i2pSession.sendMessage(toDestination, payload, I2PSession.PROTO_UNSPECIFIED, I2PSession.PORT_ANY, I2PSession.PORT_ANY)) {
                 LOG.info("I2P Message sent.");
-                return true;
             } else {
                 LOG.warning("I2P Message sending failed.");
                 return false;
@@ -376,6 +381,7 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
             }
             return false;
         }
+        return true;
     }
 
     /**
@@ -432,21 +438,7 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
                 LOG.info("Type discovered: " + type);
                 Object obj = Class.forName(type).getConstructor().newInstance();
                 if(obj instanceof NetworkOp) {
-                    if(obj instanceof NetworkRequestOp) {
-                        NetworkRequestOp request = (NetworkRequestOp)obj;
-                        NetworkResponseOp response = request.operate();
-                        if(response!=null) {
-                            send(response);
-                        }
-                    } else if(obj instanceof NetworkResponseOp) {
-                        NetworkResponseOp response = (NetworkResponseOp)obj;
-                        response.operate();
-                    } else if(obj instanceof NetworkNotifyOp) {
-                        NetworkNotifyOp notify = (NetworkNotifyOp)obj;
-                        notify.publish();
-                    } else {
-                        LOG.warning("NetworkOp subtype not supported: "+type);
-                    }
+                    handle((NetworkOp)obj);
                 } else if(obj instanceof NetworkPacket) {
                     NetworkPacket packet = (NetworkPacket) Class.forName(type).getConstructor().newInstance();
                     packet.fromMap(pm);
@@ -528,7 +520,7 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
     @Override
     public void reportAbuse(I2PSession i2PSession, int severity) {
         LOG.warning("I2P Session reporting abuse. Severity="+severity);
-        sensor.reportRouterStatus();
+        ((I2PSensor)sensor).reportRouterStatus();
     }
 
     /**
@@ -540,7 +532,7 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
     @Override
     public void disconnected(I2PSession session) {
         LOG.warning("I2P Session reporting disconnection.");
-        sensor.reportRouterStatus();
+        ((I2PSensor)sensor).reportRouterStatus();
     }
 
     /**
@@ -554,7 +546,7 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
     @Override
     public void errorOccurred(I2PSession session, String message, Throwable throwable) {
         LOG.severe("Router says: "+message+": "+throwable.getLocalizedMessage());
-        sensor.reportRouterStatus();
+        ((I2PSensor)sensor).reportRouterStatus();
     }
 
     private Properties getI2CPOptions() {

@@ -31,13 +31,11 @@ import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.ops.NetworkNotifyOp;
-import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.ops.NetworkRequestOp;
 import io.onemfive.network.ops.NetworkResponseOp;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.BaseSession;
 import io.onemfive.network.sensors.SensorStatus;
-import io.onemfive.network.sensors.tor.TORHiddenService;
 import io.onemfive.network.sensors.tor.TORHiddenServiceHandler;
 import io.onemfive.util.BrowserUtil;
 import io.onemfive.util.DLC;
@@ -56,7 +54,6 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 import javax.net.ssl.*;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
@@ -131,7 +128,6 @@ public class ClearnetSession extends BaseSession {
     protected int nextHandlerId = 1;
 
     protected Proxy proxy = null;
-    private BaseSensor sensor;
     public String sessionId;
     protected String address = "127.0.0.1";
     protected Boolean launchOnStart = false;
@@ -144,12 +140,11 @@ public class ClearnetSession extends BaseSession {
     protected boolean serverEnabled = true;
 
     public ClearnetSession(BaseSensor sensor) {
-        super();
-        this.sensor = sensor;
+        super(sensor);
     }
 
     public ClearnetSession(BaseSensor sensor, Proxy proxy) {
-        this.sensor = sensor;
+        super(sensor);
         this.proxy = proxy;
     }
 
@@ -199,32 +194,33 @@ public class ClearnetSession extends BaseSession {
         if(!connected) {
             connect();
         }
+
         Envelope e = packet.getEnvelope();
         URL url = e.getURL();
-        if(url != null) {
-            LOG.info("URL="+url.toString());
+        if (url != null) {
+            LOG.info("URL=" + url.toString());
         } else {
             LOG.info("URL must not be null.");
             return false;
         }
-        Map<String,Object> h = e.getHeaders();
-        Map<String,String> hStr = new HashMap<>();
-        if(h.containsKey(Envelope.HEADER_CONTENT_DISPOSITION) && h.get(Envelope.HEADER_CONTENT_DISPOSITION)!=null) {
-            hStr.put(Envelope.HEADER_CONTENT_DISPOSITION,(String)h.get(Envelope.HEADER_CONTENT_DISPOSITION));
+        Map<String, Object> h = e.getHeaders();
+        Map<String, String> hStr = new HashMap<>();
+        if (h.containsKey(Envelope.HEADER_CONTENT_DISPOSITION) && h.get(Envelope.HEADER_CONTENT_DISPOSITION) != null) {
+            hStr.put(Envelope.HEADER_CONTENT_DISPOSITION, (String) h.get(Envelope.HEADER_CONTENT_DISPOSITION));
         }
-        if(h.containsKey(Envelope.HEADER_CONTENT_TYPE) && h.get(Envelope.HEADER_CONTENT_TYPE)!=null) {
-            hStr.put(Envelope.HEADER_CONTENT_TYPE, (String)h.get(Envelope.HEADER_CONTENT_TYPE));
+        if (h.containsKey(Envelope.HEADER_CONTENT_TYPE) && h.get(Envelope.HEADER_CONTENT_TYPE) != null) {
+            hStr.put(Envelope.HEADER_CONTENT_TYPE, (String) h.get(Envelope.HEADER_CONTENT_TYPE));
         }
-        if(h.containsKey(Envelope.HEADER_CONTENT_TRANSFER_ENCODING) && h.get(Envelope.HEADER_CONTENT_TRANSFER_ENCODING)!=null) {
-            hStr.put(Envelope.HEADER_CONTENT_TRANSFER_ENCODING, (String)h.get(Envelope.HEADER_CONTENT_TRANSFER_ENCODING));
+        if (h.containsKey(Envelope.HEADER_CONTENT_TRANSFER_ENCODING) && h.get(Envelope.HEADER_CONTENT_TRANSFER_ENCODING) != null) {
+            hStr.put(Envelope.HEADER_CONTENT_TRANSFER_ENCODING, (String) h.get(Envelope.HEADER_CONTENT_TRANSFER_ENCODING));
         }
-        if(h.containsKey(Envelope.HEADER_USER_AGENT) && h.get(Envelope.HEADER_USER_AGENT)!=null) {
-            hStr.put(Envelope.HEADER_USER_AGENT, (String)h.get(Envelope.HEADER_USER_AGENT));
+        if (h.containsKey(Envelope.HEADER_USER_AGENT) && h.get(Envelope.HEADER_USER_AGENT) != null) {
+            hStr.put(Envelope.HEADER_USER_AGENT, (String) h.get(Envelope.HEADER_USER_AGENT));
         }
 
         ByteBuffer bodyBytes = null;
         CacheControl cacheControl = null;
-        if(e.getMultipart() != null) {
+        if (e.getMultipart() != null) {
             // handle file upload
             Multipart m = e.getMultipart();
             hStr.put(Envelope.HEADER_CONTENT_TYPE, "multipart/form-data; boundary=" + m.getBoundary());
@@ -233,34 +229,41 @@ public class ClearnetSession extends BaseSession {
             } catch (IOException e1) {
                 e1.printStackTrace();
                 // TODO: Provide error message
-                LOG.warning("IOException caught while building HTTP body with multipart: "+e1.getLocalizedMessage());
+                LOG.warning("IOException caught while building HTTP body with multipart: " + e1.getLocalizedMessage());
                 return false;
             }
             cacheControl = new CacheControl.Builder().noCache().build();
         }
 
         Headers headers = Headers.of(hStr);
-
-        Message m = e.getMessage();
-        if(m instanceof DocumentMessage) {
-            Object contentObj = DLC.getContent(e);
-            if(contentObj instanceof String) {
-                if(bodyBytes == null) {
-                    bodyBytes = ByteBuffer.wrap(((String)contentObj).getBytes());
-                } else {
-                    bodyBytes.put(((String)contentObj).getBytes());
+        if(packet.getSendContentOnly()) {
+            Message m = e.getMessage();
+            if (m instanceof DocumentMessage) {
+                Object contentObj = DLC.getContent(e);
+                if (contentObj instanceof String) {
+                    if (bodyBytes == null) {
+                        bodyBytes = ByteBuffer.wrap(((String) contentObj).getBytes());
+                    } else {
+                        bodyBytes.put(((String) contentObj).getBytes());
+                    }
+                } else if (contentObj instanceof byte[]) {
+                    if (bodyBytes == null) {
+                        bodyBytes = ByteBuffer.wrap((byte[]) contentObj);
+                    } else {
+                        bodyBytes.put((byte[]) contentObj);
+                    }
                 }
-            } else if(contentObj instanceof byte[]) {
-                if(bodyBytes == null) {
-                    bodyBytes = ByteBuffer.wrap((byte[])contentObj);
-                } else {
-                    bodyBytes.put((byte[])contentObj);
-                }
+            } else {
+                LOG.warning("Only DocumentMessages supported at this time.");
+                DLC.addErrorMessage("Only DocumentMessages supported at this time.", e);
+                return false;
             }
         } else {
-            LOG.warning("Only DocumentMessages supported at this time.");
-            DLC.addErrorMessage("Only DocumentMessages supported at this time.",e);
-            return false;
+            if (bodyBytes == null) {
+                bodyBytes = ByteBuffer.wrap(packet.toJSON().getBytes());
+            } else {
+                bodyBytes.put(packet.toJSON().getBytes());
+            }
         }
 
         RequestBody requestBody = null;
@@ -288,6 +291,7 @@ public class ClearnetSession extends BaseSession {
             return false;
         }
         Response response = null;
+        Message m = e.getMessage();
         if(url.toString().startsWith("https:")) {
             LOG.info("Sending https request, host="+url.getHost());
 //            if(trustedHosts.contains(url.getHost())) {
@@ -417,7 +421,7 @@ public class ClearnetSession extends BaseSession {
     }
 
     @Override
-    public NetworkResponseOp send(NetworkRequestOp requestOp) {
+    public boolean send(NetworkRequestOp requestOp) {
         LOG.info("Sending requestOp...");
         NetworkResponseOp responseOp = null;
         if(!connected) {
@@ -428,14 +432,14 @@ public class ClearnetSession extends BaseSession {
             url = new URL((requestOp.useSSL?"https":"http")+"://"+requestOp.toNetworkAddress+":"+requestOp.toNetworkPort);
         } catch (MalformedURLException e) {
             LOG.warning(e.getLocalizedMessage());
-            return null;
+            return false;
         }
         String content = requestOp.toJSON();
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/json"), content.getBytes());
         Request req = new okhttp3.Request.Builder().url(url).post(requestBody).build();
         if(req == null) {
             LOG.warning("okhttp3 builder didn't build request.");
-            return null;
+            return false;
         }
         Response response = null;
         if(requestOp.useSSL) {
@@ -446,27 +450,27 @@ public class ClearnetSession extends BaseSession {
                 response = httpsStrongClient.newCall(req).execute();
                 if(!response.isSuccessful()) {
                     LOG.warning(response.toString()+" - code="+response.code());
-                    return null;
+                    return false;
                 }
             } catch (IOException e1) {
                 LOG.warning(e1.getLocalizedMessage());
-                return null;
+                return false;
             }
         } else {
             LOG.info("Sending http request, host="+url.getHost());
             if(httpClient == null) {
                 LOG.severe("httpClient was not set up.");
-                return null;
+                return false;
             }
             try {
                 response = httpClient.newCall(req).execute();
                 if(!response.isSuccessful()) {
                     LOG.warning("HTTP request not successful: "+response.code());
-                    return null;
+                    return false;
                 }
             } catch (IOException e2) {
                 LOG.warning(e2.getLocalizedMessage());
-                return null;
+                return false;
             }
         }
 
@@ -484,7 +488,7 @@ public class ClearnetSession extends BaseSession {
                         responseOp.fromMap(m);
                     } catch (Exception e) {
                         LOG.warning(e.getLocalizedMessage());
-                        return null;
+                        return false;
                     }
                 }
             } catch (IOException e1) {
@@ -498,9 +502,9 @@ public class ClearnetSession extends BaseSession {
         if(responseOp!=null) {
             responseOp.setSensorManager(sensor.getSensorManager());
             responseOp.operate();
-            return responseOp;
+            return true;
         }
-        return null;
+        return false;
     }
 
     @Override
@@ -561,8 +565,8 @@ public class ClearnetSession extends BaseSession {
         return statusCode.startsWith("2");
     }
 
-    public void sendIn(Envelope e) {
-        sensor.sendIn(e);
+    public void sendIn(NetworkPacket packet) {
+        sensor.sendIn(packet.getEnvelope());
     }
 
     @Override
@@ -593,19 +597,19 @@ public class ClearnetSession extends BaseSession {
 
             if ("api".equals(type)) {
                 EnvelopeJSONDataHandler handler = new EnvelopeJSONDataHandler();
-                handler.setSession(this);
+                handler.setClearnetSession(this);
                 handler.setServiceName(name);
                 handler.setParameters(params);
                 handlers.addHandler(handler);
             } else if ("proxy".equals(type)) {
                 EnvelopeProxyDataHandler handler = new EnvelopeProxyDataHandler();
-                handler.setSession(this);
+                handler.setClearnetSession(this);
                 handler.setServiceName(name);
                 handler.setParameters(params);
                 handlers.addHandler(handler);
             } else if ("hiddenService".equals(type)) {
                 TORHiddenServiceHandler handler = new TORHiddenServiceHandler();
-                handler.setSession(this);
+                handler.setClearnetSession(this);
                 handler.setServiceName(name);
                 handler.setParameters(params);
                 handlers.addHandler(handler);
@@ -715,7 +719,7 @@ public class ClearnetSession extends BaseSession {
                 if (dataHandlerStr != null) { // optional
                     try {
                         dataHandler = (AsynchronousEnvelopeHandler) Class.forName(dataHandlerStr).newInstance();
-                        dataHandler.setSession(this);
+                        dataHandler.setClearnetSession(this);
                         dataHandler.setServiceName(name);
                         dataHandler.setParameters(params);
                         dataContext.setHandler(dataHandler);

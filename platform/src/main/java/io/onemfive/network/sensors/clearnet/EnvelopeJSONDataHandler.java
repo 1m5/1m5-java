@@ -29,7 +29,6 @@ package io.onemfive.network.sensors.clearnet;
 import io.onemfive.data.*;
 import io.onemfive.data.content.Content;
 import io.onemfive.util.JSONParser;
-import io.onemfive.network.NetworkService;
 import io.onemfive.util.DLC;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.DefaultHandler;
@@ -70,8 +69,8 @@ public class EnvelopeJSONDataHandler extends DefaultHandler implements Asynchron
     public EnvelopeJSONDataHandler() {}
 
     @Override
-    public void setSession(ClearnetSession session) {
-        this.session = session;
+    public void setClearnetSession(ClearnetSession clearnetSession) {
+        this.session = clearnetSession;
     }
 
     public void setServiceName(String serviceName) {
@@ -147,7 +146,9 @@ public class EnvelopeJSONDataHandler extends DefaultHandler implements Asynchron
     }
 
     protected void route(Envelope e) {
-        session.sendIn(e);
+        io.onemfive.network.Request req = new io.onemfive.network.Request();
+        req.setEnvelope(e);
+        session.sendIn(req);
     }
 
     public void reply(Envelope e) {

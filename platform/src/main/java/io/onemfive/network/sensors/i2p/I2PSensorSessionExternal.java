@@ -27,7 +27,9 @@
 package io.onemfive.network.sensors.i2p;
 
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.ops.NetworkNotifyOp;
 import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.ops.NetworkRequestOp;
 import io.onemfive.network.sensors.BaseSession;
 import net.i2p.client.I2PSession;
 import net.i2p.client.I2PSessionMuxedListener;
@@ -38,13 +40,11 @@ public class I2PSensorSessionExternal extends BaseSession implements I2PSessionM
 
     private static final Logger LOG = Logger.getLogger(I2PSensorSessionExternal.class.getName());
 
-    private I2PSensor sensor;
     private boolean connected = false;
     private String address;
 
     public I2PSensorSessionExternal(I2PSensor sensor) {
-        super();
-        this.sensor = sensor;
+        super(sensor);
     }
 
     public String getAddress() {
@@ -85,13 +85,19 @@ public class I2PSensorSessionExternal extends BaseSession implements I2PSessionM
     @Override
     public Boolean send(NetworkPacket packet) {
         LOG.warning("Not yet implemented.");
-        return null;
+        return false;
     }
 
     @Override
-    public Boolean send(NetworkOp op) {
+    public boolean send(NetworkRequestOp requestOp) {
         LOG.warning("Not yet implemented.");
-        return null;
+        return false;
+    }
+
+    @Override
+    public boolean notify(NetworkNotifyOp notifyOp) {
+        LOG.warning("Not yet implemented.");
+        return false;
     }
 
     @Override

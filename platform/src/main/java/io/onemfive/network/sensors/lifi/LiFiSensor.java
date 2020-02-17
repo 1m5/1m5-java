@@ -74,7 +74,7 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
 
     @Override
     public SensorSession establishSession(String address, Boolean autoConnect) {
-        LiFiSession session = new LiFiSession();
+        LiFiSession session = new LiFiSession(this);
 
         return session;
     }
@@ -211,7 +211,7 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
         updateStatus(SensorStatus.INITIALIZING);
 
         Properties sessionProperties = new Properties();
-        session = new LiFiSession();
+        session = new LiFiSession(this);
         session.connect();
 
         session.addSessionListener(this);

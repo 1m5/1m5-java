@@ -27,6 +27,7 @@
 package io.onemfive.network.sensors.clearnet;
 
 import io.onemfive.data.Envelope;
+import io.onemfive.network.Request;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
@@ -79,8 +80,10 @@ public class EnvelopeWebSocket extends WebSocketAdapter {
             Envelope e = Envelope.documentFactory();
             e.fromJSON(message);
             LOG.info("Sending Envelope received to bus...\n\t"+e);
+            Request request = new Request();
+            request.setEnvelope(e);
             // Send to bus
-            clearnetSession.sendIn(e);
+            clearnetSession.sendIn(request);
         }
     }
 

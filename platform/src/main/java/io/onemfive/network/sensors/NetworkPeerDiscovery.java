@@ -99,15 +99,7 @@ public class NetworkPeerDiscovery extends NetworkTask  {
         requestOp.toNetworkAddress = toAddress;
         requestOp.toNetworkPort = toPort;
         SensorSession session = sensor.establishSession(null, true);
-        long start = System.currentTimeMillis();
-        PingResponseOp responseOp = (PingResponseOp)session.send(requestOp);
-        long end = System.currentTimeMillis();
-        if(responseOp==null) {
-            return false;
-        }
-        responseOp.setSensorManager(sensorManager);
-        responseOp.operate();
-        sensorManager.getPeerManager().savePeerStatusTimes(requestOp.fromId, requestOp.fromNetwork, responseOp.fromId, start, end);
+        session.send(requestOp);
         return true;
     }
 }

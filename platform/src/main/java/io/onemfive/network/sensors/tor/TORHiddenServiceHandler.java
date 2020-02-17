@@ -26,11 +26,11 @@
  */
 package io.onemfive.network.sensors.tor;
 
-import io.onemfive.data.DID;
-import io.onemfive.data.DocumentMessage;
 import io.onemfive.data.Envelope;
-import io.onemfive.data.JSONSerializable;
-import io.onemfive.data.content.Content;
+import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.Response;
+import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.ops.NetworkRequestOp;
 import io.onemfive.network.sensors.clearnet.AsynchronousEnvelopeHandler;
 import io.onemfive.network.sensors.clearnet.ClearnetSession;
 import io.onemfive.util.DLC;
@@ -38,20 +38,15 @@ import io.onemfive.util.JSONParser;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -65,14 +60,14 @@ public class TORHiddenServiceHandler extends DefaultHandler implements Asynchron
     private String id;
     private String serviceName;
     private String[] parameters;
-    protected ClearnetSession session;
+    protected ClearnetSession clearnetSession;
     private HttpSession activeSession;
 
     public TORHiddenServiceHandler() {}
 
     @Override
-    public void setSession(ClearnetSession session) {
-        this.session = session;
+    public void setClearnetSession(ClearnetSession clearnetSession) {
+        this.clearnetSession = clearnetSession;
     }
 
     public void setServiceName(String serviceName) {
@@ -90,21 +85,28 @@ public class TORHiddenServiceHandler extends DefaultHandler implements Asynchron
      * @param request
      * @param response
      * @throws IOException
-     * @throws ServletException
      */
     @Override
-    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOG.info("HTTP Handler called; target: "+target);
-        if("/test".equals(target)) {
+    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        LOG.info("HTTP Hidden Service Handler called; target: "+target);
+        if("/test.html".equals(target)) {
             response.setContentType("text/html");
             response.getWriter().print("<html><body>"+serviceName+" Available</body></html>");
             response.setStatus(200);
             baseRequest.setHandled(true);
             return;
+        } else if("/test.json".equals(target)) {
+            response.setContentType("application/json");
+            response.getWriter().print("{\n\t\"serviceName\": \""+serviceName+"\",\n\t\"status\": Available\n}");
+            response.setStatus(200);
+            baseRequest.setHandled(true);
+            return;
         }
-        int verifyStatus = verifyRequest(target, request);
-        if(verifyStatus != 200) {
-            response.setStatus(verifyStatus);
+        String errorMsg = verifyRequest(target, request);
+        if(errorMsg != null) {
+            response.setContentType("application/json");
+            response.getWriter().print("{\n\t\"serviceName\": \""+serviceName+"\",\n\t\"status\": Available, \n\t\"error\": \""+errorMsg+"\"\n}");
+            response.setStatus(400); // Bad request error
             baseRequest.setHandled(true);
             return;
         }
@@ -113,78 +115,141 @@ public class TORHiddenServiceHandler extends DefaultHandler implements Asynchron
         if(!request.getSession().getId().equals(activeSession.getId())) {
             activeSession = request.getSession();
             request.getSession().setMaxInactiveInterval(ClearnetSession.SESSION_INACTIVITY_INTERVAL);
-            session.setSessionId(activeSession.getId());
-        } else if(session.getLastRequestTime() + now > ClearnetSession.SESSION_INACTIVITY_INTERVAL * 1000){
+            clearnetSession.setSessionId(activeSession.getId());
+        } else if(clearnetSession.getLastRequestTime() + now > ClearnetSession.SESSION_INACTIVITY_INTERVAL * 1000){
             request.getSession().invalidate();
             activeSession = request.getSession(true);
             request.getSession().setMaxInactiveInterval(ClearnetSession.SESSION_INACTIVITY_INTERVAL);
-            session.setSessionId(activeSession.getId());
+            clearnetSession.setSessionId(activeSession.getId());
         }
 
-        session.setLastRequestTime(now);
+        clearnetSession.setLastRequestTime(now);
 
-        Envelope envelope = parseEnvelope(target, request, session.sessionId);
-        ClientHold clientHold = new ClientHold(target, baseRequest, request, response, envelope);
-        requests.put(envelope.getId(), clientHold);
-
-        route(envelope); // asynchronous call upon; returns upon reaching Message Channel's queue in Service Bus
-
-        if(DLC.getErrorMessages(envelope).size() > 0) {
-            // Just 500 for now
-            LOG.warning("Returning HTTP 500...");
-            response.setStatus(500);
+        String json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        Map<String,Object> payload = (Map<String,Object>)JSONParser.parse(json);
+        String type = (String)payload.get("type");
+        if(type==null) {
+            String msg = "'type' is a required parameter.";
+            LOG.warning(msg);
+            response.setContentType("application/json");
+            response.getWriter().print("{\n\t\"serviceName\": \""+serviceName+"\",\n\t\"status\": Available, \n\t\"error\": \""+msg+"\"\n}");
+            response.setStatus(400); // Bad request error
             baseRequest.setHandled(true);
-            requests.remove(envelope.getId());
-        } else {
-            // Hold Thread until response or 30 seconds
-//            LOG.info("Holding HTTP Request for up to 30 seconds waiting for internal asynch response...");
-            clientHold.hold(30 * 1000); // hold for 30 seconds or until interrupted
+            return;
         }
-    }
+        boolean isNetworkOp = false;
+        boolean isNetworkPacket = false;
+        if(type.startsWith("io.onemfive.network.ops"))
+            isNetworkOp = true;
+        else if(type.startsWith("io.onemfive.network"))
+            isNetworkPacket = true;
+        if(!isNetworkOp && !isNetworkPacket) {
+            String msg = payload.get("type")+ " Unsupported";
+            LOG.warning(msg);
+            response.setContentType("application/json");
+            response.getWriter().print("{\n\t\"serviceName\": \""+serviceName+"\",\n\t\"status\": Available, \n\t\"error\": \""+msg+"\"\n}");
+            response.setStatus(400); // Bad request error
+            baseRequest.setHandled(true);
+            return;
+        }
 
-    protected void route(Envelope e) {
-        session.sendIn(e);
-    }
+        if(isNetworkOp) {
+            NetworkOp op = parseNetworkOp(target, request, clearnetSession.sessionId, payload);
+            ClientHold clientHold = new ClientHold(target, baseRequest, request, response, op);
+            requests.put((long)op.id, clientHold);
 
-    public void reply(Envelope e) {
-        ClientHold hold = requests.get(e.getId());
-        HttpServletResponse response = hold.getResponse();
-        LOG.info("Updating session status from response...");
-        String sessionId = (String)e.getHeader(ClearnetSession.class.getName());
-        if(activeSession==null) {
-            // session expired before response received so kill
-            LOG.warning("Expired session before response received: sessionId="+sessionId);
-            respond("{httpErrorCode=401}", "application/json", response, 401);
-        } else {
-            LOG.info("Active session found");
-            DID eDID = e.getDID();
-            LOG.info("DID in header: "+eDID);
-            if(!session.getAuthenticated() && eDID.getAuthenticated()) {
-                LOG.info("Updating active session to authenticated.");
-                session.setAuthenticated(true);
+            clearnetSession.handle(op); // Synchronous call
+
+            if(op instanceof NetworkRequestOp && ((NetworkRequestOp)op).responseOp!=null) {
+                response.setContentType("application/json");
+                response.getWriter().print(((NetworkRequestOp)op).responseOp.toJSON());
+                response.setStatus(200);
+            } else  {
+                response.setStatus(204);
             }
-            respond(unpackEnvelopeContent(e), "application/json", response, 200);
+            baseRequest.setHandled(true);
+
+        } else {
+            NetworkPacket packet = parseNetworkPacket(target, request, clearnetSession.sessionId, payload);
+            ClientHold clientHold = new ClientHold(target, baseRequest, request, response, packet);
+            requests.put(packet.getEnvelope().getId(), clientHold);
+
+            clearnetSession.sendIn(packet); // asynchronous call upon; returns upon reaching Message Channel's queue in Service Bus
+
+            if (DLC.getErrorMessages(packet.getEnvelope()).size() > 0) {
+                // Just 500 for now
+                List<String> errMsgs = DLC.getErrorMessages(packet.getEnvelope());
+                StringBuilder sb = new StringBuilder();
+                sb.append("{\n\t\"serviceName\": \""+serviceName+"\",\n\t\"status\": Available, \n\t\"error\": [");
+                boolean first = true;
+                for(String err : errMsgs) {
+                    if(first) {
+                        sb.append("\"" + err + "\"");
+                    } else {
+                        sb.append(",\"" + err + "\"");
+                        first = false;
+                    }
+                }
+                sb.append("]\n}");
+                String msg = sb.toString();
+                LOG.warning(msg);
+                response.setContentType("application/json");
+                response.getWriter().print(msg);
+                response.setStatus(500);
+                baseRequest.setHandled(true);
+                requests.remove(packet.getId());
+            } else {
+                // Hold Thread until response or 60 seconds
+//            LOG.info("Holding HTTP Request for up to 60 seconds waiting for internal asynch response...");
+                String result = clientHold.hold(60 * 1000, packet.getId()); // hold for 60 seconds or until interrupted
+                if (result != null) {
+                    response.setContentType("application/json");
+                    response.getWriter().print("{\"" + serviceName + "\": Unavailable, " + result + "}");
+                    response.setStatus(500);
+                    baseRequest.setHandled(true);
+                }
+            }
         }
-        hold.baseRequest.setHandled(true);
-        LOG.info("Waking sleeping request thread to return response to caller...");
-        hold.wake(); // Interrupt sleep to allow thread to return
-        LOG.info("Unwinded request call with response.");
     }
 
-    protected int verifyRequest(String target, HttpServletRequest request) {
-
-        return 200;
+    protected String verifyRequest(String target, HttpServletRequest request) {
+        String msg = null;
+        if(!"application/json".equals(request.getContentType())) {
+            msg = request.getContentType()+" not supported by 1M5 TOR Hidden Services, only application/json.";
+            LOG.warning(msg);
+        } else if(!"POST".equals(request.getMethod())) {
+            msg = "Only POST supported by 1M5 TOR Hidden Services.";
+            LOG.warning(msg);
+        }
+        return msg;
     }
 
-    protected Envelope parseEnvelope(String target, HttpServletRequest request, String sessionId) {
-//        LOG.info("Parsing request into Envelope...");
-        String json = request.getParameter("env");
-        if(json==null) {
-            LOG.warning("No Envelope in env parameter.");
+    protected NetworkOp parseNetworkOp(String target, HttpServletRequest request, String sessionId, Map<String,Object> payload) {
+        LOG.info("Parsing request into NetworkOp...");
+        String type = (String)payload.get("type");
+        NetworkOp op = null;
+        try {
+            op = (NetworkOp)Class.forName(type).getConstructor().newInstance();
+            op.fromMap(payload);
+        } catch (Exception e) {
+            LOG.warning(e.getLocalizedMessage());
+        }
+        return op;
+    }
+
+    protected NetworkPacket parseNetworkPacket(String target, HttpServletRequest request, String sessionId, Map<String,Object> payload) {
+        LOG.info("Parsing request into NetworkPacket...");
+        String type = (String)payload.get("type");
+        NetworkPacket packet = null;
+        try {
+            packet = (NetworkPacket)Class.forName(type).getConstructor().newInstance();
+            packet.fromMap(payload);
+        } catch (Exception e) {
+            LOG.warning(e.getLocalizedMessage());
             return null;
         }
-        Envelope e = new Envelope();
-        e.fromJSON(json);
+
+        Envelope e = packet.getEnvelope();
 
         // Must set id in header for asynchronous support
         e.setHeader(ClearnetSession.HANDLER_ID, id);
@@ -194,27 +259,14 @@ public class TORHiddenServiceHandler extends DefaultHandler implements Asynchron
         e.setCommandPath(target.startsWith("/")?target.substring(1):target); // strip leading slash if present
         try {
             // This is required to ensure the SensorManager knows to return the reply to the ClearnetServerSensor (ends with .json)
-            URL url = new URL("http://127.0.0.1"+target+".json");
+            URL url = new URL("http://127.0.0.1/request.json");
             e.setURL(url);
         } catch (MalformedURLException e1) {
             LOG.warning(e1.getLocalizedMessage());
         }
 
-        // Populate method
-        String method = request.getMethod();
-//        LOG.info("Incoming method: "+method);
-        if(method != null) {
-            switch (method.toUpperCase()) {
-                case "GET": e.setAction(Envelope.Action.GET);break;
-                case "POST": e.setAction(Envelope.Action.POST);break;
-                case "PUT": e.setAction(Envelope.Action.PUT);break;
-                case "DELETE": e.setAction(Envelope.Action.DELETE);break;
-                default: e.setAction(Envelope.Action.GET);
-            }
-        } else {
-            e.setAction(Envelope.Action.GET);
-        }
-
+        // Ensure POST set
+        e.setAction(Envelope.Action.POST);
         // Populate headers
         Enumeration<String> headerNames = request.getHeaderNames();
         while(headerNames.hasMoreElements()) {
@@ -228,86 +280,12 @@ public class TORHiddenServiceHandler extends DefaultHandler implements Asynchron
                     e.setHeader(headerName, headerValue);
                     first = false;
                 } else {
-                    e.setHeader(headerName + Integer.toString(i++), headerValue);
+                    e.setHeader(headerName + i++, headerValue);
                 }
 //                LOG.info("Incoming header:value="+headerName+":"+headerValue);
             }
         }
 
-        // Get file content if sent
-        if(e.getContentType() != null && e.getContentType().startsWith("multipart/form-data")) {
-        	request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, new MultipartConfigElement(""));
-            try {
-                Collection<Part> parts = request.getParts();
-                String contentType;
-                String name;
-                String fileName;
-                long size = 0;
-                InputStream is;
-                ByteArrayOutputStream b;
-                int k = 0;
-                for (Part part : parts) {
-                    String msg = "Downloading... {";
-                    name = part.getName();
-                    msg += "\n\tparamName="+name;
-                    fileName = part.getSubmittedFileName();
-                    msg += "\n\tfileName="+fileName;
-                    contentType = part.getContentType();
-                    msg += "\n\tcontentType="+contentType;
-                    size = part.getSize();
-                    msg += "\n\tsize="+size+"\n}";
-                    LOG.info(msg);
-                    if(size > 1000000) {
-                        // 1Mb
-                        LOG.warning("Downloading of file with size="+size+" prevented. Max size is 1Mb.");
-                        return e;
-                    }
-                    is = part.getInputStream();
-                    if (is != null) {
-                        b = new ByteArrayOutputStream();
-                        int nRead;
-                        byte[] bucket = new byte[16384];
-                        while ((nRead = is.read(bucket, 0, bucket.length)) != -1) {
-                            b.write(bucket, 0, nRead);
-                        }
-                        Content content = Content.buildContent(b.toByteArray(), contentType, fileName, true, true);
-                        content.setSize(size);
-                        if (k == 0) {
-                            Map<String, Object> d = ((DocumentMessage) e.getMessage()).data.get(k++);
-                            d.put(Envelope.HEADER_CONTENT_TYPE, contentType);
-                            d.put(DLC.CONTENT, content);
-                        } else {
-                            Map<String, Object> d = new HashMap<>();
-                            d.put(Envelope.HEADER_CONTENT_TYPE, contentType);
-                            d.put(DLC.CONTENT, content);
-                            ((DocumentMessage) e.getMessage()).data.add(d);
-                        }
-                    }
-                }
-            } catch (Exception e1) {
-                LOG.warning(e1.getLocalizedMessage());
-            }
-        }
-
-        //Get post formData params
-        String postFormBody = getPostRequestFormData(request);
-        if(!postFormBody.isEmpty()){
-            Map<String, Object> bodyMap = (Map<String, Object>) JSONParser.parse(postFormBody);
-            DLC.addData(Map.class, bodyMap, e);
-        }
-
-        // Get query parameters if present
-        String query = request.getQueryString();
-        if(query!=null) {
-//            LOG.info("Incoming query: "+query);
-            Map<String,String> queryMap = new HashMap<>();
-            String[] nvps = query.split("&");
-            for (String nvpStr : nvps) {
-                String[] nvp = nvpStr.split("=");
-                queryMap.put(nvp[0], nvp[1]);
-            }
-            DLC.addData(Map.class, queryMap, e);
-        }
         e.setExternal(true);
 
         // Get post parameters if present and place as content
@@ -316,41 +294,45 @@ public class TORHiddenServiceHandler extends DefaultHandler implements Asynchron
             DLC.addContent(m, e);
         }
 
-        return e;
+        return packet;
     }
 
-    protected String unpackEnvelopeContent(Envelope e) {
-//        LOG.info("Unpacking Content Map to JSON");
-        String json = JSONParser.toString(((JSONSerializable)DLC.getContent(e)).toMap());
-        return json;
-    }
-
-    public String getPostRequestFormData(HttpServletRequest request)  {
-        StringBuilder formData = new StringBuilder();
-        BufferedReader bufferedReader = null;
-        try {
-            InputStream inputStream = request.getInputStream();
-            if (inputStream != null) {
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                char[] charBuffer = new char[128];
-                int bytesRead = -1;
-                while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-                    formData.append(charBuffer, 0, bytesRead);
-                }
-            }
-        } catch (IOException ex) {
-            LOG.warning(ex.getLocalizedMessage());
-        } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException ex) {
-                    LOG.warning(ex.getLocalizedMessage());
-                }
-            }
+    public void reply(Envelope e) {
+        ClientHold hold = requests.get(e.getId());
+        HttpServletResponse response = hold.getResponse();
+        LOG.info("Updating session status from response...");
+        String sessionId = (String)e.getHeader(ClearnetSession.class.getName());
+        if(activeSession==null) {
+            // session expired before response received so kill
+            LOG.warning("Expired session before response received: sessionId="+sessionId);
+            respond("{httpErrorCode=401}", "application/json", response, 401);
+        } else {
+            LOG.info("Active session found");
+            respond(serializeContent(e), "application/json", response, 200);
         }
+        hold.baseRequest.setHandled(true);
+        LOG.info("Waking sleeping request thread to return response to caller...");
+        hold.wake(); // Interrupt sleep to allow thread to return
+        LOG.info("Unwinded request call with response.");
+    }
 
-        return formData.toString();
+    protected String serializeContent(Envelope e) {
+        LOG.info("Serializing returned Envelope...");
+        ClientHold hold = requests.get(e.getId());
+        NetworkPacket requestPacket = (NetworkPacket)hold.getPayload();
+        Response responsePacket = new Response(requestPacket.getId());
+        // Origination of request
+        responsePacket.setOriginationPeer(requestPacket.getFromPeer());
+        // Response coming from this node
+        responsePacket.setFromPeer(requestPacket.getToPeer());
+        // Response requested to go directly to origination (but may not depending on network status)
+        responsePacket.setToPeer(requestPacket.getFromPeer());
+        // Response needs to end up at origination
+        responsePacket.setDestinationPeer(requestPacket.getFromPeer());
+        // Set returned content
+        responsePacket.setEnvelope(e);
+        // Serialize to JSON
+        return responsePacket.toJSON();
     }
 
     protected void respond(String body, String contentType, HttpServletResponse response, int code) {
@@ -371,23 +353,30 @@ public class TORHiddenServiceHandler extends DefaultHandler implements Asynchron
         private Request baseRequest;
         private HttpServletRequest request;
         private HttpServletResponse response;
-        private Envelope envelope;
+        private Object payload;
 
-        private ClientHold(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response, Envelope envelope) {
+        private ClientHold(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response, Object payload) {
             this.target = target;
             this.baseRequest = baseRequest;
             this.request = request;
             this.response = response;
-            this.envelope = envelope;
+            this.payload = payload;
         }
 
-        private void hold(long waitTimeMs) {
+        private String hold(long waitTimeMs, String id) {
+            long startWait = System.currentTimeMillis();
             thread = Thread.currentThread();
             try {
                 Thread.sleep(waitTimeMs);
             } catch (InterruptedException e) {
-                requests.remove(envelope.getId());
+                requests.remove(id);
             }
+            long endWait = System.currentTimeMillis();
+            if((endWait - startWait) >= waitTimeMs) {
+                // Timed out - return time out error
+                return "\"error\": \"Timed Out\", \"waitTimeSeconds\": "+(waitTimeMs/1000);
+            }
+            return null;
         }
 
         private void wake() {
@@ -410,8 +399,8 @@ public class TORHiddenServiceHandler extends DefaultHandler implements Asynchron
             return response;
         }
 
-        private Envelope getEnvelope() {
-            return envelope;
+        private Object getPayload() {
+            return payload;
         }
     }
 

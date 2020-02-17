@@ -30,7 +30,9 @@ import io.onemfive.data.JSONSerializable;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Packet;
+import io.onemfive.network.ops.NetworkNotifyOp;
 import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.ops.NetworkRequestOp;
 import io.onemfive.network.sensors.SessionListener;
 import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
@@ -101,8 +103,13 @@ public abstract class SignalBase implements Signal, JSONSerializable {
     }
 
     @Override
-    public Boolean send(NetworkOp op) {
-        return null;
+    public boolean send(NetworkRequestOp requestOp) {
+        return false;
+    }
+
+    @Override
+    public boolean notify(NetworkNotifyOp notifyOp) {
+        return false;
     }
 
     @Override

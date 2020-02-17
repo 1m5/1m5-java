@@ -28,11 +28,9 @@ package io.onemfive.network.sensors.clearnet;
 
 import io.onemfive.data.DocumentMessage;
 import io.onemfive.data.Envelope;
-import io.onemfive.data.ManCon;
 import io.onemfive.data.content.Content;
 import io.onemfive.util.DLC;
 import io.onemfive.util.JSONParser;
-import io.onemfive.network.NetworkService;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 
@@ -71,8 +69,8 @@ public class EnvelopeProxyDataHandler extends DefaultHandler implements Asynchro
 
     }
 
-    public void setSession(ClearnetSession session) {
-        this.session = session;
+    public void setClearnetSession(ClearnetSession clearnetSession) {
+        this.session = clearnetSession;
     }
 
     public void setServiceName(String serviceName) {
@@ -111,8 +109,9 @@ public class EnvelopeProxyDataHandler extends DefaultHandler implements Asynchro
         Envelope envelope = parseEnvelope(request);
         ClientHold clientHold = new ClientHold(target, baseRequest, request, response, envelope);
         requests.put(envelope.getId(), clientHold);
-
-        session.sendIn(envelope); // asynchronous call upon; returns upon reaching Message Channel's queue in Service Bus
+        io.onemfive.network.Request req = new io.onemfive.network.Request();
+        req.setEnvelope(envelope);
+        session.sendIn(req); // asynchronous call upon; returns upon reaching Message Channel's queue in Service Bus
 
         if(DLC.getErrorMessages(envelope).size() > 0) {
             // Just 500 for now

@@ -67,6 +67,7 @@ public class PingRequestOp extends NetworkRequestOp {
             responseOp.fromNetworkFingerprint = localNetworkPeer.getDid().getPublicKey().getFingerprint();
             responseOp.fromNetworkAddress = localNetworkPeer.getDid().getPublicKey().getAddress();
             responseOp.fromNetworkPort = localNetworkPeer.getPort();
+            this.responseOp = responseOp;
             return responseOp;
         } else {
             LOG.warning("Local Peer and/or Local Network Peer not set for network: "+fromNetwork.name());

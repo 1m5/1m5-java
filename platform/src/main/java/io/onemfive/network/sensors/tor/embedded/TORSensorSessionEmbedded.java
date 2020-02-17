@@ -52,12 +52,6 @@ public class TORSensorSessionEmbedded extends ClearnetSession {
     }
 
     @Override
-    public Boolean send(NetworkOp op) {
-        LOG.warning("Not yet implemented.");
-        return null;
-    }
-
-    @Override
     public boolean open(String address) {
         LOG.warning("Not yet implemented.");
         return false;

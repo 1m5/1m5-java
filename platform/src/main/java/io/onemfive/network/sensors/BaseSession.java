@@ -26,11 +26,13 @@
  */
 package io.onemfive.network.sensors;
 
+import io.onemfive.network.ops.NetworkNotifyOp;
+import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.ops.NetworkRequestOp;
+import io.onemfive.network.ops.NetworkResponseOp;
 import io.onemfive.util.RandomUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public abstract class BaseSession implements SensorSession {
 
@@ -39,8 +41,11 @@ public abstract class BaseSession implements SensorSession {
     protected Status status = SensorSession.Status.STOPPED;
     private List<SessionListener> listeners = new ArrayList<>();
     protected String address;
+    protected BaseSensor sensor;
+    protected Map<Integer,NetworkRequestOp> waitingOps = new HashMap<>();
 
-    public BaseSession() {
+    public BaseSession(BaseSensor sensor) {
+        this.sensor = sensor;
         id = RandomUtil.nextRandomInteger();
     }
 
@@ -73,6 +78,24 @@ public abstract class BaseSession implements SensorSession {
     @Override
     public Status getStatus() {
         return status;
+    }
+
+    public void handle(NetworkOp networkOp) {
+        networkOp.setSensorManager(sensor.getSensorManager());
+        if(networkOp instanceof NetworkNotifyOp) {
+            ((NetworkNotifyOp) networkOp).publish();
+        } else if(networkOp instanceof NetworkRequestOp) {
+            NetworkRequestOp requestOp = (NetworkRequestOp)networkOp;
+            requestOp.operate();
+        } else if(networkOp instanceof NetworkResponseOp) {
+            long end = System.currentTimeMillis();
+            NetworkResponseOp responseOp = (NetworkResponseOp)networkOp;
+            if(waitingOps.get(responseOp.id)!=null) {
+                responseOp.requestOp = waitingOps.get(responseOp.id);
+            }
+            responseOp.operate();
+            sensor.getSensorManager().getPeerManager().savePeerStatusTimes(responseOp.requestOp.fromId, sensor.network, responseOp.fromId, responseOp.requestOp.start, end);
+        }
     }
 
 }

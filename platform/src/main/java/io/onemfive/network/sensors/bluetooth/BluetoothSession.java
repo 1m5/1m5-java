@@ -30,7 +30,10 @@ import io.onemfive.data.JSONSerializable;
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.ops.NetworkNotifyOp;
 import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.ops.NetworkRequestOp;
+import io.onemfive.network.ops.NetworkResponseOp;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.network.sensors.BaseSession;
 
@@ -48,7 +51,6 @@ class BluetoothSession extends BaseSession {
 
     private static final Logger LOG = Logger.getLogger(BluetoothSession.class.getName());
 
-    private BluetoothSensor sensor;
     private ClientSession clientSession;
     private SessionNotifier sessionNotifier;
     private RequestHandler handler;
@@ -57,19 +59,24 @@ class BluetoothSession extends BaseSession {
     private String remotePeerAddress;
 
     BluetoothSession(BluetoothSensor sensor) {
-        this.sensor = sensor;
-    }
-
-    @Override
-    public Boolean send(NetworkOp op) {
-        LOG.info("Sending NetworkOp...");
-        return send(op);
+        super(sensor);
     }
 
     @Override
     public Boolean send(NetworkPacket packet) {
-        LOG.info("Sending NetworkPacket...");
-        return send(packet);
+        return send((JSONSerializable)packet);
+    }
+
+    @Override
+    public boolean send(NetworkRequestOp requestOp) {
+        requestOp.start = System.currentTimeMillis();
+        waitingOps.put(requestOp.id, requestOp);
+        return send((NetworkOp)requestOp);
+    }
+
+    @Override
+    public boolean notify(NetworkNotifyOp notifyOp) {
+        return send(notifyOp);
     }
 
     private boolean send(JSONSerializable jsonSerializable) {
@@ -240,15 +247,11 @@ class BluetoothSession extends BaseSession {
                 LOG.info("id="+id);
                 NetworkPeer networkPeer = session.sensor.getSensorManager().getPeerManager().loadPeer(id);
                 if(networkPeer!=null) {
-                    // Known peer
-                }
-                if(networkPeer.getId()!=null) {
-//                    if(session.remotePeerAddress == null) {
-//                        session.remotePeerAddress = networkPeer;
-//                        LOG.info("Inbound peer set to remote peer.");
-//                    } else if(networkPeer.getId().equals(session.remotePeer.getDid())) {
-//                        LOG.info("Inbound peer same as established remote peer.");
-//                    }
+                    LOG.info("Known peer...");
+
+                } else {
+                    LOG.info("Unknown peer...");
+
                 }
             } catch (IOException e) {
                 LOG.warning(e.getLocalizedMessage());

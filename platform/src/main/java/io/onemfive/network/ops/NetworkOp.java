@@ -39,6 +39,7 @@ public abstract class NetworkOp implements JSONSerializable {
 
     protected SensorManager sensorManager;
 
+    public long start;
     public String type;
     public Integer id;
     public String fromId;
@@ -67,6 +68,7 @@ public abstract class NetworkOp implements JSONSerializable {
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> m = new HashMap<>();
+        m.put("start",start);
         m.put("type",type);
         m.put("id",id);
         m.put("fromId",fromId);
@@ -80,6 +82,7 @@ public abstract class NetworkOp implements JSONSerializable {
 
     @Override
     public void fromMap(Map<String, Object> m) {
+        start = (Long)m.get("start");
         type = (String)m.get("type");
         id = (Integer)m.get("id");
         fromId = (String)m.get("fromId");

@@ -62,6 +62,8 @@ public abstract class NetworkPacket extends Packet {
     protected Integer minCopies = 0;
     protected Integer maxCopies = 0;
 
+    protected Boolean sendContentOnly = false;
+
     public NetworkPacket() {
         super();
     }
@@ -158,6 +160,14 @@ public abstract class NetworkPacket extends Packet {
         this.maxCopies = maxCopies;
     }
 
+    public Boolean getSendContentOnly() {
+        return sendContentOnly;
+    }
+
+    public void setSendContentOnly(Boolean sendContentOnly) {
+        this.sendContentOnly = sendContentOnly;
+    }
+
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> m = super.toMap();
@@ -172,6 +182,7 @@ public abstract class NetworkPacket extends Packet {
         if(copy != null) m.put("copy", copy);
         if(minCopies != null) m.put("minCopies", minCopies);
         if(maxCopies != null) m.put("maxCopies", maxCopies);
+        if(sendContentOnly != null) m.put("sendContentOnly", sendContentOnly);
         return m;
     }
 
@@ -204,5 +215,6 @@ public abstract class NetworkPacket extends Packet {
         if(m.get("copy") != null) copy = (Boolean)m.get("copy");
         if(m.get("minCopies") != null) minCopies = (Integer)m.get("minCopies");
         if(m.get("maxCopies") != null) maxCopies = (Integer)m.get("maxCopies");
+        if(m.get("sendContentOnly") != null) sendContentOnly = (Boolean)m.get("sendContentOnly");
     }
 }
