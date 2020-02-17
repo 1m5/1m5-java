@@ -169,7 +169,7 @@ public class OneMFiveAppContext {
             }
         }  else {
             try {
-                baseDir = SystemSettings.getUserAppHomeDir("1m5","platform",true);
+                baseDir = SystemSettings.getUserAppHomeDir(".1m5","platform",true);
             } catch (IOException e) {
                 LOG.warning(e.getLocalizedMessage());
                 return;
@@ -177,7 +177,7 @@ public class OneMFiveAppContext {
             if(baseDir!=null) {
                 config.put("1m5.dir.base", baseDir.getAbsolutePath());
             } else {
-                baseDir = SystemSettings.getSystemApplicationDir("1m5", "platform", true);
+                baseDir = SystemSettings.getSystemApplicationDir(".1m5", "platform", true);
                 if (baseDir == null) {
                     LOG.severe("Unable to create base system directory for 1M5 platform.");
                     return;
