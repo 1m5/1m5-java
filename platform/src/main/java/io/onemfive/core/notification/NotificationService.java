@@ -106,20 +106,20 @@ public class NotificationService extends BaseService {
     }
 
     private void subscribe(Envelope e) {
-        LOG.info("Received subscribe request...");
+        LOG.fine("Received subscribe request...");
         SubscriptionRequest r = (SubscriptionRequest)DLC.getData(SubscriptionRequest.class,e);
-        LOG.info("Subscription for type: "+r.getType().name());
+        LOG.fine("Subscription for type: "+r.getType().name());
         Map<String,List<Subscription>> s = subscriptions.get(r.getType().name());
         if(r.getFilter() == null) {
-            LOG.info("With no filters.");
+            LOG.fine("With no filters.");
             s.get("|").add(r.getSubscription());
         } else {
-            LOG.info("With filter: "+r.getFilter());
+            LOG.fine("With filter: "+r.getFilter());
             if(s.get(r.getFilter()) == null)
                 s.put(r.getFilter(), new ArrayList<Subscription>());
             s.get(r.getFilter()).add(r.getSubscription());
         }
-        LOG.info("Subscription added.");
+        LOG.fine("Subscription added.");
     }
 
     private void unsubscribe(Envelope e) {
@@ -135,19 +135,19 @@ public class NotificationService extends BaseService {
     }
 
     private void publish(final Envelope e) {
-        LOG.info("Received publish request...");
+        LOG.fine("Received publish request...");
         EventMessage m = (EventMessage)e.getMessage();
-        LOG.info("For type: "+m.getType());
+        LOG.fine("For type: "+m.getType());
         Map<String,List<Subscription>> s = subscriptions.get(m.getType());
         if(s == null || s.size() == 0) {
-            LOG.info("No subscriptions for type: "+m.getType());
+            LOG.fine("No subscriptions for type: "+m.getType());
             return;
         }
         final List<Subscription> subs = s.get("|");
         if(subs == null || subs.size() == 0) {
-            LOG.info("No subscriptions without filters.");
+            LOG.fine("No subscriptions without filters.");
         } else {
-            LOG.info("Notify all "+subs.size()+" unfiltered subscriptions.");
+            LOG.fine("Notify all "+subs.size()+" unfiltered subscriptions.");
             for(final Subscription sub: subs) {
                 pool.execute(() -> sub.notifyOfEvent(e));
             }
@@ -155,9 +155,9 @@ public class NotificationService extends BaseService {
 //        LOG.info("With name to filter on: " + m.getName());
         final List<Subscription> filteredSubs = s.get(m.getName());
         if(filteredSubs == null || filteredSubs.size() == 0) {
-            LOG.info("No subscriptions for filter: "+m.getName());
+            LOG.fine("No subscriptions for filter: "+m.getName());
         } else {
-            LOG.info("Notify all "+filteredSubs.size()+" filtered subscriptions.");
+            LOG.fine("Notify all "+filteredSubs.size()+" filtered subscriptions.");
             for(final Subscription sub: filteredSubs) {
                 pool.execute(() -> sub.notifyOfEvent(e));
             }
