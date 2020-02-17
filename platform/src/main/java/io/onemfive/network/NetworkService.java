@@ -96,6 +96,7 @@ public class NetworkService extends BaseService {
     }
 
     public void updateModelListeners() {
+        LOG.info("Network Sensor State:\n\t"+networkState.toString());
         // Publish to Notification Service
         Envelope e = Envelope.eventFactory(EventMessage.Type.NETWORK_STATE_UPDATE);
         EventMessage em = (EventMessage)e.getMessage();

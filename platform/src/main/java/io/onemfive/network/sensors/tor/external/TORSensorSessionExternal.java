@@ -30,6 +30,7 @@ import io.onemfive.data.*;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Request;
 import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.clearnet.ClearnetSession;
 import io.onemfive.network.sensors.tor.TORHiddenService;
@@ -43,10 +44,7 @@ import io.onemfive.util.Wait;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.Socket;
-import java.net.URL;
+import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -82,6 +80,7 @@ public class TORSensorSessionExternal extends ClearnetSession {
         String torSensorDir = properties.getProperty("1m5.dir.sensors.tor");
         File privKeyFile = new File(torSensorDir, "private_key");
         FileReader fileReader = null;
+        boolean destroyHiddenService = false;
         try {
             fileReader = new FileReader(privKeyFile);
             char[] addressBuffer = new char[(int)privKeyFile.length()];
@@ -89,6 +88,9 @@ public class TORSensorSessionExternal extends ClearnetSession {
             String jsonPrivKey = new String(addressBuffer);
             hiddenService = new TORHiddenService();
             hiddenService.fromJSON(jsonPrivKey);
+            if(hiddenService.virtualPort==null) {
+                destroyHiddenService = true;
+            }
         } catch (IOException e) {
             LOG.info("Private key file doesn't exist or isn't readable." + e);
         } catch (Exception e) {
@@ -116,8 +118,14 @@ public class TORSensorSessionExternal extends ClearnetSession {
             LOG.info(sb.toString());
             controlConnection.setEventHandler(new DebuggingEventHandler(LOG));
             controlConnection.setEvents(Arrays.asList("EXTENDED", "CIRC", "ORCONN", "INFO", "NOTICE", "WARN", "ERR", "HS_DESC", "HS_DESC_CONTENT"));
+            if(destroyHiddenService) {
+                controlConnection.destroyHiddenService(hiddenService.serviceID);
+                hiddenService = null;
+                privKeyFile.delete();
+                privKeyFile = new File(torSensorDir, "private_key");
+            }
             if(hiddenService==null) {
-                // Private key file doesn't exist or is unreadable so create a new hidden service
+                // Private key file doesn't exist, is unreadable, or didn't have a virtual port so create a new hidden service
                 int virtPort = TORHiddenService.randomTORPort();
                 int targetPort = TORHiddenService.randomTORPort();
                 hiddenService = controlConnection.createHiddenService(virtPort, targetPort);
@@ -161,28 +169,59 @@ public class TORSensorSessionExternal extends ClearnetSession {
             Wait.aMs(100);
         }
         localTORPeer.setId(localNode.getNetworkPeer().getId());
+        localTORPeer.setPort(hiddenService.virtualPort);
         localTORPeer.getDid().getPublicKey().setFingerprint(hiddenService.serviceID); // used as key
         localTORPeer.getDid().getPublicKey().setAddress(hiddenService.serviceID);
         sensor.getNetworkState().localPeer = localTORPeer;
         sensor.getSensorManager().getPeerManager().savePeer(localTORPeer, true);
         sensor.updateModelListeners();
         // Setup params for server creation to back hidden service
-        params = new String[]{"1M5-TORHiddenService","api",String.valueOf(hiddenService.targetPort)};
+        params = new String[]{"1M5-TORHiddenService","hiddenService",String.valueOf(hiddenService.targetPort)};
         return true;
     }
 
     @Override
     public Boolean send(NetworkPacket packet) {
-        if(!sensor.sendOut(packet)) {
-            handleFailure(packet.getEnvelope().getMessage());
+        LOG.info("Tor Sensor sending packet...");
+        if (packet == null) {
+            LOG.warning("No Packet.");
+            return false;
+        }
+        if (packet.getToPeer() == null) {
+            LOG.warning("No Peer for TOR found in toDID while sending to TOR.");
+            packet.statusCode = NetworkPacket.DESTINATION_PEER_REQUIRED;
+            return false;
+        }
+        if (packet.getToPeer().getNetwork() != Network.TOR) {
+            LOG.warning("Not a packet for TOR.");
+            packet.statusCode = NetworkPacket.DESTINATION_PEER_WRONG_NETWORK;
+            return false;
+        }
+        if (packet.getToPeer().getPort() == null) {
+            LOG.warning("No To Port for TOR found in toDID while sending to TOR.");
+            packet.statusCode = NetworkPacket.NO_PORT;
+            return false;
+        }
+        if (packet.getToPeer().getDid().getPublicKey().getAddress() == null) {
+            LOG.warning("No To Address for TOR found in toDID while sending to TOR.");
+            packet.statusCode = NetworkPacket.NO_ADDRESS;
+            return false;
+        }
+        try {
+            URL url = new URL("http://"+packet.getToPeer().getDid().getPublicKey().getAddress()+":"+packet.getToPeer().getPort());
+            packet.getEnvelope().setURL(url);
+            String content = packet.toJSON();
+            DLC.addContent(content, packet.getEnvelope());
+            LOG.info("Content to send: " + content);
+            if(!super.send(packet)) {
+                handleFailure(packet.getEnvelope().getMessage());
+                return false;
+            }
+        } catch (MalformedURLException e) {
+            LOG.warning(e.getLocalizedMessage());
             return false;
         }
         return true;
-    }
-
-    @Override
-    public Boolean send(NetworkOp op) {
-        return sensor.sendOut(op);
     }
 
     private TORControlConnection getControlConnection() throws IOException {

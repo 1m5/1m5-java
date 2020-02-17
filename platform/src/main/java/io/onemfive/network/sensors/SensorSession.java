@@ -27,7 +27,9 @@
 package io.onemfive.network.sensors;
 
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.ops.NetworkNotifyOp;
+import io.onemfive.network.ops.NetworkRequestOp;
+import io.onemfive.network.ops.NetworkResponseOp;
 
 import java.util.Properties;
 
@@ -48,7 +50,8 @@ public interface SensorSession {
     boolean isConnected();
     boolean close();
     Boolean send(NetworkPacket packet);
-    Boolean send(NetworkOp op);
+    NetworkResponseOp send(NetworkRequestOp requestOp);
+    boolean notify(NetworkNotifyOp notifyOp);
     void addSessionListener(SessionListener listener);
     void removeSessionListener(SessionListener listener);
     Status getStatus();

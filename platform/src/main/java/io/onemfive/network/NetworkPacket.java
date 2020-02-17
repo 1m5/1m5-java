@@ -43,6 +43,9 @@ public abstract class NetworkPacket extends Packet {
     public static int NO_ROUTE = 6;
     public static int NO_SERVICE = 7;
     public static int NO_OPERATION = 8;
+    public static int NO_ADDRESS = 9;
+    public static int NO_FINGERPRINT = 10;
+    public static int NO_PORT = 11;
 
     protected Envelope envelope;
 

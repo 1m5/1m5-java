@@ -57,8 +57,9 @@ public final class TORSensor extends BaseSensor {
 
     static {
         seedATOR = new NetworkPeer(Network.TOR);
-        seedATOR.getDid().getPublicKey().setAddress("gdperlvdnvudsp2t");
-        seedATOR.getDid().getPublicKey().setFingerprint("gdperlvdnvudsp2t");
+        seedATOR.setPort(35910); // virtual port
+        seedATOR.getDid().getPublicKey().setAddress("5pdavjxcwrfx2meu");
+        seedATOR.getDid().getPublicKey().setFingerprint("5pdavjxcwrfx2meu");
         seedATOR.getDid().getPublicKey().setType("RSA1024");
         seedATOR.getDid().getPublicKey().isIdentityKey(true);
         seedATOR.getDid().getPublicKey().setBase64Encoded(true);
@@ -105,11 +106,6 @@ public final class TORSensor extends BaseSensor {
             }
         }
         return successful;
-    }
-
-    public boolean sendOut(NetworkOp op) {
-
-        return false;
     }
 
     @Override
@@ -162,39 +158,25 @@ public final class TORSensor extends BaseSensor {
             LOG.warning("IOException caught while building Tor sensor directory: \n" + e.getLocalizedMessage());
             return false;
         }
-        networkState.seeds.add(seedATOR);
+
+        if(sensorManager.getPeerManager().savePeer(seedATOR, true)) {
+            networkState.seeds.add(seedATOR);
+        }
+
         updateStatus(SensorStatus.STARTING);
 
         embedded = "true".equals(properties.getProperty(TOR_ROUTER_EMBEDDED));
         networkState.params.put(TOR_ROUTER_EMBEDDED, String.valueOf(embedded));
 
-        SensorSession torSession = establishSession(null, true);
+        SensorSession torSession = establishSession("127.0.0.1", true);
         if (torSession.isConnected())
             updateStatus(SensorStatus.NETWORK_CONNECTED);
         else
             updateStatus(SensorStatus.NETWORK_ERROR);
 
         // Setup Discovery
-//            discovery = new NetworkPeerDiscovery(taskRunner, this, Network.TOR, config);
-//            NetworkPeer seedA1M5 = new NetworkPeer();
-//            seedA1M5.setId("+sKVViuz2FPsl/XQ+Da/ivbNfOI=");
-//            seedA1M5.getDid().getPublicKey().setAddress("mQENBF43FaEDCACtMtZJu3oSchRgtaUzTmMJRbJmdfSpEaG2nW7U2YinHeMUkIpFCQGu2/OgmCuE4kVEQ4y6kKvqCiMvahtv+OqID0Lk7JEofFpwH8UUUis+p99qnw7RYy1q4IrjBpFSZHLi/nCyZOp4L7jG0CgJEFoZZEd2Uby1vnmePxts7srWkBjlmUWj+e/G89r+ZYpRN7dwdwl69Qk2s3UWTq1xyVyMqg/RuFC9kUgsmkL8vIpO4KYX7DfRKmYT29gfwjrvbVd18oeFECFVU/E6118N4P/8zIj0vhOiuar5hdKiq3oU5ka1hlQqP3IrQz2+feh2Q34+TP/BBEKOvbSv6V/6/6T/ABEBAAG0BUFsaWNliQEuBBMDAgAYBQJeNxWkAhsDBAsJCAcGFQgCCQoLAh4BAAoJEPg2v4r2zXzihH8H/iKc0ZBoWbeP/FykApYjG9m8ze54Pr9noRUw7JDAs6a7Y4IjNuE42NLMMwcxCoekzVmUwMyLrQDW+pLMaZupX2i8yU720F9WMh4f9eC4lXg64IMTnNUZqI4U52wZV22nxiGdGqacHwSSRcG5rHBskdrOJ8BX0QQ7Qt+iw4xyaxMPSPnULiJv3Z+kwLVLbxMQsmtLy7BZW6Pn848oONRNodg9tWn3PA/jTFg4ak+9lzfc1HnAWe/FeQ7O6jZ3h5eAbC4Y9KQqxVI7QzOkwIpRHMbkrVHdEcZMOa36wznC6SCXxpB/uGNrVnCJ0og9RN701QbxOu0XcevMjAOcE5dsC3g=");
-//            seedA1M5.getDid().getPublicKey().setFingerprint(seedA1M5.getId());
-//            seedA1M5.getDid().getPublicKey().setType("RSA2048");
-//            seedA1M5.getDid().getPublicKey().isIdentityKey(true);
-//            seedA1M5.getDid().getPublicKey().setBase64Encoded(true);
-//
-//            NetworkPeer seedATOR = new NetworkPeer(Network.TOR);
-//            seedATOR.setId("+sKVViuz2FPsl/XQ+Da/ivbNfOI=");
-//            seedATOR.getDid().getPublicKey().setAddress("localonionaddresshere.onion");
-//            seedATOR.getDid().getPublicKey().setFingerprint("onionaddresshashhere");
-//            seedATOR.getDid().getPublicKey().setType("addressgenerationalgorithmhere");
-//            seedATOR.getDid().getPublicKey().isIdentityKey(true);
-//            seedATOR.getDid().getPublicKey().setBase64Encoded(true);
-//            if(sensorManager.getPeerManager().savePeer(seedATOR, true)) {
-//                discovery.seeds.add(seedATOR);
-//            }
-//            taskRunner.addTask(discovery);
+        discovery = new NetworkPeerDiscovery(taskRunner, this);
+        taskRunner.addTask(discovery);
         return true;
     }
 

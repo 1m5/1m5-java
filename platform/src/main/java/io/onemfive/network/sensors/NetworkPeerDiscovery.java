@@ -29,6 +29,7 @@ package io.onemfive.network.sensors;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkTask;
 import io.onemfive.network.ops.PingRequestOp;
+import io.onemfive.network.ops.PingResponseOp;
 import io.onemfive.util.RandomUtil;
 import io.onemfive.util.tasks.TaskRunner;
 
@@ -63,8 +64,8 @@ public class NetworkPeerDiscovery extends NetworkTask  {
             LOG.info("No Network peers beyond a seed is known. Just use seeds.");
             // Launch Seeds
             for (NetworkPeer seed : sensor.getNetworkState().seeds) {
-                if(!seed.getDid().getPublicKey().getFingerprint().equals(localNode.getNetworkPeer(sensor.getNetwork()).getDid().getPublicKey().getFingerprint())
-                        && sendPingRequest(seed.getDid().getPublicKey().getAddress())) {
+                if(!seed.getId().equals(localNode.getNetworkPeer().getId())
+                        && sendPingRequest(seed.getDid().getPublicKey().getAddress(), seed.getPort())) {
                     LOG.info("Sent Peer Status Request to Seed Peer.");
                 } else {
                     LOG.warning("A problem occurred attempting to send out Peer Status Request.");
@@ -74,7 +75,7 @@ public class NetworkPeerDiscovery extends NetworkTask  {
             LOG.info(totalKnown+" known peers less than Maximum Peers Tracked of "+ sensor.getNetworkState().MaxPT+"; continuing peer discovery...");
             NetworkPeer p = peerManager.getRandomPeer(sensor.getNetwork());
             LOG.info("Sending Peer Status Request to Known Peer...");
-            if(sendPingRequest(p.getDid().getPublicKey().getAddress())) {
+            if(sendPingRequest(p.getDid().getPublicKey().getAddress(), p.getPort())) {
                 LOG.info("Sent Peer Status Request to Known Peer.");
             } else {
                 LOG.warning("A problem occurred attempting to send out Peer Status Request.");
@@ -87,14 +88,26 @@ public class NetworkPeerDiscovery extends NetworkTask  {
         return true;
     }
 
-    protected boolean sendPingRequest(String toAddress) {
-        PingRequestOp op = new PingRequestOp();
-        op.id = RandomUtil.nextRandomInteger();
-        op.fromId = localNode.getNetworkPeer().getId();
-        op.fromAddress = localNode.getNetworkPeer().getDid().getPublicKey().getAddress();
-        op.fromNetworkFingerprint = localNode.getNetworkPeer(sensor.getNetwork()).getDid().getPublicKey().getFingerprint();
-        op.fromNetworkAddress = localNode.getNetworkPeer(sensor.getNetwork()).getDid().getPublicKey().getAddress();
-        op.toNetworkAddress = toAddress;
-        return sensor.establishSession(null, true).send(op);
+    protected boolean sendPingRequest(String toAddress, Integer toPort) {
+        PingRequestOp requestOp = new PingRequestOp();
+        requestOp.id = RandomUtil.nextRandomInteger();
+        requestOp.fromId = localNode.getNetworkPeer().getId();
+        requestOp.fromAddress = localNode.getNetworkPeer().getDid().getPublicKey().getAddress();
+        requestOp.fromNetwork = sensor.getNetwork();
+        requestOp.fromNetworkFingerprint = localNode.getNetworkPeer(sensor.getNetwork()).getDid().getPublicKey().getFingerprint();
+        requestOp.fromNetworkAddress = localNode.getNetworkPeer(sensor.getNetwork()).getDid().getPublicKey().getAddress();
+        requestOp.toNetworkAddress = toAddress;
+        requestOp.toNetworkPort = toPort;
+        SensorSession session = sensor.establishSession(null, true);
+        long start = System.currentTimeMillis();
+        PingResponseOp responseOp = (PingResponseOp)session.send(requestOp);
+        long end = System.currentTimeMillis();
+        if(responseOp==null) {
+            return false;
+        }
+        responseOp.setSensorManager(sensorManager);
+        responseOp.operate();
+        sensorManager.getPeerManager().savePeerStatusTimes(requestOp.fromId, requestOp.fromNetwork, responseOp.fromId, start, end);
+        return true;
     }
 }

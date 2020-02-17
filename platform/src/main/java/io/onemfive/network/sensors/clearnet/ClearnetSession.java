@@ -30,12 +30,18 @@ import io.onemfive.core.notification.NotificationService;
 import io.onemfive.core.notification.SubscriptionRequest;
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.ops.NetworkNotifyOp;
 import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.ops.NetworkRequestOp;
+import io.onemfive.network.ops.NetworkResponseOp;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.BaseSession;
 import io.onemfive.network.sensors.SensorStatus;
+import io.onemfive.network.sensors.tor.TORHiddenService;
+import io.onemfive.network.sensors.tor.TORHiddenServiceHandler;
 import io.onemfive.util.BrowserUtil;
 import io.onemfive.util.DLC;
+import io.onemfive.util.JSONParser;
 import io.onemfive.util.Multipart;
 import okhttp3.*;
 import org.eclipse.jetty.server.Server;
@@ -50,7 +56,9 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 import javax.net.ssl.*;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -124,7 +132,7 @@ public class ClearnetSession extends BaseSession {
 
     protected Proxy proxy = null;
     private BaseSensor sensor;
-    protected String sessionId;
+    public String sessionId;
     protected String address = "127.0.0.1";
     protected Boolean launchOnStart = false;
     public static final String SESSION_ID = "1m5.sensors.clearnet.session.id";
@@ -409,9 +417,148 @@ public class ClearnetSession extends BaseSession {
     }
 
     @Override
-    public Boolean send(NetworkOp op) {
-        LOG.warning("Not implemented.");
-        return false;
+    public NetworkResponseOp send(NetworkRequestOp requestOp) {
+        LOG.info("Sending requestOp...");
+        NetworkResponseOp responseOp = null;
+        if(!connected) {
+            connect();
+        }
+        URL url = null;
+        try {
+            url = new URL((requestOp.useSSL?"https":"http")+"://"+requestOp.toNetworkAddress+":"+requestOp.toNetworkPort);
+        } catch (MalformedURLException e) {
+            LOG.warning(e.getLocalizedMessage());
+            return null;
+        }
+        String content = requestOp.toJSON();
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/json"), content.getBytes());
+        Request req = new okhttp3.Request.Builder().url(url).post(requestBody).build();
+        if(req == null) {
+            LOG.warning("okhttp3 builder didn't build request.");
+            return null;
+        }
+        Response response = null;
+        if(requestOp.useSSL) {
+            LOG.info("Sending https request, host="+url.getHost());
+//            if(trustedHosts.contains(url.getHost())) {
+            try {
+//                    LOG.info("Trusted host, using compatible connection...");
+                response = httpsStrongClient.newCall(req).execute();
+                if(!response.isSuccessful()) {
+                    LOG.warning(response.toString()+" - code="+response.code());
+                    return null;
+                }
+            } catch (IOException e1) {
+                LOG.warning(e1.getLocalizedMessage());
+                return null;
+            }
+        } else {
+            LOG.info("Sending http request, host="+url.getHost());
+            if(httpClient == null) {
+                LOG.severe("httpClient was not set up.");
+                return null;
+            }
+            try {
+                response = httpClient.newCall(req).execute();
+                if(!response.isSuccessful()) {
+                    LOG.warning("HTTP request not successful: "+response.code());
+                    return null;
+                }
+            } catch (IOException e2) {
+                LOG.warning(e2.getLocalizedMessage());
+                return null;
+            }
+        }
+
+        LOG.info("Received http response.");
+        ResponseBody responseBody = response.body();
+        if(responseBody != null) {
+            try {
+                String json = new String(responseBody.bytes());
+                Map<String,Object> m = (Map<String,Object>)JSONParser.parse(json);
+                if(m.get("type")==null) {
+                    LOG.warning("No type in response. Unable to instantiate returned NetOp.");
+                } else {
+                    try {
+                        responseOp = (NetworkResponseOp)Class.forName((String)m.get("type")).getConstructor().newInstance();
+                        responseOp.fromMap(m);
+                    } catch (Exception e) {
+                        LOG.warning(e.getLocalizedMessage());
+                        return null;
+                    }
+                }
+            } catch (IOException e1) {
+                LOG.warning(e1.getLocalizedMessage());
+            } finally {
+                responseBody.close();
+            }
+        } else {
+            LOG.info("Body was null.");
+        }
+        if(responseOp!=null) {
+            responseOp.setSensorManager(sensor.getSensorManager());
+            responseOp.operate();
+            return responseOp;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean notify(NetworkNotifyOp notifyOp) {
+        LOG.info("Sending notifyOp...");
+        if(!connected) {
+            connect();
+        }
+        URL url = null;
+        try {
+            url = new URL((notifyOp.useSSL?"https":"http")+"://"+notifyOp.toNetworkAddress+":"+notifyOp.toNetworkPort);
+        } catch (MalformedURLException e) {
+            LOG.warning(e.getLocalizedMessage());
+            return false;
+        }
+        String content = notifyOp.toJSON();
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/json"), content.getBytes());
+        Request req = new okhttp3.Request.Builder().url(url).post(requestBody).build();
+        if(req == null) {
+            LOG.warning("okhttp3 builder didn't build request.");
+            return false;
+        }
+        Response response = null;
+        if(notifyOp.useSSL) {
+            LOG.info("Sending https request, host="+url.getHost());
+//            if(trustedHosts.contains(url.getHost())) {
+            try {
+//                    LOG.info("Trusted host, using compatible connection...");
+                response = httpsStrongClient.newCall(req).execute();
+                if(!response.isSuccessful()) {
+                    LOG.warning(response.toString()+" - code="+response.code());
+                    return false;
+                }
+            } catch (IOException e1) {
+                LOG.warning(e1.getLocalizedMessage());
+                return false;
+            }
+        } else {
+            LOG.info("Sending http request, host="+url.getHost());
+            if(httpClient == null) {
+                LOG.severe("httpClient was not set up.");
+                return false;
+            }
+            try {
+                response = httpClient.newCall(req).execute();
+                if(!response.isSuccessful()) {
+                    LOG.warning("HTTP request not successful: "+response.code());
+                    return false;
+                }
+            } catch (IOException e2) {
+                LOG.warning(e2.getLocalizedMessage());
+                return false;
+            }
+        }
+
+        String statusCode = String.valueOf(response.code());
+        LOG.info("Received http notify ack with status code="+statusCode);
+        return statusCode.startsWith("2");
     }
 
     public void sendIn(Envelope e) {
@@ -452,6 +599,12 @@ public class ClearnetSession extends BaseSession {
                 handlers.addHandler(handler);
             } else if ("proxy".equals(type)) {
                 EnvelopeProxyDataHandler handler = new EnvelopeProxyDataHandler();
+                handler.setSession(this);
+                handler.setServiceName(name);
+                handler.setParameters(params);
+                handlers.addHandler(handler);
+            } else if ("hiddenService".equals(type)) {
+                TORHiddenServiceHandler handler = new TORHiddenServiceHandler();
                 handler.setSession(this);
                 handler.setServiceName(name);
                 handler.setParameters(params);

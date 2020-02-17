@@ -56,10 +56,12 @@ public final class NetworkPeer implements JSONSerializable {
     public static final String FINGERPRINT = "fingerprint";
     public static final String KEY_TYPE = "keyType";
     public static final String ATTRIBUTES = "attributes";
+    public static final String PORT = "port";
 
     private String id;
     private Network network;
     private DID did;
+    private Integer port;
 
     public NetworkPeer() {
         this(Network.IMS, null, null);
@@ -104,6 +106,14 @@ public final class NetworkPeer implements JSONSerializable {
         this.did = did;
     }
 
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
     @Override
     public Map<String, Object> toMap() {
         Map<String,Object> m = new HashMap<>();
@@ -113,6 +123,8 @@ public final class NetworkPeer implements JSONSerializable {
             m.put(NETWORK, network.name());
         if(did!=null)
             m.put(DID,did.toMap());
+        if(port!=null)
+            m.put(PORT, port);
         return m;
     }
 
@@ -127,6 +139,7 @@ public final class NetworkPeer implements JSONSerializable {
             else
                 did.fromMap((Map<String,Object>)m.get(DID));
         }
+        if(m.get(PORT)!=null) port = (Integer)m.get(PORT);
     }
 
     @Override
