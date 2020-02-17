@@ -321,13 +321,12 @@ public class TORHiddenServiceHandler extends DefaultHandler implements Asynchron
         ClientHold hold = requests.get(e.getId());
         NetworkPacket requestPacket = (NetworkPacket)hold.getPayload();
         Response responsePacket = new Response(requestPacket.getId());
-        // Origination of request
-        responsePacket.setOriginationPeer(requestPacket.getFromPeer());
         // Response coming from this node
+        responsePacket.setOriginationPeer(requestPacket.getToPeer());
         responsePacket.setFromPeer(requestPacket.getToPeer());
-        // Response requested to go directly to origination (but may not depending on network status)
+        // Response requested to go directly to destination (but may not depending on network status)
         responsePacket.setToPeer(requestPacket.getFromPeer());
-        // Response needs to end up at origination
+        // Response needs to end up at destination
         responsePacket.setDestinationPeer(requestPacket.getFromPeer());
         // Set returned content
         responsePacket.setEnvelope(e);
