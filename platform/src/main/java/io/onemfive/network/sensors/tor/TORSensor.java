@@ -32,6 +32,8 @@ import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.sensors.*;
 import io.onemfive.network.sensors.tor.embedded.TORSensorSessionEmbedded;
 import io.onemfive.network.sensors.tor.external.TORSensorSessionExternal;
+import io.onemfive.util.Wait;
+import io.onemfive.util.tasks.TaskRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,10 +59,11 @@ public final class TORSensor extends BaseSensor {
 
     static {
         seedATOR = new NetworkPeer(Network.TOR);
+        seedATOR.setId("+sKVViuz2FPsl/XQ+Da/ivbNfOI=");
         seedATOR.setPort(35910); // virtual port
         seedATOR.getDid().getPublicKey().setAddress("5pdavjxcwrfx2meu");
         seedATOR.getDid().getPublicKey().setFingerprint("5pdavjxcwrfx2meu");
-        seedATOR.getDid().getPublicKey().setType("RSA1024");
+        seedATOR.getDid().getPublicKey().setType("RSA2048");
         seedATOR.getDid().getPublicKey().isIdentityKey(true);
         seedATOR.getDid().getPublicKey().setBase64Encoded(true);
     }
@@ -70,13 +73,16 @@ public final class TORSensor extends BaseSensor {
     private File sensorDir;
     private boolean embedded = false;
     private final Map<String, SensorSession> sessions = new HashMap<>();
+    private Thread taskRunnerThread;
 
     public TORSensor() {
         super(Network.TOR);
+        taskRunner = new TaskRunner(1, 1);
     }
 
     public TORSensor(SensorManager sensorManager) {
         super(sensorManager, Network.TOR);
+        taskRunner = new TaskRunner(1, 1);
     }
 
     public String[] getOperationEndsWith() {
@@ -97,6 +103,9 @@ public final class TORSensor extends BaseSensor {
     public boolean sendOut(NetworkPacket packet) {
         LOG.info("Tor Sensor sending request...");
         SensorSession sensorSession = establishSession(null, true);
+        if(sensorSession==null) {
+            return false;
+        }
         boolean successful = sensorSession.send(packet);
         if (successful) {
             LOG.info("Tor Sensor successful response received.");
@@ -116,14 +125,15 @@ public final class TORSensor extends BaseSensor {
         if(sessions.get(address)==null) {
             SensorSession sensorSession = embedded ? new TORSensorSessionEmbedded(this) : new TORSensorSessionExternal(this);
 
-            sensorSession.init(properties);
-            sensorSession.open(address);
-            if (autoConnect) {
-                sensorSession.connect();
+            if(sensorSession.init(properties) && sensorSession.open(address)) {
+                if (autoConnect) {
+                    sensorSession.connect();
+                }
+                sessions.put(address, sensorSession);
+                return sessions.get(address);
             }
-            sessions.put(address, sensorSession);
         }
-        return sessions.get(address);
+        return null;
     }
 
     @Override
@@ -159,6 +169,7 @@ public final class TORSensor extends BaseSensor {
             return false;
         }
 
+        Wait.aMs(500); // Give the infrastructure a bit of breathing room before saving seeds
         if(sensorManager.getPeerManager().savePeer(seedATOR, true)) {
             networkState.seeds.add(seedATOR);
         }
@@ -168,15 +179,27 @@ public final class TORSensor extends BaseSensor {
         embedded = "true".equals(properties.getProperty(TOR_ROUTER_EMBEDDED));
         networkState.params.put(TOR_ROUTER_EMBEDDED, String.valueOf(embedded));
 
-        SensorSession torSession = establishSession("127.0.0.1", true);
-        if (torSession.isConnected())
-            updateStatus(SensorStatus.NETWORK_CONNECTED);
-        else
-            updateStatus(SensorStatus.NETWORK_ERROR);
+        SensorSession torSession = null;
+        do {
+            torSession = establishSession("127.0.0.1", true);
+            if (torSession != null && torSession.isConnected()) {
+                updateStatus(SensorStatus.NETWORK_CONNECTED);
+                // Setup Discovery
+                discovery = new NetworkPeerDiscovery(taskRunner, this);
+                taskRunner.addTask(discovery);
 
-        // Setup Discovery
-        discovery = new NetworkPeerDiscovery(taskRunner, this);
-        taskRunner.addTask(discovery);
+                taskRunnerThread = new Thread(taskRunner);
+                taskRunnerThread.setDaemon(true);
+                taskRunnerThread.setName("TORSensor-TaskRunnerThread");
+                taskRunnerThread.start();
+            } else if(getStatus()==SensorStatus.NETWORK_UNAVAILABLE) {
+                return false;
+            } else if(getStatus()!=SensorStatus.NETWORK_CONNECTING) {
+                updateStatus(SensorStatus.NETWORK_CONNECTING);
+            }
+
+        } while(torSession == null || !torSession.isConnected());
+
         return true;
     }
 

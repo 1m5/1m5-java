@@ -116,7 +116,7 @@ public class NotificationService extends BaseService {
         } else {
             LOG.fine("With filter: "+r.getFilter());
             if(s.get(r.getFilter()) == null)
-                s.put(r.getFilter(), new ArrayList<Subscription>());
+                s.put(r.getFilter(), new ArrayList<>());
             s.get(r.getFilter()).add(r.getSubscription());
         }
         LOG.fine("Subscription added.");

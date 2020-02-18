@@ -197,6 +197,10 @@ public class PeerManager implements Runnable {
         return peerDB.loadPeerByIdAndNetwork(id, network);
     }
 
+    public long totalPeersByNetwork(Network network) {
+        return peerDB.numberPeersByNetwork(network);
+    }
+
     public Boolean isLocal(NetworkPeer p) {
         if(localNode.getNetworkPeer().getId()!=null && localNode.getNetworkPeer().getId().equals(p.getId()))
             return true;
@@ -207,10 +211,6 @@ public class PeerManager implements Runnable {
     public Boolean isReliable(NetworkPeer p) {
         P2PRelationship r = graphDB.getNetworkRelationship(localNode.getNetworkPeer().getId(), p.getNetwork(), p.getId());
         return r != null && r.isReliable();
-    }
-
-    public long totalPeersByNetwork(String id, Network network) {
-        return graphDB.numberPeersByNetwork(id, network);
     }
 
     public void savePeerStatusTimes(String startPeerId, Network network, String endPeerId, Long timeSent, Long timeAcknowledged) {

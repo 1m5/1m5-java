@@ -30,6 +30,7 @@ import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.*;
 import io.onemfive.util.Config;
+import io.onemfive.util.Wait;
 import io.onemfive.util.tasks.TaskRunner;
 import io.onemfive.data.*;
 import net.i2p.client.*;
@@ -76,6 +77,7 @@ public class I2PSensor extends BaseSensor {
 
     static {
         seedAI2P = new NetworkPeer(Network.I2P);
+        seedAI2P.setId("+sKVViuz2FPsl/XQ+Da/ivbNfOI=");
         seedAI2P.getDid().getPublicKey().setAddress("ygfTZm-Cwhs9FI05gwHC3hr360gpcp103KRUSubJ2xvaEhFXzND8emCKXSAZLrIubFoEct5lmPYjXegykkWZOsjdvt8ZWZR3Wt79rc3Ovk7Ev4WXrgIDHjhpr-cQdBITSFW8Ay1YvArKxuEVpIChF22PlPbDg7nRyHXOqmYmrjo2AcwObs--mtH34VMy4R934PyhfEkpLZTPyN73qO4kgvrBtmpOxdWOGvlDbCQjhSAC3018xpM0qFdFSyQwZkHdJ9sG7Mov5dmG5a6D6wRx~5IEdfufrQi1aR7FEoomtys-vAAF1asUyX1UkxJ2WT2al8eIuCww6Nt6U6XfhN0UbSjptbNjWtK-q4xutcreAu3FU~osZRaznGwCHez5arT4X2jLXNfSEh01ICtT741Ki4aeSrqRFPuIove2tmUHZPt4W6~WMztvf5Oc58jtWOj08HBK6Tc16dzlgo9kpb0Vs3h8cZ4lavpRen4i09K8vVORO1QgD0VH3nIZ5Ql7K43zAAAA");
         seedAI2P.getDid().getPublicKey().setFingerprint("bl4fi-lFyTPQQkKOPuxlF9zPGEdgtAhtKetnyEwj8t0=");
         seedAI2P.getDid().getPublicKey().setType("ElGamal/None/NoPadding");
@@ -106,10 +108,14 @@ public class I2PSensor extends BaseSensor {
     private CheckRouterStats checkRouterStats;
     private NetworkPeerDiscovery discovery;
 
-    public I2PSensor() {super(Network.I2P);}
+    public I2PSensor() {
+        super(Network.I2P);
+        taskRunner = new TaskRunner(1, 2);
+    }
 
     public I2PSensor(SensorManager sensorManager) {
         super(sensorManager, Network.I2P);
+        taskRunner = new TaskRunner(1, 2);
     }
 
     @Override
@@ -304,6 +310,8 @@ public class I2PSensor extends BaseSensor {
         if(!copyCertificatesToBaseDir(seedCertificates, sslCertificates))
             return false;
 
+        Wait.aMs(500); // Give the infrastructure a bit of breathing room before saving seeds
+        sensorManager.getPeerManager().savePeer(seedAI2P, true);
         networkState.seeds.add(seedAI2P);
 
         // Start I2P Router
@@ -318,9 +326,10 @@ public class I2PSensor extends BaseSensor {
         checkRouterStats = new CheckRouterStats(taskRunner, this);
         checkRouterStats.setPeriodicity(3 * 1000L);
         taskRunner.addTask(checkRouterStats);
+
         taskRunnerThread = new Thread(taskRunner);
         taskRunnerThread.setDaemon(true);
-        taskRunnerThread.setName("1M5-I2PSensor-TaskRunnerThread");
+        taskRunnerThread.setName("I2PSensor-TaskRunnerThread");
         taskRunnerThread.start();
 
 //        CountDownLatch startSignal = new CountDownLatch(1);

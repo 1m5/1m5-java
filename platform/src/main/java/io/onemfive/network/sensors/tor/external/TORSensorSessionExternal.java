@@ -149,7 +149,12 @@ public class TORSensorSessionExternal extends ClearnetSession {
                 }
             }
         } catch (IOException e) {
-            LOG.warning(e.getLocalizedMessage());
+            if(e.getLocalizedMessage().contains("Connection refused")) {
+                LOG.warning("Connection refused. TOR may not be installed and/or running. To install follow README.md in io/onemfive/network/sensors/tor package.");
+                sensor.updateStatus(SensorStatus.NETWORK_UNAVAILABLE);
+            } else {
+                LOG.warning(e.getLocalizedMessage());
+            }
             return false;
         } catch (NoSuchAlgorithmException e) {
             LOG.warning("TORAlgorithm not supported: "+e.getLocalizedMessage());

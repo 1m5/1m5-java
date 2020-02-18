@@ -33,6 +33,7 @@ import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
+import io.onemfive.util.tasks.TaskRunner;
 
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -43,14 +44,16 @@ public class WiFiDirectSensor extends BaseSensor {
 
     public static Logger LOG = Logger.getLogger(WiFiDirectSensor.class.getName());
 
-    public static final NetworkState config = new NetworkState();
+    private Thread taskRunnerThread;
 
     public WiFiDirectSensor() {
         super(Network.WiFiDirect);
+//        taskRunner = new TaskRunner(1, 1);
     }
 
     public WiFiDirectSensor(SensorManager sensorManager) {
         super(sensorManager, Network.WiFiDirect);
+//        taskRunner = new TaskRunner(1, 1);
     }
 
     @Override
@@ -141,35 +144,9 @@ public class WiFiDirectSensor extends BaseSensor {
         return super.sendIn(envelope);
     }
 
-    /**
-     * Will be called only if you register via addSessionListener().
-     *
-     * After this is called, the client should call receiveMessage(msgId).
-     * There is currently no method for the client to reject the message.
-     * If the client does not call receiveMessage() within a timeout period
-     * (currently 30 seconds), the session will delete the message and
-     * log an error.
-     *
-     * @param session session to notify
-     */
-    public void messageAvailable(SensorSession session) {
-//        RadioDatagram d = session.receiveDatagram(port);
-//        LOG.info("Received Radio Message:\n\tFrom: " + d.from.getSDRAddress());
-//        Envelope e = Envelope.eventFactory(EventMessage.Type.TEXT);
-//        DID did = new DID();
-//        did.addPeer(d.from);
-//        e.setDID(did);
-//        EventMessage m = (EventMessage) e.getMessage();
-//        m.setName(d.from.getSDRFingerprint());
-//        m.setMessage(d);
-//        DLC.addRoute(NotificationService.class, NotificationService.OPERATION_PUBLISH, e);
-//        LOG.info("Sending Event Message to Notification Service...");
-//        sendIn(e);
-    }
-
     @Override
     public void connected(SensorSession session) {
-        LOG.info("Radio Session reporting connection.");
+        LOG.info("WiFi Direct Session reporting connection.");
         updateStatus(NETWORK_CONNECTED);
         routerStatusChanged();
     }
@@ -182,7 +159,7 @@ public class WiFiDirectSensor extends BaseSensor {
      */
     @Override
     public void disconnected(SensorSession session) {
-        LOG.info("Radio Session reporting disconnection.");
+        LOG.info("WiFi Direct Session reporting disconnection.");
 //        if(session.getRadio().disconnected())){
 //            updateStatus(NETWORK_STOPPED);
 //        }
@@ -211,17 +188,17 @@ public class WiFiDirectSensor extends BaseSensor {
         String statusText;
         switch (getStatus()) {
             case NETWORK_CONNECTING:
-                statusText = "Testing Radio Network...";
+                statusText = "Testing WiFi Direct Network...";
                 break;
             case NETWORK_CONNECTED:
-                statusText = "Connected to Radio Network.";
+                statusText = "Connected to WiFi Direct Network.";
                 restartAttempts = 0; // Reset restart attempts
                 break;
             case NETWORK_STOPPED:
-                statusText = "Disconnected from Radio Network.";
+                statusText = "Disconnected from WiFi Direct Network.";
                 break;
             default: {
-                statusText = "Unhandled Radio Network Status: "+getStatus().name();
+                statusText = "Unhandled WiFi Direct Network Status: "+getStatus().name();
             }
         }
         LOG.info(statusText);
@@ -229,7 +206,11 @@ public class WiFiDirectSensor extends BaseSensor {
 
     @Override
     public boolean start(Properties properties) {
-        updateStatus(NETWORK_CONNECTED);
+
+//        taskRunnerThread = new Thread(taskRunner);
+//        taskRunnerThread.setDaemon(true);
+//        taskRunnerThread.setName("WiFiDirectSensor-TaskRunnerThread");
+//        taskRunnerThread.start();
         return true;
     }
 

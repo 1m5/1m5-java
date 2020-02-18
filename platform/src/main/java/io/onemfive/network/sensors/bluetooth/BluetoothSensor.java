@@ -60,14 +60,18 @@ public class BluetoothSensor extends BaseSensor {
     private BluetoothServiceDiscovery serviceDiscovery;
     private NetworkPeerDiscovery peerDiscovery;
 
+    private Thread taskRunnerThread;
+
     private Map<Integer, BluetoothSession> leased = new HashMap<>();
 
     public BluetoothSensor() {
         super(Network.Bluetooth);
+        taskRunner = new TaskRunner(1, 3);
     }
 
     public BluetoothSensor(SensorManager sensorManager) {
         super(sensorManager, Network.Bluetooth);
+        taskRunner = new TaskRunner(1, 3);
     }
 
     @Override
@@ -233,10 +237,6 @@ public class BluetoothSensor extends BaseSensor {
             return false;
         }
 
-        if(taskRunner==null) {
-            taskRunner = new TaskRunner(2,3);
-        }
-
         networkState.UpdateInterval = 20 * 60; // 20 minutes
         networkState.UpdateIntervalHyper = 60; // every minute
 
@@ -262,8 +262,8 @@ public class BluetoothSensor extends BaseSensor {
         peerDiscovery.setDelayTimeMS(40 * 1000L);
         taskRunner.addTask(peerDiscovery);
 
-        Thread taskRunnerThread = new Thread(taskRunner);
-        taskRunnerThread.setName("Bluetooth-Sensor-TaskRunner");
+        taskRunnerThread = new Thread(taskRunner);
+        taskRunnerThread.setName("BluetoothSensor-TaskRunnerThread");
         taskRunnerThread.setDaemon(true);
         taskRunnerThread.start();
 

@@ -33,6 +33,7 @@ import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
+import io.onemfive.util.tasks.TaskRunner;
 
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -45,12 +46,16 @@ public class SatelliteSensor extends BaseSensor {
 
     public static final NetworkState config = new NetworkState();
 
+    private Thread taskRunnerThread;
+
     public SatelliteSensor() {
         super(Network.Satellite);
+//        taskRunner = new TaskRunner(1, 1);
     }
 
     public SatelliteSensor(SensorManager sensorManager) {
         super(sensorManager, Network.Satellite);
+//        taskRunner = new TaskRunner(1, 1);
     }
 
     @Override
@@ -155,7 +160,11 @@ public class SatelliteSensor extends BaseSensor {
 
     @Override
     public boolean start(Properties properties) {
-        updateStatus(NETWORK_CONNECTED);
+
+        taskRunnerThread = new Thread(taskRunner);
+        taskRunnerThread.setDaemon(true);
+        taskRunnerThread.setName("SatelliteSensor-TaskRunnerThread");
+        taskRunnerThread.start();
         return true;
     }
 

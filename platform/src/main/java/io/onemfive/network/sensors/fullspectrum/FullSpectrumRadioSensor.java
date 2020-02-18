@@ -33,6 +33,7 @@ import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorSession;
+import io.onemfive.util.tasks.TaskRunner;
 
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -53,12 +54,16 @@ public class FullSpectrumRadioSensor extends BaseSensor {
 
     public static final NetworkState config = new NetworkState();
 
+    private Thread taskRunnerThread;
+
     public FullSpectrumRadioSensor() {
         super(Network.FSRadio);
+//        taskRunner = new TaskRunner(1, 8);
     }
 
     public FullSpectrumRadioSensor(SensorManager sensorManager) {
         super(sensorManager, Network.FSRadio);
+//        taskRunner = new TaskRunner(1, 8);
     }
 
     @Override
@@ -177,7 +182,11 @@ public class FullSpectrumRadioSensor extends BaseSensor {
 
     @Override
     public boolean start(Properties properties) {
-        updateStatus(NETWORK_CONNECTED);
+
+//        taskRunnerThread = new Thread(taskRunner);
+//        taskRunnerThread.setDaemon(true);
+//        taskRunnerThread.setName("FullSpectrumRadioSensor-TaskRunnerThread");
+//        taskRunnerThread.start();
         return true;
     }
 

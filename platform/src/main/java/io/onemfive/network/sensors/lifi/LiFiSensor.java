@@ -35,6 +35,7 @@ import io.onemfive.util.DLC;
 import io.onemfive.network.sensors.BaseSensor;
 import io.onemfive.network.sensors.SensorManager;
 import io.onemfive.network.sensors.SensorStatus;
+import io.onemfive.util.tasks.TaskRunner;
 
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -47,14 +48,17 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
 
     public static final NetworkState config = new NetworkState();
 
+    private Thread taskRunnerThread;
     private LiFiSession session;
 
     public LiFiSensor() {
        super(Network.LiFi);
+//        taskRunner = new TaskRunner(1, 1);
     }
 
     public LiFiSensor(SensorManager sensorManager) {
         super(sensorManager, Network.LiFi);
+//        taskRunner = new TaskRunner(1, 1);
     }
 
     @Override
@@ -231,8 +235,11 @@ public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
 
     @Override
     public boolean start(Properties properties) {
-        // TODO: for now just set as connected; we need to implement this within discovery
-        updateStatus(NETWORK_CONNECTED);
+
+//        taskRunnerThread = new Thread(taskRunner);
+//        taskRunnerThread.setDaemon(true);
+//        taskRunnerThread.setName("LiFiSensor-TaskRunnerThread");
+//        taskRunnerThread.start();
         return true;
     }
 

@@ -49,6 +49,12 @@ public class PeerDB {
     private Connection connection;
     private String dbURL;
 
+    // Considering this app is highly multi-threaded
+    // and it's using shared prepared statements,
+    // make thread-safe by providing a lock Object
+    // to synchronize on so that prepared statements
+    // do not get used simultaneously causing data
+    // corruption.
     private PreparedStatement peersCountByNetwork;
     private final Object peersCountByNetworkLock = new Object();
     private PreparedStatement peersById;
@@ -66,13 +72,9 @@ public class PeerDB {
     private PreparedStatement peerUpdatePS;
     private final Object peerUpdatePSLock = new Object();
 
-    // Considering this app is highly multi-threaded
-    // and it's using shared prepared statements,
-    // make thread-safe by providing a lock Object
-    // to synchronize on so that prepared statements
-    // do not get used simultaneously causing data
-    // corruption.
-    private static final String PEER_TABLE_DDL = "create table "+TABLE+"(id varchar(256), network varchar(16), username varchar(32), alias varchar(32), address varchar(4096), fingerprint varchar(256), type varchar(32))";
+    // id + network is compound primary key enforced by app
+    // id is 1M5 fingerprint
+    private static final String PEER_TABLE_DDL = "create table "+TABLE+"(id varchar(256), network varchar(16), username varchar(32), alias varchar(32), address varchar(4096), fingerprint varchar(256), keyType varchar(32), port int, attributes varchar(4096)";
 
     public Boolean savePeer(NetworkPeer p, Boolean autocreate) {
         LOG.info("Saving NetworkPeer...");
@@ -148,17 +150,16 @@ public class PeerDB {
         return true;
     }
 
-    public NetworkPeer randomPeer(NetworkPeer fromPeer) {
-        NetworkPeer p = null;
+    public int numberPeersByNetwork(Network network) {
         ResultSet rs = null;
         int total = 0;
         synchronized (peersCountByNetworkLock) {
             try {
                 peersCountByNetwork.clearParameters();
-                peersCountByNetwork.setString(1, fromPeer.getNetwork().name());
+                peersCountByNetwork.setString(1, network.name());
                 rs = peersCountByNetwork.executeQuery();
                 if (rs.next()) {
-                    total = rs.getInt(0);
+                    total = rs.getInt("total");
                 }
             } catch (SQLException e) {
                 LOG.warning(e.getLocalizedMessage());
@@ -170,6 +171,21 @@ public class PeerDB {
                         LOG.warning(e.getLocalizedMessage());
                     }
             }
+        }
+        return total;
+    }
+
+    public NetworkPeer randomPeer(NetworkPeer fromPeer) {
+        if(fromPeer==null) {
+            LOG.warning("NetworkPeer null.");
+            return null;
+        }
+        NetworkPeer p = null;
+        ResultSet rs = null;
+        int total = numberPeersByNetwork(fromPeer.getNetwork());
+        if(total==0) {
+            LOG.warning("No peers found for network: "+fromPeer.getNetwork().name());
+            return null;
         }
         boolean samePeer = true;
         int max = 4; // Fail-safe
@@ -287,6 +303,7 @@ public class PeerDB {
                     p.getDid().getPublicKey().setAddress(rs.getString(NetworkPeer.ADDRESS));
                     p.getDid().getPublicKey().setFingerprint(rs.getString(NetworkPeer.FINGERPRINT));
                     p.getDid().getPublicKey().setType(rs.getString(NetworkPeer.KEY_TYPE));
+                    p.setPort(rs.getInt(NetworkPeer.PORT));
                 }
             } catch (Exception e) {
                 LOG.warning(e.getLocalizedMessage());
@@ -377,7 +394,7 @@ public class PeerDB {
             }
 
             try {
-                peersCountByNetwork = connection.prepareStatement("select count(id) from Peer where network=?");
+                peersCountByNetwork = connection.prepareStatement("select count(id) as total from Peer where network=?");
                 peersById = connection.prepareStatement("select * from Peer where id=?");
                 peersByNetwork = connection.prepareStatement("select * from Peer where network=?", TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                 peerByIdAndNetwork = connection.prepareStatement("select * from Peer where id=? and network=?");

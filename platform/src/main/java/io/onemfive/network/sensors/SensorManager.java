@@ -41,6 +41,7 @@ import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.network.sensors.wifidirect.WiFiDirectSensor;
 import io.onemfive.util.AppThread;
 import io.onemfive.util.DLC;
+import io.onemfive.util.Wait;
 import io.onemfive.util.tasks.TaskRunner;
 
 import java.io.File;

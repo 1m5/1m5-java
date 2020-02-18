@@ -552,7 +552,7 @@ public class NetworkService extends BaseService {
             LOG.warning("IOException caught while building sensors directory: \n"+e.getLocalizedMessage());
         }
 
-        taskRunner = new TaskRunner(4, 4);
+        taskRunner = new TaskRunner(4, 8);
         Thread taskRunnerThread = new Thread(taskRunner, "NetworkService-TaskRunnerThread");
         taskRunnerThread.setDaemon(true);
         taskRunnerThread.start();
