@@ -53,7 +53,6 @@ public class GraphDB {
     private Properties properties;
     private GraphDatabaseService graphDb;
     private Label peerLabel = Label.label("Peer");
-    private Label relLabel = Label.label("P2P");
 
     public GraphDB() {
         super();
@@ -167,16 +166,12 @@ public class GraphDB {
         boolean saved = false;
         try (Transaction tx = graphDb.beginTx()) {
             Node n = findPeerNode(networkPeer.getId());
-            if(n==null) {
-                if(autoCreate) {
-                    n = graphDb.createNode(peerLabel);
-                    n.setProperty("id", networkPeer.getId());
-                    saved = true;
-                }
-            } else {
-                saved = true;
+            if(n==null && autoCreate) {
+                n = graphDb.createNode(peerLabel);
+                n.setProperty("id", networkPeer.getId());
             }
             tx.success();
+            saved = true;
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());
         }

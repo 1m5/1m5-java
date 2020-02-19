@@ -139,6 +139,7 @@ public class PeerManager implements Runnable {
             LOG.severe("DerbyDB failed to initialize,");
             return false;
         }
+
         return true;
     }
 
@@ -172,16 +173,29 @@ public class PeerManager implements Runnable {
             LOG.warning("Can not save Network Peer; id must be provided.");
             return false;
         }
+        if(networkPeer.getNetwork()==null) {
+            LOG.warning("Can not save Network Peer; network must be proviced.");
+            return false;
+        }
         if(peerDB.savePeer(networkPeer, autoCreate) && graphDB.savePeer(networkPeer, autoCreate)) {
             NetworkPeer local1M5Peer = localNode.getNetworkPeer();
-            if(local1M5Peer.getId().equals(networkPeer.getId())) {
+            if(local1M5Peer.getId()==null) {
+                LOG.warning("Local 1M5 Peer not yet set. Unable to relate yet.");
+                successful = true;
+            }
+            else if(local1M5Peer.getId().equals(networkPeer.getId())) {
                 // This is a local peer
                 localNode.addNetworkPeer(networkPeer);
                 LOG.info("Local Node updated:\n\t"+localNode.toString());
                 successful = true;
             } else if(localNode.getNetworkPeer(networkPeer.getNetwork()) != null
                     || peerDB.loadPeerByIdAndNetwork(local1M5Peer.getId(), networkPeer.getNetwork()) != null) {
-                successful = graphDB.relateByNetwork(local1M5Peer.getId(), networkPeer.getNetwork(), networkPeer.getId()) != null;
+                if(graphDB.relateByNetwork(local1M5Peer.getId(), networkPeer.getNetwork(), networkPeer.getId()) != null) {
+                    LOG.info("Peers related.");
+                } else {
+                    LOG.info("Unable to relate peers.");
+                }
+                successful = true;
             } else {
                 LOG.warning("No local peer for network="+networkPeer.getNetwork().name()+". Unable to relate.");
             }
