@@ -660,100 +660,98 @@ public class I2PSensor extends BaseSensor {
      */
     private boolean copyCertificatesToBaseDir(File reseedCertificates, File sslCertificates) {
         final String path = "io/onemfive/network/sensors/i2p";
-        if(!isTest) {
-            if(!SystemVersion.isAndroid()) {
-                String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-                final File jarFile = new File(jarPath);
-                if (jarFile.isFile()) {
-                    try {
-                        final JarFile jar = new JarFile(jarFile);
-                        JarEntry entry;
-                        File f = null;
-                        final Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
-                        while (entries.hasMoreElements()) {
-                            entry = entries.nextElement();
-                            final String name = entry.getName();
-                            if (name.startsWith(path + "/certificates/reseed/")) { //filter according to the path
-                                if (!name.endsWith("/")) {
-                                    String fileName = name.substring(name.lastIndexOf("/") + 1);
-                                    LOG.info("fileName to save: " + fileName);
-                                    f = new File(reseedCertificates, fileName);
-                                }
-                            }
-                            if (name.startsWith(path + "/certificates/ssl/")) {
-                                if (!name.endsWith("/")) {
-                                    String fileName = name.substring(name.lastIndexOf("/") + 1);
-                                    LOG.info("fileName to save: " + fileName);
-                                    f = new File(sslCertificates, fileName);
-                                }
-                            }
-                            if (f != null) {
-                                boolean fileReadyToSave = false;
-                                if (!f.exists() && f.createNewFile()) fileReadyToSave = true;
-                                else if (f.exists() && f.delete() && f.createNewFile()) fileReadyToSave = true;
-                                if (fileReadyToSave) {
-                                    FileOutputStream fos = new FileOutputStream(f);
-                                    byte[] byteArray = new byte[1024];
-                                    int i;
-                                    InputStream is = getClass().getClassLoader().getResourceAsStream(name);
-                                    //While the input stream has bytes
-                                    while ((i = is.read(byteArray)) > 0) {
-                                        //Write the bytes to the output stream
-                                        fos.write(byteArray, 0, i);
-                                    }
-                                    //Close streams to prevent errors
-                                    is.close();
-                                    fos.close();
-                                    f = null;
-                                } else {
-                                    LOG.warning("Unable to save file from 1M5 jar and is required: " + name);
-                                    return false;
-                                }
+        if(!SystemVersion.isAndroid()) {
+            String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+            final File jarFile = new File(jarPath);
+            if (jarFile.isFile()) {
+                try {
+                    final JarFile jar = new JarFile(jarFile);
+                    JarEntry entry;
+                    File f = null;
+                    final Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
+                    while (entries.hasMoreElements()) {
+                        entry = entries.nextElement();
+                        final String name = entry.getName();
+                        if (name.startsWith(path + "/certificates/reseed/")) { //filter according to the path
+                            if (!name.endsWith("/")) {
+                                String fileName = name.substring(name.lastIndexOf("/") + 1);
+                                LOG.info("fileName to save: " + fileName);
+                                f = new File(reseedCertificates, fileName);
                             }
                         }
-                        jar.close();
-                    } catch (IOException e) {
-                        LOG.warning(e.getLocalizedMessage());
-                        return false;
+                        if (name.startsWith(path + "/certificates/ssl/")) {
+                            if (!name.endsWith("/")) {
+                                String fileName = name.substring(name.lastIndexOf("/") + 1);
+                                LOG.info("fileName to save: " + fileName);
+                                f = new File(sslCertificates, fileName);
+                            }
+                        }
+                        if (f != null) {
+                            boolean fileReadyToSave = false;
+                            if (!f.exists() && f.createNewFile()) fileReadyToSave = true;
+                            else if (f.exists() && f.delete() && f.createNewFile()) fileReadyToSave = true;
+                            if (fileReadyToSave) {
+                                FileOutputStream fos = new FileOutputStream(f);
+                                byte[] byteArray = new byte[1024];
+                                int i;
+                                InputStream is = getClass().getClassLoader().getResourceAsStream(name);
+                                //While the input stream has bytes
+                                while ((i = is.read(byteArray)) > 0) {
+                                    //Write the bytes to the output stream
+                                    fos.write(byteArray, 0, i);
+                                }
+                                //Close streams to prevent errors
+                                is.close();
+                                fos.close();
+                                f = null;
+                            } else {
+                                LOG.warning("Unable to save file from 1M5 jar and is required: " + name);
+                                return false;
+                            }
+                        }
+                    }
+                    jar.close();
+                } catch (IOException e) {
+                    LOG.warning(e.getLocalizedMessage());
+                    return false;
+                }
+            } else {
+                // called while testing in an IDE
+                URL resource = I2PSensor.class.getClassLoader().getResource(path);
+                File file = null;
+                try {
+                    file = new File(resource.toURI());
+                } catch (URISyntaxException e) {
+                    LOG.warning("Unable to access I2P resource directory.");
+                    return false;
+                }
+                File[] boteResFolderFiles = file.listFiles();
+                File certResFolder = null;
+                for (File f : boteResFolderFiles) {
+                    if ("certificates".equals(f.getName())) {
+                        certResFolder = f;
+                        break;
                     }
                 }
-            }
-        } else {
-            // called while testing in an IDE
-            URL boteFolderURL = I2PSensor.class.getClassLoader().getResource(path);
-            File boteResFolder = null;
-            try {
-                boteResFolder = new File(boteFolderURL.toURI());
-            } catch (URISyntaxException e) {
-                LOG.warning("Unable to access bote resource directory.");
+                if (certResFolder != null) {
+                    File[] folders = certResFolder.listFiles();
+                    for (File folder : folders) {
+                        if ("reseed".equals(folder.getName())) {
+                            File[] reseedCerts = folder.listFiles();
+                            for (File reseedCert : reseedCerts) {
+                                FileUtil.copy(reseedCert, reseedCertificates, true, false);
+                            }
+                        } else if ("ssl".equals(folder.getName())) {
+                            File[] sslCerts = folder.listFiles();
+                            for (File sslCert : sslCerts) {
+                                FileUtil.copy(sslCert, sslCertificates, true, false);
+                            }
+                        }
+                    }
+                    return true;
+                }
                 return false;
             }
-            File[] boteResFolderFiles = boteResFolder.listFiles();
-            File certResFolder = null;
-            for (File f : boteResFolderFiles) {
-                if ("certificates".equals(f.getName())) {
-                    certResFolder = f;
-                    break;
-                }
-            }
-            if (certResFolder != null) {
-                File[] folders = certResFolder.listFiles();
-                for (File folder : folders) {
-                    if ("reseed".equals(folder.getName())) {
-                        File[] reseedCerts = folder.listFiles();
-                        for (File reseedCert : reseedCerts) {
-                            FileUtil.copy(reseedCert, reseedCertificates, true, false);
-                        }
-                    } else if ("ssl".equals(folder.getName())) {
-                        File[] sslCerts = folder.listFiles();
-                        for (File sslCert : sslCerts) {
-                            FileUtil.copy(sslCert, sslCertificates, true, false);
-                        }
-                    }
-                }
-                return true;
-            }
-            return false;
         }
         return true;
     }
