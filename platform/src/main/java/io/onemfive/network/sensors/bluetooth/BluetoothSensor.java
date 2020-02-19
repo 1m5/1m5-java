@@ -32,6 +32,7 @@ import io.onemfive.data.NetworkNode;
 import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkState;
 import io.onemfive.network.NetworkPacket;
+import io.onemfive.network.peers.NetworkPeerDiscovery;
 import io.onemfive.network.sensors.*;
 import io.onemfive.util.Wait;
 import io.onemfive.util.tasks.TaskRunner;

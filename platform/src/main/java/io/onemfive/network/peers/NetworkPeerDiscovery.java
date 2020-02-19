@@ -24,12 +24,13 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors;
+package io.onemfive.network.peers;
 
 import io.onemfive.data.NetworkPeer;
-import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.NetworkTask;
 import io.onemfive.network.ops.PingRequestOp;
+import io.onemfive.network.sensors.Sensor;
+import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.util.RandomUtil;
 import io.onemfive.util.tasks.TaskRunner;
 

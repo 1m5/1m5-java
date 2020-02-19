@@ -28,7 +28,7 @@ package io.onemfive.network.sensors.tor;
 
 import io.onemfive.data.*;
 import io.onemfive.network.*;
-import io.onemfive.network.ops.NetworkOp;
+import io.onemfive.network.peers.NetworkPeerDiscovery;
 import io.onemfive.network.sensors.*;
 import io.onemfive.network.sensors.tor.embedded.TORSensorSessionEmbedded;
 import io.onemfive.network.sensors.tor.external.TORSensorSessionExternal;
