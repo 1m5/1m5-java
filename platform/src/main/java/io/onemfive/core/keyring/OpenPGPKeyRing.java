@@ -28,6 +28,7 @@ package io.onemfive.core.keyring;
 
 import io.onemfive.data.EncryptionAlgorithm;
 import io.onemfive.data.PublicKey;
+import io.onemfive.util.Base58;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
@@ -117,9 +118,9 @@ public class OpenPGPKeyRing implements KeyRing {
                     LOG.info("Identity Public Key found.");
                     r.identityPublicKey = new PublicKey();
                     r.identityPublicKey.setAlias(r.keyRingUsername);
-                    r.identityPublicKey.setFingerprint(Base64.getEncoder().encodeToString(identityPublicKey.getFingerprint()));
-                    r.identityPublicKey.setAddress(Base64.getEncoder().encodeToString(identityPublicKey.getEncoded()));
-                    r.identityPublicKey.setBase64Encoded(true);
+                    r.identityPublicKey.setFingerprint(Base58.encode(identityPublicKey.getFingerprint()));
+                    r.identityPublicKey.setAddress(Base58.encode(identityPublicKey.getEncoded()));
+                    r.identityPublicKey.setBase58Encoded(true);
                     r.identityPublicKey.isIdentityKey(identityPublicKey.isMasterKey());
                     r.identityPublicKey.isEncryptionKey(identityPublicKey.isEncryptionKey());
                 }
@@ -129,9 +130,9 @@ public class OpenPGPKeyRing implements KeyRing {
                     LOG.info("Encryption Public Key found.");
                     r.encryptionPublicKey = new PublicKey();
                     r.encryptionPublicKey.setAlias(r.keyRingUsername);
-                    r.encryptionPublicKey.setFingerprint(Base64.getEncoder().encodeToString(encryptionPublicKey.getFingerprint()));
-                    r.encryptionPublicKey.setAddress(Base64.getEncoder().encodeToString(encryptionPublicKey.getEncoded()));
-                    r.encryptionPublicKey.setBase64Encoded(true);
+                    r.encryptionPublicKey.setFingerprint(Base58.encode(encryptionPublicKey.getFingerprint()));
+                    r.encryptionPublicKey.setAddress(Base58.encode(encryptionPublicKey.getEncoded()));
+                    r.encryptionPublicKey.setBase58Encoded(true);
                     r.encryptionPublicKey.isIdentityKey(encryptionPublicKey.isMasterKey());
                     r.encryptionPublicKey.isEncryptionKey(encryptionPublicKey.isEncryptionKey());
                 }
