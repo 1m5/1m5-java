@@ -20,6 +20,10 @@ https://web.getmonero.org/
 ## Integration
 Lots of issues with Kovri/Sekreta in Monero,
 
-I recommended moving to 1M5 [here](https://github.com/monero-project/monero/pull/6276).
+Recommended moving to 1M5 [here](https://github.com/monero-project/monero/pull/6276).
 
 https://github.com/monero-project/monero/blob/master/ANONYMITY_NETWORKS.md
+
+Submitted formal proposal to evaluate integrating with 1M5 [here](https://repo.getmonero.org/monero-project/ccs-proposals/merge_requests/127)
+
+### Monero
