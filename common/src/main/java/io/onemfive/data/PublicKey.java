@@ -237,7 +237,7 @@ public class PublicKey implements Addressable, JSONSerializable {
         if(m.get("isBase58Encoded")!=null) isBase58Encoded = (Boolean)m.get("isBase58Encoded");
         if(m.get("isPEM")!=null) isPEM = (Boolean)m.get("isPEM");
         if(m.get("isHex")!=null) isHex = (Boolean)m.get("isHex");
-        if(m.get("attributes")!=null) attributes = (Map<String,Object>)m.get("atttributes");
+        if(m.get("attributes")!=null) attributes = (Map<String,Object>)m.get("attributes");
         if(m.get("signedAttributes")!=null) signedAttributes = (Map<String,List<byte[]>>)m.get("signedAttributes");
     }
 
