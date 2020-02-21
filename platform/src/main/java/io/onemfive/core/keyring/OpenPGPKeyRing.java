@@ -29,10 +29,7 @@ package io.onemfive.core.keyring;
 import io.onemfive.data.EncryptionAlgorithm;
 import io.onemfive.data.PublicKey;
 import io.onemfive.util.Base58;
-import org.bouncycastle.bcpg.ArmoredOutputStream;
-import org.bouncycastle.bcpg.BCPGOutputStream;
-import org.bouncycastle.bcpg.HashAlgorithmTags;
-import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
+import org.bouncycastle.bcpg.*;
 import org.bouncycastle.bcpg.sig.Features;
 import org.bouncycastle.bcpg.sig.KeyFlags;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
@@ -63,6 +60,33 @@ public class OpenPGPKeyRing implements KeyRing {
     protected static final String PROVIDER_BOUNCY_CASTLE = "BC";
 
     protected Properties properties;
+
+    public static String toType(int code) {
+        switch (code) {
+            case PublicKeyAlgorithmTags.RSA_GENERAL: return "RSA_GENERAL";
+            case PublicKeyAlgorithmTags.RSA_ENCRYPT: return "RSA_ENCRYPT";
+            case PublicKeyAlgorithmTags.RSA_SIGN: return "RSA_SIGN";
+            case PublicKeyAlgorithmTags.DIFFIE_HELLMAN: return "DIFFIE_HELLMAN";
+            case PublicKeyAlgorithmTags.DSA: return "DSA";
+            case PublicKeyAlgorithmTags.ECDH: return "ECDH";
+            case PublicKeyAlgorithmTags.ECDSA: return "ECDSA";
+            case PublicKeyAlgorithmTags.EDDSA: return "EDDSA";
+            case PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT: return "ELGAMAL_ENCRYPT";
+            case PublicKeyAlgorithmTags.ELGAMAL_GENERAL: return "ELGAMAL_GENERAL";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_1: return "EXPERIMENTAL_1";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_2: return "EXPERIMENTAL_2";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_3: return "EXPERIMENTAL_3";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_4: return "EXPERIMENTAL_4";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_5: return "EXPERIMENTAL_5";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_6: return "EXPERIMENTAL_6";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_7: return "EXPERIMENTAL_7";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_8: return "EXPERIMENTAL_8";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_9: return "EXPERIMENTAL_9";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_10: return "EXPERIMENTAL_10";
+            case PublicKeyAlgorithmTags.EXPERIMENTAL_11: return "EXPERIMENTAL_11";
+            default: return "Unknown";
+        }
+    }
 
     /**
      * Create new Secret and Public Key Ring Collections with a username and passphrase.
@@ -121,6 +145,7 @@ public class OpenPGPKeyRing implements KeyRing {
                     r.identityPublicKey.setFingerprint(Base58.encode(identityPublicKey.getFingerprint()));
                     r.identityPublicKey.setAddress(Base58.encode(identityPublicKey.getEncoded()));
                     r.identityPublicKey.setBase58Encoded(true);
+                    r.identityPublicKey.setType(toType(identityPublicKey.getAlgorithm()));
                     r.identityPublicKey.isIdentityKey(identityPublicKey.isMasterKey());
                     r.identityPublicKey.isEncryptionKey(identityPublicKey.isEncryptionKey());
                 }
@@ -133,6 +158,7 @@ public class OpenPGPKeyRing implements KeyRing {
                     r.encryptionPublicKey.setFingerprint(Base58.encode(encryptionPublicKey.getFingerprint()));
                     r.encryptionPublicKey.setAddress(Base58.encode(encryptionPublicKey.getEncoded()));
                     r.encryptionPublicKey.setBase58Encoded(true);
+                    r.encryptionPublicKey.setType(toType(encryptionPublicKey.getAlgorithm()));
                     r.encryptionPublicKey.isIdentityKey(encryptionPublicKey.isMasterKey());
                     r.encryptionPublicKey.isEncryptionKey(encryptionPublicKey.isEncryptionKey());
                 }
@@ -598,9 +624,7 @@ public class OpenPGPKeyRing implements KeyRing {
             // Finally, create the keyring itself. The constructor
             // takes parameters that allow it to generate the self
             // signature.
-            keyRingGen =
-                    new PGPKeyRingGenerator
-                            (PGPSignature.POSITIVE_CERTIFICATION, rsaKPSign,
+            keyRingGen = new PGPKeyRingGenerator(PGPSignature.POSITIVE_CERTIFICATION, rsaKPSign,
                                     username, sha1Calc, signHashGen.generate(), null,
                                     new BcPGPContentSignerBuilder(rsaKPSign.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1),
                                     pske);

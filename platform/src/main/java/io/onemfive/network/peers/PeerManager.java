@@ -37,6 +37,7 @@ import io.onemfive.network.peers.graph.P2PRelationship;
 import io.onemfive.util.DLC;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.RandomUtil;
+import io.onemfive.util.Wait;
 import io.onemfive.util.tasks.TaskRunner;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.IndexDefinition;
@@ -168,39 +169,45 @@ public class PeerManager implements Runnable {
     }
 
     public Boolean savePeer(NetworkPeer networkPeer, boolean autoCreate) {
-        boolean successful = false;
         if(networkPeer.getId()==null) {
             LOG.warning("Can not save Network Peer; id must be provided.");
             return false;
         }
         if(networkPeer.getNetwork()==null) {
-            LOG.warning("Can not save Network Peer; network must be proviced.");
+            LOG.warning("Can not save Network Peer; network must be provided.");
             return false;
         }
         if(peerDB.savePeer(networkPeer, autoCreate) && graphDB.savePeer(networkPeer, autoCreate)) {
+            // Peer saved in DB and Graph; lets relate in graph
             NetworkPeer local1M5Peer = localNode.getNetworkPeer();
-            if(local1M5Peer.getId()==null) {
-                LOG.warning("Local 1M5 Peer not yet set. Unable to relate yet.");
-                successful = true;
+            while(local1M5Peer.getId()==null) {
+                LOG.info("Local 1M5 Peer not yet set. Wait a second..");
+                Wait.aSec(1);
             }
-            else if(local1M5Peer.getId().equals(networkPeer.getId())) {
+            if(local1M5Peer.getId().equals(networkPeer.getId())) {
                 // This is a local peer
                 localNode.addNetworkPeer(networkPeer);
-                LOG.info("Local Node updated:\n\t"+localNode.toString());
-                successful = true;
-            } else if(localNode.getNetworkPeer(networkPeer.getNetwork()) != null
-                    || peerDB.loadPeerByIdAndNetwork(local1M5Peer.getId(), networkPeer.getNetwork()) != null) {
-                if(graphDB.relateByNetwork(local1M5Peer.getId(), networkPeer.getNetwork(), networkPeer.getId()) != null) {
-                    LOG.info("Peers related.");
+                LOG.info("Local Node updated:\n\t" + localNode.toString());
+                return true;
+            }
+            if(localNode.getNetworkPeer(networkPeer.getNetwork())==null) {
+                NetworkPeer temp = peerDB.loadPeerByIdAndNetwork(local1M5Peer.getId(), networkPeer.getNetwork());
+                if(temp!=null) {
+                    localNode.addNetworkPeer(temp);
                 } else {
-                    LOG.info("Unable to relate peers.");
+                    LOG.info("Unable to relate yet, "+networkPeer.getNetwork().name()+" local peer not yet saved.");
+                    return true;
                 }
-                successful = true;
+            }
+            if(graphDB.relateByNetwork(local1M5Peer.getId(), networkPeer.getNetwork(), networkPeer.getId()) != null) {
+                LOG.info("Peers related.");
+                return true;
             } else {
-                LOG.warning("No local peer for network="+networkPeer.getNetwork().name()+". Unable to relate.");
+                LOG.warning("Unable to relate peers.");
+                return false;
             }
         }
-        return successful;
+        return false;
     }
 
     public NetworkPeer loadPeer(String id) {

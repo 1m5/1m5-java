@@ -53,6 +53,7 @@ public class GraphDB {
     private Properties properties;
     private GraphDatabaseService graphDb;
     private Label peerLabel = Label.label("Peer");
+    private final Object peerSaveLock = new Object();
 
     public GraphDB() {
         super();
@@ -164,16 +165,18 @@ public class GraphDB {
 
     public boolean savePeer(NetworkPeer networkPeer, Boolean autoCreate) {
         boolean saved = false;
-        try (Transaction tx = graphDb.beginTx()) {
-            Node n = findPeerNode(networkPeer.getId());
-            if(n==null && autoCreate) {
-                n = graphDb.createNode(peerLabel);
-                n.setProperty("id", networkPeer.getId());
+        synchronized (peerSaveLock) {
+            try (Transaction tx = graphDb.beginTx()) {
+                Node n = findPeerNode(networkPeer.getId());
+                if (n == null && autoCreate) {
+                    n = graphDb.createNode(peerLabel);
+                    n.setProperty("id", networkPeer.getId());
+                }
+                tx.success();
+                saved = true;
+            } catch (Exception e) {
+                LOG.warning(e.getLocalizedMessage());
             }
-            tx.success();
-            saved = true;
-        } catch (Exception e) {
-            LOG.warning(e.getLocalizedMessage());
         }
         return saved;
     }

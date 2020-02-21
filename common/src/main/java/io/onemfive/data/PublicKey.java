@@ -212,8 +212,8 @@ public class PublicKey implements Addressable, JSONSerializable {
         if(type!=null) m.put("type", type);
         if(isEncryptionKey!=null) m.put("isEncryptionKey",isEncryptionKey);
         if(isIdentityKey!=null) m.put("isIdentityKey",isIdentityKey);
-        if(isBase64Encoded!=null) m.put("isBase64Encoded",isBase64Encoded);
-        if(isBase58Encoded!=null) m.put("isBase58Encoded",isBase58Encoded);
+        if(isBase64Encoded!=null) m.put("isBase64Encoded",isBase64Encoded.toString());
+        if(isBase58Encoded!=null) m.put("isBase58Encoded",isBase58Encoded.toString());
         if(isPEM!=null) m.put("isPEM",isPEM);
         if(isHex!=null) m.put("isHex",isHex);
         if(attributes!=null && attributes.size() > 0) {
@@ -233,8 +233,8 @@ public class PublicKey implements Addressable, JSONSerializable {
         if(m.get("type")!=null) type = (String)m.get("type");
         if(m.get("isEncryptionKey")!=null) isEncryptionKey = (Boolean)m.get("isEncryptionKey");
         if(m.get("isIdentityKey")!=null) isIdentityKey = (Boolean)m.get("isIdentityKey");
-        if(m.get("isBase64Encoded")!=null) isBase64Encoded = (Boolean)m.get("isBase64Encoded");
-        if(m.get("isBase58Encoded")!=null) isBase58Encoded = (Boolean)m.get("isBase58Encoded");
+        if(m.get("isBase64Encoded")!=null) isBase64Encoded = Boolean.parseBoolean((String)m.get("isBase64Encoded"));
+        if(m.get("isBase58Encoded")!=null) isBase58Encoded = Boolean.parseBoolean((String)m.get("isBase58Encoded"));
         if(m.get("isPEM")!=null) isPEM = (Boolean)m.get("isPEM");
         if(m.get("isHex")!=null) isHex = (Boolean)m.get("isHex");
         if(m.get("attributes")!=null) attributes = (Map<String,Object>)m.get("attributes");
