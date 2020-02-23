@@ -26,5 +26,5 @@
  */
 package io.onemfive.network.sensors.fullspectrum.signals;
 
-public abstract class DataSignal extends SignalBase {
+public class DABDataSignalSession extends DataSignalSession {
 }

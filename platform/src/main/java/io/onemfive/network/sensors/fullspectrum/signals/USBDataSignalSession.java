@@ -26,6 +26,5 @@
  */
 package io.onemfive.network.sensors.fullspectrum.signals;
 
-public class WFMVoiceSignal extends VoiceSignal {
-
+public class USBDataSignalSession extends DataSignalSession {
 }

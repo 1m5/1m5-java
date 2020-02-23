@@ -26,9 +26,9 @@
  */
 package io.onemfive.network.sensors.fullspectrum.signals.pager;
 
-import io.onemfive.network.sensors.fullspectrum.signals.NFMDataSignal;
+import io.onemfive.network.sensors.fullspectrum.signals.NFMDataSignalSession;
 
 public class PagerSignal {
-    private NFMDataSignal signal;
+    private NFMDataSignalSession signal;
 
 }

@@ -38,11 +38,8 @@ import io.onemfive.util.tasks.TaskRunner;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import static io.onemfive.network.sensors.SensorStatus.NETWORK_CONNECTED;
-
-
 /**
- * Wrapper for GNU Radio.
+ * Wrapper for GNU Radio and other radio nets like Locha Mesh.
  * https://www.gnuradio.org
  * GNU Radio is licensed under the GPLv3 as of August 2019.
  *
@@ -54,16 +51,14 @@ public class FullSpectrumRadioSensor extends BaseSensor {
 
     public static final NetworkState config = new NetworkState();
 
-    private Thread taskRunnerThread;
-
     public FullSpectrumRadioSensor() {
         super(Network.FSRadio);
-//        taskRunner = new TaskRunner(1, 8);
+        taskRunner = new TaskRunner(1, 1);
     }
 
     public FullSpectrumRadioSensor(SensorManager sensorManager) {
         super(sensorManager, Network.FSRadio);
-//        taskRunner = new TaskRunner(1, 8);
+        taskRunner = new TaskRunner(1, 1);
     }
 
     @Override

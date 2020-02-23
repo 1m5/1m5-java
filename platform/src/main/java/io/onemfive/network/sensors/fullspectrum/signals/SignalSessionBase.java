@@ -27,23 +27,20 @@
 package io.onemfive.network.sensors.fullspectrum.signals;
 
 import io.onemfive.data.JSONSerializable;
-import io.onemfive.data.NetworkPeer;
 import io.onemfive.network.NetworkPacket;
-import io.onemfive.network.Packet;
 import io.onemfive.network.ops.NetworkNotifyOp;
-import io.onemfive.network.ops.NetworkOp;
 import io.onemfive.network.ops.NetworkRequestOp;
 import io.onemfive.network.sensors.SessionListener;
 import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
-import io.onemfive.network.sensors.fullspectrum.Signal;
+import io.onemfive.network.sensors.fullspectrum.SignalSession;
 import io.onemfive.util.RandomUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public abstract class SignalBase implements Signal, JSONSerializable {
+public abstract class SignalSessionBase implements SignalSession, JSONSerializable {
 
     public static Long MIN_FREQUENCY_HZ = 3L;
     public static Long MAX_FREQUENCY_HZ = 3000000000000L; // 3 THz
@@ -62,7 +59,7 @@ public abstract class SignalBase implements Signal, JSONSerializable {
     protected Long ceilingFrequencyHz = MAX_FREQUENCY_HZ;
     protected Long currentFrequencyHz;
 
-    public SignalBase() {
+    public SignalSessionBase() {
         id = RandomUtil.nextRandomInteger();
     }
 

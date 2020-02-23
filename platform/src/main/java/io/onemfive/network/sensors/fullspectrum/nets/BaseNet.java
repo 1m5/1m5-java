@@ -24,7 +24,19 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.fullspectrum.signals;
+package io.onemfive.network.sensors.fullspectrum.nets;
 
-public class NTSCSignalBase extends SignalBase {
+import io.onemfive.network.sensors.fullspectrum.SignalSession;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class BaseNet implements Net {
+
+    private List<SignalSession> supportedSignals = new ArrayList<>();
+
+    @Override
+    public List<SignalSession> supportedSignals() {
+        return supportedSignals;
+    }
 }

@@ -26,5 +26,5 @@
  */
 package io.onemfive.network.sensors.fullspectrum.signals;
 
-public class NFMVoiceSignal extends VoiceSignal {
+public class AMVoiceSignalSession extends VoiceSignalSession {
 }

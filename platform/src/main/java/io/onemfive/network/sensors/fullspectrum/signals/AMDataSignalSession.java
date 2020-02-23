@@ -26,5 +26,5 @@
  */
 package io.onemfive.network.sensors.fullspectrum.signals;
 
-public class LSBDataSignal extends DataSignal {
+public class AMDataSignalSession extends DataSignalSession {
 }

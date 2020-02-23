@@ -26,8 +26,8 @@
  */
 package io.onemfive.network.sensors.fullspectrum.signals.cb;
 
-import io.onemfive.network.sensors.fullspectrum.signals.AMVoiceSignal;
+import io.onemfive.network.sensors.fullspectrum.signals.AMVoiceSignalSession;
 
 public class CBSignal {
-    private AMVoiceSignal signal;
+    private AMVoiceSignalSession signal;
 }

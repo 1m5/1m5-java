@@ -26,5 +26,5 @@
  */
 package io.onemfive.network.sensors.fullspectrum.signals;
 
-public class USBDataSignal extends DataSignal {
+public class NTSCSignalSessionBase extends SignalSessionBase {
 }

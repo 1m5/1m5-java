@@ -24,7 +24,19 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.fullspectrum.signals;
+package io.onemfive.network.sensors.fullspectrum;
 
-public class AMVoiceSignal extends VoiceSignal {
+import io.onemfive.network.sensors.SensorSession;
+
+public interface SignalSession extends SensorSession {
+    String getName();
+    String getFullName();
+    Integer getPort();
+    String getGoverningBody();
+    String getDescription();
+    Integer getScore();
+    Boolean getActive();
+    Long getFloorFrequencyHz();
+    Long getCeilingFrequencyHz();
+    Long getCurrentFrequencyHz();
 }

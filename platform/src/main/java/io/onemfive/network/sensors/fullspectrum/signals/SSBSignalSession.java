@@ -24,10 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.fullspectrum.signals.walkietalkie;
+package io.onemfive.network.sensors.fullspectrum.signals;
 
-import io.onemfive.network.sensors.fullspectrum.signals.AMVoiceSignalSession;
-
-public class WalkieTalkieSignal {
-    private AMVoiceSignalSession signal;
+public class SSBSignalSession extends SignalSessionBase {
 }

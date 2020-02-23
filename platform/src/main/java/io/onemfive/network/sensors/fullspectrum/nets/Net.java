@@ -24,7 +24,12 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.fullspectrum.signals;
+package io.onemfive.network.sensors.fullspectrum.nets;
 
-public class AMDataSignal extends DataSignal {
+import io.onemfive.network.sensors.fullspectrum.SignalSession;
+
+import java.util.List;
+
+public interface Net {
+    List<SignalSession> supportedSignals();
 }

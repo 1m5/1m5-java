@@ -26,5 +26,5 @@
  */
 package io.onemfive.network.sensors.fullspectrum.signals;
 
-public class PALSignal extends SignalBase {
+public class PALSignalSession extends SignalSessionBase {
 }

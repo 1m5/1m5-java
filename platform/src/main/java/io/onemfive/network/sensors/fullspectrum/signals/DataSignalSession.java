@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.fullspectrum.nets.locha;
+package io.onemfive.network.sensors.fullspectrum.signals;
 
-public class LochaMesh {
+public abstract class DataSignalSession extends SignalSessionBase {
 }

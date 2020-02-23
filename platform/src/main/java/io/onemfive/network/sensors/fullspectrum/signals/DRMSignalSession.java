@@ -26,5 +26,5 @@
  */
 package io.onemfive.network.sensors.fullspectrum.signals;
 
-public class NFMDataSignal extends DataSignal {
+public class DRMSignalSession extends SignalSessionBase {
 }

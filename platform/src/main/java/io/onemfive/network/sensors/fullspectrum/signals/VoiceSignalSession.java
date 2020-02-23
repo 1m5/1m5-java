@@ -26,5 +26,5 @@
  */
 package io.onemfive.network.sensors.fullspectrum.signals;
 
-public class DRMSignal extends SignalBase {
+public abstract class VoiceSignalSession extends SignalSessionBase {
 }

@@ -24,10 +24,16 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.fullspectrum.signals.walkietalkie;
+package io.onemfive.network.sensors.fullspectrum.nets.locha;
 
-import io.onemfive.network.sensors.fullspectrum.signals.AMVoiceSignalSession;
+import io.onemfive.network.sensors.fullspectrum.nets.BaseNet;
 
-public class WalkieTalkieSignal {
-    private AMVoiceSignalSession signal;
+/**
+ * https://locha.io
+ * https://github.com/btcven/locha
+ */
+public class LochaNet extends BaseNet {
+
+
+
 }
