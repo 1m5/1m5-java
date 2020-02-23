@@ -184,16 +184,23 @@ public final class TORSensor extends BaseSensor {
             torSession = establishSession("127.0.0.1", true);
             if (torSession != null && torSession.isConnected()) {
                 updateStatus(SensorStatus.NETWORK_CONNECTED);
-                // Setup Discovery
-                discovery = new NetworkPeerDiscovery(taskRunner, this);
-                taskRunner.addTask(discovery);
-
-                taskRunnerThread = new Thread(taskRunner);
-                taskRunnerThread.setDaemon(true);
-                taskRunnerThread.setName("TORSensor-TaskRunnerThread");
-                taskRunnerThread.start();
+                kickOffDiscovery();
             } else if(getStatus()==SensorStatus.NETWORK_UNAVAILABLE) {
-                return false;
+                if(!embedded) {
+                    LOG.warning("TOR Unavailable and not embedded; attempting to start TOR externally...");
+                    try {
+                        Process p = Runtime.getRuntime().exec("tor");
+                        LOG.warning("TOR (pid="+p.pid()+") started. Waiting a few seconds to warm up...");
+                        Wait.aSec(3);
+                        torSession = establishSession("127.0.0.1", true);
+                        if (torSession != null && torSession.isConnected()) {
+                            updateStatus(SensorStatus.NETWORK_CONNECTED);
+                            kickOffDiscovery();
+                        }
+                    } catch (IOException e) {
+                        LOG.warning(e.getLocalizedMessage());
+                    }
+                }
             } else if(getStatus()!=SensorStatus.NETWORK_CONNECTING) {
                 updateStatus(SensorStatus.NETWORK_CONNECTING);
             }
@@ -201,6 +208,16 @@ public final class TORSensor extends BaseSensor {
         } while(torSession == null || !torSession.isConnected());
 
         return true;
+    }
+
+    private void kickOffDiscovery() {
+        // Setup Discovery
+        discovery = new NetworkPeerDiscovery(taskRunner, this);
+        taskRunner.addTask(discovery);
+        taskRunnerThread = new Thread(taskRunner);
+        taskRunnerThread.setDaemon(true);
+        taskRunnerThread.setName("TORSensor-TaskRunnerThread");
+        taskRunnerThread.start();
     }
 
     @Override
