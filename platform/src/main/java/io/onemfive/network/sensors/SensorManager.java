@@ -587,8 +587,52 @@ public final class SensorManager {
         }
     }
 
-    public Sensor getRegisteredSensor(String sensorName) {
-        return registeredSensors.get(sensorName);
+    public boolean startSensor(String sensorName) {
+        Sensor registeredSensor = registeredSensors.get(sensorName);
+        if(registeredSensor==null) {
+            LOG.warning(sensorName+" not registered.");
+            return false;
+        }
+        Sensor activeSensor = activeSensors.get(sensorName);
+        if(activeSensor==null) {
+            if(registeredSensor.start(properties)) {
+                activeSensors.put(sensorName, registeredSensor);
+                return true;
+            }
+        } else if(activeSensor.getStatus()==SensorStatus.NOT_INITIALIZED
+                || activeSensor.getStatus()==SensorStatus.SHUTDOWN
+                || activeSensor.getStatus()==SensorStatus.GRACEFULLY_SHUTDOWN) {
+            return activeSensor.start(properties);
+        } else {
+            LOG.warning(sensorName+" not ready for starting.");
+        }
+        return false;
+    }
+
+    public boolean stopSensor(String sensorName, boolean gracefully) {
+        Sensor activeSensor = activeSensors.get(sensorName);
+        if(activeSensor==null) {
+            LOG.warning(sensorName+" not registered.");
+            return true;
+        }
+        if(activeSensor.getStatus()==SensorStatus.SHUTTING_DOWN
+                || activeSensor.getStatus()==SensorStatus.GRACEFULLY_SHUTTING_DOWN) {
+            return true;
+        }
+        if(gracefully) {
+            if (activeSensor.gracefulShutdown()) {
+                activeSensors.remove(sensorName);
+                LOG.info(sensorName + " gracefully stopped and deactivated.");
+                return true;
+            }
+        } else {
+            if (activeSensor.shutdown()) {
+                activeSensors.remove(sensorName);
+                LOG.info(sensorName + " stopped and deactivated.");
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isActive(String sensorName) {

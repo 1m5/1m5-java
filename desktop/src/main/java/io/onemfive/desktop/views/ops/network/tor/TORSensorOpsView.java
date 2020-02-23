@@ -26,6 +26,7 @@
  */
 package io.onemfive.desktop.views.ops.network.tor;
 
+import io.onemfive.Cmd;
 import io.onemfive.desktop.MVC;
 import io.onemfive.desktop.components.HyperlinkWithIcon;
 import io.onemfive.desktop.components.TitledGroupBg;
@@ -38,9 +39,12 @@ import io.onemfive.desktop.views.commons.browser.BrowserView;
 import io.onemfive.desktop.views.home.HomeView;
 import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.SensorStatus;
+import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.util.Res;
 import io.onemfive.util.StringUtil;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
@@ -53,6 +57,9 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
     private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
     private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
     private TextField sensorStatusTextField;
+
+    private ToggleButton powerButton;
+    private CheckBox hardStop;
 
     private String address = Res.get("ops.network.notKnownYet");
     private TextField addressTextField;
@@ -79,6 +86,11 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
         GridPane.setColumnSpan(statusGroup, 1);
         sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.FIRST_ROW_DISTANCE).second;
 
+        TitledGroupBg sensorPower = addTitledGroupBg(pane, ++gridRow, 3, Res.get("ops.network.sensorControls"),Layout.FIRST_ROW_DISTANCE);
+        GridPane.setColumnSpan(sensorPower, 1);
+        powerButton = addSlideToggleButton(pane, ++gridRow, Res.get("ops.network.sensorPowerButton"), Layout.TWICE_FIRST_ROW_DISTANCE);
+        hardStop = addCheckBox(pane, ++gridRow, Res.get("ops.network.hardStop"));
+
         TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 5, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
         GridPane.setColumnSpan(localNodeGroup, 1);
         addressTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.tor.addressLabel"), address, Layout.TWICE_FIRST_ROW_DISTANCE).second;
@@ -93,12 +105,32 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
 
     @Override
     protected void activate() {
-
+        // Power Button
+        updateComponents();
+        powerButton.setOnAction(e -> {
+            LOG.info("powerButton="+powerButton.isSelected());
+            if(powerButton.isSelected()) {
+                MVC.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Cmd.startSensor(TORSensor.class.getName());
+                    }
+                });
+            } else {
+                MVC.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Cmd.stopSensor(TORSensor.class.getName(), hardStop.isSelected());
+                    }
+                });
+            }
+            powerButton.disableProperty().setValue(true);
+        });
     }
 
     @Override
     protected void deactivate() {
-
+        powerButton.setOnAction(null);
     }
 
     @Override
@@ -134,8 +166,42 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
                     hiddenServiceHyperLink.disableProperty().set(false);
                 }
             }
+            updateComponents();
         } else {
             LOG.warning("Received unknown model update with name: "+name);
+        }
+    }
+
+    private void updateComponents() {
+        if(sensorStatus==SensorStatus.NOT_INITIALIZED
+                || sensorStatus==SensorStatus.NETWORK_PORT_CONFLICT
+                || sensorStatus==SensorStatus.SHUTDOWN
+                || sensorStatus==SensorStatus.GRACEFULLY_SHUTDOWN) {
+            powerButton.setSelected(false);
+            powerButton.disableProperty().setValue(false);
+            hardStop.setVisible(false);
+        } else if(sensorStatus==SensorStatus.INITIALIZING
+                || sensorStatus==SensorStatus.WAITING
+                || sensorStatus==SensorStatus.STARTING
+                || sensorStatus==SensorStatus.NETWORK_CONNECTING) {
+            powerButton.setSelected(true);
+            powerButton.disableProperty().setValue(true);
+            hardStop.setVisible(false);
+        } else if(sensorStatus==SensorStatus.SHUTTING_DOWN
+                || sensorStatus==SensorStatus.GRACEFULLY_SHUTTING_DOWN
+                || sensorStatus==SensorStatus.UNREGISTERED
+                || sensorStatus==SensorStatus.NETWORK_UNAVAILABLE
+                || sensorStatus==SensorStatus.ERROR
+                || sensorStatus==SensorStatus.NETWORK_ERROR) {
+            powerButton.setSelected(false);
+            powerButton.disableProperty().setValue(true);
+            hardStop.setVisible(true);
+            hardStop.disableProperty().setValue(true);
+        } else if(sensorStatus==SensorStatus.NETWORK_CONNECTED) {
+            powerButton.setSelected(true);
+            powerButton.disableProperty().setValue(false);
+            hardStop.setVisible(true);
+            hardStop.disableProperty().setValue(false);
         }
     }
 

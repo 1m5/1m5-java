@@ -29,6 +29,7 @@ package io.onemfive.core;
 import io.onemfive.core.client.ClientAppManager;
 import io.onemfive.core.bus.ServiceBus;
 import io.onemfive.core.infovault.InfoVaultDB;
+import io.onemfive.data.Envelope;
 import io.onemfive.data.ManCon;
 import io.onemfive.data.ManConStatus;
 import io.onemfive.util.*;
@@ -45,14 +46,13 @@ public class OneMFiveAppContext {
 
     private static final Logger LOG = Logger.getLogger(OneMFiveAppContext.class.getName());
 
-    /** the context that components without explicit root are bound */
     protected static OneMFiveAppContext globalAppContext;
     // TODO: Move configurations to its own class
 //    protected final OneMFiveConfig config;
 
     public static final Properties config = new Properties();
 
-    private ServiceBus serviceBus;
+    private static ServiceBus serviceBus;
 
     protected Set<Runnable> shutdownTasks;
     private File baseDir;
@@ -104,6 +104,10 @@ public class OneMFiveAppContext {
 
     public static void clearGlobalContext() {
         globalAppContext = null;
+    }
+
+    public static boolean send(Envelope envelope) {
+        return serviceBus.send(envelope);
     }
 
     /**

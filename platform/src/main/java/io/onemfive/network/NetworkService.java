@@ -58,6 +58,9 @@ public class NetworkService extends BaseService {
 
     private static final Logger LOG = Logger.getLogger(NetworkService.class.getName());
 
+    public static final String OPERATION_START_SENSOR = "START_SENSOR";
+    public static final String OPERATION_STOP_SENSOR = "STOP_SENSOR";
+
     public static final String OPERATION_GET_NETWORK_CONFIG = "GET_NETWORK_CONFIG";
     public static final String OPERATION_UPDATE_NETWORK_CONFIG = "UPDATE_NETWORK_CONFIG";
 
@@ -125,6 +128,17 @@ public class NetworkService extends BaseService {
         // Incoming from internal Service requesting external Service
         Route r = e.getRoute();
         switch (r.getOperation()) {
+            case OPERATION_START_SENSOR: {
+                String sensorName = (String)DLC.getEntity(e);
+                sensorManager.startSensor(sensorName);
+                break;
+            }
+            case OPERATION_STOP_SENSOR: {
+                String sensorName = (String)DLC.getEntity(e);
+                boolean hardStop = (boolean)DLC.getValue("hardStop", e);
+                sensorManager.stopSensor(sensorName, hardStop);
+                break;
+            }
             case OPERATION_GET_NETWORK_CONFIG: {
                 Network network = (Network)DLC.getValue("network", e);
                 DLC.addData(NetworkState.class, sensorManager.getSensor(network).getNetworkState(), e);

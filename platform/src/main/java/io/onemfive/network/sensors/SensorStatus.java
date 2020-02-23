@@ -34,7 +34,7 @@ package io.onemfive.network.sensors;
 public enum SensorStatus {
     UNREGISTERED, // 0 - Unknown/not registered yet
     // Sensor Starting Up
-    NOT_INITIALIZED, // 1 - Initial state
+    NOT_INITIALIZED, // 1 - Initial state - Registered
     INITIALIZING, // 2 - Initializing Sensor's environment including configuration of Networking component
     STARTING, // 3 - Starting of Networking component
     WAITING,  // Optional 3.1 - means this sensor is waiting on a dependent sensor's status to change to STARTING, e.g. Bote waiting on I2P to begin starting up.
