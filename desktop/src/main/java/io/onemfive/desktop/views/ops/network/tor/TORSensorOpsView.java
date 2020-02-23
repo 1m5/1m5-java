@@ -125,6 +125,7 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
                 });
             }
             powerButton.disableProperty().setValue(true);
+            hardStop.disableProperty().setValue(true);
         });
     }
 

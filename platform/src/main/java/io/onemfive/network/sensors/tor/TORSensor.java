@@ -56,6 +56,7 @@ public final class TORSensor extends BaseSensor {
     public static final String TOR_HIDDENSERVICE_CONFIG = "settings.network.tor.hiddenServiceConfig";
 
     public static final NetworkPeer seedATOR;
+    private Process tor;
 
     static {
         seedATOR = new NetworkPeer(Network.TOR);
@@ -182,6 +183,7 @@ public final class TORSensor extends BaseSensor {
         SensorSession torSession = null;
         do {
             torSession = establishSession("127.0.0.1", true);
+            LOG.warning(getStatus().name());
             if (torSession != null && torSession.isConnected()) {
                 updateStatus(SensorStatus.NETWORK_CONNECTED);
                 kickOffDiscovery();
@@ -189,8 +191,8 @@ public final class TORSensor extends BaseSensor {
                 if(!embedded) {
                     LOG.warning("TOR Unavailable and not embedded; attempting to start TOR externally...");
                     try {
-                        Process p = Runtime.getRuntime().exec("tor");
-                        LOG.warning("TOR (pid="+p.pid()+") started. Waiting a few seconds to warm up...");
+                        tor = Runtime.getRuntime().exec("tor");
+                        LOG.warning("TOR (pid="+tor.pid()+") started. Waiting a few seconds to warm up...");
                         Wait.aSec(3);
                         torSession = establishSession("127.0.0.1", true);
                         if (torSession != null && torSession.isConnected()) {
@@ -204,7 +206,7 @@ public final class TORSensor extends BaseSensor {
             } else if(getStatus()!=SensorStatus.NETWORK_CONNECTING) {
                 updateStatus(SensorStatus.NETWORK_CONNECTING);
             }
-
+            Wait.aSec(3);
         } while(torSession == null || !torSession.isConnected());
 
         return true;
@@ -237,15 +239,37 @@ public final class TORSensor extends BaseSensor {
 
     @Override
     public boolean shutdown() {
+        updateStatus(SensorStatus.SHUTTING_DOWN);
+        if(taskRunnerThread!=null)
+            taskRunnerThread.interrupt();
         for(SensorSession session : sessions.values()) {
             session.disconnect();
             session.close();
         }
+        sessions.clear();
+        if(tor!=null) {
+            tor.destroyForcibly();
+            tor=null;
+        }
+        updateStatus(SensorStatus.SHUTDOWN);
         return true;
     }
 
     @Override
     public boolean gracefulShutdown() {
-        return shutdown();
+        updateStatus(SensorStatus.GRACEFULLY_SHUTTING_DOWN);
+        if(taskRunnerThread!=null)
+            taskRunnerThread.interrupt();
+        for(SensorSession session : sessions.values()) {
+            session.disconnect();
+            session.close();
+        }
+        sessions.clear();
+        if(tor!=null) {
+            tor.destroy();
+            tor=null;
+        }
+        updateStatus(SensorStatus.GRACEFULLY_SHUTDOWN);
+        return true;
     }
 }

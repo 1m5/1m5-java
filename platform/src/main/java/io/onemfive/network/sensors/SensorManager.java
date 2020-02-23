@@ -609,7 +609,7 @@ public final class SensorManager {
         return false;
     }
 
-    public boolean stopSensor(String sensorName, boolean gracefully) {
+    public boolean stopSensor(String sensorName, boolean hardStop) {
         Sensor activeSensor = activeSensors.get(sensorName);
         if(activeSensor==null) {
             LOG.warning(sensorName+" not registered.");
@@ -619,16 +619,16 @@ public final class SensorManager {
                 || activeSensor.getStatus()==SensorStatus.GRACEFULLY_SHUTTING_DOWN) {
             return true;
         }
-        if(gracefully) {
-            if (activeSensor.gracefulShutdown()) {
-                activeSensors.remove(sensorName);
-                LOG.info(sensorName + " gracefully stopped and deactivated.");
-                return true;
-            }
-        } else {
+        if(hardStop) {
             if (activeSensor.shutdown()) {
                 activeSensors.remove(sensorName);
                 LOG.info(sensorName + " stopped and deactivated.");
+                return true;
+            }
+        } else {
+            if (activeSensor.gracefulShutdown()) {
+                activeSensors.remove(sensorName);
+                LOG.info(sensorName + " gracefully stopped and deactivated.");
                 return true;
             }
         }
