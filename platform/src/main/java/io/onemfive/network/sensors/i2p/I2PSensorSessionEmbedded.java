@@ -212,12 +212,12 @@ public class I2PSensorSessionEmbedded extends BaseSession implements I2PSessionM
             }
             localI2PPeer.setId(localNode.getNetworkPeer().getId());
             sensor.getSensorManager().getPeerManager().savePeer(localI2PPeer, true);
-            if(((I2PSensor)sensor).router.getConfigSetting("i2np.udp.port") != null) {
-                sensor.getNetworkState().virtualPort = Integer.parseInt(((I2PSensor)sensor).router.getConfigSetting("i2np.udp.port"));
-            }
-            sensor.getNetworkState().localPeer = localI2PPeer;
-            sensor.updateModelListeners();
         }
+        if(((I2PSensor)sensor).router.getConfigSetting("i2np.udp.port") != null) {
+            sensor.getNetworkState().virtualPort = Integer.parseInt(((I2PSensor)sensor).router.getConfigSetting("i2np.udp.port"));
+        }
+        sensor.getNetworkState().localPeer = localI2PPeer;
+        sensor.updateModelListeners();
         LOG.info("I2PSensor Address in base64: " + localI2PPeer.getDid().getPublicKey().getAddress());
         LOG.info("I2PSensor Fingerprint (hash) in base64: " + localI2PPeer.getDid().getPublicKey().getFingerprint());
         return true;
