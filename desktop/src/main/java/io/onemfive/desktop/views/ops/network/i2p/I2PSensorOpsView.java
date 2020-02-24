@@ -146,24 +146,26 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
                     sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
                 }
             }
-            if(networkState.localPeer!=null) {
-                i2PAddress = networkState.localPeer.getDid().getPublicKey().getAddress();
-                i2PFingerprint = networkState.localPeer.getDid().getPublicKey().getFingerprint();
-                if(i2PAddressTextArea!=null)
-                    i2PAddressTextArea.setText(i2PAddress);
-                if(i2PFingerprintTextField!=null)
-                    i2PFingerprintTextField.setText(i2PFingerprint);
-            }
-            if(networkState.virtualPort != null) {
-                port = String.valueOf(networkState.virtualPort);
-                if(portTextField!=null) {
-                    portTextField.setText(port);
+            if(sensorStatus==SensorStatus.NETWORK_CONNECTED) {
+                if (networkState.localPeer != null) {
+                    i2PAddress = networkState.localPeer.getDid().getPublicKey().getAddress();
+                    i2PFingerprint = networkState.localPeer.getDid().getPublicKey().getFingerprint();
+                    if (i2PAddressTextArea != null)
+                        i2PAddressTextArea.setText(i2PAddress);
+                    if (i2PFingerprintTextField != null)
+                        i2PFingerprintTextField.setText(i2PFingerprint);
                 }
-            }
-            if(networkState.params.get("i2np.lastIPv6")!=null) {
-                i2PIPv6Address = (String)networkState.params.get("i2np.lastIPv6");
-                if(i2PIPv6AddressTextField!=null)
-                    i2PIPv6AddressTextField.setText(i2PIPv6Address);
+                if (networkState.virtualPort != null) {
+                    port = String.valueOf(networkState.virtualPort);
+                    if (portTextField != null) {
+                        portTextField.setText(port);
+                    }
+                }
+                if (networkState.params.get("i2np.lastIPv6") != null) {
+                    i2PIPv6Address = (String) networkState.params.get("i2np.lastIPv6");
+                    if (i2PIPv6AddressTextField != null)
+                        i2PIPv6AddressTextField.setText(i2PIPv6Address);
+                }
             }
             updateComponents();
         } else {

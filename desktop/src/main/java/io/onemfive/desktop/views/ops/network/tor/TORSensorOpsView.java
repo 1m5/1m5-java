@@ -150,26 +150,28 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
                     sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
                 }
             }
-            if(networkState.localPeer!=null) {
-                address = networkState.localPeer.getDid().getPublicKey().getAddress();
-                if(addressTextField!=null)
-                    addressTextField.setText(address);
-            }
-            if(networkState.virtualPort != null) {
-                virtualPort = String.valueOf(networkState.virtualPort);
-                if(virtualPortTextField !=null) {
-                    virtualPortTextField.setText(virtualPort);
+            if(sensorStatus==SensorStatus.NETWORK_CONNECTED) {
+                if (networkState.localPeer != null) {
+                    address = networkState.localPeer.getDid().getPublicKey().getAddress();
+                    if (addressTextField != null)
+                        addressTextField.setText(address);
                 }
-            }
-            if(networkState.targetPort != null) {
-                targetPort = String.valueOf(networkState.targetPort);
-                if(targetPortTextField !=null) {
-                    targetPortTextField.setText(targetPort);
+                if (networkState.virtualPort != null) {
+                    virtualPort = String.valueOf(networkState.virtualPort);
+                    if (virtualPortTextField != null) {
+                        virtualPortTextField.setText(virtualPort);
+                    }
                 }
-                hiddenServiceURL = "http://127.0.0.1:"+targetPort+"/test";
-                if(hiddenServiceHyperLink!=null) {
-                    hiddenServiceHyperLink.setOnAction(e -> MVC.navigation.navigateTo(ViewPath.to(HomeView.class, CommonsView.class, BrowserView.class), hiddenServiceURL));
-                    hiddenServiceHyperLink.disableProperty().set(false);
+                if (networkState.targetPort != null) {
+                    targetPort = String.valueOf(networkState.targetPort);
+                    if (targetPortTextField != null) {
+                        targetPortTextField.setText(targetPort);
+                    }
+                    hiddenServiceURL = "http://127.0.0.1:" + targetPort + "/test";
+                    if (hiddenServiceHyperLink != null) {
+                        hiddenServiceHyperLink.setOnAction(e -> MVC.navigation.navigateTo(ViewPath.to(HomeView.class, CommonsView.class, BrowserView.class), hiddenServiceURL));
+                        hiddenServiceHyperLink.disableProperty().set(false);
+                    }
                 }
             }
             updateComponents();

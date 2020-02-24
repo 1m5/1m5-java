@@ -183,22 +183,16 @@ public final class TORSensor extends BaseSensor {
         SensorSession torSession = null;
         do {
             torSession = establishSession("127.0.0.1", true);
-            LOG.warning(getStatus().name());
-            if (torSession != null && torSession.isConnected()) {
-                updateStatus(SensorStatus.NETWORK_CONNECTED);
-                kickOffDiscovery();
-            } else if(getStatus()==SensorStatus.NETWORK_UNAVAILABLE) {
+            LOG.info(getStatus().name());
+            if(getStatus()==SensorStatus.NETWORK_UNAVAILABLE) {
                 if(!embedded) {
-                    LOG.warning("TOR Unavailable and not embedded; attempting to start TOR externally...");
+                    LOG.info("TOR Unavailable and not embedded; attempting to start TOR externally...");
                     try {
                         tor = Runtime.getRuntime().exec("tor");
-                        LOG.warning("TOR (pid="+tor.pid()+") started. Waiting a few seconds to warm up...");
+                        LOG.info("TOR (pid="+tor.pid()+") started. Waiting a few seconds to warm up...");
+                        // Give some room for TOR to start up
+                        updateStatus(SensorStatus.NETWORK_WARMUP);
                         Wait.aSec(3);
-                        torSession = establishSession("127.0.0.1", true);
-                        if (torSession != null && torSession.isConnected()) {
-                            updateStatus(SensorStatus.NETWORK_CONNECTED);
-                            kickOffDiscovery();
-                        }
                     } catch (IOException e) {
                         LOG.warning(e.getLocalizedMessage());
                     }
@@ -206,9 +200,9 @@ public final class TORSensor extends BaseSensor {
             } else if(getStatus()!=SensorStatus.NETWORK_CONNECTING) {
                 updateStatus(SensorStatus.NETWORK_CONNECTING);
             }
-            Wait.aSec(3);
         } while(torSession == null || !torSession.isConnected());
-
+        updateStatus(SensorStatus.NETWORK_CONNECTED);
+        kickOffDiscovery();
         return true;
     }
 

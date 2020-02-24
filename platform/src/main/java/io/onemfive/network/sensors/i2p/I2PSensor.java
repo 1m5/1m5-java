@@ -185,7 +185,6 @@ public class I2PSensor extends BaseSensor {
 
     @Override
     public boolean start(Properties p) {
-        // TODO: Support connecting to local external I2P Router instance vs launching embedded router if desired
         LOG.info("Starting I2P Sensor...");
         updateStatus(SensorStatus.INITIALIZING);
         // I2P Sensor Starting
@@ -333,17 +332,15 @@ public class I2PSensor extends BaseSensor {
             networkState.params.put(param, router.getConfigSetting(param));
         }
         router.setKillVMOnEnd(false);
-        routerContext.addShutdownTask(this::shutdown);
-        // Hard code to INFO for now for troubleshooting; need to move to configuration
+//        routerContext.addShutdownTask(this::shutdown);
+        // TODO: Hard code to INFO for now for troubleshooting; need to move to configuration
         routerContext.logManager().setDefaultLimit(Log.STR_INFO);
         routerContext.logManager().setFileSize(100000000); // 100 MB
-//        new Thread(new RouterStarter()).start();
 
-        // Setup TaskRunner
         if(taskRunner==null) {
             taskRunner = new TaskRunner(2, 2);
         }
-        // Let's get that router status checker going
+
         checkRouterStats = new CheckRouterStats(taskRunner, this);
         checkRouterStats.setPeriodicity(3 * 1000L);
         taskRunner.addTask(checkRouterStats);
@@ -353,35 +350,6 @@ public class I2PSensor extends BaseSensor {
         taskRunnerThread.setName("I2PSensor-TaskRunnerThread");
         taskRunnerThread.start();
 
-//        CountDownLatch startSignal = new CountDownLatch(1);
-//        CountDownLatch doneSignal = new CountDownLatch(1);
-
-//        try {
-//            updateStatus(SensorStatus.WAITING);
-//            LOG.info("Waiting 3 minutes for I2P Router to warm up...");
-            // TODO: Replace with wait time based on I2P router status to lower start up time
-//            startSignal.await(3, TimeUnit.MINUTES);
-//            LOG.info("I2P Router should be warmed up. Initializing session...");
-//            establishSession(localPeer, true); // Connect with anon peer by default
-//            if(routerContext.commSystem().isInStrictCountry()) {
-//                LOG.warning("This peer is in a 'strict' country defined by I2P.");
-//            }
-//            if(routerContext.router().isHidden()) {
-//                LOG.warning("Router was placed in Hidden mode. 1M5 setting for hidden mode: "+properties.getProperty("1m5.sensors.i2p.hidden"));
-//            }
-//            doneSignal.countDown();
-//        } catch (InterruptedException e) {
-//            LOG.warning("Start interrupted, exiting");
-//            updateStatus(SensorStatus.ERROR);
-//            e.printStackTrace();
-//            return false;
-//        } catch (Exception e) {
-//            LOG.severe("Unable to start I2PSensor: "+e.getLocalizedMessage());
-//            updateStatus(SensorStatus.ERROR);
-//            e.printStackTrace();
-//            return false;
-//        }
-//        LOG.info("Started.");
         return true;
     }
 
@@ -431,9 +399,13 @@ public class I2PSensor extends BaseSensor {
     public boolean shutdown() {
         updateStatus(SensorStatus.SHUTTING_DOWN);
         LOG.info("I2P router stopping...");
-        if(taskRunnerThread!=null && taskRunnerThread.isAlive()) {
+        checkRouterStats.forceStop();
+        taskRunner.shutdown();
+        if(taskRunnerThread!=null) {
             taskRunnerThread.interrupt();
         }
+        taskRunner = null;
+        taskRunnerThread = null;
         for(SensorSession s : sessions.values()) {
             s.disconnect();
             s.close();
@@ -442,6 +414,7 @@ public class I2PSensor extends BaseSensor {
         if(router != null) {
             router.shutdown(Router.EXIT_HARD);
         }
+        router = null;
         updateStatus(SensorStatus.SHUTDOWN);
         LOG.info("I2P router stopped.");
         return true;
@@ -451,9 +424,13 @@ public class I2PSensor extends BaseSensor {
     public boolean gracefulShutdown() {
         updateStatus(SensorStatus.GRACEFULLY_SHUTTING_DOWN);
         LOG.info("I2P router gracefully stopping...");
-        if(taskRunnerThread!=null && taskRunnerThread.isAlive()) {
-            taskRunner.shutdown();
+        checkRouterStats.forceStop();
+        taskRunner.shutdown();
+        if(taskRunnerThread!=null) {
+            taskRunnerThread.interrupt();
         }
+        taskRunner = null;
+        taskRunnerThread = null;
         for(SensorSession s : sessions.values()) {
             s.disconnect();
             s.close();
@@ -462,6 +439,7 @@ public class I2PSensor extends BaseSensor {
         if(router != null) {
             router.shutdownGracefully(Router.EXIT_GRACEFUL);
         }
+        router = null;
         updateStatus(SensorStatus.GRACEFULLY_SHUTDOWN);
         LOG.info("I2P router gracefully stopped.");
         return true;
