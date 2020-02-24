@@ -193,7 +193,6 @@ public class I2PSensor extends BaseSensor {
         String isEmbeddedParam = p.getProperty(I2P_ROUTER_EMBEDDED);
         embedded = "true".equals(isEmbeddedParam);
         networkState.params.put(I2P_ROUTER_EMBEDDED, isEmbeddedParam);
-        updateStatus(SensorStatus.STARTING);
         isTest = "true".equals(properties.getProperty("1m5.sensors.i2p.isTest"));
         // Look for another instance installed
         if(System.getProperty("i2p.dir.base")==null) {
