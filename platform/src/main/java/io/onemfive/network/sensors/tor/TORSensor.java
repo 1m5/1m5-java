@@ -150,7 +150,7 @@ public final class TORSensor extends BaseSensor {
     @Override
     public boolean start(Properties properties) {
         LOG.info("Starting TOR Sensor...");
-        updateStatus(SensorStatus.STARTING);
+        updateStatus(SensorStatus.INITIALIZING);
         this.properties = properties;
         String sensorsDirStr = properties.getProperty("1m5.dir.sensors");
         if (sensorsDirStr == null) {
