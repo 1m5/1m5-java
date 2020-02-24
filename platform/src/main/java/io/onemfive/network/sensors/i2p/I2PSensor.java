@@ -186,7 +186,8 @@ public class I2PSensor extends BaseSensor {
     @Override
     public boolean start(Properties p) {
         // TODO: Support connecting to local external I2P Router instance vs launching embedded router if desired
-        LOG.info("Initializing I2P Sensor...");
+        LOG.info("Starting I2P Sensor...");
+        updateStatus(SensorStatus.INITIALIZING);
         // I2P Sensor Starting
         LOG.info("Loading I2P properties...");
         properties = p;
@@ -315,9 +316,28 @@ public class I2PSensor extends BaseSensor {
         sensorManager.getPeerManager().savePeer(seedAI2P, true);
         networkState.seeds.add(seedAI2P);
 
+        updateStatus(SensorStatus.STARTING);
         // Start I2P Router
         LOG.info("Launching I2P Router...");
-        new Thread(new RouterStarter()).start();
+        RouterLaunch.main(null);
+        List<RouterContext> routerContexts = RouterContext.listContexts();
+        routerContext = routerContexts.get(0);
+        router = routerContext.router();
+        // TODO: Give end users ability to change this
+//            if(config.params.get(Router.PROP_HIDDEN)!=null) {
+//                router.saveConfig(Router.PROP_HIDDEN, (String)config.params.get(Router.PROP_HIDDEN));
+//            }
+//            router.saveConfig(Router.PROP_HIDDEN, "false");
+        LOG.info("I2P Router - Hidden Mode: "+router.getConfigSetting(Router.PROP_HIDDEN));
+        for(String param : router.getConfigMap().keySet()) {
+            networkState.params.put(param, router.getConfigSetting(param));
+        }
+        router.setKillVMOnEnd(false);
+        routerContext.addShutdownTask(this::shutdown);
+        // Hard code to INFO for now for troubleshooting; need to move to configuration
+        routerContext.logManager().setDefaultLimit(Log.STR_INFO);
+        routerContext.logManager().setFileSize(100000000); // 100 MB
+//        new Thread(new RouterStarter()).start();
 
         // Setup TaskRunner
         if(taskRunner==null) {
@@ -410,74 +430,42 @@ public class I2PSensor extends BaseSensor {
     @Override
     public boolean shutdown() {
         updateStatus(SensorStatus.SHUTTING_DOWN);
-        taskRunner.shutdown();
-        new Thread(new RouterStopper()).start();
+        LOG.info("I2P router stopping...");
+        if(taskRunnerThread!=null && taskRunnerThread.isAlive()) {
+            taskRunnerThread.interrupt();
+        }
+        for(SensorSession s : sessions.values()) {
+            s.disconnect();
+            s.close();
+        }
+        sessions.clear();
+        if(router != null) {
+            router.shutdown(Router.EXIT_HARD);
+        }
+        updateStatus(SensorStatus.SHUTDOWN);
+        LOG.info("I2P router stopped.");
         return true;
     }
 
     @Override
     public boolean gracefulShutdown() {
         updateStatus(SensorStatus.GRACEFULLY_SHUTTING_DOWN);
-        // will teardown in 11 minutes or less
-        new Thread(new RouterGracefulStopper()).start();
+        LOG.info("I2P router gracefully stopping...");
+        if(taskRunnerThread!=null && taskRunnerThread.isAlive()) {
+            taskRunner.shutdown();
+        }
+        for(SensorSession s : sessions.values()) {
+            s.disconnect();
+            s.close();
+        }
+        sessions.clear();
+        if(router != null) {
+            router.shutdownGracefully(Router.EXIT_GRACEFUL);
+        }
+        updateStatus(SensorStatus.GRACEFULLY_SHUTDOWN);
+        LOG.info("I2P router gracefully stopped.");
         return true;
     }
-
-    private class RouterStarter implements Runnable {
-        public void run() {
-            RouterLaunch.main(null);
-            List<RouterContext> routerContexts = RouterContext.listContexts();
-            routerContext = routerContexts.get(0);
-            router = routerContext.router();
-            // TODO: Give end users ability to change this
-//            if(config.params.get(Router.PROP_HIDDEN)!=null) {
-//                router.saveConfig(Router.PROP_HIDDEN, (String)config.params.get(Router.PROP_HIDDEN));
-//            }
-//            router.saveConfig(Router.PROP_HIDDEN, "false");
-            LOG.info("I2P Router - Hidden Mode: "+router.getConfigSetting(Router.PROP_HIDDEN));
-            for(String param : router.getConfigMap().keySet()) {
-                networkState.params.put(param, router.getConfigSetting(param));
-            }
-            router.setKillVMOnEnd(false);
-            routerContext.addShutdownTask(new RouterStopper());
-            // Hard code to INFO for now for troubleshooting; need to move to configuration
-            routerContext.logManager().setDefaultLimit(Log.STR_INFO);
-            routerContext.logManager().setFileSize(100000000); // 100 MB
-        }
-    }
-
-    private class RouterStopper implements Runnable {
-        public void run() {
-            LOG.info("I2P router stopping...");
-            if(taskRunnerThread!=null && taskRunnerThread.isAlive()) {
-                taskRunnerThread.interrupt();
-            }
-            if(router != null) {
-                router.shutdown(Router.EXIT_HARD);
-            }
-            updateStatus(SensorStatus.SHUTDOWN);
-            LOG.info("I2P router stopped.");
-        }
-    }
-
-    private class RouterGracefulStopper implements Runnable {
-        public void run() {
-            LOG.info("I2P router gracefully stopping...");
-            if(taskRunnerThread!=null && taskRunnerThread.isAlive()) {
-                taskRunner.shutdown();
-            }
-            for(SensorSession s : sessions.values()) {
-                s.disconnect();
-                s.close();
-            }
-            if(router != null) {
-                router.shutdownGracefully(Router.EXIT_GRACEFUL);
-            }
-            updateStatus(SensorStatus.GRACEFULLY_SHUTDOWN);
-            LOG.info("I2P router gracefully stopped.");
-        }
-    }
-
 
     public void reportRouterStatus() {
         switch (i2pRouterStatus) {
