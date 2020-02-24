@@ -115,6 +115,7 @@ public class BluetoothSensorOpsView extends ActivatableView implements TopicList
                 }
             }
         });
+        discoverButton.disableProperty().setValue(true);
     }
 
     @Override
@@ -144,6 +145,13 @@ public class BluetoothSensorOpsView extends ActivatableView implements TopicList
                         addressTextField.setText(address);
                     }
                 }
+                discoverButton.disableProperty().setValue(false);
+            } else if(sensorStatus==SensorStatus.NETWORK_CONNECTING
+                    || sensorStatus==SensorStatus.NETWORK_WARMUP
+                    || sensorStatus==SensorStatus.STARTING) {
+                discoverButton.disableProperty().setValue(false);
+            } else {
+                discoverButton.disableProperty().setValue(true);
             }
         } else {
             LOG.warning("Received unknown model update with name: "+name);

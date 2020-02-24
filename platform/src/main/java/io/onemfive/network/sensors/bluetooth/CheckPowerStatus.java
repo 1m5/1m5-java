@@ -42,11 +42,11 @@ public class CheckPowerStatus extends NetworkTask {
     @Override
     public Boolean execute() {
         if(!powerOn && LocalDevice.isPowerOn()) {
-            ((BluetoothSensor)sensor).awaken();
             powerOn = true;
+            ((BluetoothSensor)sensor).awaken();
         } else {
-            ((BluetoothSensor)sensor).sleep();
             powerOn = false;
+            ((BluetoothSensor)sensor).sleep();
         }
         return true;
     }

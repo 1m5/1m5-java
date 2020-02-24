@@ -45,6 +45,7 @@ import java.util.logging.Logger;
 /**
  * Integration with JSR-82 implementation BlueCove (http://www.bluecove.org).
  * Bluecove licensed under GPL.
+ *
  */
 public class BluetoothSensor extends BaseSensor {
 
@@ -113,11 +114,11 @@ public class BluetoothSensor extends BaseSensor {
     }
 
     public SensorSession establishSession(NetworkPeer peer, Boolean autoConnect) {
-        return establishSession(peer.getDid().getPublicKey().getAddress(), true);
+        return establishSession(peer.getDid().getPublicKey().getAddress(), autoConnect);
     }
 
     @Override
-    public void updateConfig(NetworkState config) {
+    public void updateState(NetworkState networkState) {
         LOG.warning("Not implemented.");
     }
 
@@ -318,18 +319,7 @@ public class BluetoothSensor extends BaseSensor {
         networkState.UpdateInterval = 20 * 60; // 20 minutes
         networkState.UpdateIntervalHyper = 60; // every minute
 
-        updateStatus(SensorStatus.NETWORK_CONNECTING);
-
-        try {
-            RemoteDevice[] remoteDevices = LocalDevice.getLocalDevice().getDiscoveryAgent().retrieveDevices(DiscoveryAgent.CACHED);
-            if(remoteDevices != null && remoteDevices.length > 0) {
-                startPeerDiscovery();
-            }
-        } catch (BluetoothStateException e) {
-            LOG.warning(e.getLocalizedMessage());
-        }
-
-        return true;
+        return startPeerDiscovery();
     }
 
     public boolean sleep() {

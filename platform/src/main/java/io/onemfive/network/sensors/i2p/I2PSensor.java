@@ -172,13 +172,13 @@ public class I2PSensor extends BaseSensor {
     }
 
     @Override
-    public void updateConfig(NetworkState config) {
-        if(networkState.params.get(Router.PROP_HIDDEN)!=null
-                && config.params.get(Router.PROP_HIDDEN)!=null
-                && networkState.params.get(Router.PROP_HIDDEN)!=config.params.get(Router.PROP_HIDDEN)) {
+    public void updateState(NetworkState networkState) {
+        if(this.networkState.params.get(Router.PROP_HIDDEN)!=null
+                && networkState.params.get(Router.PROP_HIDDEN)!=null
+                && this.networkState.params.get(Router.PROP_HIDDEN)!= networkState.params.get(Router.PROP_HIDDEN)) {
             // Hidden mode changed so change for Router and restart
-            networkState.params.put(Router.PROP_HIDDEN, config.params.get(Router.PROP_HIDDEN));
-            router.saveConfig(Router.PROP_HIDDEN, (String)networkState.params.get(Router.PROP_HIDDEN));
+            this.networkState.params.put(Router.PROP_HIDDEN, networkState.params.get(Router.PROP_HIDDEN));
+            router.saveConfig(Router.PROP_HIDDEN, (String) this.networkState.params.get(Router.PROP_HIDDEN));
             restart();
         }
     }

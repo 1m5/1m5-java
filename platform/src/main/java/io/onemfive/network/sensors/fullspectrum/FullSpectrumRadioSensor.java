@@ -82,7 +82,7 @@ public class FullSpectrumRadioSensor extends BaseSensor {
     }
 
     @Override
-    public void updateConfig(NetworkState config) {
+    public void updateState(NetworkState networkState) {
         LOG.warning("Not implemented.");
     }
 

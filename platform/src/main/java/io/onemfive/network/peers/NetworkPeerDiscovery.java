@@ -92,7 +92,7 @@ public class NetworkPeerDiscovery extends NetworkTask  {
         requestOp.fromNetworkAddress = localNode.getNetworkPeer(sensor.getNetwork()).getDid().getPublicKey().getAddress();
         requestOp.toNetworkAddress = toAddress;
         requestOp.toNetworkPort = toPort;
-        SensorSession session = sensor.establishSession(null, true);
+        SensorSession session = sensor.establishSession(toAddress, true);
         session.send(requestOp);
         return true;
     }

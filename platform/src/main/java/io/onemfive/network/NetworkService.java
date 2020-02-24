@@ -158,7 +158,7 @@ public class NetworkService extends BaseService {
             case OPERATION_UPDATE_NETWORK_CONFIG: {
                 NetworkState config = (NetworkState)DLC.getData(NetworkState.class, e);
                 if(config!=null) {
-                    sensorManager.getSensor(config.network).updateConfig(config);
+                    sensorManager.getSensor(config.network).updateState(config);
                 }
                 break;
             }
