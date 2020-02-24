@@ -62,9 +62,9 @@ public class NetworkPeerDiscovery extends NetworkTask  {
         running = true;
         long totalKnown = peerManager.totalPeersByNetwork(sensor.getNetwork());
         if(totalKnown==0) {
-            LOG.warning("No known peers for this network yet, probably too early.");
+            LOG.info("No known peers for this network yet, probably too early.");
         } else if(totalKnown==1) {
-            LOG.warning("Only local peer known.");
+            LOG.info("Only local peer known.");
         } else if(totalKnown < sensor.getNetworkState().MaxPT) {
             LOG.info(totalKnown+" known peers less than Maximum Peers Tracked of "+ sensor.getNetworkState().MaxPT+"; continuing peer discovery...");
             NetworkPeer p = peerManager.getRandomPeer(sensor.getNetwork());

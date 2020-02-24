@@ -36,6 +36,7 @@ import io.onemfive.network.ops.NetworkRequestOp;
 import io.onemfive.network.ops.NetworkResponseOp;
 import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.network.sensors.BaseSession;
+import io.onemfive.network.sensors.SensorStatus;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
@@ -117,6 +118,7 @@ class BluetoothSession extends BaseSession {
     @Override
     public boolean open(String address) {
         LOG.info("Establishing session based on provided address: "+address);
+        sensor.updateStatus(SensorStatus.NETWORK_WARMUP);
         // Client
         remotePeerAddress = address;
         try {
@@ -169,6 +171,7 @@ class BluetoothSession extends BaseSession {
     @Override
     public boolean connect() {
         LOG.info("Connecting to remote bluetooth device of peer: "+remotePeerAddress);
+        sensor.updateStatus(SensorStatus.NETWORK_CONNECTING);
         connected = false;
         if(clientSession==null) {
             if(!open(remotePeerAddress))
@@ -184,6 +187,7 @@ class BluetoothSession extends BaseSession {
                 return false;
             } else {
                 connected = true;
+                sensor.updateStatus(SensorStatus.NETWORK_CONNECTED);
             }
         } catch (IOException e) {
             LOG.warning(e.getLocalizedMessage());
@@ -197,6 +201,7 @@ class BluetoothSession extends BaseSession {
         if(clientSession!=null) {
             try {
                 clientSession.disconnect(null);
+                sensor.updateStatus(SensorStatus.NETWORK_CONNECTING);
             } catch (IOException e) {
                 LOG.warning(e.getLocalizedMessage());
             }
@@ -211,6 +216,7 @@ class BluetoothSession extends BaseSession {
 
     @Override
     public boolean close() {
+        sensor.updateStatus(SensorStatus.NETWORK_STOPPING);
         if(clientSession!=null) {
             try {
                 clientSession.close();
@@ -228,6 +234,7 @@ class BluetoothSession extends BaseSession {
         }
         serverThread.interrupt();
         sensor.releaseSession(this);
+        sensor.updateStatus(SensorStatus.NETWORK_STOPPED);
         return true;
     }
 

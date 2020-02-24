@@ -52,6 +52,18 @@ public class Cmd {
         return OneMFiveAppContext.send(e);
     }
 
+    public static boolean startBluetoothDiscovery() {
+        Envelope e = Envelope.documentFactory();
+        DLC.addRoute(NetworkService.class, NetworkService.OPERATION_START_BLUETOOTH_DISCOVERY, e);
+        return OneMFiveAppContext.send(e);
+    }
+
+    public static boolean stopBluetoothDiscovery() {
+        Envelope e = Envelope.documentFactory();
+        DLC.addRoute(NetworkService.class, NetworkService.OPERATION_STOP_BLUETOOTH_DISCOVERY, e);
+        return OneMFiveAppContext.send(e);
+    }
+
 //    public static boolean startService(String serviceName) {
 //        Envelope e = Envelope.documentFactory();
 //        DLC.addEntity(serviceName, e);

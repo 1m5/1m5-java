@@ -635,6 +635,16 @@ public final class SensorManager {
         return false;
     }
 
+    public boolean startBluetoothDiscovery() {
+        BluetoothSensor sensor = (BluetoothSensor)getActiveSensors().get(BluetoothSensor.class.getName());
+        return sensor.startDeviceDiscovery();
+    }
+
+    public boolean stopBluetoothDiscovery() {
+        BluetoothSensor sensor = (BluetoothSensor)getActiveSensors().get(BluetoothSensor.class.getName());
+        return sensor.stopDeviceDiscovery();
+    }
+
     public boolean isActive(String sensorName) {
         return activeSensors.containsKey(sensorName);
     }

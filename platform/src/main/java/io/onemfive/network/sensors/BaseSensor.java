@@ -225,19 +225,26 @@ public abstract class BaseSensor implements Sensor {
     @Override
     public boolean shutdown() {
         boolean success = true;
-        if(sessions !=null) {
-            Collection<SensorSession> rl = sessions.values();
-            for(SensorSession r : rl) {
-                if(!r.disconnect()) {
-                    success = false;
-                }
+        Collection<SensorSession> rl = sessions.values();
+        for(SensorSession r : rl) {
+            if(!r.disconnect()) {
+                success = false;
             }
         }
+        sessions.clear();
         return success;
     }
 
     @Override
     public boolean gracefulShutdown() {
-        return shutdown();
+        boolean success = true;
+        Collection<SensorSession> rl = sessions.values();
+        for(SensorSession r : rl) {
+            if(!r.disconnect()) {
+                success = false;
+            }
+        }
+        sessions.clear();
+        return success;
     }
 }

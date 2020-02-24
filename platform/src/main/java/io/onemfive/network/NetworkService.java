@@ -61,6 +61,9 @@ public class NetworkService extends BaseService {
     public static final String OPERATION_START_SENSOR = "START_SENSOR";
     public static final String OPERATION_STOP_SENSOR = "STOP_SENSOR";
 
+    public static final String OPERATION_START_BLUETOOTH_DISCOVERY = "START_BLUETOOTH_DISCOVERY";
+    public static final String OPERATION_STOP_BLUETOOTH_DISCOVERY = "STOP_BLUETOOTH_DISCOVERY";
+
     public static final String OPERATION_GET_NETWORK_CONFIG = "GET_NETWORK_CONFIG";
     public static final String OPERATION_UPDATE_NETWORK_CONFIG = "UPDATE_NETWORK_CONFIG";
 
@@ -137,6 +140,14 @@ public class NetworkService extends BaseService {
                 String sensorName = (String)DLC.getEntity(e);
                 boolean hardStop = (boolean)DLC.getValue("hardStop", e);
                 sensorManager.stopSensor(sensorName, hardStop);
+                break;
+            }
+            case OPERATION_START_BLUETOOTH_DISCOVERY: {
+                sensorManager.startBluetoothDiscovery();
+                break;
+            }
+            case OPERATION_STOP_BLUETOOTH_DISCOVERY: {
+                sensorManager.stopBluetoothDiscovery();
                 break;
             }
             case OPERATION_GET_NETWORK_CONFIG: {
