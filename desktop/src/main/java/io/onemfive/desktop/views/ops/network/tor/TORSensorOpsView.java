@@ -42,6 +42,8 @@ import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.util.Res;
 import io.onemfive.util.StringUtil;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -105,27 +107,30 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
 
     @Override
     protected void activate() {
-        // Power Button
         updateComponents();
-        powerButton.setOnAction(e -> {
-            LOG.info("powerButton="+powerButton.isSelected());
-            if(powerButton.isSelected()) {
-                MVC.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        Cmd.startSensor(TORSensor.class.getName());
-                    }
-                });
-            } else {
-                MVC.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        Cmd.stopSensor(TORSensor.class.getName(), hardStop.isSelected());
-                    }
-                });
+        powerButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                LOG.info("powerButton=" + powerButton.isSelected());
+                if (powerButton.isSelected()) {
+                    MVC.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            Cmd.startSensor(TORSensor.class.getName());
+                        }
+                    });
+                } else {
+                    reset();
+                    MVC.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            Cmd.stopSensor(TORSensor.class.getName(), hardStop.isSelected());
+                        }
+                    });
+                }
+                powerButton.disableProperty().setValue(true);
+                hardStop.disableProperty().setValue(true);
             }
-            powerButton.disableProperty().setValue(true);
-            hardStop.disableProperty().setValue(true);
         });
     }
 
@@ -170,6 +175,25 @@ public class TORSensorOpsView extends ActivatableView implements TopicListener {
             updateComponents();
         } else {
             LOG.warning("Received unknown model update with name: "+name);
+        }
+    }
+
+    private void reset() {
+        address = Res.get("ops.network.notKnownYet");
+        if(addressTextField!=null)
+            addressTextField.setText(address);
+        virtualPort = Res.get("ops.network.notKnownYet");
+        if(virtualPortTextField !=null) {
+            virtualPortTextField.setText(virtualPort);
+        }
+        targetPort = Res.get("ops.network.notKnownYet");
+        if(targetPortTextField !=null) {
+            targetPortTextField.setText(targetPort);
+        }
+        hiddenServiceURL = Res.get("ops.network.notKnownYet");
+        if(hiddenServiceHyperLink!=null) {
+            hiddenServiceHyperLink.setOnAction(null);
+            hiddenServiceHyperLink.disableProperty().set(true);
         }
     }
 

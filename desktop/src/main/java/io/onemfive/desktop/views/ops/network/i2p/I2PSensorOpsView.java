@@ -26,16 +26,24 @@
  */
 package io.onemfive.desktop.views.ops.network.i2p;
 
+import io.onemfive.Cmd;
+import io.onemfive.desktop.MVC;
 import io.onemfive.desktop.components.TitledGroupBg;
 import io.onemfive.desktop.util.Layout;
 import io.onemfive.desktop.views.ActivatableView;
 import io.onemfive.desktop.views.TopicListener;
 import io.onemfive.network.NetworkState;
 import io.onemfive.network.sensors.SensorStatus;
+import io.onemfive.network.sensors.i2p.I2PSensor;
+import io.onemfive.network.sensors.tor.TORSensor;
 import io.onemfive.util.Res;
 import io.onemfive.util.StringUtil;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 
 import static io.onemfive.desktop.util.FormBuilder.*;
@@ -48,6 +56,9 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
     private SensorStatus sensorStatus = SensorStatus.NOT_INITIALIZED;
     private String sensorStatusField = StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' '));
     private TextField sensorStatusTextField;
+
+    private ToggleButton powerButton;
+    private CheckBox hardStop;
 
     private String i2PFingerprint = Res.get("ops.network.notKnownYet");
     private TextField i2PFingerprintTextField;
@@ -74,7 +85,11 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
         GridPane.setColumnSpan(statusGroup, 1);
         sensorStatusTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.status.sensor"), sensorStatusField, Layout.FIRST_ROW_DISTANCE).second;
 
-        // Local Node
+        TitledGroupBg sensorPower = addTitledGroupBg(pane, ++gridRow, 3, Res.get("ops.network.sensorControls"),Layout.FIRST_ROW_DISTANCE);
+        GridPane.setColumnSpan(sensorPower, 1);
+        powerButton = addSlideToggleButton(pane, ++gridRow, Res.get("ops.network.sensorPowerButton"), Layout.TWICE_FIRST_ROW_DISTANCE);
+        hardStop = addCheckBox(pane, ++gridRow, Res.get("ops.network.hardStop"));
+
         TitledGroupBg localNodeGroup = addTitledGroupBg(pane, ++gridRow, 6, Res.get("ops.network.localNode"),Layout.FIRST_ROW_DISTANCE);
         GridPane.setColumnSpan(localNodeGroup, 1);
         i2PFingerprintTextField = addCompactTopLabelTextField(pane, ++gridRow, Res.get("ops.network.i2p.fingerprintLabel"), i2PFingerprint, Layout.TWICE_FIRST_ROW_DISTANCE).second;
@@ -87,12 +102,36 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
 
     @Override
     protected void activate() {
-
+        updateComponents();
+        powerButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                LOG.info("powerButton=" + powerButton.isSelected());
+                if (powerButton.isSelected()) {
+                    MVC.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            Cmd.startSensor(I2PSensor.class.getName());
+                        }
+                    });
+                } else {
+                    reset();
+                    MVC.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            Cmd.stopSensor(I2PSensor.class.getName(), hardStop.isSelected());
+                        }
+                    });
+                }
+                powerButton.disableProperty().setValue(true);
+                hardStop.disableProperty().setValue(true);
+            };
+        });
     }
 
     @Override
     protected void deactivate() {
-
+        powerButton.setOnAction(null);
     }
 
 
@@ -126,8 +165,58 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
                 if(i2PIPv6AddressTextField!=null)
                     i2PIPv6AddressTextField.setText(i2PIPv6Address);
             }
+            updateComponents();
         } else {
             LOG.warning("Received unknown model update with name: "+name);
+        }
+    }
+
+    private void reset() {
+        i2PAddress = Res.get("ops.network.notKnownYet");
+        i2PFingerprint = Res.get("ops.network.notKnownYet");
+        if(i2PAddressTextArea!=null)
+            i2PAddressTextArea.setText(i2PAddress);
+        if(i2PFingerprintTextField!=null)
+            i2PFingerprintTextField.setText(i2PFingerprint);
+        port = Res.get("ops.network.notKnownYet");
+        if(portTextField!=null) {
+            portTextField.setText(port);
+        }
+        i2PIPv6Address = Res.get("ops.network.notKnownYet");
+        if(i2PIPv6AddressTextField!=null)
+            i2PIPv6AddressTextField.setText(i2PIPv6Address);
+    }
+
+    private void updateComponents() {
+        if(sensorStatus==SensorStatus.NOT_INITIALIZED
+                || sensorStatus==SensorStatus.NETWORK_PORT_CONFLICT
+                || sensorStatus==SensorStatus.SHUTDOWN
+                || sensorStatus==SensorStatus.GRACEFULLY_SHUTDOWN) {
+            powerButton.setSelected(false);
+            powerButton.disableProperty().setValue(false);
+            hardStop.setVisible(false);
+        } else if(sensorStatus==SensorStatus.INITIALIZING
+                || sensorStatus==SensorStatus.WAITING
+                || sensorStatus==SensorStatus.STARTING
+                || sensorStatus==SensorStatus.NETWORK_CONNECTING) {
+            powerButton.setSelected(true);
+            powerButton.disableProperty().setValue(true);
+            hardStop.setVisible(false);
+        } else if(sensorStatus==SensorStatus.SHUTTING_DOWN
+                || sensorStatus==SensorStatus.GRACEFULLY_SHUTTING_DOWN
+                || sensorStatus==SensorStatus.UNREGISTERED
+                || sensorStatus==SensorStatus.NETWORK_UNAVAILABLE
+                || sensorStatus==SensorStatus.ERROR
+                || sensorStatus==SensorStatus.NETWORK_ERROR) {
+            powerButton.setSelected(false);
+            powerButton.disableProperty().setValue(true);
+            hardStop.setVisible(true);
+            hardStop.disableProperty().setValue(true);
+        } else if(sensorStatus==SensorStatus.NETWORK_CONNECTED) {
+            powerButton.setSelected(true);
+            powerButton.disableProperty().setValue(false);
+            hardStop.setVisible(true);
+            hardStop.disableProperty().setValue(false);
         }
     }
 
