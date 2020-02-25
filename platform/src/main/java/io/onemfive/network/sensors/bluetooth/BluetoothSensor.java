@@ -185,6 +185,7 @@ public class BluetoothSensor extends BaseSensor {
     }
 
     private boolean startPeerDiscovery() {
+        LOG.info("Starting Bluetooth Peer Discovery...");
         try {
             RemoteDevice[] remoteDevices = LocalDevice.getLocalDevice().getDiscoveryAgent().retrieveDevices(DiscoveryAgent.CACHED);
             if(remoteDevices != null && remoteDevices.length > 0) {
@@ -199,6 +200,7 @@ public class BluetoothSensor extends BaseSensor {
             peerDiscovery.setDelayTimeMS(40 * 1000L);
             taskRunner.addTask(peerDiscovery);
             peerDiscoveryRunning = true;
+            LOG.info("Completed Bluetooth Peer Discovery.");
             return true;
         } catch (BluetoothStateException e) {
             LOG.warning(e.getLocalizedMessage());

@@ -736,20 +736,20 @@ public class ClearnetSession extends BaseSession {
                 }
             }
 
-            server = new Server(new InetSocketAddress(this.address, port));
+            server = new Server(new InetSocketAddress("127.0.0.1", port));
             server.setHandler(handlers);
-            LOG.info("Starting HTTP Server for " + name + " on " + this.address + ":" + port);
+            LOG.info("Starting HTTP Server for " + name + " on 127.0.0.1:" + port);
             try {
                 server.start();
                 LOG.finest(server.dump());
-                LOG.info("HTTP Server for " + name + " started on " + this.address + ":" + port);
+                LOG.info("HTTP Server for " + name + " started on 127.0.0.1:" + port);
             } catch (Exception e1) {
                 LOG.warning("Exception caught while starting HTTP Server for " + name + " with port " + port + ": " + e1.getLocalizedMessage());
                 sensor.updateStatus(SensorStatus.ERROR);
                 return false;
             }
             if (launchOnStart)
-                BrowserUtil.launch("http://" + this.address + ":" + port + "/");
+                BrowserUtil.launch("http://127.0.0.1:" + port + "/");
             if (webSocket != null) {
                 LOG.info("Subscribing WebSocket (" + webSocket.getClass().getName() + ") to TEXT notifications...");
                 // Subscribe to Text notifications
