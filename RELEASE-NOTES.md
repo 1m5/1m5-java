@@ -1,7 +1,14 @@
 # Release Notes
 
 ## 0.6.4
-
++ Added TOR hidden services when TOR is local using its Control API
++ Added TOR peer discovery although not yet tested; will test during Browser version (0.6.6)
++ Added Settings and Ops to Desktop GUI
++ Improved Bluetooth's Device, Service, and Peer Discovery fixing some bugs
++ Added ability to start/stop TOR, I2P, and Bluetooth sensors
++ Abstracted out Network Peer discovery so that all sensors can leverage the code
++ Implemented Network Ops more in TOR, I2P, and Bluetooth sensors; need to test during Browser version
++ Submitted integration proposal with Monero
 
 ## 0.6.3
 + Provide Operation interface - not in wide use yet though
@@ -17,4 +24,5 @@
 + Moved all Peer information except id to an embedded Derby database to relieve the graph of excess data
 + Greatly improved sensor/network/mancon routing rules
 + Add Network Ops concept, not yet in full use
++ Submitted integration proposal with Bisq
 
