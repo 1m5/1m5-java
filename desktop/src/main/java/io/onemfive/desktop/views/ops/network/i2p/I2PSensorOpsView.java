@@ -199,8 +199,7 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
             hardStop.setVisible(false);
         } else if(sensorStatus==SensorStatus.INITIALIZING
                 || sensorStatus==SensorStatus.WAITING
-                || sensorStatus==SensorStatus.STARTING
-                || sensorStatus==SensorStatus.NETWORK_CONNECTING) {
+                || sensorStatus==SensorStatus.STARTING) {
             powerButton.setSelected(true);
             powerButton.disableProperty().setValue(true);
             hardStop.setVisible(false);
@@ -214,7 +213,8 @@ public class I2PSensorOpsView extends ActivatableView implements TopicListener {
             powerButton.disableProperty().setValue(true);
             hardStop.setVisible(true);
             hardStop.disableProperty().setValue(true);
-        } else if(sensorStatus==SensorStatus.NETWORK_CONNECTED) {
+        } else if(sensorStatus==SensorStatus.NETWORK_CONNECTING
+                || sensorStatus==SensorStatus.NETWORK_CONNECTED) {
             powerButton.setSelected(true);
             powerButton.disableProperty().setValue(false);
             hardStop.setVisible(true);

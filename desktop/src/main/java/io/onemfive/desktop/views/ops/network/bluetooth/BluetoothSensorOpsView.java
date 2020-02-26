@@ -39,17 +39,11 @@ import io.onemfive.util.Res;
 import io.onemfive.util.StringUtil;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 
-import javax.bluetooth.BluetoothStateException;
-import javax.bluetooth.DiscoveryAgent;
-import javax.bluetooth.LocalDevice;
-
 import static io.onemfive.desktop.util.FormBuilder.*;
-import static io.onemfive.desktop.util.FormBuilder.addCheckBox;
 
 public class BluetoothSensorOpsView extends ActivatableView implements TopicListener {
 
@@ -134,7 +128,8 @@ public class BluetoothSensorOpsView extends ActivatableView implements TopicList
                     sensorStatusTextField.setText(StringUtil.capitalize(sensorStatus.name().toLowerCase().replace('_', ' ')));
                 }
             }
-            if(sensorStatus==SensorStatus.NETWORK_CONNECTED) {
+            if(sensorStatus==SensorStatus.NETWORK_CONNECTING
+                    || sensorStatus==SensorStatus.NETWORK_CONNECTED) {
                 if (networkState.localPeer != null) {
                     friendlyName = networkState.localPeer.getDid().getUsername();
                     if (friendlynameTextField != null) {
@@ -146,8 +141,7 @@ public class BluetoothSensorOpsView extends ActivatableView implements TopicList
                     }
                 }
                 discoverButton.disableProperty().setValue(false);
-            } else if(sensorStatus==SensorStatus.NETWORK_CONNECTING
-                    || sensorStatus==SensorStatus.NETWORK_WARMUP
+            } else if(sensorStatus==SensorStatus.NETWORK_WARMUP
                     || sensorStatus==SensorStatus.STARTING) {
                 discoverButton.disableProperty().setValue(false);
             } else {
