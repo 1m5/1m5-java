@@ -904,7 +904,7 @@ public class TORControlConnection implements TORControlCommands {
 
         /*
          * we could try to decode the supplied key and somehow get its type, however, as
-         * Java does not want to read PKCS1-encoded PEM without external help, we let
+         * Java does not want to read PKCS1-encoded PEM without local help, we let
          * the Tor binary do the math.
          */
         List<ReplyLine> result = null;

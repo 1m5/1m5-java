@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  * Bluecove licensed under GPL.
  *
  */
-public class BluetoothSensor extends BaseSensor {
+public final class BluetoothSensor extends BaseSensor {
 
     private static final Logger LOG = Logger.getLogger(BluetoothSensor.class.getName());
 

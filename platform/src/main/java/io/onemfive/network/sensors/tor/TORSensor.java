@@ -31,7 +31,6 @@ import io.onemfive.network.*;
 import io.onemfive.network.peers.NetworkPeerDiscovery;
 import io.onemfive.network.sensors.*;
 import io.onemfive.network.sensors.tor.embedded.TORSensorSessionEmbedded;
-import io.onemfive.network.sensors.tor.external.TORSensorSessionExternal;
 import io.onemfive.util.Wait;
 import io.onemfive.util.tasks.TaskRunner;
 
@@ -43,7 +42,7 @@ import java.util.logging.Logger;
 /**
  * Sets up an HttpClientSensor with the local Tor instance as a proxy (127.0.0.1:9150).
  *
- * TODO: Add local node as Tor Hidden Service accepting external Tor calls
+ * TODO: Add local node as Tor Hidden Service accepting local Tor calls
  *
  * @author objectorange
  */
@@ -124,7 +123,7 @@ public final class TORSensor extends BaseSensor {
             address = "127.0.0.1";
         }
         if(sessions.get(address)==null) {
-            SensorSession sensorSession = embedded ? new TORSensorSessionEmbedded(this) : new TORSensorSessionExternal(this);
+            SensorSession sensorSession = embedded ? new TORSensorSessionEmbedded(this) : new io.onemfive.network.sensors.tor.external.TORSensorSessionLocal(this);
 
             if(sensorSession.init(properties) && sensorSession.open(address)) {
                 if (autoConnect) {

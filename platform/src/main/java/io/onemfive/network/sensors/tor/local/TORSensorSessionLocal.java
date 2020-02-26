@@ -29,8 +29,6 @@ package io.onemfive.network.sensors.tor.external;
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkPacket;
 import io.onemfive.network.Request;
-import io.onemfive.network.ops.NetworkOp;
-import io.onemfive.network.sensors.SensorSession;
 import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.clearnet.ClearnetSession;
 import io.onemfive.network.sensors.tor.TORHiddenService;
@@ -52,9 +50,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class TORSensorSessionExternal extends ClearnetSession {
+public class TORSensorSessionLocal extends ClearnetSession {
 
-    private static final Logger LOG = Logger.getLogger(TORSensorSessionExternal.class.getName());
+    private static final Logger LOG = Logger.getLogger(io.onemfive.network.sensors.tor.external.TORSensorSessionLocal.class.getName());
 
     public static final String HOST = "127.0.0.1";
     public static final Integer PORT_SOCKS = 9050;
@@ -66,7 +64,7 @@ public class TORSensorSessionExternal extends ClearnetSession {
     private TORSensor sensor;
     private TORHiddenService hiddenService = null;
 
-    public TORSensorSessionExternal(TORSensor torSensor) {
+    public TORSensorSessionLocal(TORSensor torSensor) {
         super(torSensor, new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(HOST, PORT_SOCKS)));
         this.sensor = torSensor;
         clientsEnabled = true;

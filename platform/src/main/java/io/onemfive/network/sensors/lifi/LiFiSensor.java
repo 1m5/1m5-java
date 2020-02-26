@@ -42,7 +42,7 @@ import java.util.logging.Logger;
 
 import static io.onemfive.network.sensors.SensorStatus.NETWORK_CONNECTED;
 
-public class LiFiSensor extends BaseSensor implements LiFiSessionListener {
+public final class LiFiSensor extends BaseSensor implements LiFiSessionListener {
 
     private static final Logger LOG = Logger.getLogger(LiFiSensor.class.getName());
 

@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 
 import static io.onemfive.network.sensors.SensorStatus.NETWORK_CONNECTED;
 
-public class SatelliteSensor extends BaseSensor {
+public final class SatelliteSensor extends BaseSensor {
 
     public static Logger LOG = Logger.getLogger(SatelliteSensor.class.getName());
 

@@ -45,7 +45,7 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public class FullSpectrumRadioSensor extends BaseSensor {
+public final class FullSpectrumRadioSensor extends BaseSensor {
 
     private Logger LOG = Logger.getLogger(FullSpectrumRadioSensor.class.getName());
 
