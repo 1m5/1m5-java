@@ -5,7 +5,7 @@
 
 	<groupId>io.onemfive</groupId>
 	<artifactId>1m5</artifactId>
-	<version>0.6.4</version>
+	<version>0.6.5-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
