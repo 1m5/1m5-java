@@ -165,6 +165,10 @@ compensation with Aten tokens.
 
 ## Style and Coding Conventions
 
+### Java Coding Conventions
+Google provides a decent list of coding conventions [here](https://google.github.io/styleguide/javaguide.html).
+In addition we recommend grouping your imports first by onemfive imports, then by standard java library imports, then static.
+
 ### Sign your commits with GPG
 
 See https://github.com/blog/2144-gpg-signature-verification for background and
