@@ -128,7 +128,7 @@ public class NetworkService extends BaseService {
     }
 
     private void handleAll(Envelope e) {
-        // Incoming from internal Service requesting external Service
+        // Incoming from internal Service requesting local Service
         Route r = e.getRoute();
         switch (r.getOperation()) {
             case OPERATION_START_SENSOR: {
@@ -293,7 +293,7 @@ public class NetworkService extends BaseService {
 //    }
 
     /**
-     * Request from an external NetworkPeer to see if this NetworkPeer is online.
+     * Request from an local NetworkPeer to see if this NetworkPeer is online.
      * Reply with known reliable peer addresses.
      */
 //    public void pingIn(PeerStatusRequest request) {
@@ -358,7 +358,7 @@ public class NetworkService extends BaseService {
 //    }
 
     /**
-     * Probe an external NetworkPeer to see if it is online sending it current reliable peers expecting to receive OK with their reliable peers (response).
+     * Probe an local NetworkPeer to see if it is online sending it current reliable peers expecting to receive OK with their reliable peers (response).
      */
 //    public void pingOut(NetworkPeer peerToProbe) {
 //        LOG.info("Sending PeerStatus request out to peer...");
