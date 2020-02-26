@@ -57,7 +57,7 @@ import java.util.logging.Logger;
  *
  * @author objectorange
  */
-public class I2PSensor extends BaseSensor {
+public final class I2PSensor extends BaseSensor {
 
     private static final Logger LOG = Logger.getLogger(I2PSensor.class.getName());
 
@@ -90,8 +90,8 @@ public class I2PSensor extends BaseSensor {
 
     // I2P Router and Context
     private File i2pDir;
-    private RouterContext routerContext;
-    protected Router router;
+    RouterContext routerContext;
+    Router router;
     protected CommSystemFacade.Status i2pRouterStatus;
 
     private String i2pBaseDir;
