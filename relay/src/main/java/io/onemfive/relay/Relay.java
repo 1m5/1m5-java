@@ -47,7 +47,7 @@ public class Relay {
     public static void main(String[] args) throws Exception {
         config = new Properties();
         try {
-            config.putAll(Config.loadFromClasspath("1m5-mancon.config", null, false));
+            config.putAll(Config.loadFromClasspath("1m5-relay.config", null, false));
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());
             System.exit(-1);
