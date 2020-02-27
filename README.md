@@ -278,11 +278,6 @@ Support can be purchased with Bitcoin when availability exists. Please request s
 
 1M5 is supported entirely through gifting and volunteers. No funds from investors have been nor will be taken.
 
-## Threats & Counter Measures
-
-Censorship attempts can be made in a myriad of ways and are ever changing as technology changes and attackers grow in experience.
-Below are some of these methods and how 1M5 and composite networks mitigate them.
-
 ## Potential Future Sensor Integrations
 
 ### Kovri
@@ -321,8 +316,10 @@ Resources
 ### Sekreta
 
 
-## Threats & Counter-Measures
+## Threats & Counter Measures
 
+Censorship attempts can be made in a myriad of ways and are ever changing as technology changes and attackers grow in experience.
+Below are some of these methods and how 1M5 and composite networks mitigate them.
 
 ### DNS Blocking
 
