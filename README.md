@@ -1,4 +1,5 @@
 # 1M5
+
 A secure open-source decentralized censorship-resistant peer-to-peer application platform with end-to-end encryption
 and anonymity as a base layer for creating easy to build and use secure decentralized peer-to-peer
 applications requiring no server connections that can be used around the world by any person looking
@@ -6,52 +7,28 @@ to protect their communications and personal data from unethical monitoring, int
 and censorship.
 
 ## Version
+
 0.6.4
 
 ## Licensing
+
 In the interests of ensuring the 1M5 mission, all copyright automatically imposed on the 1M5 project by any and all people
 and organizations are removed and thus nullified. We believe this to be encompassed in the [Unlicense](https://unlicense.org/) statement.
 All 1M5 services and sensors are created with the Unlicense statement by default unless otherwise specified,
 
 Bouncycastle is embedded in 1M5 Core and its MIT-like license is [here](http://www.bouncycastle.org/licence.html).
 
+
 ## Authors / Developers
+
 * objectorange (Brian Taylor) - [GitHub](https://github.com/objectorange) | [LinkedIn](https://www.linkedin.com/in/decentralizationarchitect/) | objectorange@1m5.io PGP: DD08 8658 5380 C7DF 1B4E 04C2 1849 B798 CF36 E2AF | brian@resolvingarchitecture.io PGP: 2FA3 9B12 DA50 BD7C E43C 3031 A15D FABB 2579 77DC
 * evok3d (Amin Rafiee) - [Site](https://arafiee.com/) | PGP: D921 C2EE 60BA C264 EA40 4DC5 B6F8 2589 96AA E505
 * azad (Erbil Kaplan) - [LinkedIn](https://www.linkedin.com/in/erbil-kaplan-b8971b18/) | PGP: 2EBC 2239 E9B8 2BCA 7176 77FE FD80 A0C2 95FD EBAC
-* z0??0z
+* z0??0z - Hard to reach; found in I2P and 1M5 IRC using I2P
 
-## Contributions
-Contributions can be made by forking 1M5 in GitHub, making a change, and making a pull request with an explanation on what
-the change provides. If accepted, it will be merged into the main branch. If a bounty was placed on an issue that was
-fixed by the change, it will paid out at that point by requesting a crypto address from you. If many improvements are done
-over time, you may be invited to join our team. If you have a large addition you would like to make, please send the team
-a proposal via info@1m5.io and we will review and get back with you. Our team is kept semi-private with some members
-trying for complete anonymity. We respect your right to privacy whether you decide to be entirely public, completely
-anonymous, or somewhere in between. That needs to come from each individual's circumstances.
-
-Good recommendations on maintainability can be found [here](http://www.squarebox.com/download/javatips.html). Try to
-minimize external libraries and definitely no Spring or Google libraries, no injection...keep it simple
-and minimize the number of objects to only those that add benefit. Use the simplest form of Java for the job,
-very little use of generics, lambdas, threading, etc. Try to make it easily maintainable by an intermediate Java programmer.
-Hopefully the Service Bus + Envelope + Routes framework will hold up overtime although improvements
-still need to be made here, especially around having to use the DLC class for data access within the Envelope.
-
-If you ever see the codebase with no commits for a long period of time with no communications, please fork and continue
-the effort. Global free speech is imperative to a free humanity from those few who wish to enslave the rest under any
-guise.
-
-Also feel free to fork and go your own way if you desire. All work is in the public domain of humanity; no one
-person nor organization has any right to control speech, an inalienable individual natural right, and thus the flow
-of information which includes money.
-
-## Bounties
-Paid in Bitcoin (BTC), Monero (XMR), or whatever crypto-currency is desired, available, and agreed upon.
-
-## Donations
-Please send donation requests to info@1m5.io for an address.
 
 ## Opportunities
+
 [**Freedom of Speech**](https://en.wikipedia.org/wiki/Freedom_of_speech) - a principle that supports the freedom of
 an individual or a community to articulate their opinions and ideas without fear of retaliation, censorship,
 or sanction. The term "freedom of expression" is sometimes used synonymously but includes any act of seeking,
@@ -216,36 +193,53 @@ Documentation of the Core starts [here](https://github.com/1m5/core/tree/master/
 
 ## Integrations
 
+### [Inkrypt](https://inkrypt.io)
+
+POC and Prototype completed using 1M5 from April 2018 to September 2019 but their team failed to obtain seed funding
+yet are still working towards that. If unable, decentralized content distribution will eventually be added to 1M5
+either as an Inkrypt service if the team decides it can pick it up in the future, or separately as an internal service.
+
 ### [Bisq](https://bisq.network)
+
 Decentralized Exchange for Bitcoin/Fiat as well as other altcoins. [Proposal for future integration added to Bisq](https://github.com/bisq-network/proposals/issues/168).
 
-### [Inkrypt](https://inkrypt.io)
-POC and Prototype completed using 1M5 from April 2018 to September 2019 but their team failed to obtain seed funding
-and since seem to have abandoned the project. If so, decentralized content distribution will eventually be added to 1M5
-either as an Inkrypt service if the team decides to restart in the future, or separately as an internal service.
+### [Monero](https://getmonero.org/)
 
-#### Anonymous Decentralized Cloud
-An anonymous decentralized Content Delivery Network (DCDN). Use of OpenPGP keys supported as well as
-AES 256 encryption for content.
+Private crypto-currency. [Proposal for future integration added to Monero](https://repo.getmonero.org/monero-project/ccs-proposals/merge_requests/127)
+
 
 ## Applications
-A number of applications will be ingrained within 1M5, applications that are regularly used or desired by decentralization
+
+A number of applications will be ingrained within 1M5's Desktop application that are regularly used or desired by decentralization
 advocates. These include browser, messenger/email/social networking, marketplace, activism assistance, and crypto-currency wallets.
 
 ## Support
-Support can be purchased with Bitcoin when availability exists. Please request support
-at: info@1m5.io
+
+Support can be purchased with Bitcoin when availability exists. Please request support at: info@1m5.io
 
 ## Fund Raising
+
 1M5 is supported entirely through gifting and volunteers. No funds from investors have been nor will be taken.
 
 ## Threats & Counter Measures
+
 Censorship attempts can be made in a myriad of ways and are ever changing as technology changes and attackers grow in experience.
 Below are some of these methods and how 1M5 and composite networks mitigate them.
 
-### General Information
+## Potential Future Sensor Integrations
 
-#### I2P
+### Kovri
+
+Monero's C++ implementation of I2P. Integration with Monero awaiting verification by an I2P domain expert (zzz?).
+
+### Sekreta
+
+A new effort by anonimal, a Monero dev, to improve on using I2P and TOR among other low-level anonymous overlay networks as one combined network.
+Is waiting verification by domain experts prior to integration with Monero.
+
+## General Information
+
+### I2P
 Design of I2P started in 2003 soon after TOR and Freenet came on the scene. It uses many of the features of onion routing
 as in TOR but also adds some enhancements which earned its routing the name of 'garlic routing'. The I2P team has identified
 threats, some specific to I2P, and mitigations.
@@ -253,21 +247,28 @@ threats, some specific to I2P, and mitigations.
 Resources
 * [Site](https://geti2p.net/en/docs/how/threat-model)
 
-#### TOR
+### TOR
 
-#### 1DN
+### 1DN
 
-##### Bluetooth
+#### Bluetooth
 
-##### WiFi-Direct
+#### WiFi-Direct
 
-##### Full Spectrum Radio
+#### Full Spectrum Radio
 
-##### LiFi
+#### LiFi
 
-#### 1M5
+### Kovri
+
+### Sekreta
+
+
+## Threats & Counter-Measures
+
 
 ### DNS Blocking
+
 Inbound and outbound blocking of IP addresses by DNS servers.
 
 Resources
@@ -289,7 +290,13 @@ Resources
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### DNS Poisoning
+
 Corruption in a DNS server's resolver cache by swapping out valid IP addresses with invalid addresses resulting in traffic divertion.
 
 Resources
@@ -311,10 +318,17 @@ Resources
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Brute Force
+
 This attack is performed by watching all messages passing between all nodes attempting to correlate messages into paths.
 
 #### I2P
+
 Difficult attack to initiate against I2P as all peers are sending messages frequently across the network (end-to-end and for network maintenance)
 and each end-to-end message changes in size and data along its path. The attacker also does not have access to the messages
 as inter-router communications are encrypted and in mutiple 'cloves' (garlic) so that two messages each 1kb in size would
@@ -332,28 +346,39 @@ placing limits on the number of tunnels that can be routed by a single peer.
 #### 1DN
 
 ##### Bluetooth
-The very limited range of Bluetooth makes
+
+The very limited range of Bluetooth makes this
 
 ##### WiFi-Direct
+
 WiFi-Direct has a very limited range and few frequencies so it's not too difficult to brute force a local WiFi frequency.
 
 ##### Full Spectrum Radio
+
 Attempting to listen to all frequencies in the full radio spectrum attempting correlation would be extremely difficult
 unless radio triangulation is successful. If the radio is kept mobile, this attack would be extremely difficult to pull off.
 
 ##### LiFi
 
 #### 1M5
+
 The 1M5 network is slated to provide random delays across its nodes, extended persistent delays (e.g. months),
 and bandwidth throttling on streams to help combat this attack at the application layer. In addition, trying to
 brute force 1M5 users will be even more difficult as the ManCon lowers in value as multiple networks are used
 per request requiring watching all messages across all participating networks trying to correlate them all.
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Timing
+
 Timing attacks seek to correlate messages across the network based on their latencies combined with expected behavioral
 patterns, e.g. HTTP requests receive responses.
 
 #### I2P
+
 I2P uses unidirectional datagrams so there are no replies although this is not the case with streaming and the guaranteed
 delivery mode.
 
@@ -370,6 +395,11 @@ delivery mode.
 ##### LiFi
 
 #### 1M5
+
+#### Kovri
+
+#### Sekreta
+
 
 ### Intersection
 
@@ -389,6 +419,11 @@ delivery mode.
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Tagging
 
 #### I2P
@@ -406,6 +441,11 @@ delivery mode.
 ##### LiFi
 
 #### 1M5
+
+#### Kovri
+
+#### Sekreta
+
 
 ### Partitioning
 
@@ -425,6 +465,11 @@ delivery mode.
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Predecessor
 
 #### I2P
@@ -442,6 +487,11 @@ delivery mode.
 ##### LiFi
 
 #### 1M5
+
+#### Kovri
+
+#### Sekreta
+
 
 ### Harvesting
 
@@ -461,6 +511,11 @@ delivery mode.
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Traffic Analysis Identification
 
 #### I2P
@@ -478,6 +533,11 @@ delivery mode.
 ##### LiFi
 
 #### 1M5
+
+#### Kovri
+
+#### Sekreta
+
 
 ### Sybil
 
@@ -497,6 +557,11 @@ delivery mode.
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Buddy Exhaustion
 
 #### I2P
@@ -514,6 +579,11 @@ delivery mode.
 ##### LiFi
 
 #### 1M5
+
+#### Kovri
+
+#### Sekreta
+
 
 ### Cryptographic
 
@@ -533,6 +603,11 @@ delivery mode.
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Floodfill Anonymity
 
 #### I2P
@@ -550,6 +625,11 @@ delivery mode.
 ##### LiFi
 
 #### 1M5
+
+#### Kovri
+
+#### Sekreta
+
 
 ### Central Resource
 
@@ -569,6 +649,11 @@ delivery mode.
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Development
 
 #### I2P
@@ -586,6 +671,11 @@ delivery mode.
 ##### LiFi
 
 #### 1M5
+
+#### Kovri
+
+#### Sekreta
+
 
 ### Implementation (Bugs)
 
@@ -605,6 +695,11 @@ delivery mode.
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Blocklists
 
 #### I2P
@@ -623,7 +718,13 @@ delivery mode.
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Distributed Denial of Service (DDoS)
+
 A network-attack in which the perpetrator seeks to make a machine or network resource unavailable to its intended users
 by temporarily or indefinitely disrupting services of a networked host.
 
@@ -648,6 +749,11 @@ Resources
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 #### Starvation
 
 #### I2P
@@ -665,6 +771,11 @@ Resources
 ##### LiFi
 
 #### 1M5
+
+#### Kovri
+
+#### Sekreta
+
 
 #### Flooding
 
@@ -684,6 +795,11 @@ Resources
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 #### Ping Flood
 
 ##### I2P
@@ -701,6 +817,11 @@ Resources
 ##### LiFi
 
 ##### 1M5
+
+##### Kovri
+
+##### Sekreta
+
 
 #### CPU Loading
 
@@ -720,6 +841,11 @@ Resources
 
 ##### 1M5
 
+##### Kovri
+
+##### Sekreta
+
+
 #### Floodfill
 
 ##### I2P
@@ -737,6 +863,11 @@ Resources
 ##### LiFi
 
 ##### 1M5
+
+##### Kovri
+
+##### Sekreta
+
 
 #### ReDoS
 
@@ -756,6 +887,11 @@ Resources
 
 ##### 1M5
 
+##### Kovri
+
+##### Sekreta
+
+
 #### Twinge
 
 ##### I2P
@@ -774,7 +910,13 @@ Resources
 
 ##### 1M5
 
+##### Kovri
+
+##### Sekreta
+
+
 #### SYN Flood
+
 DDos attacks by initiating TCP/IP handshakes but either not responding with a final ACK or responding with a different IP address.
 
 Resources
@@ -796,7 +938,13 @@ Resources
 
 ##### 1M5
 
+##### Kovri
+
+##### Sekreta
+
+
 #### Layer 7
+
 DDoS attacks on application-layer processes.
 
 Resources
@@ -817,6 +965,11 @@ Resources
 
 ##### 1M5
 
+##### Kovri
+
+##### Sekreta
+
+
 #### Ping of Death
 
 ##### I2P
@@ -834,6 +987,11 @@ Resources
 ##### LiFi
 
 ##### 1M5
+
+##### Kovri
+
+##### Sekreta
+
 
 #### Smurf Attack
 
@@ -856,6 +1014,11 @@ Resources
 
 ##### 1M5
 
+##### Kovri
+
+##### Sekreta
+
+
 #### Fraggle Attack
 
 Resources
@@ -877,7 +1040,13 @@ Resources
 
 ##### 1M5
 
+##### Kovri
+
+##### Sekreta
+
+
 ### Advanced Persistent Threat (APT)
+
 A stealthy computer network attack in which a person or group gains unauthorized access to a network and remains
 undetected for an extended period.
 
@@ -900,7 +1069,13 @@ Resources
 
 #### 1M5
 
+#### Kovri
+
+#### Sekreta
+
+
 ### Advanced Volatile Threat (AVT)
+
 A stealthy computer network attack in which a person or group gains unauthorized access to a network and remains
 undetected in memory never persisting to the hard-drive circumventing investigative techniques.
 
@@ -922,3 +1097,8 @@ Resources
 ##### LiFi
 
 #### 1M5
+
+#### Kovri
+
+#### Sekreta
+

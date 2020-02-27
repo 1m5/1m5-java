@@ -169,6 +169,14 @@ compensation with Aten tokens.
 Google provides a decent list of coding conventions [here](https://google.github.io/styleguide/javaguide.html).
 In addition we recommend grouping your imports first by onemfive imports, then by standard java library imports, then static.
 
+### Maintainability
+Good recommendations on maintainability can also be found [here](http://www.squarebox.com/download/javatips.html). Try to
+minimize external libraries and definitely no Spring or Google libraries, no injection...keep it simple
+and minimize the number of objects to only those that add benefit. Use the simplest form of Java for the job,
+very little use of generics, lambdas, threading, etc. Try to make it easily maintainable by an intermediate Java programmer.
+Hopefully the Service Bus + Envelope + Routes framework will hold up overtime although improvements
+still need to be made here, especially around having to use the DLC class for data access within the Envelope.
+
 ### Sign your commits with GPG
 
 See https://github.com/blog/2144-gpg-signature-verification for background and
@@ -196,4 +204,14 @@ and no merge commits.
 ## See also
 
 * Docs in the Desktop
+
+## Notes
+
+If you ever see the codebase with no commits for a long period of time with no communications, please fork and continue
+the effort. Global free speech is imperative to a free humanity from those few who wish to enslave the rest under any
+guise.
+
+Also feel free to fork and go your own way if you desire. All work is in the public domain of humanity; no one
+person nor organization has any right to control speech, an inalienable individual natural right, and thus the flow
+of information which includes money.
 
