@@ -45,6 +45,7 @@ public class Seed {
     public static Properties config;
 
     public static void main(String[] args) throws Exception {
+        LOG.info("Initializing seed node...");
         config = new Properties();
         try {
             config.putAll(Config.loadFromClasspath("1m5-seed.config", null, false));
@@ -52,7 +53,7 @@ public class Seed {
             LOG.warning(e.getLocalizedMessage());
             System.exit(-1);
         }
-
+        LOG.info("Seed node configuration read. Starting platform...");
     }
 
 }
