@@ -175,13 +175,26 @@
 
                                 <data>
                                     <src>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</src>
+                                    <dst>1m5.jar</dst>
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/opt/seed/lib</prefix>
-                                        <user>loader</user>
-                                        <group>loader</group>
+                                        <prefix>/opt/1m5/lib</prefix>
+                                        <user>root</user>
+                                        <group>root</group>
                                         <filemode>640</filemode>
+                                    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>${project.basedir}/src/bin/1m5.sh</src>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/opt/1m5</prefix>
+                                        <user>root</user>
+                                        <group>root</group>
+                                        <filemode>755</filemode>
                                     </mapper>
                                 </data>
 
