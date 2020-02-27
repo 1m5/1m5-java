@@ -52,6 +52,7 @@
 	<modules>
         <module>common</module>
         <module>platform</module>
+        <module>mancon</module>
         <module>api</module>
         <module>cli</module>
         <module>desktop</module>
