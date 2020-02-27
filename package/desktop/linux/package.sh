@@ -6,7 +6,7 @@
 #   - Update version below
 #   - Ensure JAVA_HOME below is pointing to OracleJDK 10 directory
 
-version=0.9.5-SNAPSHOT
+version=0.6.6
 if [ ! -f "$JAVA_HOME/bin/javapackager" ]; then
 	if [ -d "/usr/lib/jvm/jdk-10.0.2" ]; then
     	JAVA_HOME=/usr/lib/jvm/jdk-10.0.2
@@ -16,8 +16,8 @@ if [ ! -f "$JAVA_HOME/bin/javapackager" ]; then
 	fi
 fi
 
-base_dir=$( cd "$(dirname "$0")" ; pwd -P )/../../..
-src_dir=$base_dir/desktop/package
+base_dir=$( cd "$(dirname "$0")" ; pwd -P )/../../../../
+src_dir=$base_dir/desktop/src
 
 cd $base_dir
 
@@ -28,7 +28,7 @@ if [[ -f "/etc/debian_version" ]]; then
     sudo apt install -y fakeroot rpm
 fi
 
-if [ ! -f "$base_dir/package/1m5-$version.jar" ]; then
+if [ ! -f "$base_dir/package/desktop/linux/1m5.jar" ]; then
     echo Building application
     ./gradlew :desktop:clean :desktop:build -x test shadowJar
     jar_file=$base_dir/desktop/build/libs/desktop-$version.jar
@@ -91,20 +91,20 @@ $JAVA_HOME/bin/javapackager \
     -Bcategory=Network \
     -Bemail=info@1m5.io \
     -BlicenseType=Unlicense \
-    -Bicon=$base_dir/package/linux/icon.png \
+    -Bicon=$base_dir/package/icon.png \
     -native deb \
     -name 1M5 \
-    -title "Uncensored Communications" \
+    -title "Invisible Matrix Services" \
     -vendor 1M5 \
-    -outdir $base_dir/package/linux \
+    -outdir $base_dir/package/desktop/linux \
     -srcdir $src_dir \
-    -srcfiles 1m5-$version.jar \
-    -appclass io.onemfive.OneMFivePlatform \
+    -srcfiles 1m5.jar \
+    -appclass io.onemfive.desktop.DesktopApp \
     -BjvmOptions=-Xss1280k \
-    -outfile 1m5-$version \
+    -outfile 1m5 \
     -v
 
-if [ ! -f "$base_dir/package/linux/1m5-$version.deb" ]; then
+if [ ! -f "$base_dir/package/desktop/linux/1m5.deb" ]; then
     echo No deb file found at $base_dir/package/linux/1m5-$version.deb
     exit 3
 fi
