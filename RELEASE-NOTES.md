@@ -1,5 +1,11 @@
 # Release Notes
 
+## 0.6.5
++ Added ManCon node
++ Added Relay node
++ Added Ring node
++ Updated roadmap to reflect new hardware ideas
+
 ## 0.6.4
 + Added TOR hidden services when TOR is local using its Control API
 + Added TOR peer discovery although not yet tested; will test during Browser version (0.6.6)
