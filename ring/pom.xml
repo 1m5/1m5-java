@@ -9,14 +9,14 @@
         <version>0.6.5-SNAPSHOT</version>
     </parent>
 
-	<artifactId>platform</artifactId>
+	<artifactId>ring</artifactId>
 
 	<packaging>jar</packaging>
 
-	<name>1m5-platform</name>
+	<name>1m5-ring</name>
 	<url>https://1m5.io</url>
-	<description>Invisible Matrix Services - Platform</description>
-	<inceptionYear>2017</inceptionYear>
+	<description>Invisible Matrix Services - Ring</description>
+	<inceptionYear>2020</inceptionYear>
 	<licenses>
 		<license>
 			<name>Unlicense</name>
@@ -34,6 +34,36 @@
 		<developerConnection>scm:git@github.com/1m5/1m5</developerConnection>
 		<url>git@github.com/1m5/1m5</url>
 	</scm>
+	<profiles>
+		<profile>
+			<id>devnet</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<isTest>true</isTest>
+			</properties>
+		</profile>
+		<profile>
+			<id>testnet</id>
+			<properties>
+				<isTest>false</isTest>
+			</properties>
+		</profile>
+		<profile>
+			<id>mainnet</id>
+			<properties>
+				<isTest>false</isTest>
+			</properties>
+		</profile>
+		<profile>
+			<id>seed</id>
+			<!-- Seed peers are set up to get newcomers onto the network quickly.-->
+			<properties>
+				<isTest>false</isTest>
+			</properties>
+		</profile>
+	</profiles>
 
 	<repositories>
 		<repository>
@@ -43,119 +73,11 @@
 	</repositories>
 
 	<dependencies>
-        <dependency>
-            <groupId>io.onemfive</groupId>
-            <artifactId>common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- Derby DB -->
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-            <version>10.14.2.0</version>
-        </dependency>
-        <!-- Neo4j DB -->
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j</artifactId>
-            <version>3.5.14</version>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-cypher</artifactId>
-            <version>3.5.14</version>
-        </dependency>
-		<!-- Crypto -->
 		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcpg-jdk15on</artifactId>
-			<version>1.60</version>
+			<groupId>io.onemfive</groupId>
+			<artifactId>platform</artifactId>
+			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.60</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-ext-jdk15on</artifactId>
-			<version>1.60</version>
-		</dependency>
-		<!-- Clearnet -->
-		<dependency>
-			<groupId>com.squareup.okhttp3</groupId>
-			<artifactId>okhttp</artifactId>
-			<version>3.10.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-server</artifactId>
-			<version>9.4.17.v20190418</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>javax-websocket-server-impl</artifactId>
-			<version>9.4.15.v20190215</version>
-		</dependency>
-        <!-- TOR -->
-
-		<!-- I2P -->
-		<dependency>
-			<groupId>net.i2p</groupId>
-			<artifactId>i2p</artifactId>
-			<version>0.9.44</version>
-		</dependency>
-		<dependency>
-			<groupId>net.i2p</groupId>
-			<artifactId>router</artifactId>
-			<version>0.9.44</version>
-		</dependency>
-		<dependency>
-			<groupId>net.i2p.client</groupId>
-			<artifactId>streaming</artifactId>
-			<version>0.9.44</version>
-		</dependency>
-		<dependency>
-			<groupId>net.i2p.client</groupId>
-			<artifactId>mstreaming</artifactId>
-			<version>0.9.44</version>
-		</dependency>
-		<!-- Radio - Bluetooth -->
-		<dependency>
-			<groupId>net.sf.bluecove</groupId>
-			<artifactId>bluecove</artifactId>
-			<version>2.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.bluecove</groupId>
-			<artifactId>bluecove-gpl</artifactId>
-			<version>2.1.0</version>
-		</dependency>
-        <!-- Radio - WiFi Direct -->
-
-		<!-- Radio - GNU Radio -->
-
-        <!-- LiFi- PureLiFi -->
-
-        <!-- Bisq -->
-
-        <!-- Bitcoin -->
-
-		<!-- Monero -->
-		<dependency>
-			<groupId>io.github.monero-ecosystem</groupId>
-			<artifactId>monero-java</artifactId>
-			<version>0.2.1</version>
-		</dependency>
-
-		<!-- Test -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -223,14 +145,6 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.openjfx</groupId>-->
-<!--                <artifactId>javafx-maven-plugin</artifactId>-->
-<!--                <version>0.0.4</version>-->
-<!--                <configuration>-->
-<!--                    <mainClass>io.onemfive.OneMFivePlatform</mainClass>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
@@ -244,7 +158,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>io.onemfive.OneMFivePlatform</mainClass>
+							<mainClass>io.onemfive.ring.Ring</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

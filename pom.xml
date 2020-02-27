@@ -54,6 +54,7 @@
         <module>platform</module>
         <module>mancon</module>
         <module>relay</module>
+        <module>ring</module>
         <module>api</module>
         <module>cli</module>
         <module>desktop</module>

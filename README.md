@@ -210,6 +210,18 @@ common    <--    api    <-- 3rd party
           <--    platform    <-- cli
                              <-- desktop
                              <-- mancon
+                             <-- relay
+                             <-- ring
+
+platform --> TOR
+         --> I2P
+         --> Bluetooth Bluecove
+         --> WiFi-Direct
+         --> LiFi
+         --> GNU Radio
+         --> Derby RDBMS
+         --> Neo4J Graph
+         --> Bouncycastle Crypto
 
 Third party applications use the api module to access the platform over its HTTP/JSON RPC as such:
 
@@ -235,11 +247,6 @@ via its HTTP/JSON RPC interface. Current version is implemented in Java but is e
 This module wraps the Platform module supporting the ability to manage it with commands in a console. This is useful when
 setting the platform up as a seed node allowing the ability to control and monitor the node via ssh.
 
-### ManCon
-
-Configures the platform for only outbound communications for testing IP ranges from a leased IP reporting on the results
-to the 1M5 network to be used in recommending ManCon settings to end users.
-
 ### Desktop
 
 Provides a GUI for end-users to use the 1M5 network to advance general decentralization globally.
@@ -247,6 +254,19 @@ Provides a GUI for end-users to use the 1M5 network to advance general decentral
 ### Platform
 
 The platform containing the core, identity, crypto-wallets, networking, and persistence support.
+
+### ManCon
+
+Configures the platform for only outbound communications for testing IP ranges from a leased IP reporting on the results
+to the 1M5 network to be used in recommending ManCon settings to end users.
+
+### Relay
+
+Relays packets between peers.
+
+### Ring
+
+Acts as a Ring node within a larger Ring cluster.
 
 ## Integrations
 
