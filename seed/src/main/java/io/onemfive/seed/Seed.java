@@ -54,6 +54,7 @@ public class Seed {
             System.exit(-1);
         }
         LOG.info("Seed node configuration read. Starting platform...");
+
     }
 
 }

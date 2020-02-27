@@ -1,0 +1,10 @@
+Package: [[name]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Depends: jdk (>= 1.10)
+Maintainer: ObjectOrange <objectorange@1m5.io>
+Description: Invisible Matrix Services Seed
+Distribution: development
+Depends: default-jre
