@@ -28,11 +28,11 @@ package io.onemfive.cli.commands;
 
 import io.onemfive.cli.CLI;
 import io.onemfive.cli.CLICommand;
-import io.onemfive.cli.ManCommand;
+import io.onemfive.cli.BaseCommand;
 
 import java.util.List;
 
-public class Quit extends ManCommand implements CLICommand {
+public class Quit extends BaseCommand implements CLICommand {
 
     @Override
     public String getName() {

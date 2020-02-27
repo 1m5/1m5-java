@@ -27,11 +27,11 @@
 package io.onemfive.cli.commands;
 
 import io.onemfive.cli.CommandException;
-import io.onemfive.cli.ManCommand;
+import io.onemfive.cli.BaseCommand;
 
 import java.util.List;
 
-public class GetIdentities extends ManCommand {
+public class GetIdentities extends BaseCommand {
 
     @Override
     public String getName() {

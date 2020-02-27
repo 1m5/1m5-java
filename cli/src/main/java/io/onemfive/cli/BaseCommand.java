@@ -27,7 +27,7 @@
 
 package io.onemfive.cli;
 
-public abstract class ManCommand implements CLICommand {
+public abstract class BaseCommand implements CLICommand {
 
     // TODO: Support wrapping
     protected String help() {

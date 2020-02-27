@@ -27,7 +27,6 @@
 package io.onemfive.cli;
 
 import io.onemfive.util.Config;
-import onemfive.api.API;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -53,14 +52,12 @@ public class CLI {
         } catch (Exception e) {
             LOG.warning(e.getLocalizedMessage());
         }
-        instance = new CLI("localhost", 2017);
+        instance = new CLI();
         instance.run(args);
     }
 
-    private CLI(String host, int port) {
-        this.host = host;
-        this.port = port;
-        API.init();
+    private CLI() {
+
     }
 
     private void run(String[] args) {
