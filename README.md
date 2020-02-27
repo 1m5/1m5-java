@@ -207,11 +207,11 @@ It's implemented in modules Platform, ManCon, Desktop, CLI, API, and Common.
 Their dependency graph follows:
 
 common    <--    api    <-- 3rd party
-          <--    platform    <-- cli
-                             <-- desktop
-                             <-- mancon
-                             <-- relay
-                             <-- ring
+          <--    platform    <-- desktop
+                             <-- cli   <-- mancon
+                                       <-- relay
+                                       <-- ring
+                                       <-- seed
 
 platform --> TOR
          --> I2P
@@ -267,6 +267,10 @@ Relays packets between peers.
 ### Ring
 
 Acts as a Ring node within a larger Ring cluster.
+
+### Seed
+
+Configured to act solely as a seed node providing introductions only.
 
 ## Integrations
 

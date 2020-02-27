@@ -55,6 +55,7 @@
         <module>mancon</module>
         <module>relay</module>
         <module>ring</module>
+        <module>seed</module>
         <module>api</module>
         <module>cli</module>
         <module>desktop</module>
