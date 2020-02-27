@@ -77,6 +77,7 @@ In addition:
 - Smartphones, our primary means of global communication and collaboration, are weak in maintaining our anonymity and privacy - critical to ensuring individual freedom.
 
 ## Solution
+
 1M5 works to solve these issues by providing three primary benefits.
 
 1. Intelligent Censorship-Resistant Anonymous Router embedding Tor, I2P, Direct Wireless Ad-Hoc Networks, and other
@@ -86,6 +87,7 @@ self-sovereign decentralized identities (DID), Bitcoin, and other privacy preser
 3. Provides easy to use APIs for developers to embed in their applications to facilitate up-take.
 
 ### Routing
+
 We provide a Maneuvering Condition (ManCon) setting to signal what level of maneuvering is likely required to prevent censorship.
 This should be set by the end user based on their circumstances. They should also be made aware of recommended ManCon
 levels for the jurisdiction they are currently in. These ManCon levels are largely based on [Press Freedom Index](https://en.wikipedia.org/wiki/Press_Freedom_Index)
@@ -105,6 +107,7 @@ expected latencies yet very censorship-resistant and private page views. This is
 to view web pages globally without censorship and without getting a knock on their door where Tor is getting heavily blocked.
 
 #### LOW - MANCON 5
+
 Open/normal SSL based communications with no expected censorship or privacy intrusion attempts is the norm.
 
 Examples: Norway, Iceland, Costa Rica, Jamaica, Ireland
@@ -116,6 +119,7 @@ If Tor blocked, will ratchet up to 1DN for assistance.
 Expect latencies of 500 milliseconds to 2 seconds unless 1DN is needed.
 
 #### MEDIUM - MANCON 4
+
 Normal censorship attempts by states on reading news (public web sites getting blocked, government shutdown of cloud cdn content).
 Many moving towards using Tor and/or VPNs although no fear of circumventing censorship attempts.
 
@@ -128,6 +132,7 @@ returning the result directly back to the requesting peer. If those fail, it wil
 Expect latencies of 500 milliseconds to 4 seconds unless 1DN is needed.
 
 #### HIGH - MANCON 3
+
 Tor and VPNs are beginning to get blocked. Many beginning to move to I2P. Some self-censorship likely. This is the default setting for 1M5.
 
 Examples: Brazil, Greece, Poland, Panama, Nicaragua
@@ -138,6 +143,7 @@ Examples: Brazil, Greece, Poland, Panama, Nicaragua
 Expect latencies of 4-10 seconds.
 
 #### VERYHIGH - MANCON 2
+
 I2P is getting attacked slowing the network and people are beginning to get threatened for circumventing censorship attempts resulting in self-censorship.
 
 Examples: Mexico, Venezuela, Russia, India, Turkey
@@ -151,6 +157,7 @@ Expect latencies of 6-16 seconds unless 1DN used which could result in very larg
 (e.g. Email) and asynchronous web requests are plausible.
 
 #### EXTREME - MANCON 1
+
 Internet has been blocked for end user, e.g. local cellular service towers shutdown or provider turns off access and/or
 threats of imprisonment and/or death are made to induce self-censorship with actual evidence of enforcement.
 
@@ -162,6 +169,7 @@ Examples: China, North Korea, East Turkestan, Iran, Saudi Arabia, Iraq, Egypt
 Expect wide-ranging latencies.
 
 #### NEO - MANCON 0
+
 Whistleblower with deep state top secrets or investigative journalist with life-threatening information.
 
 * Web: 1DN is used to forward requests to a peer that will then request another peer using I2P with high delays to make the Tor request.
@@ -172,6 +180,7 @@ with the end user having a 12 word mnemonic passphrase as the only key to the da
 Wide-ranging latencies but highest privacy and censorship-resistance.
 
 ## Design
+
 1M5 is composed of a Service-Oriented Architecture (SOA) design using a minimalistic service bus for micro-services,
 a Staged Event-Driven Architecture (SEDA) design for asynchronous multi-threaded inter-service communications,
 a service registry, internal core services, and a number of Sensors for advanced intelligent interaction with peers.
@@ -187,9 +196,57 @@ Key add-on services include:
 * Decentralized IDentification (DID) Service for authentication/authorization and reputation building (Web of Trust)
 
 ## [Implementation](https://github.com/1m5/core/tree/master/src/main/java/io/onemfive/core/README.md)
-The application is written in Java using JDK 1.8 although some services may support older versions.
+
+The application is written in Java using JDK 1.8 although some services may support older versions. It is built though
+with OpenJDK 11, the recommended JDK version.
 
 Documentation of the Core starts [here](https://github.com/1m5/core/tree/master/src/main/java/io/onemfive/core/README.md).
+
+It's implemented in modules Platform, ManCon, Desktop, CLI, API, and Common.
+
+Their dependency graph follows:
+
+common    <--    api    <-- 3rd party
+          <--    platform    <-- cli
+                             <-- desktop
+                             <-- mancon
+
+Third party applications use the api module to access the platform over its HTTP/JSON RPC as such:
+
+3rd party --embeds--> api --HTTP/JSON--> platform
+
+CLI, desktop, and mancon modules initialize the platform different for their use cases. CLI and Desktop use the full
+suite as full 1M5 nodes although the CLI is for setting them up as headless nodes (seeds) while the desktop module is for end users.
+The mancon module configures the platform only for outbound communication so that it may remain as private as possible
+so that it may report on the status of networks for real-time ManCon recommendations.
+
+### Common
+
+This is the common code among all modules used by all modules. It primarily contains data classes with no dependencies
+and utilities largely static in nature. It should never have a dependency.
+
+### API
+
+This module is a library that can be embedded in applications to make it easier to communicate with the platform module
+via its HTTP/JSON RPC interface. Current version is implemented in Java but is expected to be implemented in other languages.
+
+### CLI
+
+This module wraps the Platform module supporting the ability to manage it with commands in a console. This is useful when
+setting the platform up as a seed node allowing the ability to control and monitor the node via ssh.
+
+### ManCon
+
+Configures the platform for only outbound communications for testing IP ranges from a leased IP reporting on the results
+to the 1M5 network to be used in recommending ManCon settings to end users.
+
+### Desktop
+
+Provides a GUI for end-users to use the 1M5 network to advance general decentralization globally.
+
+### Platform
+
+The platform containing the core, identity, crypto-wallets, networking, and persistence support.
 
 ## Integrations
 
