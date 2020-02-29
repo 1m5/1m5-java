@@ -26,8 +26,6 @@
  */
 package io.onemfive.data.route;
 
-import io.onemfive.data.Network;
-import io.onemfive.data.NetworkPeer;
 import io.onemfive.util.DequeStack;
 import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
