@@ -10,6 +10,9 @@ and censorship.
 
 0.6.4
 
+## Status
+[![Build Status](https://travis-ci.com/1m5/1m5.svg?branch=master)](https://travis-ci.com/1m5/1m5)
+
 ## Licensing
 
 In the interests of ensuring the 1M5 mission, all copyright automatically imposed on the 1M5 project by any and all people
