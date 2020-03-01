@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/1m5/1m5.svg?branch=master)](https://travis-ci.com/1m5/1m5)
+
 # 1M5
 
 A secure open-source decentralized censorship-resistant peer-to-peer application platform with end-to-end encryption
@@ -9,9 +11,6 @@ and censorship.
 ## Version
 
 0.6.4
-
-## Status
-[![Build Status](https://travis-ci.com/1m5/1m5.svg?branch=master)](https://travis-ci.com/1m5/1m5)
 
 ## Licensing
 
