@@ -1,9 +1,0 @@
-Package: [[name]]
-Version: [[version]]
-Section: misc
-Priority: optional
-Architecture: all
-Maintainer: ObjectOrange <objectorange@1m5.io>
-Description: 1M5 - Invisible Matrix Services
-Distribution: development
-Depends: default-jre
