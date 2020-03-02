@@ -29,7 +29,8 @@ package io.onemfive.data;
 import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Decentralized IDentification

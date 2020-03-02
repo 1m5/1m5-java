@@ -46,14 +46,14 @@ public class Multihash {
 
         public int index;
         public int length;
-        private static Map<Integer, Multihash.Type> lookup;
+        private static Map<Integer, Type> lookup;
 
         Type(int index, int length) {
             this.index = index;
             this.length = length;
         }
 
-        public static Multihash.Type lookup(int t) {
+        public static Type lookup(int t) {
             if(!lookup.containsKey(t)) {
                 throw new IllegalStateException("Unknown Multihash type: " + t);
             } else {
@@ -63,22 +63,22 @@ public class Multihash {
 
         static {
             lookup = new TreeMap<>();
-            Multihash.Type[] var0 = values();
+            Type[] var0 = values();
             int var1 = var0.length;
 
             for(int var2 = 0; var2 < var1; ++var2) {
-                Multihash.Type t = var0[var2];
+                Type t = var0[var2];
                 lookup.put(t.index, t);
             }
 
         }
     }
 
-    public final Multihash.Type type;
+    public final Type type;
 
     private final byte[] hash;
 
-    public Multihash(Multihash.Type type, byte[] hash) {
+    public Multihash(Type type, byte[] hash) {
         if(hash.length > 127) {
             throw new IllegalStateException("Unsupported hash size: " + hash.length);
         } else if(hash.length != type.length) {
@@ -90,7 +90,7 @@ public class Multihash {
     }
 
     public Multihash(byte[] multihash) {
-        this(Multihash.Type.lookup(multihash[0] & 255), Arrays.copyOfRange(multihash, 2, multihash.length));
+        this(Type.lookup(multihash[0] & 255), Arrays.copyOfRange(multihash, 2, multihash.length));
     }
 
     public byte[] toBytes() {
@@ -108,7 +108,7 @@ public class Multihash {
     public static Multihash deserialize(DataInput din) throws IOException {
         int type = din.readUnsignedByte();
         int len = din.readUnsignedByte();
-        Multihash.Type t = Multihash.Type.lookup(type);
+        Type t = Type.lookup(type);
         byte[] hash = new byte[len];
         din.readFully(hash);
         return new Multihash(t, hash);

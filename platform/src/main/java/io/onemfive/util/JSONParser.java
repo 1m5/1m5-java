@@ -27,11 +27,10 @@
 package io.onemfive.util;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-
-import java.lang.reflect.*;
 
 public class JSONParser {
 

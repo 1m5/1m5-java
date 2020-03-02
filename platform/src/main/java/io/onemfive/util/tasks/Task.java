@@ -24,14 +24,34 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.data;
+package io.onemfive.util.tasks;
 
-import java.io.Serializable;
 import java.util.Map;
 
-public interface JSONSerializable extends Serializable {
-    Map<String,Object> toMap();
-    void fromMap(Map<String,Object> m);
-    String toJSON();
-    void fromJSON(String json);
+public interface Task extends Runnable {
+
+    enum Status {Ready, Running, Completed}
+
+    String getTaskName();
+    void setParams(Map<Object, Object> params);
+    void addParams(Map<Object, Object> params);
+    Long getPeriodicity();
+    void setPeriodicity(long periodicity);
+    void setLastCompletionTime(Long lastCompletionTime);
+    Long getLastCompletionTime();
+    void setDelayed(Boolean delayed);
+    Boolean getDelayed();
+    void setDelayTimeMS(Long delayTimeMS);
+    void setFixedDelay(Boolean fixedDelay);
+    Boolean getFixedDelay();
+    Long getDelayTimeMS();
+    void setLongRunning(Boolean longRunning);
+    Boolean getLongRunng();
+    void setScheduled(Boolean scheduled);
+    Boolean getScheduled();
+    Boolean getSuccessful();
+    Boolean execute();
+    Boolean stop();
+    Boolean forceStop();
+    Status getStatus();
 }

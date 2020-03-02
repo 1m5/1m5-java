@@ -50,7 +50,7 @@ public abstract class BaseTask implements Task {
     protected boolean stopASAP = false;
     protected boolean scheduled = false;
     protected boolean running = false;
-    protected Task.Status status = Task.Status.Ready;
+    protected Status status = Status.Ready;
 
     public BaseTask(String taskName, TaskRunner taskRunner) {
         this.taskName = taskName;

@@ -28,9 +28,13 @@ package io.onemfive.util;
 
 import io.onemfive.data.JSONSerializable;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class Multipart implements JSONSerializable {
 

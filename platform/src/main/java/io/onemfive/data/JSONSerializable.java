@@ -24,16 +24,14 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.util;
+package io.onemfive.data;
 
-import java.io.*;
+import java.io.Serializable;
+import java.util.Map;
 
-public interface NamedStreamable
-{
-    InputStream getInputStream() throws IOException;
-
-    String getName();
-
-    boolean isDirectory();
-
+public interface JSONSerializable extends Serializable {
+    Map<String,Object> toMap();
+    void fromMap(Map<String, Object> m);
+    String toJSON();
+    void fromJSON(String json);
 }

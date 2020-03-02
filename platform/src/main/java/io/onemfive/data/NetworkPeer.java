@@ -26,13 +26,14 @@
  */
 package io.onemfive.data;
 
-;
 import io.onemfive.util.JSONParser;
 import io.onemfive.util.JSONPretty;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
+;
 
 /**
  * A Peer on the 1M5 peer-to-peer network identified by DID and Network and

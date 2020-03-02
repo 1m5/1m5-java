@@ -26,12 +26,7 @@
  */
 package io.onemfive.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.util.HashMap;
@@ -73,11 +68,11 @@ public class Protocol {
     }
 
     public static int LENGTH_PREFIXED_VAR_SIZE = -1;
-    public final Protocol.Type type;
+    public final Type type;
     private static Map<String, Protocol> byName = new HashMap<>();
     private static Map<Integer, Protocol> byCode = new HashMap<>();
 
-    public Protocol(Protocol.Type type) {
+    public Protocol(Type type) {
         this.type = type;
     }
 
@@ -249,11 +244,11 @@ public class Protocol {
     }
 
     static {
-        Protocol.Type[] var0 = Protocol.Type.values();
+        Type[] var0 = Type.values();
         int var1 = var0.length;
 
         for(int var2 = 0; var2 < var1; ++var2) {
-            Protocol.Type t = var0[var2];
+            Type t = var0[var2];
             Protocol p = new Protocol(t);
             byName.put(p.name(), p);
             byCode.put(Integer.valueOf(p.code()), p);

@@ -29,12 +29,9 @@ package io.onemfive.util;
 import io.onemfive.data.*;
 import io.onemfive.data.route.SimpleExternalRoute;
 import io.onemfive.data.route.SimpleRoute;
-import io.onemfive.data.NetworkPeer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Data Location Constants

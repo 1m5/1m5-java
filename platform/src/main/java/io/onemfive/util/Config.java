@@ -26,7 +26,8 @@
  */
 package io.onemfive.util;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.logging.Logger;

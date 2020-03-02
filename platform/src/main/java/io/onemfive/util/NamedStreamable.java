@@ -24,34 +24,17 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.util.tasks;
+package io.onemfive.util;
 
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
 
-public interface Task extends Runnable {
+public interface NamedStreamable
+{
+    InputStream getInputStream() throws IOException;
 
-    enum Status {Ready, Running, Completed}
+    String getName();
 
-    String getTaskName();
-    void setParams(Map<Object,Object> params);
-    void addParams(Map<Object,Object> params);
-    Long getPeriodicity();
-    void setPeriodicity(long periodicity);
-    void setLastCompletionTime(Long lastCompletionTime);
-    Long getLastCompletionTime();
-    void setDelayed(Boolean delayed);
-    Boolean getDelayed();
-    void setDelayTimeMS(Long delayTimeMS);
-    void setFixedDelay(Boolean fixedDelay);
-    Boolean getFixedDelay();
-    Long getDelayTimeMS();
-    void setLongRunning(Boolean longRunning);
-    Boolean getLongRunng();
-    void setScheduled(Boolean scheduled);
-    Boolean getScheduled();
-    Boolean getSuccessful();
-    Boolean execute();
-    Boolean stop();
-    Boolean forceStop();
-    Status getStatus();
+    boolean isDirectory();
+
 }

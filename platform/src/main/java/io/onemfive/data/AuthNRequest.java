@@ -26,8 +26,6 @@
  */
 package io.onemfive.data;
 
-import io.onemfive.data.PublicKey;
-
 /**
  * TODO: Add Description
  *

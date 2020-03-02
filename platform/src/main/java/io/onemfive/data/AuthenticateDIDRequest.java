@@ -26,9 +26,6 @@
  */
 package io.onemfive.data;
 
-import io.onemfive.data.ServiceMessage;
-import io.onemfive.data.DID;
-
 import java.util.Map;
 
 public class AuthenticateDIDRequest extends ServiceMessage {

@@ -26,8 +26,6 @@
  */
 package io.onemfive.data;
 
-import io.onemfive.data.route.ExternalRoute;
-
 public enum ManCon {
     NEO, // MANCON 0
     EXTREME, // MANCON 1

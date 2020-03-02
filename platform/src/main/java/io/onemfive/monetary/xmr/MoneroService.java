@@ -30,9 +30,9 @@ import io.onemfive.core.*;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.route.Route;
 import io.onemfive.util.DLC;
-import monero.daemon.MoneroDaemon;
-import monero.daemon.MoneroDaemonRpc;
-import monero.wallet.MoneroWalletRpc;
+//import monero.daemon.MoneroDaemon;
+//import monero.daemon.MoneroDaemonRpc;
+//import monero.wallet.MoneroWalletRpc;
 
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -53,8 +53,8 @@ public class MoneroService extends BaseService {
 
     private Properties properties;
 
-    private MoneroDaemon daemon;
-    private MoneroWalletRpc walletRpc;
+//    private MoneroDaemon daemon;
+//    private MoneroWalletRpc walletRpc;
     private String miningAddress;
     private static long NUM_MINING_THREADS = Runtime.getRuntime().availableProcessors();
 
@@ -85,11 +85,11 @@ public class MoneroService extends BaseService {
                     DLC.addNVP("monero-error", "Mining address not yet set.", e);
                     break;
                 }
-                daemon.startMining(miningAddress, NUM_MINING_THREADS, true, false);
+//                daemon.startMining(miningAddress, NUM_MINING_THREADS, true, false);
                 break;
             }
             case OPERATION_STOP_MINER: {
-                daemon.stopMining();
+//                daemon.stopMining();
                 break;
             }
             default: deadLetter(e);
@@ -100,9 +100,9 @@ public class MoneroService extends BaseService {
     public boolean start(Properties p) {
         LOG.info("Starting....");
         updateStatus(ServiceStatus.STARTING);
-        daemon = new MoneroDaemonRpc("http://localhost:38081");
-        LOG.info("Height: "+daemon.getHeight());
-        LOG.info("Fee Est: "+daemon.getFeeEstimate());
+//        daemon = new MoneroDaemonRpc("http://localhost:38081");
+//        LOG.info("Height: "+daemon.getHeight());
+//        LOG.info("Fee Est: "+daemon.getFeeEstimate());
         updateStatus(ServiceStatus.RUNNING);
         LOG.info("Started.");
         return true;
@@ -113,9 +113,9 @@ public class MoneroService extends BaseService {
         LOG.info("Shutting down...");
         updateStatus(ServiceStatus.SHUTTING_DOWN);
         if(super.shutdown()) {
-            if(daemon!=null) {
-                daemon.stop();
-            }
+//            if(daemon!=null) {
+//                daemon.stop();
+//            }
         }
         updateStatus(ServiceStatus.SHUTDOWN);
         LOG.info("Shutdown.");
@@ -127,9 +127,9 @@ public class MoneroService extends BaseService {
         LOG.info("Gracefully shutting down...");
         updateStatus(ServiceStatus.GRACEFULLY_SHUTTING_DOWN);
         if(super.gracefulShutdown()) {
-            if(daemon!=null) {
-                daemon.stop();
-            }
+//            if(daemon!=null) {
+//                daemon.stop();
+//            }
         }
         updateStatus(ServiceStatus.GRACEFULLY_SHUTDOWN);
         LOG.info("Gracefully shutdown.");

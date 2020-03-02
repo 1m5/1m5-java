@@ -27,12 +27,7 @@
 package io.onemfive.util;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Properties map that has its keySet ordered consistently (via the key's lexicographical ordering).
