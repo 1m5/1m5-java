@@ -26,7 +26,7 @@
 	<developers>
 		<developer>
 			<name>objectorange</name>
-			<email>brian@resolvingarchitecture.io</email>
+			<email>objectorange@1m5.io</email>
 		</developer>
 	</developers>
 	<scm>
@@ -75,7 +75,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.onemfive</groupId>
-			<artifactId>common</artifactId>
+			<artifactId>platform</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

@@ -27,7 +27,7 @@
 	<developers>
 		<developer>
 			<name>objectorange</name>
-			<email>brian@resolvingarchitecture.io</email>
+			<email>objectorange@1m5.io</email>
 		</developer>
 	</developers>
 
@@ -50,15 +50,9 @@
 	</dependencies>
 
 	<modules>
-        <module>common</module>
         <module>platform</module>
         <module>desktop</module>
         <module>cli</module>
-        <module>mancon</module>
-        <module>relay</module>
-        <module>ring</module>
-        <module>seed</module>
-        <module>api</module>
     </modules>
 
 </project>
