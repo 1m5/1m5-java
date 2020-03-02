@@ -43,11 +43,6 @@
 	</repositories>
 
 	<dependencies>
-        <dependency>
-            <groupId>io.onemfive</groupId>
-            <artifactId>common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- Derby DB -->
         <dependency>
             <groupId>org.apache.derby</groupId>
