@@ -81,32 +81,32 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>13</version>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>13</version>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>13</version>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>13</version>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>13</version>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>13</version>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.jfoenix</groupId>
@@ -133,6 +133,9 @@
 	<build>
 		<finalName>${project.name}-${project.version}</finalName>
 		<resources>
+            <resource>
+                <directory>lib</directory>
+            </resource>
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
@@ -195,7 +198,7 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.0</version>
                     <configuration>
-                        <release>11</release>
+                        <release>10</release>
                     </configuration>
 				</plugin>
 			</plugins>
@@ -209,14 +212,14 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.4</version>
-                <configuration>
-                    <mainClass>io.onemfive.desktop.DesktopApp</mainClass>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.openjfx</groupId>-->
+<!--                <artifactId>javafx-maven-plugin</artifactId>-->
+<!--                <version>0.0.4</version>-->
+<!--                <configuration>-->
+<!--                    <mainClass>io.onemfive.desktop.DesktopApp</mainClass>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
