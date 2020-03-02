@@ -45,6 +45,7 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import static io.onemfive.desktop.CssTheme.CSS_THEME_DARK;
@@ -57,6 +58,7 @@ public class DesktopApp extends Application implements Thread.UncaughtExceptionH
 
     private static SystemTray systemTray;
     private static boolean systemTrayInitialized = false;
+    static Consumer<Application> appLaunchedHandler;
 
     public static Runnable shutDownHandler;
 

@@ -24,36 +24,30 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.mancon;
+package io.onemfive.desktop;
 
-import io.onemfive.util.Config;
+import javafx.application.Application;
+import javafx.application.Platform;
 
-import java.util.*;
-import java.util.logging.Logger;
+public class DesktopAppMain {
 
-/**
- * 1M5 ManCon Node
- * Tests and reports on network parameters within defined IP ranges
- * providing real-time status updates for 1M5 ManCon recommendations.
- */
-public class ManCon {
+    private static DesktopApp app;
 
-    private static Logger LOG = Logger.getLogger(ManCon.class.getName());
+    public static void main(String[] args) {
+        // For some reason the JavaFX launch process results in us losing the thread
+        // context class loader: reset it. In order to work around a bug in JavaFX 8u25
+        // and below, you must include the following code as the first line of your
+        // realMain method:
+        Thread.currentThread().setContextClassLoader(DesktopAppMain.class.getClassLoader());
 
-    private static ManCon instance;
-    public static boolean isRunning = true;
+        MVC.setExecutor(Platform::runLater);
 
-    public static Properties config;
+        DesktopApp.appLaunchedHandler = application -> {
+            app = (DesktopApp)application;
+            // Map to user thread!
+            MVC.execute(app::init);
+        };
 
-    public static void main(String[] args) throws Exception {
-        config = new Properties();
-        try {
-            config.putAll(Config.loadFromClasspath("1m5-mancon.config", null, false));
-        } catch (Exception e) {
-            LOG.warning(e.getLocalizedMessage());
-            System.exit(-1);
-        }
-
+        Application.launch(DesktopApp.class);
     }
-
 }
