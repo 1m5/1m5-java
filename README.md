@@ -8,9 +8,12 @@ applications requiring no server connections that can be used around the world b
 to protect their communications and personal data from unethical monitoring, interception, intrusion,
 and censorship.
 
+STOPPED PROJECT DUE TO INABILITY TO FIND FINANCIAL SUPPORT FROM ANY ORGANIZATION CLAIMING TO SUPPORT
+FREE SPEECH AND NO DEVELOPERS WILLINGLY DESIRING TO ASSIST.
+
 ## Version
 
-0.6.4
+0.6.5-SNAPSHOT
 
 ## Licensing
 
