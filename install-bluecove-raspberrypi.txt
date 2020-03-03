@@ -1,0 +1,4 @@
+https://www.bluetooth.com/blog/use-bluez-v5-50-andraspberry-pi-4-updateto-create-a-bluetoothmesh-provisioner/
+https://www.rvmobileinternet.com/guides/understanding-and-optimizing-cellular-signal/
+https://www.rvmobileinternet.com/t-mobile-offers-new-mobile-hotspot-device-the-franklin-t-9/
+https://duckduckgo.com/?q=cellular+embedded+router&t=ffab
