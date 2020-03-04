@@ -20,8 +20,8 @@
 	<inceptionYear>2017</inceptionYear>
 	<licenses>
 		<license>
-			<name>Unlicense</name>
-			<url>https://unlicense.org/</url>
+			<name>AGPLv3</name>
+			<url>https://www.gnu.org/licenses/</url>
 		</license>
 	</licenses>
 	<developers>
