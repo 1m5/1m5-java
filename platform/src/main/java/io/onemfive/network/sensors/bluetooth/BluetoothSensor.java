@@ -198,7 +198,7 @@ public final class BluetoothSensor extends BaseSensor {
             peerDiscovery.setLongRunning(true);
             peerDiscovery.setDelayed(true);
             peerDiscovery.setDelayTimeMS(40 * 1000L);
-            taskRunner.addTask(peerDiscovery);
+//            taskRunner.addTask(peerDiscovery);
             peerDiscoveryRunning = true;
             LOG.info("Completed Bluetooth Peer Discovery.");
             return true;

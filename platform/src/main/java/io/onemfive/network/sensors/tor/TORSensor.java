@@ -202,7 +202,7 @@ public final class TORSensor extends BaseSensor {
             }
         } while(torSession == null || !torSession.isConnected());
         updateStatus(SensorStatus.NETWORK_CONNECTED);
-        kickOffDiscovery();
+//        kickOffDiscovery();
         return true;
     }
 

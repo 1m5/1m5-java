@@ -552,7 +552,7 @@ public final class I2PSensor extends BaseSensor {
                 // ensure id set
                 seedAI2P.setId(sensorManager.getPeerManager().getLocalNode().getNetworkPeer().getId());
                 sensorManager.getPeerManager().savePeer(seedAI2P, true);
-                taskRunner.addTask(discovery);
+//                taskRunner.addTask(discovery);
             }
         }
     }
