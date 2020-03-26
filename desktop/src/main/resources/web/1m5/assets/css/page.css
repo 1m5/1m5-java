@@ -1,6 +1,20 @@
 @charset "UTF-8";
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Dosis:200,400,500,600");
 :root {
+  --ims-black: #191919;
+  --ims-white: #f4f1ec;
+  --ims-purple-gray-light: #8072ba;
+  --ims-purple-gray-dark: #7361bd;
+
+  --ims-icon-black: -ims-black;
+  --ims-icon-white: -ims-white;
+  --ims-icon-green: #2ab027;
+  --ims-icon-blue: #154edf;
+  --ims-icon-yellow: #d5d30d;
+  --ims-icon-orange: #df7015;
+  --ims-icon-red: #df1515;
+  --ims-icon-gray: #708090;
+
   --blue: #50a1ff;
   --indigo: #6610f2;
   --purple: #926dde;

@@ -9,7 +9,7 @@
     <title>1M5 — Invisible Matrix Services, Uncensored Communications</title>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
+<!--    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">-->
 
     <!-- Styles -->
     <link href="assets/css/page.min.css" rel="stylesheet">
@@ -65,7 +65,7 @@
 
           <nav class="nav nav-navbar">
             <a class="nav-link" href="./#mission">Mission</a>
-            <a class="nav-link" href="./#features">Platform</a>
+            <a class="nav-link" href="./#features">OS</a>
             <a class="nav-link" href="./#implementations">Solutions</a>
             <a class="nav-link" href="./#roadmap">Progress</a>
             <a class="nav-link" href="collaborate.html">Collaborate</a>
@@ -74,7 +74,7 @@
           </nav>
         </section>
 
-        <a class="btn btn-sm btn-round btn-dark link-topright" href="https://github.com/1m5">GitHub <i class="fa fa-github"></i></a>
+        <a class="btn btn-sm btn-round btn-dark link-topright" target="_blank" href="https://github.com/1m5/1m5-daemon">GitHub <i class="fa fa-github"></i></a>
 
       </div>
     </nav>
@@ -95,71 +95,39 @@
         <div class="container mt-10">
           <header class="section-header">
             <h2 id="top">DEMOS</h2>
-            <h4>0.6.6 - Internet Browsing Censorship Resistance</h4>
-            <p>This version is the first end-user supported use of 1M5 and is the 'lowest hanging-fruit' to prove out how the 1M5 router works.</p>
           </header>
-          <h4>Objectives</h4>
           <div class="row gap-y align-items-center py-7" id="centrow">
             <div class="text-left col-md-8 mx-auto">
+              <h5 class="mt-4" style="color: #8072ba">0.6.5 - Internet Browsing Censorship Resistance - I2P Relay</h5>
+              <p>This version is the first end-user supported use of 1M5 and is the 'lowest hanging-fruit' to prove out how the 1M5 router works.</p>
+              <p>Objectives</p>
               <ul>
-                <li>TOR, I2P, and Bluetooth are being used on your machine by 1M5 to relay around blocks.</li>
+                <li>TOR and I2P are being used on your machine by 1M5 to relay around blocks.</li>
                 <li>Blocks will be simulated by turning off sensors (network routers).</li>
-                <li>A browser request for a TOR address will prove that TOR is being used.</li>
-                <li>A browser request for an I2P address will prove that I2P is being used.</li>
+                <li>A browser request for a TOR address (*.onion) will prove that TOR is being used.</li>
+                <li>A browser request for an I2P address (*.i2p) will prove that I2P is being used.</li>
                 <li>TOR will be turned off while I2P is active and a TOR address request will be satisfied proving I2P was used to relay the TOR request.</li>
-                <li>I2P will be turned off while TOR is active and an I2P address request will be satisfied proving TOR was used to relay the I2P request.</li>
-                <li>With two machines within bluetooth range running 1M5, one with only Bluetooth active and the second with Bluetooth and TOR active, a TOR address request from the first machine will be satisfied by using the bluetooth network to relay the request to the second machine which will use its TOR access to fulfill the request.</li>
-                <li>With two machines within bluetooth range running 1M5, one with only Bluetooth active and the second with Bluetooth and I2P active, an I2P address request from the first machine will be satisfied by using the bluetooth network to relay the request to the second machine which will use its I2P access to fulfill the request.</li>
               </ul>
-            </div>      
-          </div>
-          <h4>Requirements</h4>
-          <div class="row gap-y align-items-center py-7" id="centrow">
-            <div class="text-left col-md-8 mx-auto">
+              <p>Requirements</p>
               <ul>
-                <li>Currently there is no installer so any PC with JDK 10 and up can be used.</li>
-                <li>The application runs in your home directory so no special privileges are necessary.</li>
+                <li>Demo currently works for Debian-based Linux OS, e.g. Ubuntu</li>
+                <li>Download the 1m5-desktop.deb when available.</li>
+                <li>You must have sudo/root access.</li>
                 <li>It only requires about 200 Mb of disk space to install.</li>
-                <li>It uses ~30 threads and 650MB of memory for this desktop version.</li>
-                <li>Two PCs each with TOR and Bluecove (Bluetooth API) installed.</li>
-                <li>Raspberry Pi can not be used for the desktop version (only the headless version - which doesn't satisfy the requirements for this demo).</li>
+                <li>It uses ~30 threads and 650MB of memory for this version.</li>
+                <li>Two PCs each with TOR installed.</li>
+                <li>Raspberry Pi can not be used with the desktop version (only headless versions - which doesn't satisfy the requirements for this demo).</li>
               </ul>
-            </div>
-          </div>
-          <h4>IDE Setup</h4>
-          <div class="row gap-y align-items-center py-7" id="centrow">
-            <div class="text-left col-md-8 mx-auto">
+              <p>Installation</p>
               <ol>
                 <li>**Ensure you do not have I2P running on your machine**</li>
                 <li>Both machines follow these directions</li>
                 <li>Make sure you have internet access - cellular or WiFi</li>
-                <li>Install TOR</li>
-                <li>Install Bluecove</li>
-                <li>Install IntelliJ Community Edition</li>
-                <li>Install Maven</li>
-                <li>Install Git</li>
-                <li>Point your IntelliJ IDE to your local Maven directory you installed earlier (HOME/.m2).</li>
-                <li>Either using the IDE or opening a console, do a git clone into a local directory in your home directory (e.g. HOME/projects) from here: https://github.com/1m5/1m5.git</li>
-                <li>Either using the IDE or opening a console, do a maven install on it.</li>
-                <li>Start TOR</li>
-                <li>In the IDE, right click on the following file and select Run: desktop/src/main/java/io/onemfive/desktop/DesktopApp</li>
-                <li>1M5 Desktop with the Platform will start up and begin connecting to TOR and I2P.</li>
-                <li>Give it about 10-20 minutes the first time started for I2P to build up its networks. After that, restarts need not wait.</li>
+                <li>Install and start TOR</li>
+                <li>Install and start 1M5 Desktop</li>
+                <li>Give it about 10-20 minutes the first time started for I2P to build up its network. After that, fresh starts need not wait.</li>
               </ol>
-            </div>
-          </div>
-          <h4>DEB Installer Setup</h4>
-          <div class="row gap-y align-items-center py-7" id="centrow">
-            <div class="text-left col-md-8 mx-auto">
-              <ol>
-                <li>To be created</li>
-              </ol>
-            </div>
-          </div>
-          <h4>Demo</h4>
-          <div class="row gap-y align-items-center py-7" id="centrow">
-            <div class="text-left col-md-8 mx-auto">
-              <h5 class="mt-4" style="color: #8072ba">Setup</h5>
+              <p>Setup</p>
               <ol>
                 <li>The splash screen slowly fades away leaving you with the desktop</li>
                 <li>Click on Ops in the upper-most menu</li>
@@ -173,39 +141,19 @@
                 <li>Click on Browser at the next menu down</li>
                 <li>You should see the 1M5 site locally at: 1m5://1m5.1m5</li>
               </ol>
-            </div>
-          </div>
-          <div class="row gap-y align-items-center py-7" id="centrow">
-            <div class="text-left col-md-8 mx-auto">
-              <h5 class="mt-4" style="color: #8072ba">Individual PC Tests</h5>
+              <p>Tests</p>
               <ol>
                 <li>Place a TOR onion site address in the URL box and hit Enter Key or click Go. A well-known site is Facebook's: https://facebookcorewwwi.onion. Verify the site comes up</li>
-                <li>Place an I2P site in the URL box and hit Enter. A common site for I2P developers is the dev meeting site: https://zzz.i2p. Verify the site comes up.</li>
-                <li>Verify site comes up</li>
                 <li>Go to Ops/Network/TOR and turn off the TOR sensor</li>
                 <li>Verify status changed to Shutdown</li>
                 <li>Go back to Public/Browser and enter a different TOR onion address in the URL box, hit Enter, and verify the site comes up</li>
-                <li>Go to Ops/Network/TOR, turn it back on, and wait for the Network Connected status</li>
-                <li>Go to Ops/Network/I2P, turn it off, and verify Shutdown status</li>
-                <li>Go back to Public/Browser and enter a different I2P address in the URL box, hit Enter, and verify the site comes up</li>
               </ol>
-            </div>
-          </div>
-          <div class="row gap-y align-items-center py-7" id="centrow">
-            <div class="text-left col-md-8 mx-auto">
-              <h5 class="mt-4" style="color: #8072ba">Relay PC Tests</h5>
-              <ol>
-                <li>Turn on the Bluetooth Radios of both PCs</li>
-                <li>Have each PC connect to the other machine nearby using Bluetooth</li>
-                <li>Both navigate to Ops/Network/Bluetooth and verify status is Network Connected</li>
-                <li>Have both machines turn off their TOR and I2P sensors and verify in Shutdown status</li>
-                <li>Have both machines go to Public/Browser, enter a different TOR address, and verify the site fails</li>
-                <li>Have the second machine turn on its TOR sensor and verify status is Network Connected</li>
-                <li>Have the first machine retry that same TOR address and verify the site comes up</li>
-                <li>Have the first machine try an I2P address and verify it fails</li>
-                <li>Have the second machine turn on their I2P sensor and verify status is Network Connected</li>
-                <li>Have the first machine try the same I2P address and verify the site comes up</li>
-              </ol>
+              <h5 class="mt-4" style="color: #8072ba">0.6.6 - Internet Browsing Censorship Resistance - TOR Relay</h5>
+              <p>Same as 0.6.5 except replace TOR with I2P to verify TOR is routing around I2P blocks.</p>
+              <h5 class="mt-4" style="color: #8072ba">0.6.8 - Internet Browsing Censorship Resistance - Bluetooth Relay</h5>
+              <p>Same as 0.6.5 and 0.6.6 except test Bluetooth for relaying when both TOR and I2P are blocked.</p>
+              <h5 class="mt-4" style="color: #8072ba">0.7.0 - Messenger Censorship Resistance - Relaying</h5>
+              <p>Verify Messenger gets through regardless if TOR or I2P or both are blocked.</p>
             </div>
           </div>
           <a href="#top"><h5>Top</h5></a>

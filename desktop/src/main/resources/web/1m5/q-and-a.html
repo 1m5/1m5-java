@@ -9,7 +9,7 @@
     <title>1M5 — Invisible Matrix Services, Uncensored Communications</title>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
+<!--    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">-->
 
     <!-- Styles -->
     <link href="assets/css/page.min.css" rel="stylesheet">
@@ -65,7 +65,7 @@
 
           <nav class="nav nav-navbar">
             <a class="nav-link" href="./#mission">Mission</a>
-            <a class="nav-link" href="./#features">Platform</a>
+            <a class="nav-link" href="./#features">OS</a>
             <a class="nav-link" href="./#implementations">Solutions</a>
             <a class="nav-link" href="./#roadmap">Progress</a>
             <a class="nav-link" href="collaborate.html">Collaborate</a>
@@ -74,7 +74,7 @@
           </nav>
         </section>
 
-        <a class="btn btn-sm btn-round btn-dark link-topright" href="https://github.com/1m5">GitHub <i class="fa fa-github"></i></a>
+        <a class="btn btn-sm btn-round btn-dark link-topright" target="_blank" href="https://github.com/1m5/1m5-daemon">GitHub <i class="fa fa-github"></i></a>
 
       </div>
     </nav>
@@ -107,22 +107,14 @@
               <h5 class="mt-4" style="color: #8072ba">How does it help me resist being censored?</h5>
               <p>When using the app, if during its use of TOR it gets blocked, it will use I2P to route around the block. Same for I2P, it will use TOR. If both are blocked, it will try to use Bluetooth to route around the blocks. With no userbase, Bluetooth is not yet a viable alternative unless the people within range of your bluetooth are using 1M5 and allow you to connect. Work is progressing on supporting LiFi (Light Fidelity) and the full radio spectrum to communciate over light and long distances with radio to get around internet censorship.</p>
               <h5 class="mt-4" style="color: #8072ba">How can I use this app?</h5>
-              <p>Currently there are no installers so you must download the project from GitHub, build with Maven, and follow the directions on how to start it. It currently is an alpha version in constant flux so in no way ready for real-world usage. It's best started up in an IDE like IntelliJ and ran as a demo for input into development. It is expected to be ready for real-world testing by version 0.7.0 which is expected to be released mid-2020.</p>
+              <p>Currently there are no installers so you must download the project from GitHub, build, and follow the directions on how to start it. It currently is an alpha version in constant flux so in no way ready for real-world usage. It's best started up in an IDE like IntelliJ and ran as a demo for input into development. It is expected to be ready for real-world testing by version 0.7.0 which is expected to be released mid-2020. Eventually it is expected to be embedded in an operating system when implemented with Rust.</p>
               <h5 class="mt-4" style="color: #8072ba">Who are the primary users targeted?</h5>
-              <p>All whom take their privacy seriously - this should be everyone. Those who are well aware of their need for privacy and whom will be supported as much as possible are:<br/>Investigative Journalists, Activists, Refugees, Whistleblowers, and the oppressed.</p>
+              <p>All whom take their privacy seriously - this should be everyone.</p>
               <h5 class="mt-4" style="color: #8072ba">Will people be able to use this for unethical purposes?</h5>
-              <p>This is a tool like any tool and can be used ethically or unethically like any tool. This mission tries to not support anyone violating the NAP (Non-Aggression Principle). If it's discovered someone is using it to violate the NAP, we will do everything in our power to prevent it but will not violate the NAP to do so.</p>
-              <h5 class="mt-4" style="color: #8072ba">Why only desktop? Where is the mobile support?</h5>
-              <p>The mission requires open-source and most phones are running on closed-source operating systems, Mac and Windows being the worst. Google started out with Android as an open source OS to win the market over but is slowing becoming closed and proprietary. So Linux desktop is the primary foundation. Future support for running on mobiles will be developed for phones that can run an unrestricted JVM such as Purism and open source phone hardware.</p>
+              <p>This is a tool like any tool and can be used ethically or unethically like any tool.</p>
               <h5 class="mt-4" style="color: #8072ba">How much overhead comes with using many networks simultaneously?</h5>
               <p>This can depend on how many of the sensors are available and activated. Early versions are just using TOR, I2P, and Bluetooth. In these versions, TOR is primarily used for browsing and I2P for messaging. When TOR is blocked, I2P is used for relaying and vice-versa. When both are blocked, Bluetooth is attempted for relay. This requires very little overhead. Later versions with LiFi will see similar little overhead comparable to Bluetooth. It's not until we reach using a Full-Spectrum radio where overhead can go up, especially on battery usage for transmitting over longer distances. In these uses, additional power will likely be needed and will be addressed through recommended practices and additional hardware. If all sensors are running while integrating with Bitcoin, Monero, and Lightning local nodes, then we can expect a fair amount of overhead although this setup would be more likely on a desktop or powerful Raspberry Pi or Pi Farm. Hardware recommendations for each configuration will be provided.</p>
-              <h5 class="mt-4" style="color: #8072ba">Why native desktop? Where's the HTML5 client?</h5>
-              <p>Browsers are notoriously difficult to make secure and efficient. A browser is embedded within the native desktop to improve control over security while ensuring it can be used with all of the sensors working together to ensure you can browse anything globally (static websites - not advanced webapps).</p>
-              <h5 class="mt-4" style="color: #8072ba">Is this tool legal?</h5>
-              <p>Laws today are created by one group of people to control the behaviour of another group and thus a violation of the NAP. This mission supports ethical behavior over any law. If this tool is illegal in your jurisdiction, you must make the decision if free speech is worth violating that law. It currently is not known to be illegal in any jurisdiction although some jurisdictions work to block TOR.</p>
-              <h5 class="mt-4" style="color: #8072ba">Are transactions taxable events?</h5>
-              <p>Taxation today is a form of robbery and thereby violates the NAP, therefore the platform is unable to forcefully take from one group to give to another. If you feel this puts you in danger with your jurisdiction's taxation laws, you must make a decision on whether free speech is worth violating those laws.</p>
-            </div>      
+            </div>
           </div>
           <h4 id="gifters">Gifters</h4>
           <div class="row gap-y align-items-center py-7" id="centrow">
@@ -130,9 +122,7 @@
               <h5 class="mt-4" style="color: #8072ba">How will the gift money be used?</h5>
               <p>Primarily to fund development and support of the platform but also includes web site hosting fees and other fees associated with supporting the mission. The mission's <a href="public-roadmap.html">roadmap</a> lays out the work to be accomplished.</p>
               <h5 class="mt-4" style="color: #8072ba">What form of money do you accept?</h5>
-              <p>Bitcoin (BTC) and Monero (XMR). If interested, send a request to <a href="mailto:info@1m5.io">info@1m5.io</a> with GIFT in subject line and whether you wish to give BTC or XMR and an address will be generated and returned. Use the fingerprint below to verify the public key is valid if possible. It's recommended to use <a href="https://bisq.network" target="_blank">Bisq.network</a> or any wallet that uses TOR. In the future, it is planned to support gifting directly in the 1M5 dapp.</p>
-              <h5 class="mt-4" style="color: #8072ba">Can a gift be written off my taxes?</h5>
-              <p>1M5 is not registered in any jurisdiction so it's not likely a tax write off. Talk to a local tax attorney if unsure.</p>
+              <p>Bitcoin (BTC) and Monero (XMR). If interested, send a request to <a href="mailto:info@1m5.io">info@1m5.io</a> with GIFT in subject line and whether you wish to give BTC or XMR and an address will be generated and returned. Use the fingerprint below to verify the public key is valid if possible. It's recommended to use <a href="https://bisq.network" target="_blank">Bisq.network</a> or <a href="https://samouraiwallet.com/" target="_blank">Samourai</a> wallet as they both use TOR. In the future, it is planned to support gifting directly in the 1M5 dapp.</p>
             </div>
           </div>
           <h4 id="developers">Developers</h4>
@@ -140,21 +130,47 @@
             <div class="text-left col-md-8 mx-auto">
               <h5 class="mt-4" style="color: #8072ba">How can I contribute?</h5>
               <p>Currently the repository on 1M5 is under heavy development so forking and fixing something is not recommended as it's changing so rapidly. The best method to support it today is to contact the development group at info@1m5.io, discuss your background including any links to your past work if identity is not an issue, what you would like to work on, and what it would cost in BTC or XMR.</p>
-              <h5 class="mt-4" style="color: #8072ba">Why Java?</h5>
-              <p>Java is the 'Swiss-Army Knife' of programming languages, has two decades to flush out a strong virtual machine, massive amount of code to choose from, one of the largest talent pools, platform independent, leads in the number of progressive projects in development (with C/C++ being close in decentralized apps), and I2P (the foundational network) implemented in Java.</p>
+              <h5 class="mt-4" style="color: #8072ba">Why originally implemented in Java?</h5>
+              <ul>
+                <li>Java is the 'Swiss-Army Knife' of programming languages</li>
+                <li>Has two decades to flush out a strong virtual machine</li>
+                <li>Massive amount of code to choose from</li>
+                <li>One of the largest talent pools</li>
+                <li>OS independent</li>
+                <li>Leads in the number of progressive projects in development (with C/C++ being close in decentralized apps)</li>
+                <li>I2P (the foundational network) implemented in Java</ul>
+              <h5 class="mt-4" style="color: #8072ba">Why the change to Rust?</h5>
+              <ul>
+                <li>1M5 is heavily networked and part of its targeted platforms are tiny electronics with limited resources and embedded within C/C++/Rust-implemented operating systems</li>
+                <li>It has innovative memory management</li>
+                <li>Gives you the power of C/C++ yet productive like Python</li>
+                <li>Mozilla has a great reputation</li>
+                <li>Most decentralized software is being written in C/C++</li>
+                <li>C, C++, and Go were considered also but the first two don't have the desired memory protections and are often written in a very terse manner and the latter uses garbage collection (and Google's reputation is slipping)</li>
+                <li>Crustaceans are a great community</li>
+                <li>It's expected to dramatically reduce codebase size with far less objects yet still get the benefit of object-orientation</li>
+                <li>Can be compiled to most operating systems</li>
+                <li>Great selection of code in <a href="https://crates.io" target="_blank">Crates.io</a></li>
+                <li>Doesn't require downloading a virtual machine prior to use</li>
+                <li>Oracle increasingly closing Java</li>
+                <li>Open source language from the beginning</li>
+                <li>Don't expect to need a large number of Rust developers ever</li>
+                <li>Can integrate with I2P via SOCKS, no need to use Java</li>
+                <li>Consider Rust the replacement of C, C++, C#, Go, Java, and Python (when coupled with WebAssembly)</li>
+              </ul>
               <h5 class="mt-4" style="color: #8072ba">Why a custom SOA/EDA foundation?</h5>
-              <p>Enterprise Service Buses (ESB) with affiliated Message-Oriented Middleware (MOM) are quite heavy in implementation and it's desired to keep the codebase as small as possible as it is desired to support DoT (Decentralization of Things) devices. Spring's module + integration support does not fully satisfy the requirements and brings much more than desired.</p>
-              <h5 class="mt-4" style="color: #8072ba">Where are the Spring and Google libraries?</h5>
-              <p>To keep the codebase small, Spring, Google, and Apache libraries are avoided.</p>
+              <p>Enterprise Service Buses (ESB) with affiliated Message-Oriented Middleware (MOM) are quite heavy in implementation and it's desired to keep the codebase as small as possible as it is desired to support DoT (Decentralization of Things) devices. Spring's module + integration support does not fully satisfy the requirements and brings much more than desired. The move to Rust solidified the need for a custom platform as none exist.</p>
+              <h5 class="mt-4" style="color: #8072ba">Where are the Spring and Google libraries in the Java version?</h5>
+              <p>To keep the codebase small, Spring, Google, and Apache libraries were avoided.</p>
               <h5 class="mt-4" style="color: #8072ba">Why is routing so confusing?</h5>
               <p>Services are completely decoupled so that they can be orchestrated dynamically during real-time operations. This is accomplished using a dynamic routing stack contained in the envelope that is passed around. This is more complex than just calling a method of an object yet allows great flexibility in execution while virtually eliminating interface breakage down to data payload breaks - each service is responsible for handling what data comes in and versioning. When making a request for a service, the operation name, the payload expected by the service, and the results expected from the service need to be known prior to making the call. This will come with a future API to simplify many common calls.</p>
               <h5 class="mt-4" style="color: #8072ba">Codebase doesn't use advanced techniques. Is this old code?</h5>
-              <p>The code is intentionally implemented to be as simple as possible (targeted to 1.4). Many new language features add complexity while reducing transparency for little to no gain:</p>
+              <p>The code is intentionally implemented to be as simple as possible:</p>
               <ul>
-                <li>Generics (1.5) and lambdas (1.8) are avoided unless a big impact on design</li>
-                <li>Verbosity is chosen over code size for visibility</li>
+                <li>Generics and lambdas are avoided unless a big impact on design</li>
+                <li>Verbosity is chosen over small code size for visibility</li>
                 <li>Excessive verbosity in variable names is also avoided keeping variable names especially small when within very small scopes</li>
-                <li>Classes are designed based on cohesion/coupling not size; some classes intentionally reach upwards of 1000 lines; the minimal number of objects with strong cohesion while supporting the right amount of coupling is a great desire to keep it simple</li>
+                <li>Classes are designed based on cohesion/coupling not size; some classes can intentionally reach upwards of 1000 lines; the minimal number of objects with strong cohesion while supporting the right amount of coupling is a great desire to keep it simple</li>
               </ul>
             </div>
           </div>
