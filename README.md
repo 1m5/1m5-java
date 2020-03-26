@@ -8,7 +8,7 @@ applications requiring no server connections that can be used around the world b
 to protect their communications and personal data from unethical monitoring, interception, intrusion,
 and censorship.
 
-Moving to Rust (1m5-rust) after browser work.
+Transitioning to Rust gradually using other repositories (e.g. 1m5-daemon);
 
 ## Version
 
@@ -290,8 +290,15 @@ Decentralized Exchange for Bitcoin/Fiat as well as other altcoins. [Proposal for
 
 ### [Monero](https://getmonero.org/)
 
-Private crypto-currency. [Proposal for future integration added to Monero](https://repo.getmonero.org/monero-project/ccs-proposals/merge_requests/127)
+Privacy crypto-currency. [Proposal for future integration added to Monero](https://repo.getmonero.org/monero-project/ccs-proposals/merge_requests/127)
 
+### ZCash
+
+Privacy crypto-currency.
+
+### Bitcoin (BTC)
+
+SoV crypto-currency.
 
 ## Applications
 
