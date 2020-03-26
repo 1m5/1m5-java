@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor.external.control;
+package io.onemfive.network.sensors.tor.local.control;
 
 /** A single key-value pair from Tor's configuration. */
 public class ConfigEntry {

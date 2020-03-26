@@ -98,22 +98,22 @@
 		<dependency>
 			<groupId>net.i2p</groupId>
 			<artifactId>i2p</artifactId>
-			<version>0.9.44</version>
+			<version>0.9.45</version>
 		</dependency>
 		<dependency>
 			<groupId>net.i2p</groupId>
 			<artifactId>router</artifactId>
-			<version>0.9.44</version>
+			<version>0.9.45</version>
 		</dependency>
 		<dependency>
 			<groupId>net.i2p.client</groupId>
 			<artifactId>streaming</artifactId>
-			<version>0.9.44</version>
+			<version>0.9.45</version>
 		</dependency>
 		<dependency>
 			<groupId>net.i2p.client</groupId>
 			<artifactId>mstreaming</artifactId>
-			<version>0.9.44</version>
+			<version>0.9.45</version>
 		</dependency>
 		<!-- Radio - Bluetooth -->
 		<dependency>

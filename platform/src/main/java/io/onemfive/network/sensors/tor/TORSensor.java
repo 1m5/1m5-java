@@ -31,6 +31,7 @@ import io.onemfive.network.*;
 import io.onemfive.network.peers.NetworkPeerDiscovery;
 import io.onemfive.network.sensors.*;
 import io.onemfive.network.sensors.tor.embedded.TORSensorSessionEmbedded;
+import io.onemfive.network.sensors.tor.local.TORSensorSessionLocal;
 import io.onemfive.util.Wait;
 import io.onemfive.util.tasks.TaskRunner;
 
@@ -123,7 +124,7 @@ public final class TORSensor extends BaseSensor {
             address = "127.0.0.1";
         }
         if(sessions.get(address)==null) {
-            SensorSession sensorSession = embedded ? new TORSensorSessionEmbedded(this) : new io.onemfive.network.sensors.tor.external.TORSensorSessionLocal(this);
+            SensorSession sensorSession = embedded ? new TORSensorSessionEmbedded(this) : new TORSensorSessionLocal(this);
 
             if(sensorSession.init(properties) && sensorSession.open(address)) {
                 if (autoConnect) {

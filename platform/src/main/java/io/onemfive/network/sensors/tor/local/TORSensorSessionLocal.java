@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor.external;
+package io.onemfive.network.sensors.tor.local;
 
 import io.onemfive.data.*;
 import io.onemfive.network.NetworkPacket;
@@ -33,8 +33,8 @@ import io.onemfive.network.sensors.SensorStatus;
 import io.onemfive.network.sensors.clearnet.ClearnetSession;
 import io.onemfive.network.sensors.tor.TORHiddenService;
 import io.onemfive.network.sensors.tor.TORSensor;
-import io.onemfive.network.sensors.tor.external.control.DebuggingEventHandler;
-import io.onemfive.network.sensors.tor.external.control.TORControlConnection;
+import io.onemfive.network.sensors.tor.local.control.DebuggingEventHandler;
+import io.onemfive.network.sensors.tor.local.control.TORControlConnection;
 import io.onemfive.util.DLC;
 import io.onemfive.util.FileUtil;
 import io.onemfive.util.Wait;
@@ -52,7 +52,7 @@ import java.util.logging.Logger;
 
 public class TORSensorSessionLocal extends ClearnetSession {
 
-    private static final Logger LOG = Logger.getLogger(io.onemfive.network.sensors.tor.external.TORSensorSessionLocal.class.getName());
+    private static final Logger LOG = Logger.getLogger(TORSensorSessionLocal.class.getName());
 
     public static final String HOST = "127.0.0.1";
     public static final Integer PORT_SOCKS = 9050;

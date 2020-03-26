@@ -24,7 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.sensors.tor.external.control;
+package io.onemfive.network.sensors.tor.local.control;
 
 import java.util.Iterator;
 import java.util.logging.Logger;
