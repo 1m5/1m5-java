@@ -39,6 +39,23 @@ import java.util.logging.Logger;
 public class URLStreamFactoryCustomizer {
 
     private static Logger LOG = Logger.getLogger(URLStreamFactoryCustomizer.class.getName());
+    private static Proxy TOR_PROXY = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 9050));
+    private static Proxy I2P_PROXY = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 4444));
+    private static String PROTOCOLS = "http, https";
+
+    public static void useTORProxyForWebkit() {
+        forceInitializationOfOriginalUrlStreamHandlers();
+        useDedicatedProxyForWebkit(TOR_PROXY, PROTOCOLS);
+    }
+
+    public static void useI2PProxyForWebkit() {
+        forceInitializationOfOriginalUrlStreamHandlers();
+        useDedicatedProxyForWebkit(I2P_PROXY, PROTOCOLS);
+    }
+
+    public static void noProxyForWebKit() {
+        forceInitializationOfOriginalUrlStreamHandlers();
+    }
 
     public static void useDedicatedProxyForWebkit(Proxy proxy, String protocols) {
 
@@ -120,7 +137,7 @@ public class URLStreamFactoryCustomizer {
 
             try {
                 if (isWebKitURLLoaderThread(Thread.currentThread())) {
-
+                    LOG.info("WebKit using proxy..."+proxy.toString());
                     //WebKit requested loading the given url, use provided proxy.
                     return (URLConnection) openConnectionWithProxyMethod.invoke(delegatee, url, proxy);
                 }

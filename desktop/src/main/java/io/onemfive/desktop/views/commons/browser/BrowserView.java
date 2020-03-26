@@ -235,20 +235,20 @@ public class BrowserView extends ActivatableView {
             if (!path.endsWith(".html") || !path.endsWith(".htm")) {
                 path += "/index.html";
             }
+            URLStreamFactoryCustomizer.noProxyForWebKit();
         } else if(url.startsWith("http://127.0.0.1") || url.startsWith("http://localhost")) {
             // Do nothing
             path = url;
             LOG.info("No proxy used - localhost.");
+            URLStreamFactoryCustomizer.noProxyForWebKit();
         } else if(url.toLowerCase().endsWith(".i2p")) {
             LOG.info("Using I2P Proxy...");
             path = url;
-            Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 4444));
-            URLStreamFactoryCustomizer.useDedicatedProxyForWebkit(proxy, "http, https");
+            URLStreamFactoryCustomizer.useI2PProxyForWebkit();
         } else {
             LOG.info("Using TOR Proxy...");
             path = url;
-            Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 9050));
-            URLStreamFactoryCustomizer.useDedicatedProxyForWebkit(proxy, "http, https");
+            URLStreamFactoryCustomizer.useTORProxyForWebkit();
         }
         engine.load(path);
         urlTextField.setText(url);
