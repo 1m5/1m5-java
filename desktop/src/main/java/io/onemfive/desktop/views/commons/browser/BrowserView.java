@@ -28,6 +28,8 @@ package io.onemfive.desktop.views.commons.browser;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
+import io.onemfive.data.ManCon;
+import io.onemfive.data.ManConStatus;
 import io.onemfive.desktop.MVC;
 import io.onemfive.desktop.Navigation;
 import io.onemfive.desktop.Resources;
@@ -236,19 +238,22 @@ public class BrowserView extends ActivatableView {
                 path += "/index.html";
             }
             URLStreamFactoryCustomizer.noProxyForWebKit();
-        } else if(url.startsWith("http://127.0.0.1") || url.startsWith("http://localhost")) {
-            // Do nothing
-            path = url;
-            LOG.info("No proxy used - localhost.");
-            URLStreamFactoryCustomizer.noProxyForWebKit();
         } else if(url.toLowerCase().endsWith(".i2p")) {
             LOG.info("Using I2P Proxy...");
             path = url;
             URLStreamFactoryCustomizer.useI2PProxyForWebkit();
-        } else {
+        } else if(!url.startsWith("http://127.0.0.1")
+                && !url.startsWith("http://localhost")
+                && !url.startsWith("https://127.0.0.1")
+                && !url.startsWith("https://localhost")
+                && ManConStatus.MIN_REQUIRED_MANCON != ManCon.NONE) {
             LOG.info("Using TOR Proxy...");
             path = url;
             URLStreamFactoryCustomizer.useTORProxyForWebkit();
+        } else {
+            LOG.info("No proxy used - localhost or no privacy desired.");
+            path = url;
+            URLStreamFactoryCustomizer.noProxyForWebKit();
         }
         engine.load(path);
         urlTextField.setText(url);

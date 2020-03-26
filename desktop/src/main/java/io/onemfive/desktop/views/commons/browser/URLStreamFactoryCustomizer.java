@@ -41,58 +41,80 @@ public class URLStreamFactoryCustomizer {
     private static Logger LOG = Logger.getLogger(URLStreamFactoryCustomizer.class.getName());
     private static Proxy TOR_PROXY = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 9050));
     private static Proxy I2P_PROXY = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 4444));
-    private static String PROTOCOLS = "http, https";
+    private static Hashtable handlers;
+    private static URLStreamHandler HTTP_NO_PROXY_HANDLER;
+    private static URLStreamHandler HTTPS_NO_PROXY_HANDLER;
+    private static DelegatingScopedProxyAwareUrlStreamHandler HTTP_TOR_PROXIED_HANDLER;
+    private static DelegatingScopedProxyAwareUrlStreamHandler HTTPS_TOR_PROXIED_HANDLER;
+    private static DelegatingScopedProxyAwareUrlStreamHandler HTTP_I2P_PROXIED_HANDLER;
+    private static DelegatingScopedProxyAwareUrlStreamHandler HTTPS_I2P_PROXIED_HANDLER;
 
-    public static void useTORProxyForWebkit() {
-        forceInitializationOfOriginalUrlStreamHandlers();
-        useDedicatedProxyForWebkit(TOR_PROXY, PROTOCOLS);
-    }
-
-    public static void useI2PProxyForWebkit() {
-        forceInitializationOfOriginalUrlStreamHandlers();
-        useDedicatedProxyForWebkit(I2P_PROXY, PROTOCOLS);
-    }
-
-    public static void noProxyForWebKit() {
-        forceInitializationOfOriginalUrlStreamHandlers();
-    }
-
-    public static void useDedicatedProxyForWebkit(Proxy proxy, String protocols) {
-
-        forceInitializationOfOriginalUrlStreamHandlers();
-        tryReplaceOriginalUrlStreamHandlersWithScopeProxyAwareVariants(proxy, protocols);
-    }
-
-    private static void tryReplaceOriginalUrlStreamHandlersWithScopeProxyAwareVariants(Proxy proxy, String protocols) {
-
-        try {
-
-            Hashtable handlers = tryExtractInternalHandlerTableFromUrl();
-            //LOG.info(handlers);
-
-            Consumer<String> wrapStreamHandlerWithScopedProxyHandler = protocol ->
-            {
-                URLStreamHandler originalHandler = (URLStreamHandler) handlers.get(protocol);
-                handlers.put(protocol, new DelegatingScopedProxyAwareUrlStreamHandler(originalHandler, proxy));
-            };
-
-            Arrays.stream(protocols.split(",")).map(String::trim).filter(s -> !s.isEmpty()).forEach(wrapStreamHandlerWithScopedProxyHandler);
-
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private static Hashtable tryExtractInternalHandlerTableFromUrl() {
-
+    static {
         try {
             Field handlersField = URL.class.getDeclaredField("handlers");
             handlersField.setAccessible(true);
-            return (Hashtable) handlersField.get(null);
+            handlers = (Hashtable) handlersField.get(null);
+            HTTP_NO_PROXY_HANDLER = (URLStreamHandler) handlers.get("http");
+            HTTPS_NO_PROXY_HANDLER = (URLStreamHandler) handlers.get("https");
+            HTTP_TOR_PROXIED_HANDLER = new DelegatingScopedProxyAwareUrlStreamHandler(HTTP_NO_PROXY_HANDLER, TOR_PROXY);
+            HTTPS_TOR_PROXIED_HANDLER = new DelegatingScopedProxyAwareUrlStreamHandler(HTTPS_NO_PROXY_HANDLER, TOR_PROXY);
+            HTTP_I2P_PROXIED_HANDLER = new DelegatingScopedProxyAwareUrlStreamHandler(HTTP_NO_PROXY_HANDLER, I2P_PROXY);
+            HTTPS_I2P_PROXIED_HANDLER = new DelegatingScopedProxyAwareUrlStreamHandler(HTTPS_NO_PROXY_HANDLER, I2P_PROXY);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOG.warning(e.getLocalizedMessage());
         }
     }
+
+    public static void useTORProxyForWebkit() {
+        handlers.put("http", HTTP_TOR_PROXIED_HANDLER);
+        handlers.put("https", HTTPS_TOR_PROXIED_HANDLER);
+    }
+
+    public static void useI2PProxyForWebkit() {
+        handlers.put("http", HTTP_I2P_PROXIED_HANDLER);
+        handlers.put("https", HTTPS_I2P_PROXIED_HANDLER);
+    }
+
+    public static void noProxyForWebKit() {
+        handlers.put("http", HTTP_NO_PROXY_HANDLER);
+        handlers.put("https", HTTPS_NO_PROXY_HANDLER);
+        forceInitializationOfOriginalUrlStreamHandlers();
+    }
+
+//    public static void useDedicatedProxyForWebkit(Proxy proxy, String protocols) {
+//        tryReplaceOriginalUrlStreamHandlersWithScopeProxyAwareVariants(proxy, protocols);
+//    }
+
+//    private static void tryReplaceOriginalUrlStreamHandlersWithScopeProxyAwareVariants(Proxy proxy, String protocols) {
+//
+//        try {
+
+//            Hashtable handlers = tryExtractInternalHandlerTableFromUrl();
+            //LOG.info(handlers);
+
+//            Consumer<String> wrapStreamHandlerWithScopedProxyHandler = protocol ->
+//            {
+//                URLStreamHandler originalHandler = (URLStreamHandler) handlers.get(protocol);
+//                handlers.put(protocol, new DelegatingScopedProxyAwareUrlStreamHandler(originalHandler, proxy));
+//            };
+//
+//            Arrays.stream(protocols.split(",")).map(String::trim).filter(s -> !s.isEmpty()).forEach(wrapStreamHandlerWithScopedProxyHandler);
+//
+//        } catch (Exception ex) {
+//            throw new RuntimeException(ex);
+//        }
+//    }
+
+//    private static Hashtable tryExtractInternalHandlerTableFromUrl() {
+//
+//        try {
+//            Field handlersField = URL.class.getDeclaredField("handlers");
+//            handlersField.setAccessible(true);
+//            return (Hashtable) handlersField.get(null);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     private static void forceInitializationOfOriginalUrlStreamHandlers() {
 
@@ -141,7 +163,7 @@ public class URLStreamFactoryCustomizer {
                     //WebKit requested loading the given url, use provided proxy.
                     return (URLConnection) openConnectionWithProxyMethod.invoke(delegatee, url, proxy);
                 }
-
+                LOG.info("WebKit no proxy...");
                 //Invoke the standard url handler.
                 return (URLConnection) openConnectionMethod.invoke(delegatee, url);
 
