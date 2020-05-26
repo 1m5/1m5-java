@@ -37,7 +37,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
- * Service for providing access to the Bisq network
+ * Service for providing multi-sig escrow
  *
  * @author objectorange
  */
@@ -94,25 +94,4 @@ public class DEXService extends BaseService {
         return true;
     }
 
-    public static void main(String[] args) {
-        DEXService service = new DEXService();
-        Properties props = new Properties();
-        for(String arg : args) {
-            String[] nvp = arg.split("=");
-            props.put(nvp[0],nvp[1]);
-        }
-        if(service.start(props)) {
-            while(service.getServiceStatus() != ServiceStatus.SHUTDOWN) {
-                try {
-                    synchronized (service) {
-                        service.wait(2 * 1000);
-                    }
-                } catch (InterruptedException e) {
-                    System.exit(0);
-                }
-            }
-        } else {
-            System.exit(-1);
-        }
-    }
 }
