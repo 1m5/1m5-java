@@ -26,7 +26,7 @@
  */
 package io.onemfive.monetary.btc;
 
-import io.onemfive.data.currency.Coin;
+import io.onemfive.monetary.currency.Coin;
 
 /**
  * TODO: Add Description
