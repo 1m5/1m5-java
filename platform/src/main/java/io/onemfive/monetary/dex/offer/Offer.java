@@ -24,10 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.api;
+package io.onemfive.monetary.dex.offer;
 
-public class MonetaryAPI {
-
-
-
+public class Offer {
 }
