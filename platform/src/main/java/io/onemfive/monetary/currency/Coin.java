@@ -24,12 +24,20 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.data.currency;
+package io.onemfive.monetary.currency;
 
-public enum Currency {
-    ATN, // Aten
-    BSQ, // Bisq
-    BTC, // Bitcoin
-    KMD, // Komodo
-    PRN // Prana
+/**
+ * TODO: Add Description
+ *
+ * @author objectorange
+ */
+public interface Coin {
+    boolean limitedSupply();
+    long maxSupply();
+    /**
+     * Returns the number of "smallest units" of this currency's value.
+     * For Bitcoin, this is the number of satoshis.
+     */
+    long value();
+    String symbol();
 }
