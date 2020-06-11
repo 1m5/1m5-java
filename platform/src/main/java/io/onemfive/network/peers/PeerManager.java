@@ -1,46 +1,17 @@
-/*
-  This is free and unencumbered software released into the public domain.
-
-  Anyone is free to copy, modify, publish, use, compile, sell, or
-  distribute this software, either in source code form or as a compiled
-  binary, for any purpose, commercial or non-commercial, and by any
-  means.
-
-  In jurisdictions that recognize copyright laws, the author or authors
-  of this software dedicate any and all copyright interest in the
-  software to the public domain. We make this dedication for the benefit
-  of the public at large and to the detriment of our heirs and
-  successors. We intend this dedication to be an overt act of
-  relinquishment in perpetuity of all present and future rights to this
-  software under copyright law.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-  OTHER DEALINGS IN THE SOFTWARE.
-
-  For more information, please refer to <http://unlicense.org/>
- */
 package io.onemfive.network.peers;
 
 import io.onemfive.core.notification.NotificationService;
 import io.onemfive.data.*;
 import io.onemfive.network.peers.db.PeerDB;
+import io.onemfive.network.peers.db.derby.DerbyPeerDB;
 import io.onemfive.network.Request;
 import io.onemfive.network.Response;
-import io.onemfive.network.peers.graph.GraphDB;
+import io.onemfive.network.peers.graph.PeerGraph;
+import io.onemfive.network.peers.graph.neo4j.Neo4JPeerGraph;
 import io.onemfive.network.*;
-import io.onemfive.network.peers.graph.P2PRelationship;
-import io.onemfive.util.DLC;
-import io.onemfive.util.FileUtil;
-import io.onemfive.util.RandomUtil;
-import io.onemfive.util.Wait;
+import io.onemfive.network.peers.graph.neo4j.P2PRelationship;
+import io.onemfive.util.*;
 import io.onemfive.util.tasks.TaskRunner;
-import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.schema.IndexDefinition;
 
 import java.io.IOException;
 import java.util.*;
@@ -60,8 +31,6 @@ public class PeerManager implements Runnable {
 
     private static final Logger LOG = Logger.getLogger(PeerManager.class.getName());
 
-    public static final Label PEER_LABEL = Label.label("Peer");
-
     public static final String PEER_GRAPH = "peerGraph";
     public static final String PEER_DB = "peerDB";
 
@@ -77,7 +46,7 @@ public class PeerManager implements Runnable {
     public static Integer MaxPeersShared = 5;
     public static Integer MaxAcksTracked = 50;
 
-    private GraphDB graphDB;
+    private PeerGraph peerGraph;
     private PeerDB peerDB;
 
     public PeerManager() {}
@@ -93,9 +62,8 @@ public class PeerManager implements Runnable {
 
     public Boolean init(Properties properties) {
         this.properties = properties;
-        graphDB = new GraphDB();
         String baseDir = properties.getProperty("1m5.network.peers.dir");
-        if(baseDir==null) {
+        if (baseDir == null) {
             try {
                 baseDir = service.getServiceDirectory().getCanonicalPath();
             } catch (IOException e) {
@@ -103,49 +71,37 @@ public class PeerManager implements Runnable {
                 return false;
             }
         }
-        graphDB.setLocation(baseDir);
-        graphDB.setName(PEER_GRAPH);
-        if ("true".equals(properties.getProperty("1m5.peers.db.cleanOnRestart"))) {
-            FileUtil.rmdir(graphDB.getLocation()+"/"+ PEER_GRAPH, false);
-            LOG.info("Cleaned " + PEER_GRAPH);
-        }
-        if(!graphDB.init(properties)) {
-            LOG.severe("Neo4JDB failed to initialize.");
-            return false;
-        }
-
-        // Initialize indexes
-        LOG.info("Verifying Content Indexes are present...");
-        try (Transaction tx = graphDB.getGraphDb().beginTx()) {
-            Iterable<IndexDefinition> definitions = graphDB.getGraphDb().schema().getIndexes(PEER_LABEL);
-            if(definitions==null || ((List)definitions).size() == 0) {
-                LOG.info("Peer Graph Id Index not found; creating...");
-                // No Indexes...set them up
-                graphDB.getGraphDb().schema().indexFor(PEER_LABEL).withName("Peer.id").on("id").create();
-                LOG.info("Peer Graph Id Index created.");
+        if(!SystemVersion.isAndroid()) {
+            LOG.info("Initializing databases...");
+            peerGraph = new Neo4JPeerGraph();
+            peerGraph.setLocation(baseDir);
+            peerGraph.setName(PEER_GRAPH);
+            if ("true".equals(properties.getProperty("1m5.peers.db.cleanOnRestart"))) {
+                FileUtil.rmdir(peerGraph.getLocation() + "/" + PEER_GRAPH, false);
+                LOG.info("Cleaned " + PEER_GRAPH);
             }
-            tx.success();
-        } catch (Exception e) {
-            LOG.warning(e.getLocalizedMessage());
-        }
+            if (!peerGraph.init(properties)) {
+                LOG.severe("Neo4JDB failed to initialize.");
+                return false;
+            }
 
-        peerDB = new PeerDB();
-        peerDB.setLocation(baseDir);
-        peerDB.setName(PEER_DB);
-        if ("true".equals(properties.getProperty("1m5.peers.db.cleanOnRestart"))) {
-            FileUtil.rmdir(peerDB.getLocation()+"/"+ PEER_DB, false);
-            LOG.info("Cleaned " + PEER_DB);
+            peerDB = new DerbyPeerDB();
+            peerDB.setLocation(baseDir);
+            peerDB.setName(PEER_DB);
+            if ("true".equals(properties.getProperty("1m5.peers.db.cleanOnRestart"))) {
+                FileUtil.rmdir(peerDB.getLocation() + "/" + PEER_DB, false);
+                LOG.info("Cleaned " + PEER_DB);
+            }
+            if (!peerDB.init(properties)) {
+                LOG.severe("DerbyDB failed to initialize,");
+                return false;
+            }
         }
-        if(!peerDB.init(properties)) {
-            LOG.severe("DerbyDB failed to initialize,");
-            return false;
-        }
-
         return true;
     }
 
     public List<NetworkPeer> findLowestLatencyPath(NetworkPeer from, NetworkPeer to) {
-        return graphDB.findLowestLatencyPath(from.getId(), to.getId());
+        return peerGraph.findLowestLatencyPath(from.getId(), to.getId());
     }
 
     public NetworkNode getLocalNode() {
@@ -177,7 +133,7 @@ public class PeerManager implements Runnable {
             LOG.warning("Can not save Network Peer; network must be provided.");
             return false;
         }
-        if(peerDB.savePeer(networkPeer, autoCreate) && graphDB.savePeer(networkPeer, autoCreate)) {
+        if(peerDB.savePeer(networkPeer, autoCreate) && peerGraph.savePeer(networkPeer, autoCreate)) {
             // Peer saved in DB and Graph; lets relate in graph
             NetworkPeer local1M5Peer = localNode.getNetworkPeer();
             while(local1M5Peer.getId()==null) {
@@ -199,7 +155,7 @@ public class PeerManager implements Runnable {
                     return true;
                 }
             }
-            if(graphDB.relateByNetwork(local1M5Peer.getId(), networkPeer.getNetwork(), networkPeer.getId()) != null) {
+            if(peerGraph.relateByNetwork(local1M5Peer.getId(), networkPeer.getNetwork(), networkPeer.getId()) != null) {
                 LOG.info("Peers related.");
                 return true;
             } else {
@@ -230,12 +186,12 @@ public class PeerManager implements Runnable {
     }
 
     public Boolean isReliable(NetworkPeer p) {
-        P2PRelationship r = graphDB.getNetworkRelationship(localNode.getNetworkPeer().getId(), p.getNetwork(), p.getId());
+        P2PRelationship r = peerGraph.getNetworkRelationship(localNode.getNetworkPeer().getId(), p.getNetwork(), p.getId());
         return r != null && r.isReliable();
     }
 
     public void savePeerStatusTimes(String startPeerId, Network network, String endPeerId, Long timeSent, Long timeAcknowledged) {
-        graphDB.savePeerStatusTimes(startPeerId, network, endPeerId, timeSent, timeAcknowledged);
+        peerGraph.savePeerStatusTimes(startPeerId, network, endPeerId, timeSent, timeAcknowledged);
     }
 
     public void setNetworkService(NetworkService service) {
@@ -263,7 +219,7 @@ public class PeerManager implements Runnable {
             localPeer.getDid().getPublicKey().setAlias(r.identityPublicKey.getAlias());
             LOG.info("Updating Local Peer: \n\t: "+localPeer);
             try {
-                if(peerDB.savePeer(localPeer, true) && graphDB.savePeer(localPeer, true)) {
+                if(peerDB.savePeer(localPeer, true) && peerGraph.savePeer(localPeer, true)) {
                     LOG.info("Local Peer updated.");
                     // Update Network Service Network State and publish to Model Listeners
                     service.getNetworkState().localPeer = localPeer;

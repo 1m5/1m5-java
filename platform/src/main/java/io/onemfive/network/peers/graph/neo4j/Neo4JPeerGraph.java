@@ -24,10 +24,11 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.peers.graph;
+package io.onemfive.network.peers.graph.neo4j;
 
 import io.onemfive.data.Network;
 import io.onemfive.data.NetworkPeer;
+import io.onemfive.network.peers.graph.PeerGraph;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
@@ -35,6 +36,7 @@ import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.graphdb.schema.IndexDefinition;
 
 import java.io.File;
 import java.util.*;
@@ -43,9 +45,11 @@ import java.util.logging.Logger;
 import static io.onemfive.network.peers.PeerManager.MaxAcksTracked;
 import static io.onemfive.network.peers.PeerManager.MaxPeersTracked;
 
-public class GraphDB {
+public class Neo4JPeerGraph implements PeerGraph {
 
-    private static final Logger LOG = Logger.getLogger(GraphDB.class.getName());
+    private static final Logger LOG = Logger.getLogger(Neo4JPeerGraph.class.getName());
+
+    public static final Label PEER_LABEL = Label.label("Peer");
 
     private boolean initialized = false;
     private String location;
@@ -55,14 +59,16 @@ public class GraphDB {
     private Label peerLabel = Label.label("Peer");
     private final Object peerSaveLock = new Object();
 
-    public GraphDB() {
+    public Neo4JPeerGraph() {
         super();
     }
 
+    @Override
     public GraphDatabaseService getGraphDb() {
         return graphDb;
     }
 
+    @Override
     public List<NetworkPeer> findLeastHopsPath(String fromPeerId, String toPeerId) {
         List<NetworkPeer> leastHopsPath = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx()) {
@@ -84,6 +90,7 @@ public class GraphDB {
         return leastHopsPath;
     }
 
+    @Override
     public List<NetworkPeer> findLowestLatencyPath(String fromPeerId, String toPeerId) {
         List<NetworkPeer> lowestLatencyPath = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx()) {
@@ -121,6 +128,7 @@ public class GraphDB {
      * @param networks
      * @return
      */
+    @Override
     public List<NetworkPeer> findLowestLatencyPathFiltered(String fromPeerId, String toPeerId, Network[] networks) {
         CostEvaluator<Double> costEvaluator = new CostEvaluator<Double>() {
             @Override
@@ -163,6 +171,7 @@ public class GraphDB {
         return lowestLatencyPath;
     }
 
+    @Override
     public boolean savePeer(NetworkPeer networkPeer, Boolean autoCreate) {
         boolean saved = false;
         synchronized (peerSaveLock) {
@@ -191,6 +200,7 @@ public class GraphDB {
         return graphDb.findNode(peerLabel, "id", id);
     }
 
+    @Override
     public boolean isRelatedByNetwork(String startPeerId, Network network, String endPeerId) {
         boolean hasRel = false;
         P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
@@ -209,6 +219,7 @@ public class GraphDB {
         return hasRel;
     }
 
+    @Override
     public P2PRelationship relateByNetwork(String idLeftPeer, Network network, String idRightPeer) {
         if(idLeftPeer==null || idRightPeer==null) {
             LOG.warning("Must provide ids for both peers when relating them.");
@@ -246,6 +257,7 @@ public class GraphDB {
         return rt;
     }
 
+    @Override
     public P2PRelationship getNetworkRelationship(String idLeftPeer, Network network, String idRightPeer) {
         P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
         P2PRelationship rt = null;
@@ -269,6 +281,7 @@ public class GraphDB {
         return rt;
     }
 
+    @Override
     public long numberPeersByNetwork(String id, Network network) {
         P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
         long count = -1;
@@ -294,6 +307,7 @@ public class GraphDB {
     /**
      * Remove relationship
      */
+    @Override
     public boolean removeNetworkRelationship(String startPeerId, Network network, String endPeerId) {
         P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
         try (Transaction tx = graphDb.beginTx()) {
@@ -321,6 +335,7 @@ public class GraphDB {
      * @param timeSent time sent in milliseconds since epoch
      * @param timeAcknowledged time acknowledged in milliseconds since epoch
      */
+    @Override
     public Boolean savePeerStatusTimes(String startPeerId, Network network, String endPeerId, Long timeSent, Long timeAcknowledged) {
         boolean addedAsReliable = false;
         P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
@@ -375,22 +390,27 @@ public class GraphDB {
     }
 
 
+    @Override
     public String getLocation() {
         return location;
     }
 
+    @Override
     public void setLocation(String location) {
         this.location = location;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
+    @Override
     public boolean init(Properties properties) {
         if(location==null) {
             LOG.warning("Neo4J DB location required. Please provide.");
@@ -413,6 +433,21 @@ public class GraphDB {
                     .setConfig(GraphDatabaseSettings.allow_upgrade,"true")
                     .newGraphDatabase();
 
+            // Initialize indexes
+            LOG.info("Verifying Content Indexes are present...");
+            try (Transaction tx = graphDb.beginTx()) {
+                Iterable<IndexDefinition> definitions = graphDb.schema().getIndexes(PEER_LABEL);
+                if (definitions == null || ((List) definitions).size() == 0) {
+                    LOG.info("Peer Graph Id Index not found; creating...");
+                    // No Indexes...set them up
+                    graphDb.schema().indexFor(PEER_LABEL).withName("Peer.id").on("id").create();
+                    LOG.info("Peer Graph Id Index created.");
+                }
+                tx.success();
+            } catch (Exception e) {
+                LOG.warning(e.getLocalizedMessage());
+            }
+
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
@@ -424,6 +459,7 @@ public class GraphDB {
         return true;
     }
 
+    @Override
     public boolean teardown() {
         LOG.info("Tearing down...");
         graphDb.shutdown();

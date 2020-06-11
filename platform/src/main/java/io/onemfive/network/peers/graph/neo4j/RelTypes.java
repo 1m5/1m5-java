@@ -24,9 +24,10 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.monetary.currency;
+package io.onemfive.network.peers.graph.neo4j;
 
-public class Currency {
+import org.neo4j.graphdb.RelationshipType;
 
+public enum RelTypes implements RelationshipType {
+    KNOWS
 }
-

@@ -32,7 +32,10 @@ import io.onemfive.core.ServiceStatus;
 import io.onemfive.core.ServiceStatusListener;
 import io.onemfive.data.Envelope;
 import io.onemfive.data.route.Route;
+import io.onemfive.monetary.dex.offer.Offer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -44,6 +47,9 @@ import java.util.logging.Logger;
 public class DEXService extends BaseService {
 
     private static final Logger LOG = Logger.getLogger(DEXService.class.getName());
+
+    public static final String OPERATION_PLACE_OFFER = "PLACE_OFFER";
+    public static final String OPERATION_GET_OFFERS = "GET_OFFERS";
 
     public DEXService() {
     }
@@ -58,8 +64,18 @@ public class DEXService extends BaseService {
         Route route = e.getRoute();
         String operation = route.getOperation();
         switch(operation) {
-		default: deadLetter(e); // Operation not supported
+            case OPERATION_PLACE_OFFER: { placeOffer(e); break; }
+            case OPERATION_GET_OFFERS: { getOffers(e); break; }
+		    default: deadLetter(e); // Operation not supported
         }
+    }
+
+    private void getOffers(Envelope e) {
+
+    }
+
+    private void placeOffer(Envelope e) {
+
     }
 
     @Override

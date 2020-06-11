@@ -29,7 +29,7 @@ package io.onemfive.monetary.btc.config;
 import io.onemfive.monetary.btc.blockchain.Block;
 import io.onemfive.monetary.btc.blockchain.TransactionOutput;
 import io.onemfive.data.Hash;
-import io.onemfive.monetary.currency.Coin;
+import io.onemfive.monetary.Coin;
 import io.onemfive.util.HashUtil;
 
 import java.math.BigInteger;

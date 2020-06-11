@@ -24,10 +24,7 @@
 
   For more information, please refer to <http://unlicense.org/>
  */
-package io.onemfive.network.peers.graph;
+package io.onemfive.monetary;
 
-import org.neo4j.graphdb.RelationshipType;
-
-public enum RelTypes implements RelationshipType {
-    KNOWS
+public class Token {
 }
