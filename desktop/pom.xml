@@ -17,23 +17,20 @@
 	<url>https://1m5.io</url>
 	<description>Invisible Matrix Services - Desktop</description>
 	<inceptionYear>2020</inceptionYear>
-	<licenses>
-		<license>
-			<name>Unlicense</name>
-			<url>https://unlicense.org/</url>
-		</license>
-	</licenses>
+
 	<developers>
 		<developer>
 			<name>objectorange</name>
 			<email>objectorange@1m5.io</email>
 		</developer>
 	</developers>
+
 	<scm>
 		<connection>scm:git@github.com/1m5/1m5</connection>
 		<developerConnection>scm:git@github.com/1m5/1m5</developerConnection>
 		<url>git@github.com/1m5/1m5</url>
 	</scm>
+
 	<profiles>
 		<profile>
 			<id>devnet</id>
