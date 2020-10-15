@@ -1,9 +1,10 @@
 # Release Notes
 
-## 0.6.5
+## 0.6.5 - In Progress
 + Updated roadmap to reflect new hardware ideas
++ Implementing auto-routing between TOR, I2P, and BT when each is blocked.
 
-## 0.6.4
+## 0.6.4 - Released
 + Added TOR hidden services when TOR is local using its Control API
 + Added TOR peer discovery although not yet tested; will test during Browser version (0.6.6)
 + Added Settings and Ops to Desktop GUI
@@ -13,7 +14,7 @@
 + Implemented Network Ops more in TOR, I2P, and Bluetooth sensors; need to test during Browser version
 + Submitted integration proposal with Monero
 
-## 0.6.3
+## 0.6.3 - Released
 + Provide Operation interface - not in wide use yet though
 + Move all code to one project to simplify development and releases
 + Add OpenJFX as GUI
