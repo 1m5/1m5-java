@@ -2,9 +2,12 @@ package onemfive;
 
 import ra.common.Status;
 import ra.i2p.I2PService;
+import ra.network.manager.NetworkManagerService;
 import ra.peermanager.PeerManagerService;
 import ra.pressfreedomindex.PFIScraperService;
 import ra.servicebus.ServiceBus;
+import ra.tor.TORClientService;
+import ra.tor.TORHiddenService;
 import ra.util.Config;
 import ra.util.SecureFile;
 import ra.util.SystemSettings;
@@ -31,7 +34,6 @@ public class Platform {
     private File dataDir;
     private File cacheDir;
     private volatile File tmpDir;
-    private File servicesDir;
     private final Random tmpDirRand = new Random();
     private final static Object lockA = new Object();
     private boolean initialize = false;
@@ -163,14 +165,6 @@ public class Platform {
             config.put("1m5.dir.temp",tmpDir.getAbsolutePath());
         }
 
-        servicesDir = new SecureFile(baseDir, "services");
-        if (!servicesDir.exists() && !servicesDir.mkdir()) {
-            LOG.severe("Unable to create services directory in 1M5 base directory.");
-            return;
-        } else {
-            config.put("1m5.dir.services",servicesDir.getAbsolutePath());
-        }
-
         LOG.info("1M5 Directories: " +
                 "\n\tBase: "+baseDir.getAbsolutePath()+
                 "\n\tConfig: "+configDir.getAbsolutePath()+
@@ -178,8 +172,7 @@ public class Platform {
                 "\n\tCache: "+cacheDir.getAbsolutePath()+
                 "\n\tPID: "+pidDir.getAbsolutePath()+
                 "\n\tLogs: "+logDir.getAbsolutePath()+
-                "\n\tTemp: "+tmpDir.getAbsolutePath()+
-                "\n\tServices: "+servicesDir.getAbsolutePath());
+                "\n\tTemp: "+tmpDir.getAbsolutePath());
 
         bus = new ServiceBus();
         bus.start(config);
@@ -189,11 +182,13 @@ public class Platform {
 //            bus.registerService(KeyRingService.class, config, null);
 //            bus.registerService(DIDService.class, config, null);
 //            bus.registerService(HTTPService.class, config, null);
-//            bus.registerService(TORService.class, config, null);
+            bus.registerService(TORClientService.class, config, null);
+            bus.registerService(TORHiddenService.class, config, null);
             bus.registerService(I2PService.class, config, null);
 //            bus.registerService(BluetoothService.class, config, null);
+            bus.registerService(NetworkManagerService.class, config, null);
             bus.registerService(PeerManagerService.class, config, null);
-            bus.registerService(RouterService.class, config, null);
+            bus.registerService(CRRouterService.class, config, null);
             bus.registerService(PFIScraperService.class, config, null);
         } catch (Exception e) {
             LOG.severe(e.getLocalizedMessage());

@@ -1,26 +1,24 @@
 package onemfive;
 
-import org.neo4j.kernel.api.exceptions.Status;
 import ra.common.*;
 import ra.common.messaging.MessageProducer;
-import ra.common.network.NetworkPacket;
 import ra.common.network.NetworkPeer;
 import ra.common.network.NetworkState;
 import ra.common.network.NetworkStatus;
 import ra.common.service.BaseService;
-import ra.common.service.NetworkService;
 import ra.common.service.ServiceStatusListener;
 
-import java.io.File;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * Sensor Manager's Responsibilities:
- * 1) Maximize sensor network availability.
+ * Censorship-Resistant Router Service
+ *
+ * Responsibilities:
+ * 1) Maximize network availability.
  * 2) Determine what ManCon can be supported at any given time.
- * 3) Select which sensor should be used per packet.
+ * 3) Select which network should be used per envelope.
  *
  * General ManCon to Network mappings:
  *
@@ -48,9 +46,9 @@ import java.util.logging.Logger;
  * TODO: Don't directly map ManCon's to Networks. Define each ManCon by threats, conditions to be observed to identify them, and how to mitigate them.
  *
  */
-public final class RouterService extends BaseService {
+public final class CRRouterService extends BaseService {
 
-    private static Logger LOG = Logger.getLogger(RouterService.class.getName());
+    private static Logger LOG = Logger.getLogger(CRRouterService.class.getName());
 
     private Map<String, NetworkState> networks = new HashMap<>();
 
@@ -61,18 +59,18 @@ public final class RouterService extends BaseService {
     private Long manCon4TestLastSucceeded = 0L; // Medium
     private Long manCon5TestLastSucceeded = 0L; // Low
 
-    public RouterService() {}
+    public CRRouterService() {}
 
-    public RouterService(MessageProducer producer, ServiceStatusListener listener) {
+    public CRRouterService(MessageProducer producer, ServiceStatusListener listener) {
         super(producer, listener);
     }
 
-    public Tuple2<String,NetworkPeer> selectNetworkAndToPeer(NetworkPacket packet) {
+    public Tuple2<String,NetworkPeer> selectNetworkAndToPeer(Envelope envelope) {
         Tuple2<String, NetworkPeer> selected = null;
-        URL url = packet.getEnvelope().getURL();
+        URL url = envelope.getURL();
         boolean isWebRequest = url != null && url.toString().startsWith("http");
         if(isWebRequest) {
-            switch (ManCon.fromSensitivity(packet.getSensitivity())) {
+            switch (ManCon.fromSensitivity(envelope.getSensitivity())) {
                 case LOW: {}
                 case MEDIUM: {}
                 case HIGH: {
@@ -98,9 +96,9 @@ public final class RouterService extends BaseService {
 //                        selected = activeNetworks.get(I2PSensor.class.getName());
 //                    else
 //                        selected = findRelay(packet);
-                    packet.setDelayed(true);
-                    packet.setMinDelay(4 * 1000L);
-                    packet.setMaxDelay(10 * 1000L);
+                    envelope.setDelayed(true);
+                    envelope.setMinDelay(4 * 1000L);
+                    envelope.setMaxDelay(10 * 1000L);
                     break;
                 }
                 case EXTREME: {
@@ -113,14 +111,14 @@ public final class RouterService extends BaseService {
                     // NEO:
                     //   Web: 1DN to I2P peer with high delays to Tor peer
 //                    selected = findRelay(packet);
-                    packet.setDelayed(true);
-                    packet.setMinDelay(60 * 1000L);
-                    packet.setMaxDelay(2 * 60 * 1000L);
+                    envelope.setDelayed(true);
+                    envelope.setMinDelay(60 * 1000L);
+                    envelope.setMaxDelay(2 * 60 * 1000L);
                     break;
                 }
             }
         } else {
-            switch (ManCon.fromSensitivity(packet.getSensitivity())) {
+            switch (ManCon.fromSensitivity(envelope.getSensitivity())) {
                 case LOW: {}
                 case MEDIUM: {}
                 case HIGH: {
@@ -139,9 +137,9 @@ public final class RouterService extends BaseService {
 //                        selected = activeNetworks.get(I2PSensor.class.getName());
 //                    else
 //                        selected = findRelay(packet);
-                    packet.setDelayed(true);
-                    packet.setMinDelay(4 * 1000L);
-                    packet.setMaxDelay(10 * 1000L);
+                    envelope.setDelayed(true);
+                    envelope.setMinDelay(4 * 1000L);
+                    envelope.setMaxDelay(10 * 1000L);
                     break;
                 }
                 case EXTREME: {
@@ -156,12 +154,12 @@ public final class RouterService extends BaseService {
                     //     3 months for 1M5 layer. A random number of copies (3 min/12 max) sent out with only 12 word mnemonic passphrase
                     //     as key.
 //                    selected = findRelay(packet);
-                    packet.setCopy(true);
-                    packet.setMinCopies(3);
-                    packet.setMaxCopies(12);
-                    packet.setDelayed(true);
-                    packet.setMinDelay(5 * 60 * 1000L);
-                    packet.setMaxDelay(3 * 30 * 24 * 60 * 60 * 1000L);
+                    envelope.setCopy(true);
+                    envelope.setMinCopies(3);
+                    envelope.setMaxCopies(12);
+                    envelope.setDelayed(true);
+                    envelope.setMinDelay(5 * 60 * 1000L);
+                    envelope.setMaxDelay(3 * 30 * 24 * 60 * 60 * 1000L);
                     break;
                 }
             }
@@ -237,11 +235,11 @@ public final class RouterService extends BaseService {
 //        return sensor;
 //    }
 
-    /**
-     * Is there at least one sensor connected for the provided ManCon level?
-     * @param minManCon
-     * @return
-     */
+//    /**
+//     * Is there at least one sensor connected for the provided ManCon level?
+//     * @param ManCon
+//     * @return
+//     */
 //    public Boolean availableSensorConnected(ManCon minManCon) {
 //        switch (minManCon) {
 //            case LOW: {}
@@ -272,126 +270,53 @@ public final class RouterService extends BaseService {
 
     public void updateNetworkStatus(NetworkStatus networkStatus) {
         switch (networkStatus) {
-            case INITIALIZING: {
-                LOG.info(this.getClass().getName() + " reporting initializing....");
-                break;
-            }
-            case STARTING: {
-                LOG.info(this.getClass().getName() + " reporting starting up....");
+            case NOT_INSTALLED: {
+                LOG.info(this.getClass().getName() + " reporting not installed....");
                 break;
             }
             case WAITING: {
                 LOG.info(this.getClass().getName() + " reporting waiting....");
                 break;
             }
-            case NETWORK_UNAVAILABLE: {
-                LOG.info(this.getClass().getName() + " reporting network unavailable....");
+            case FAILED: {
+                LOG.info(this.getClass().getName() + " reporting network failed....");
                 break;
             }
-            case NETWORK_WARMUP: {
-                LOG.info(this.getClass().getName() + " reporting network warming up....");
+            case HANGING: {
+                LOG.info(this.getClass().getName() + " reporting network hanging....");
                 break;
             }
-            case NETWORK_PORT_CONFLICT: {
+            case PORT_CONFLICT: {
                 LOG.info(this.getClass().getName() + " reporting port conflict....");
                 break;
             }
-            case NETWORK_CONNECTING: {
+            case CONNECTING: {
                 LOG.info(this.getClass().getName() + " reporting connecting....");
                 break;
             }
-            case NETWORK_CONNECTED: {
+            case CONNECTED: {
                 LOG.info(this.getClass().getName() + " reporting connected.");
-//                if(sensorBlocks.get(sensorID)!=null) {
-//                    sensorBlocks.remove(sensorID);
-//                }
+
                 break;
             }
-            case NETWORK_STOPPING: {
-                LOG.info(this.getClass().getName() + " reporting stopping....");
+            case DISCONNECTED: {
+                LOG.info(this.getClass().getName() + " reporting disconnected....");
+
                 break;
             }
-            case NETWORK_STOPPED: {
-                LOG.info(this.getClass().getName() + " reporting stopped.");
-//                if(activeNetworks.containsKey(sensorID)) {
-//                    // Active Sensor Stopped, attempt to restart
-//                    Sensor sensor = activeNetworks.get(sensorID);
-//                    if(sensor.restart()) {
-//                        LOG.info(sensorID+" restarted after disconnection.");
-//                    }
-//                }
+            case VERIFIED: {
+                LOG.info(this.getClass().getName() + " reporting verified.");
+
                 break;
             }
-            case NETWORK_BLOCKED: {
+            case BLOCKED: {
                 LOG.info(this.getClass().getName() + " reporting blocked.");
-                long now = System.currentTimeMillis();
-//                sensorBlocks.putIfAbsent(sensorID, now);
-//                if((now - sensorBlocks.get(sensorID)) > MAX_BLOCK_TIME_BETWEEN_RESTARTS) {
-//                    LOG.warning(sensorID + " reporting blocked longer than "+(MAX_BLOCK_TIME_BETWEEN_RESTARTS/60000)+" minutes. Restarting...");
-//                    // Active Sensor Blocked, attempt to restart
-//                    activeNetworks.get(sensorID).restart();
-//                    // Reset blocked start time
-//                    sensorBlocks.put(sensorID, now);
-//                }
-                break;
-            }
-            case NETWORK_ERROR: {
-                LOG.info(this.getClass().getName() + " reporting network error.");
-                break;
-            }
-            case PAUSING: {
-                LOG.info(this.getClass().getName() + " reporting pausing....");
-                // TODO: Persist messages to this sensor until unpaused then replay in order.
-                break;
-            }
-            case PAUSED: {
-                LOG.info(this.getClass().getName() + " reporting paused....");
-                break;
-            }
-            case UNPAUSING: {
-                LOG.info(this.getClass().getName() + " reporting unpausing....");
-                // TODO: Replay any paused messages in order while resuming normal operations
-                break;
-            }
-            case SHUTTING_DOWN: {
-                LOG.info(this.getClass().getName() + " reporting shutting down....");
-//                activeNetworks.remove(sensorID);
-                break;
-            }
-            case GRACEFULLY_SHUTTING_DOWN: {
-                LOG.info(this.getClass().getName() + " reporting gracefully shutting down....");
-//                activeNetworks.remove(sensorID);
-                break;
-            }
-            case SHUTDOWN: {
-                LOG.info(this.getClass().getName() + " reporting shutdown.");
-                break;
-            }
-            case GRACEFULLY_SHUTDOWN: {
-                LOG.info(this.getClass().getName() + " reporting gracefully shutdown.");
-                break;
-            }
-            case RESTARTING: {
-                LOG.info(this.getClass().getName() + " reporting restarting....");
+
                 break;
             }
             case ERROR: {
                 LOG.info(this.getClass().getName() + " reporting error. Initiating hard restart...");
-//                Sensor s = activeNetworks.get(sensorID);
-//                // Give stopping sensors a chance to clean up anything possible
-//                activeNetworks.remove(sensorID);
-//                s.gracefulShutdown();
-                // Regardless if it succeeds or not, replace it with a new instance and start it up
-//                try {
-//                    s = (Sensor)Class.forName(sensorID).getConstructor().newInstance();
-//                    if(s.start(networkService.getProperties())) {
-//                        activeNetworks.put(sensorID, s);
-//                    } else {
-//                        LOG.warning("Unable to hard restart sensor: "+sensorID);
-//                    }
-//                } catch (Exception e) {
-//                    LOG.warning("Unable to create new instance of sensor for hard restart: "+sensorID);
-//                }
+
                 break;
             }
             default: LOG.warning("Sensor Status for sensor "+this.getClass().getName()+" not being handled: "+networkStatus.name());

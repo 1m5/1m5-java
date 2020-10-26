@@ -47,11 +47,26 @@
             <artifactId>service-bus</artifactId>
             <version>${ra.version}</version>
         </dependency>
+		<dependency>
+			<groupId>resolvingarchitecture</groupId>
+			<artifactId>tor-client</artifactId>
+			<version>${ra.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>resolvingarchitecture</groupId>
+			<artifactId>tor-hiddenservice</artifactId>
+			<version>${ra.version}</version>
+		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>i2p-client</artifactId>
             <version>${ra.version}</version>
         </dependency>
+		<dependency>
+			<groupId>resolvingarchitecture</groupId>
+			<artifactId>network-manager</artifactId>
+			<version>${ra.version}</version>
+		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>peermanager</artifactId>
