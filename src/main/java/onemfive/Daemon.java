@@ -2,7 +2,6 @@ package onemfive;
 
 import ra.common.Status;
 import ra.i2p.I2PService;
-import ra.network.manager.NetworkManagerService;
 import ra.peermanager.PeerManagerService;
 import ra.pressfreedomindex.PFIScraperService;
 import ra.servicebus.ServiceBus;
@@ -20,11 +19,11 @@ import java.util.*;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-public class Platform {
+public class Daemon {
 
-    private static final Logger LOG = Logger.getLogger(Platform.class.getName());
+    private static final Logger LOG = Logger.getLogger(Daemon.class.getName());
 
-    private static final Platform instance = new Platform();
+    private static final Daemon instance = new Daemon();
 
     private File baseDir;
     private File configDir;
@@ -186,9 +185,9 @@ public class Platform {
             bus.registerService(TORHiddenService.class, config, null);
             bus.registerService(I2PService.class, config, null);
 //            bus.registerService(BluetoothService.class, config, null);
-            bus.registerService(NetworkManagerService.class, config, null);
+            bus.registerService(CRNetworkManagerService.class, config, null);
             bus.registerService(PeerManagerService.class, config, null);
-            bus.registerService(CRRouterService.class, config, null);
+            bus.registerService(CRNetworkManagerService.class, config, null);
             bus.registerService(PFIScraperService.class, config, null);
         } catch (Exception e) {
             LOG.severe(e.getLocalizedMessage());

@@ -5,15 +5,15 @@ import ra.common.messaging.MessageProducer;
 import ra.common.network.NetworkPeer;
 import ra.common.network.NetworkState;
 import ra.common.network.NetworkStatus;
-import ra.common.service.BaseService;
 import ra.common.service.ServiceStatusListener;
+import ra.network.manager.NetworkManagerService;
 
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * Censorship-Resistant Router Service
+ * Censorship-Resistant Network Manager Service
  *
  * Responsibilities:
  * 1) Maximize network availability.
@@ -46,9 +46,9 @@ import java.util.logging.Logger;
  * TODO: Don't directly map ManCon's to Networks. Define each ManCon by threats, conditions to be observed to identify them, and how to mitigate them.
  *
  */
-public final class CRRouterService extends BaseService {
+public final class CRNetworkManagerService extends NetworkManagerService {
 
-    private static Logger LOG = Logger.getLogger(CRRouterService.class.getName());
+    private static Logger LOG = Logger.getLogger(CRNetworkManagerService.class.getName());
 
     private Map<String, NetworkState> networks = new HashMap<>();
 
@@ -59,9 +59,7 @@ public final class CRRouterService extends BaseService {
     private Long manCon4TestLastSucceeded = 0L; // Medium
     private Long manCon5TestLastSucceeded = 0L; // Low
 
-    public CRRouterService() {}
-
-    public CRRouterService(MessageProducer producer, ServiceStatusListener listener) {
+    public CRNetworkManagerService(MessageProducer producer, ServiceStatusListener listener) {
         super(producer, listener);
     }
 
