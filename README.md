@@ -2,13 +2,11 @@
 
 # 1M5
 
-A secure open-source decentralized censorship-resistant peer-to-peer application platform with end-to-end encryption
+A secure open-source decentralized censorship-resistant peer-to-peer network router service with end-to-end encryption
 and anonymity as a base layer for creating easy to build and use secure decentralized peer-to-peer
 applications requiring no server connections that can be used around the world by any person looking
 to protect their communications and personal data from unethical monitoring, interception, intrusion,
 and censorship.
-
-Transitioning to Rust gradually using other repositories (e.g. 1m5-daemon);
 
 ## Version
 
