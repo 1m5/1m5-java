@@ -179,175 +179,62 @@ Wide-ranging latencies but highest privacy and censorship-resistance.
 
 ## Design
 
-1M5 is composed of a Service-Oriented Architecture (SOA) design using a minimalistic service bus for micro-services,
+1M5 is composed of a Service-Oriented Architecture (SOA) design using a minimalistic service bus for services,
 a Staged Event-Driven Architecture (SEDA) design for asynchronous multi-threaded inter-service communications,
-a service registry, internal core services, and a number of Sensors for advanced intelligent interaction with peers.
+a service registry, internal core services, and Censorship-Resistance Network and Peer Manager Services 
+for advanced intelligent interaction with peers.
 
-Key internal services include:
+### Core Services
 
+* Censorship-Resistance Network Manager Service
+* Censorship-Resistance Peer Manager Service
 * Enterprise Applications Integration (EAI) Routing service for providing data-driven inter-service routing patterns
 * Key Chain Service with key management and encryption/decryption features
-
-Key add-on services include:
-
-* Network Service for integrating different Sensor Managers for intelligent censorship-resistant routing
 * Decentralized IDentification (DID) Service for authentication/authorization and reputation building (Web of Trust)
 
-## [Implementation](https://github.com/1m5/core/tree/master/src/main/java/io/onemfive/core/README.md)
+### Invisible Direct Network (1DN)
+
+The 1DN is the CR Network and Peer Manager Services working together with the Tor, I2P, Bluetooth, WiFi, Full-Spectrum
+Radio, and LiFi Network Services to ensure your communications are not blocked.
+
+## Implementation
 
 The application is written in Java using JDK 1.8 although some services may support older versions. It is built though
 with OpenJDK 11, the recommended JDK version.
 
-Documentation of the Core starts [here](https://github.com/1m5/core/tree/master/src/main/java/io/onemfive/core/README.md).
+## Roadmap
 
-It's implemented in modules Platform, ManCon, Desktop, CLI, API, and Common.
+## Censorship-Resistance
+| Service                | Connecting | P2P   | Discovery | Relaying |
+| :--------------------- | :--------: | :---: | :-------: | :------: |
+| Tor Client             | Y          |       |           |          |
+| Tor Hidden Service     | Y          |       |           |          |
+| I2P Client             | Y          | Y     |           |          |
+| Bluetooth Client       | Y          | Y     |           |          |
+| WiFi Client            |            |       |           |          |
+| FS Radio Client        |            |       |           |          |
+| LiFi Client            |            |       |           |          |
+| Bitcoin Client         |            |       |           | N/A      |
+| Lightning Client       |            |       |           |          |
+| Bisq Client            |            |       |           | N/A      |
 
-Their dependency graph follows:
-
-common    <--    api    <-- 3rd party
-          <--    platform    <-- desktop
-                             <-- cli   <-- mancon
-                                       <-- relay
-                                       <-- ring
-                                       <-- seed
-
-platform --> TOR
-         --> I2P
-         --> Bluetooth Bluecove
-         --> WiFi-Direct
-         --> LiFi
-         --> GNU Radio
-         --> Derby RDBMS
-         --> Neo4J Graph
-         --> Bouncycastle Crypto
-
-Third party applications use the api module to access the platform over its HTTP/JSON RPC as such:
-
-3rd party --embeds--> api --HTTP/JSON--> platform
-
-CLI, desktop, and mancon modules initialize the platform different for their use cases. CLI and Desktop use the full
-suite as full 1M5 nodes although the CLI is for setting them up as headless nodes (seeds) while the desktop module is for end users.
-The mancon module configures the platform only for outbound communication so that it may remain as private as possible
-so that it may report on the status of networks for real-time ManCon recommendations.
-
-### Common
-
-This is the common code among all modules used by all modules. It primarily contains data classes with no dependencies
-and utilities largely static in nature. It should never have a dependency.
-
-### API
-
-This module is a library that can be embedded in applications to make it easier to communicate with the platform module
-via its HTTP/JSON RPC interface. Current version is implemented in Java but is expected to be implemented in other languages.
-
-### CLI
-
-This module wraps the Platform module supporting the ability to manage it with commands in a console. This is useful when
-setting the platform up as a seed node allowing the ability to control and monitor the node via ssh.
-
-### Desktop
-
-Provides a GUI for end-users to use the 1M5 network to advance general decentralization globally.
-
-### Platform
-
-The platform containing the core, identity, crypto-wallets, networking, and persistence support.
-
-### ManCon
-
-Configures the platform for only outbound communications for testing IP ranges from a leased IP reporting on the results
-to the 1M5 network to be used in recommending ManCon settings to end users.
-
-### Relay
-
-Relays packets between peers.
-
-### Ring
-
-Acts as a Ring node within a larger Ring cluster.
-
-### Seed
-
-Configured to act solely as a seed node providing introductions only.
-
-## Integrations
-
-### [Inkrypt](https://inkrypt.io)
-
-POC and Prototype completed using 1M5 from April 2018 to September 2019 but their team failed to obtain seed funding
-yet are still working towards that. If unable, decentralized content distribution will eventually be added to 1M5
-either as an Inkrypt service if the team decides it can pick it up in the future, or separately as an internal service.
-
-### [Bisq](https://bisq.network)
-
-Decentralized Exchange for Bitcoin/Fiat as well as other altcoins. [Proposal for future integration added to Bisq](https://github.com/bisq-network/proposals/issues/168).
-
-### [Monero](https://getmonero.org/)
-
-Privacy crypto-currency. [Proposal for future integration added to Monero](https://repo.getmonero.org/monero-project/ccs-proposals/merge_requests/127)
-
-### ZCash
-
-Privacy crypto-currency.
-
-### Bitcoin (BTC)
-
-SoV crypto-currency.
-
-## Applications
-
-A number of applications will be ingrained within 1M5's Desktop application that are regularly used or desired by decentralization
-advocates. These include browser, messenger/email/social networking, marketplace, activism assistance, and crypto-currency wallets.
-
-## Support
-
-Support can be purchased with Bitcoin when availability exists. Please request support at: info@1m5.io
+## Routes
+| Route | Implemented | Tested | Production | Vulnerabilities | Description |
+| :---: | :---------: | :----: | :--------: | :-------------: | :---------: |
+| TT    |             |        |            |                 | Tor-Tor     |
+| IT    |             |        |            |                 | I2P-Tor     |
+|       |             |        |            |                 |             |
+|       |             |        |            |                 |             |
+|       |             |        |            |                 |             |
+|       |             |        |            |                 |             |
 
 ## Fund Raising
 
 1M5 is supported entirely through gifting and volunteers. No funds from investors have been nor will be taken.
 
-## Potential Future Sensor Integrations
-
-### Kovri
-
-Monero's C++ implementation of I2P. Integration with Monero awaiting verification by an I2P domain expert (zzz?).
-
-### Sekreta
-
-A new effort by anonimal, a Monero dev, to improve on using I2P and TOR among other low-level anonymous overlay networks as one combined network.
-Is waiting verification by domain experts prior to integration with Monero.
-
-## General Information
-
-### I2P
-Design of I2P started in 2003 soon after TOR and Freenet came on the scene. It uses many of the features of onion routing
-as in TOR but also adds some enhancements which earned its routing the name of 'garlic routing'. The I2P team has identified
-threats, some specific to I2P, and mitigations.
-
-Resources
-* [Site](https://geti2p.net/en/docs/how/threat-model)
-
-### TOR
-
-### 1DN
-
-#### Bluetooth
-
-#### WiFi-Direct
-
-#### Full Spectrum Radio
-
-#### LiFi
-
-### Kovri
-
-### Sekreta
-
-
 ## Threats & Counter Measures
 
-Censorship attempts can be made in a myriad of ways and are ever changing as technology changes and attackers grow in experience.
+Censorship attempts can be made in a myriad of ways and are ever-changing as technology changes and attackers grow in experience.
 Below are some of these methods and how 1M5 and composite networks mitigate them.
 
 ### DNS Blocking
@@ -361,21 +248,16 @@ Resources
 
 #### TOR
 
-#### 1DN
 
-##### Bluetooth
+#### Bluetooth
 
-##### WiFi-Direct
+#### WiFi-Direct
 
-##### Full Spectrum Radio
+#### Full Spectrum Radio
 
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### DNS Poisoning
@@ -389,21 +271,15 @@ Resources
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
-
-##### Full Spectrum Radio
+#### Full Spectrum Radio
 
 ##### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Brute Force
@@ -426,33 +302,27 @@ placing limits on the number of tunnels that can be routed by a single peer.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+The very limited range of Bluetooth makes this impossible on a large scale.
 
-The very limited range of Bluetooth makes this
-
-##### WiFi-Direct
+#### WiFi-Direct
 
 WiFi-Direct has a very limited range and few frequencies so it's not too difficult to brute force a local WiFi frequency.
 
-##### Full Spectrum Radio
+#### Full Spectrum Radio
 
 Attempting to listen to all frequencies in the full radio spectrum attempting correlation would be extremely difficult
 unless radio triangulation is successful. If the radio is kept mobile, this attack would be extremely difficult to pull off.
 
-##### LiFi
+#### LiFi
 
 #### 1M5
 
-The 1M5 network is slated to provide random delays across its nodes, extended persistent delays (e.g. months),
+The 1M5 network is slated to provide random delays across its nodes, extended persistent delays (e.g. up to months),
 and bandwidth throttling on streams to help combat this attack at the application layer. In addition, trying to
 brute force 1M5 users will be even more difficult as the ManCon lowers in value as multiple networks are used
 per request requiring watching all messages across all participating networks trying to correlate them all.
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Timing
@@ -467,22 +337,57 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+Tor uses bidirectional channels so this is more likely successful than I2P and a common attack against specific Tor users.
 
-##### Bluetooth
+#### Bluetooth
 
-##### WiFi-Direct
+#### WiFi-Direct
 
-##### Full Spectrum Radio
+#### Full Spectrum Radio
 
-##### LiFi
+#### LiFi
 
 #### 1M5
 
-#### Kovri
+1M5 helps Tor by supporting random delays between 1M5 nodes so that if a user must use Tor and feels under threat, multiple
+Tor circuits can be stringed together with random delays between them to make this practically impossible.
 
-#### Sekreta
+##### Web Sites
 
+Typical Tor Timing Attack viewing a website:
+       |Time Start------------------Time End| = 500ms
+Alice -> Tor Guard -> Tor Relay -> Tor Exit -> https://duckduckgo.com/?q=tiananmen+square
+Alice <- Tor Guard <- Tor Relay <- Tor Exit <- HTML
+       |Time End------------------Time Start| = 500ms
+
+1M5 TT Solution when viewing a website:
+```
+                        |Time Start-----------------------Random Delay (145ms)--------------------------------------------------Time End| = 1145ms
+Alice [1M5 Tor Client] -> Tor Guard -> Tor Relay -> Bob[1M5 Tor Hidden Service to 1M5 Tor Client] -> Tor Guard -> Tor Relay -> Tor Exit -> https://duckduckgo.com/?q=tiananmen+square
+Alice [1M5 Tor Client] <- Tor Guard <- Tor Relay <- Bob[1M5 Tor Hidden Service from 1M5 Tor Client] <- Tor Guard <- Tor Relay <- Tor Exit <- HTML
+                        |Time End-------------------------Random Delay (55ms)----------------------------------------------------Time Start| = 1055ms
+```          
+ 
+1M5 IT Solution when viewing a website:
+
+* Alice lives in repressive jurisdiction, Tor is blocked, and/or feels they're being targeted
+* Bob does not and is not likely to be targeted for a timing attack
+```
+                               |Time Start A1---------------------------------------Random Delay (80ms)------------------------------------------------Time End A1| = 1080ms
+                                                                                                                            |Time Start B1-------------Time End B1| = 500ms
+Alice [1M5 I2P Client (OBGW)] -> I2P OBP -> I2P OBEP -> I2P IBGW -> I2P IBP -> Bob[1M5 I2P Client (IBEP) to 1M5 Tor Client] -> Tor Guard -> Tor Relay -> Tor Exit -> https://duckduckgo.com/?q=tiananmen+square
+Alice [1M5 I2p Client (IBGW)] <- I2P IBP <- I2P IBGW <- I2P OBEP <- I2P OBP <- Bob[1M5 I2P Client (OBGW) from 1M5 Tor Client] <- Tor Guard <- Tor Relay <- Tor Exit <- HTML
+                                                                                                                               |Time End B2-------------Time Start B2| = 500ms
+                               |Time End A2-----------------------------------------Random Delay (120ms)------------------------------------------------Time Start A2| = 1120ms
+```                     
+                                                                                                                
+1M5 B(N)T Solution uses Bluetooth chains to get out to a node that has Tor access using it to fulfill the request returning the result back to the origination. This pushes timing attack out to the fulfilling Tor Client node.
+
+Satellites, Full-Spectrum Radio, and LiFi can be used prior to Tor to get the same result.      
+
+##### Peer-to-Peer
+
+                                                                                                                                                                              
 
 ### Intersection
 
@@ -490,21 +395,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Tagging
@@ -513,21 +412,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Partitioning
@@ -536,21 +429,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Predecessor
@@ -559,21 +446,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Harvesting
@@ -582,21 +463,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Traffic Analysis Identification
@@ -605,21 +480,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Sybil
@@ -628,21 +497,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Buddy Exhaustion
@@ -651,21 +514,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Cryptographic
@@ -674,21 +531,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Floodfill Anonymity
@@ -697,21 +548,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Central Resource
@@ -720,21 +565,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Development
@@ -743,21 +582,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Implementation (Bugs)
@@ -766,21 +599,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Blocklists
@@ -789,21 +616,15 @@ delivery mode.
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Distributed Denial of Service (DDoS)
@@ -816,11 +637,9 @@ Resources
 
 #### Greedy User
 
-#### I2P
+##### I2P
 
-#### TOR
-
-#### 1DN
+##### TOR
 
 ##### Bluetooth
 
@@ -830,20 +649,14 @@ Resources
 
 ##### LiFi
 
-#### 1M5
-
-#### Kovri
-
-#### Sekreta
+##### 1M5
 
 
 #### Starvation
 
-#### I2P
+##### I2P
 
-#### TOR
-
-#### 1DN
+##### TOR
 
 ##### Bluetooth
 
@@ -853,20 +666,14 @@ Resources
 
 ##### LiFi
 
-#### 1M5
-
-#### Kovri
-
-#### Sekreta
+##### 1M5
 
 
 #### Flooding
 
-#### I2P
+##### I2P
 
-#### TOR
-
-#### 1DN
+##### TOR
 
 ##### Bluetooth
 
@@ -876,11 +683,7 @@ Resources
 
 ##### LiFi
 
-#### 1M5
-
-#### Kovri
-
-#### Sekreta
+##### 1M5
 
 
 #### Ping Flood
@@ -889,8 +692,6 @@ Resources
 
 ##### TOR
 
-##### 1DN
-
 ##### Bluetooth
 
 ##### WiFi-Direct
@@ -900,10 +701,6 @@ Resources
 ##### LiFi
 
 ##### 1M5
-
-##### Kovri
-
-##### Sekreta
 
 
 #### CPU Loading
@@ -912,8 +709,6 @@ Resources
 
 ##### TOR
 
-##### 1DN
-
 ##### Bluetooth
 
 ##### WiFi-Direct
@@ -923,10 +718,6 @@ Resources
 ##### LiFi
 
 ##### 1M5
-
-##### Kovri
-
-##### Sekreta
 
 
 #### Floodfill
@@ -935,8 +726,6 @@ Resources
 
 ##### TOR
 
-##### 1DN
-
 ##### Bluetooth
 
 ##### WiFi-Direct
@@ -946,10 +735,6 @@ Resources
 ##### LiFi
 
 ##### 1M5
-
-##### Kovri
-
-##### Sekreta
 
 
 #### ReDoS
@@ -958,8 +743,6 @@ Resources
 
 ##### TOR
 
-##### 1DN
-
 ##### Bluetooth
 
 ##### WiFi-Direct
@@ -969,10 +752,6 @@ Resources
 ##### LiFi
 
 ##### 1M5
-
-##### Kovri
-
-##### Sekreta
 
 
 #### Twinge
@@ -981,8 +760,6 @@ Resources
 
 ##### TOR
 
-##### 1DN
-
 ##### Bluetooth
 
 ##### WiFi-Direct
@@ -992,10 +769,6 @@ Resources
 ##### LiFi
 
 ##### 1M5
-
-##### Kovri
-
-##### Sekreta
 
 
 #### SYN Flood
@@ -1009,8 +782,6 @@ Resources
 
 ##### TOR
 
-##### 1DN
-
 ##### Bluetooth
 
 ##### WiFi-Direct
@@ -1021,9 +792,6 @@ Resources
 
 ##### 1M5
 
-##### Kovri
-
-##### Sekreta
 
 
 #### Layer 7
@@ -1036,8 +804,6 @@ Resources
 
 ##### TOR
 
-##### 1DN
-
 ##### Bluetooth
 
 ##### WiFi-Direct
@@ -1048,9 +814,6 @@ Resources
 
 ##### 1M5
 
-##### Kovri
-
-##### Sekreta
 
 
 #### Ping of Death
@@ -1059,8 +822,6 @@ Resources
 
 ##### TOR
 
-##### 1DN
-
 ##### Bluetooth
 
 ##### WiFi-Direct
@@ -1070,10 +831,6 @@ Resources
 ##### LiFi
 
 ##### 1M5
-
-##### Kovri
-
-##### Sekreta
 
 
 #### Smurf Attack
@@ -1085,8 +842,6 @@ Resources
 
 ##### TOR
 
-##### 1DN
-
 ##### Bluetooth
 
 ##### WiFi-Direct
@@ -1096,10 +851,6 @@ Resources
 ##### LiFi
 
 ##### 1M5
-
-##### Kovri
-
-##### Sekreta
 
 
 #### Fraggle Attack
@@ -1111,8 +862,6 @@ Resources
 
 ##### TOR
 
-##### 1DN
-
 ##### Bluetooth
 
 ##### WiFi-Direct
@@ -1122,10 +871,6 @@ Resources
 ##### LiFi
 
 ##### 1M5
-
-##### Kovri
-
-##### Sekreta
 
 
 ### Advanced Persistent Threat (APT)
@@ -1140,21 +885,15 @@ Resources
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
-
-#### Kovri
-
-#### Sekreta
 
 
 ### Advanced Volatile Threat (AVT)
@@ -1169,19 +908,14 @@ Resources
 
 #### TOR
 
-#### 1DN
+#### Bluetooth
 
-##### Bluetooth
+#### WiFi-Direct
 
-##### WiFi-Direct
+#### Full Spectrum Radio
 
-##### Full Spectrum Radio
-
-##### LiFi
+#### LiFi
 
 #### 1M5
 
-#### Kovri
-
-#### Sekreta
 
