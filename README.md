@@ -204,7 +204,14 @@ with OpenJDK 11, the recommended JDK version.
 
 ## Roadmap
 
-## Censorship-Resistance
+## Censorship-Resistance Routing
+1. If I'm being blocked on Tor, use I2P.
+1. If I'm being blocked on I2P, use Tor.
+1. If I'm being blocked on both Tor and I2P or the local cell tower is down, use Bluetooth across 1M5 users to get out to a 1M5 user who has access to an active cellular tower and is not blocked on Tor or I2P.
+1. If Bluetooth is not available but WiFi-Direct is, use it instead.
+1. If Bluetooth and/or WiFi-Direct are being locally jammed, and a LiFi receiver is available, use it to get out.
+1. If no LiFi receiver is available, use Full-Spectrum Radio to attempt to reach an online 1M5 user.
+
 | Service                | Connecting | P2P   | Discovery | Relaying |
 | :--------------------- | :--------: | :---: | :-------: | :------: |
 | Tor Client             | Y          |       |           |          |
@@ -218,15 +225,18 @@ with OpenJDK 11, the recommended JDK version.
 | Lightning Client       |            |       |           |          |
 | Bisq Client            |            |       |           | N/A      |
 
-## Routes
-| Route | Implemented | Tested | Production | Vulnerabilities | Description |
-| :---: | :---------: | :----: | :--------: | :-------------: | :---------: |
-| TT    |             |        |            |                 | Tor-Tor     |
-| IT    |             |        |            |                 | I2P-Tor     |
-|       |             |        |            |                 |             |
-|       |             |        |            |                 |             |
-|       |             |        |            |                 |             |
-|       |             |        |            |                 |             |
+## Relay Routing
+* Tor-Tor (TT): To avoid timing attacks when using Tor, use two Tor circuits in sequence with a 1M5 peer between them providing a random delay out and in.
+* I2P-Tor (IT): When desiring to access a web site and Tor is blocked, use I2P to a 1M5 user with Tor not blocked to make the request.
+
+| Route | Description | Implemented | Tested | Production | Vulnerabilities |
+| :---: | :---------: | :---------: | :----: | :--------: | :-------------: |
+| TT    | Tor-Tor     |             |        |            |                 |
+| IT    | I2P-Tor     |             |        |            |                 |
+|       |             |             |        |            |                 |
+|       |             |             |        |            |                 |
+|       |             |             |        |            |                 |
+|       |             |             |        |            |                 |
 
 ## Fund Raising
 
