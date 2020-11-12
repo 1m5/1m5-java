@@ -1,7 +1,10 @@
 package onemfive;
 
 import ra.common.Status;
+import ra.did.DIDService;
+import ra.http.server.HTTPServerService;
 import ra.i2p.I2PService;
+import ra.keyring.KeyRingService;
 import ra.peermanager.PeerManagerService;
 import ra.pressfreedomindex.PFIScraperService;
 import ra.servicebus.ServiceBus;
@@ -178,16 +181,15 @@ public class Daemon {
 
         // Register Services
         try {
-//            bus.registerService(KeyRingService.class, config, null);
-//            bus.registerService(DIDService.class, config, null);
-//            bus.registerService(HTTPService.class, config, null);
+            bus.registerService(KeyRingService.class, config, null);
+            bus.registerService(DIDService.class, config, null);
+            bus.registerService(HTTPServerService.class, config, null);
             bus.registerService(TORClientService.class, config, null);
             bus.registerService(TORHiddenService.class, config, null);
             bus.registerService(I2PService.class, config, null);
 //            bus.registerService(BluetoothService.class, config, null);
             bus.registerService(CRNetworkManagerService.class, config, null);
             bus.registerService(PeerManagerService.class, config, null);
-            bus.registerService(CRNetworkManagerService.class, config, null);
             bus.registerService(PFIScraperService.class, config, null);
         } catch (Exception e) {
             LOG.severe(e.getLocalizedMessage());
