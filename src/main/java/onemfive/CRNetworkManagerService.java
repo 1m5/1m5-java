@@ -95,8 +95,8 @@ public final class CRNetworkManagerService extends NetworkManagerService {
 //                    else
 //                        selected = findRelay(packet);
                     envelope.setDelayed(true);
-                    envelope.setMinDelay(4 * 1000L);
-                    envelope.setMaxDelay(10 * 1000L);
+                    envelope.setMinDelay(4 * 1000);
+                    envelope.setMaxDelay(10 * 1000);
                     break;
                 }
                 case EXTREME: {
@@ -110,8 +110,8 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     //   Web: 1DN to I2P peer with high delays to Tor peer
 //                    selected = findRelay(packet);
                     envelope.setDelayed(true);
-                    envelope.setMinDelay(60 * 1000L);
-                    envelope.setMaxDelay(2 * 60 * 1000L);
+                    envelope.setMinDelay(60 * 1000);
+                    envelope.setMaxDelay(2 * 60 * 1000);
                     break;
                 }
             }
@@ -136,8 +136,8 @@ public final class CRNetworkManagerService extends NetworkManagerService {
 //                    else
 //                        selected = findRelay(packet);
                     envelope.setDelayed(true);
-                    envelope.setMinDelay(4 * 1000L);
-                    envelope.setMaxDelay(10 * 1000L);
+                    envelope.setMinDelay(4 * 1000);
+                    envelope.setMaxDelay(10 * 1000);
                     break;
                 }
                 case EXTREME: {
@@ -156,8 +156,8 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     envelope.setMinCopies(3);
                     envelope.setMaxCopies(12);
                     envelope.setDelayed(true);
-                    envelope.setMinDelay(5 * 60 * 1000L);
-                    envelope.setMaxDelay(3 * 30 * 24 * 60 * 60 * 1000L);
+                    envelope.setMinDelay(5 * 60 * 1000);
+                    envelope.setMaxDelay(3 * 30 * 24 * 60 * 60 * 1000);
                     break;
                 }
             }
