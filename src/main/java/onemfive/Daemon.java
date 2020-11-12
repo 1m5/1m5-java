@@ -5,6 +5,7 @@ import ra.did.DIDService;
 import ra.http.server.HTTPServerService;
 import ra.i2p.I2PService;
 import ra.keyring.KeyRingService;
+import ra.maildrop.MailDropService;
 import ra.peermanager.PeerManagerService;
 import ra.pressfreedomindex.PFIScraperService;
 import ra.servicebus.ServiceBus;
@@ -181,6 +182,7 @@ public class Daemon {
 
         // Register Services
         try {
+            bus.registerService(MailDropService.class, config, null);
             bus.registerService(KeyRingService.class, config, null);
             bus.registerService(DIDService.class, config, null);
             bus.registerService(HTTPServerService.class, config, null);

@@ -49,6 +49,11 @@
         </dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
+			<artifactId>mail-drop</artifactId>
+			<version>${ra.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>resolvingarchitecture</groupId>
 			<artifactId>did</artifactId>
 			<version>${ra.version}</version>
 		</dependency>
