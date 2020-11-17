@@ -42,6 +42,11 @@
 
 	<dependencies>
         <!-- Resolving Architecture -->
+		<dependency>
+			<groupId>resolvingarchitecture</groupId>
+			<artifactId>common</artifactId>
+			<version>${ra.version}</version>
+		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>service-bus</artifactId>
@@ -82,6 +87,11 @@
             <artifactId>i2p-client</artifactId>
             <version>${ra.version}</version>
         </dependency>
+		<dependency>
+			<groupId>resolvingarchitecture</groupId>
+			<artifactId>bluetooth-client</artifactId>
+			<version>${ra.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>network-manager</artifactId>

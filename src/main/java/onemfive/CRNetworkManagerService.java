@@ -5,7 +5,7 @@ import ra.common.messaging.MessageProducer;
 import ra.common.network.NetworkPeer;
 import ra.common.network.NetworkState;
 import ra.common.network.NetworkStatus;
-import ra.common.service.ServiceStatusListener;
+import ra.common.service.ServiceStatusObserver;
 import ra.network.manager.NetworkManagerService;
 
 import java.net.URL;
@@ -59,8 +59,8 @@ public final class CRNetworkManagerService extends NetworkManagerService {
     private Long manCon4TestLastSucceeded = 0L; // Medium
     private Long manCon5TestLastSucceeded = 0L; // Low
 
-    public CRNetworkManagerService(MessageProducer producer, ServiceStatusListener listener) {
-        super(producer, listener);
+    public CRNetworkManagerService(MessageProducer producer, ServiceStatusObserver observer) {
+        super(producer, observer);
     }
 
     public Tuple2<String,NetworkPeer> selectNetworkAndToPeer(Envelope envelope) {
