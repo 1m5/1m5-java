@@ -47,7 +47,7 @@ public class Daemon {
     // split up big lock on this to avoid deadlocks
     private final Object lock1 = new Object();
 
-//    private ServiceBus bus;
+    private final ServiceBus bus = new ServiceBus();
     private Properties config;
     private Status status = Status.Stopped;
 
@@ -178,26 +178,25 @@ public class Daemon {
                 "\n\tLogs: "+logDir.getAbsolutePath()+
                 "\n\tTemp: "+tmpDir.getAbsolutePath());
 
-//        bus = new ServiceBus();
-//        bus.start(config);
+        bus.start(config);
 
         // Register Services
-//        try {
-//            bus.registerService(MailDropService.class.getName(), config);
-//            bus.registerService(KeyRingService.class.getName(), config);
-//            bus.registerService(DIDService.class.getName(), config);
-//            bus.registerService(HTTPServerService.class.getName(), config);
-//            bus.registerService(TORClientService.class.getName(), config);
-//            bus.registerService(TORHiddenService.class.getName(), config);
-//            bus.registerService(I2PService.class.getName(), config);
-//            bus.registerService(BluetoothService.class.getName(), config);
-//            bus.registerService(CRNetworkManagerService.class.getName(), config);
-//            bus.registerService(PeerManagerService.class.getName(), config);
-//            bus.registerService(PFIScraperService.class.getName(), config);
-//        } catch (Exception e) {
-//            LOG.severe(e.getLocalizedMessage());
-//            System.exit(-1);
-//        }
+        try {
+            bus.registerService(MailDropService.class.getName(), config);
+            bus.registerService(KeyRingService.class.getName(), config);
+            bus.registerService(DIDService.class.getName(), config);
+            bus.registerService(HTTPServerService.class.getName(), config);
+            bus.registerService(TORClientService.class.getName(), config);
+            bus.registerService(TORHiddenService.class.getName(), config);
+            bus.registerService(I2PService.class.getName(), config);
+            bus.registerService(BluetoothService.class.getName(), config);
+            bus.registerService(CRNetworkManagerService.class.getName(), config);
+            bus.registerService(PeerManagerService.class.getName(), config);
+            bus.registerService(PFIScraperService.class.getName(), config);
+        } catch (Exception e) {
+            LOG.severe(e.getLocalizedMessage());
+            System.exit(-1);
+        }
         status = Status.Running;
 
         // Check periodically to see if 1M5 stopped
