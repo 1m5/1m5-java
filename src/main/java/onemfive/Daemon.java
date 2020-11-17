@@ -191,7 +191,7 @@ public class Daemon {
             bus.registerService(I2PService.class.getName(), config);
             bus.registerService(BluetoothService.class.getName(), config);
             bus.registerService(CRNetworkManagerService.class.getName(), config);
-            bus.registerService(PeerManagerService.class.getName(), config);
+            bus.registerService(CRPeerManagerService.class.getName(), config);
             bus.registerService(PFIScraperService.class.getName(), config);
         } catch (Exception e) {
             LOG.severe(e.getLocalizedMessage());
