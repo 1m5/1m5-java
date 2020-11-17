@@ -217,7 +217,7 @@ with OpenJDK 11, the recommended JDK version.
 | Tor Client             | Y          |       |           |          |
 | Tor Hidden Service     | Y          |       |           |          |
 | I2P Client             | Y          | Y     |           |          |
-| Bluetooth Client       | Y          | Y     |           |          |
+| Bluetooth Client       | Y          |       |           |          |
 | WiFi Client            |            |       |           |          |
 | FS Radio Client        |            |       |           |          |
 | LiFi Client            |            |       |           |          |
