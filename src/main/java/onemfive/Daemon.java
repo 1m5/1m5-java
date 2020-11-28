@@ -7,6 +7,7 @@ import ra.http.server.HTTPServerService;
 import ra.i2p.I2PService;
 import ra.keyring.KeyRingService;
 import ra.maildrop.MailDropService;
+import ra.networkmanager.NetworkManagerService;
 import ra.peermanager.PeerManagerService;
 import ra.pressfreedomindex.PFIScraperService;
 import ra.servicebus.ServiceBus;
@@ -47,7 +48,7 @@ public class Daemon {
     // split up big lock on this to avoid deadlocks
     private final Object lock1 = new Object();
 
-    private final ServiceBus bus = new ServiceBus();
+    private ServiceBus bus;
     private Properties config;
     private Status status = Status.Stopped;
 
@@ -178,6 +179,7 @@ public class Daemon {
                 "\n\tLogs: "+logDir.getAbsolutePath()+
                 "\n\tTemp: "+tmpDir.getAbsolutePath());
 
+        bus = new ServiceBus(config);
         bus.start(config);
 
         // Register Services
@@ -185,13 +187,10 @@ public class Daemon {
             bus.registerService(MailDropService.class.getName(), config);
             bus.registerService(KeyRingService.class.getName(), config);
             bus.registerService(DIDService.class.getName(), config);
-            bus.registerService(HTTPServerService.class.getName(), config);
             bus.registerService(TORClientService.class.getName(), config);
-            bus.registerService(TORHiddenService.class.getName(), config);
             bus.registerService(I2PService.class.getName(), config);
             bus.registerService(BluetoothService.class.getName(), config);
-            bus.registerService(CRNetworkManagerService.class.getName(), config);
-            bus.registerService(CRPeerManagerService.class.getName(), config);
+            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
             bus.registerService(PFIScraperService.class.getName(), config);
         } catch (Exception e) {
             LOG.severe(e.getLocalizedMessage());
