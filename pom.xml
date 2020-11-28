@@ -99,11 +99,6 @@
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
-            <artifactId>peermanager</artifactId>
-            <version>${ra.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>resolvingarchitecture</groupId>
             <artifactId>press-freedom-index</artifactId>
             <version>${ra.version}</version>
         </dependency>
