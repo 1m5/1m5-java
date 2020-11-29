@@ -200,12 +200,17 @@ public class Daemon {
             Wait.aSec(2);
         }
 
+        shutdown();
+
         System.exit(0);
     }
 
     public void shutdown() {
         status = Status.Stopping;
         LOG.info("1M5 Shutting Down...");
+        if(!bus.gracefulShutdown()) {
+            LOG.warning("Service Bus Graceful Shutdown failed.");
+        }
         status = Status.Stopped;
     }
 

@@ -204,12 +204,32 @@ with OpenJDK 11, the recommended JDK version.
 
 ## Roadmap
 
+## ManCon Status
+ManCon Status is provided by three parameters: Minimum Required, Maximum Available, and Maximum Supported.
+
+* Minimum Required: Set by end user or configuration to state the minimum exceptable ManCon to be used.
+* Maximum Available: Real-time updated parameter providing the maximum ManCon currently achievable based on CR Network Manager findings.
+* Maximum Supported: Maximum ManCon able to be reached based on what network services were configured and are active. This value can also change in real-time when networks become unavailable.
+
+An example visual:
+
+```
+None    HTTP    Tor     I2P     [Non-Internet: BT Mesh, WiFi, Satellite, FS Radio, LiFi]
+-------------------------------------------------------------------------------------------
+                 |       |      |
+                MR      MA      MS
+```
+In the example above, the end user is specifying that Tor is the minimum that should always be used.
+I2P is currently the highest we can achieve in ManCon.
+Bluetooth Mesh is the highest possible ManCon (but not currently the Max Available as it's not connected to the network).
+
 ## Censorship-Resistance Routing
 1. If I'm being blocked on Tor, use I2P.
 1. If I'm being blocked on I2P, use Tor.
-1. If I'm being blocked on both Tor and I2P or the local cell tower is down, use Bluetooth across 1M5 users to get out to a 1M5 user who has access to an active cellular tower and is not blocked on Tor or I2P.
-1. If Bluetooth is not available but WiFi-Direct is, use it instead.
-1. If Bluetooth and/or WiFi-Direct are being locally jammed, and a LiFi receiver is available, use it to get out.
+1. If I'm being blocked on both Tor and I2P or the local cell tower is down, use Bluetooth Mesh.
+1. If I'm being blocked on both Tor and I2P or the local cell tower is down, and the peer I'm trying to reach is currently accessible via Bluetooth Mesh, use Bluetooth Mesh to connect to a Peer that is able to connect to the peer desired using Tor/I2P.
+1. If Bluetooth Mesh is not available but WiFi-Direct is, use it instead.
+1. If Bluetooth and/or WiFi-Direct are not available (e.g. being locally jammed), and a LiFi receiver is available, use it to get out.
 1. If no LiFi receiver is available, use Full-Spectrum Radio to attempt to reach an online 1M5 user.
 
 | Service                | Connecting | P2P   | Discovery | Relaying | Notes
