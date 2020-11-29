@@ -15,7 +15,6 @@ import ra.networkmanager.NetworkManagerService;
 import ra.tor.TORClientService;
 
 import java.net.URL;
-import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -32,7 +31,7 @@ import java.util.logging.Logger;
  *   Web: I2P for .i2p addresses and Tor for the rest; if not response consider the site down
  *   P2P: I2P, Tor as Tunnel when I2P blocked, non-internet escalation (Bluetooth, WiFi, Satellite, FS Radio, ECCM, LiFi)
  * MEDIUM:
- *   Web: Same as LOW except use peers to assist
+ *   Web: Same as LOW except use peers to assist if no response
  *   P2P: Same as LOW
  * HIGH:
  *   Web: I2P to Tor, non-internet to I2P/Tor escalation
@@ -45,11 +44,8 @@ import java.util.logging.Logger;
  *   P2P: non-internet to I2P peer
  * NEO:
  *   Web: non-internet to I2P peer with high delays to Tor peer
- *   P2P: non-internet to random number/combination of 1DN/I2P peers at random delays up to 90 seconds for I2P layer and up to
- *     3 months for 1M5 layer. A random number of copies (3 min/12 max) sent out with only 12 word mnemonic passphrase
- *     as key.
- *
- * TODO: Don't directly map ManCon's to Networks. Define each ManCon by threats, conditions to be observed to identify them, and how to mitigate them.
+ *   P2P: non-internet only to random number/combination of peers at random delays up to 3 months.
+ *       A random number of copies (6 min/12 max) sent out with only 12 word mnemonic passphrase as key.
  *
  */
 public final class CRNetworkManagerService extends NetworkManagerService {
