@@ -207,9 +207,9 @@ with OpenJDK 11, the recommended JDK version.
 ## ManCon Status
 ManCon Status is provided by three parameters: Minimum Required, Maximum Available, and Maximum Supported.
 
-* Minimum Required: Set by end user or configuration to state the minimum exceptable ManCon to be used.
+* Minimum Required: Set by end user or configuration to state the minimum exceptable ManCon to be used. Changed by end user manually or, in the future, by automated situational awareness.
 * Maximum Available: Real-time updated parameter providing the maximum ManCon currently achievable based on CR Network Manager findings.
-* Maximum Supported: Maximum ManCon able to be reached based on what network services were configured and are active. This value can also change in real-time when networks become unavailable.
+* Maximum Supported: Maximum ManCon able to be reached based on what network services were registered.
 
 An example visual:
 
