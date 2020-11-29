@@ -212,12 +212,11 @@ with OpenJDK 11, the recommended JDK version.
 1. If Bluetooth and/or WiFi-Direct are being locally jammed, and a LiFi receiver is available, use it to get out.
 1. If no LiFi receiver is available, use Full-Spectrum Radio to attempt to reach an online 1M5 user.
 
-| Service                | Connecting | P2P   | Discovery | Relaying |
+| Service                | Connecting | P2P   | Discovery | Relaying | Notes
 | :--------------------- | :--------: | :---: | :-------: | :------: |
-| Tor Client             | Y          |       |           |          |
-| Tor Hidden Service     | Y          |       |           |          |
-| I2P Client             | Y          | Y     |           |          |
-| Bluetooth Client       | Y          |       |           |          |
+| Tor Client             | Y          | Y     |           |          | P2P accomplished using Hidden Services
+| I2P Client             | Y          | Y     | Y         |          |
+| Bluetooth Mesh Client  | Y          |       |           |          |
 | WiFi Client            |            |       |           |          |
 | FS Radio Client        |            |       |           |          |
 | LiFi Client            |            |       |           |          |
@@ -228,15 +227,19 @@ with OpenJDK 11, the recommended JDK version.
 ## Relay Routing
 * Tor-Tor (TT): To avoid timing attacks when using Tor, use two Tor circuits in sequence with a 1M5 peer between them providing a random delay out and in.
 * I2P-Tor (IT): When desiring to access a web site and Tor is blocked, use I2P to a 1M5 user with Tor not blocked to make the request.
+* BTM-Tor (BT): When cellular access is not available and requesting a web site, use Bluetooth Mesh to a 1M5 user with Tor not blocked to make the request.
+* BTM-I2P (BI): When cellular access is not available and request a P2P message with a peer with I2P available but not Bluetooth Mesh available, use Bluetooth Mesh to get to a Peer with both I2P and Bluetooth Mesh available as a relay to the peer with I2P available but not Bluetooth Mesh.
+* I2P-Tor-BTC (ITBt): I2P to Bitcoin through a Tor relay.
+* I2P-Tor-Bisq (ITBq): I2P to Bisq through a Tor relay.
 
-| Route | Description | Implemented | Tested | Production | Vulnerabilities |
-| :---: | :---------: | :---------: | :----: | :--------: | :-------------: |
-| TT    | Tor-Tor     |             |        |            |                 |
-| IT    | I2P-Tor     |             |        |            |                 |
-|       |             |             |        |            |                 |
-|       |             |             |        |            |                 |
-|       |             |             |        |            |                 |
-|       |             |             |        |            |                 |
+| Route | Description  | Implemented | Tested | Production | Vulnerabilities |
+| :---: | :----------: | :---------: | :----: | :--------: | :-------------: |
+| TT    | Tor-Tor      |             |        |            |                 |
+| IT    | I2P-Tor      |             |        |            |                 |
+| BT    | BTM-Tor      |             |        |            |                 |
+| BI    | BTM-I2P      |             |        |            |                 |
+| ITBt  | I2P-Tor-BTC  |             |        |            |                 |
+| ITBq  | I2P-Tor-Bisq |             |        |            |                 |
 
 ## Fund Raising
 
