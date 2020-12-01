@@ -69,7 +69,7 @@
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
-			<artifactId>http-server</artifactId>
+			<artifactId>http-client</artifactId>
 			<version>${ra.version}</version>
 		</dependency>
 		<dependency>

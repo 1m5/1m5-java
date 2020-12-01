@@ -3,6 +3,7 @@ package onemfive;
 import ra.bluetooth.BluetoothService;
 import ra.common.Status;
 import ra.did.DIDService;
+import ra.http.HTTPService;
 import ra.i2p.I2PService;
 import ra.keyring.KeyRingService;
 import ra.maildrop.MailDropService;
@@ -184,6 +185,8 @@ public class Daemon {
             bus.registerService(MailDropService.class.getName(), config);
             bus.registerService(KeyRingService.class.getName(), config);
             bus.registerService(DIDService.class.getName(), config);
+            config.put("ra.http.server.configs", "1m5-api,API,2015,ra.http.EnvelopeJSONDataHandler");
+            bus.registerService(HTTPService.class.getName(), config);
             bus.registerService(TORClientService.class.getName(), config);
             bus.registerService(I2PService.class.getName(), config);
             bus.registerService(BluetoothService.class.getName(), config);
