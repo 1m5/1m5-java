@@ -52,7 +52,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
 
     private static Logger LOG = Logger.getLogger(CRNetworkManagerService.class.getName());
 
-    private final CRPeerManager crPeerManager;
+    private CRPeerManager crPeerManager;
 
     private Long manCon0TestLastSucceeded = 0L; // NEO
     private Long manCon1TestLastSucceeded = 0L; // Extreme
@@ -60,6 +60,10 @@ public final class CRNetworkManagerService extends NetworkManagerService {
     private Long manCon3TestLastSucceeded = 0L; // High
     private Long manCon4TestLastSucceeded = 0L; // Medium
     private Long manCon5TestLastSucceeded = 0L; // Low
+
+    public CRNetworkManagerService() {
+        super();
+    }
 
     public CRNetworkManagerService(MessageProducer producer, ServiceStatusObserver observer) {
         super(producer, observer, new CRPeerManager());
