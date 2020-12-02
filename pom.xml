@@ -17,7 +17,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.11</java.version>
-		<ra.version>1.0.0</ra.version>
 	</properties>
 
 	<developers>
@@ -45,62 +44,57 @@
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>common</artifactId>
-			<version>${ra.version}</version>
+			<version>1.0.0</version>
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>service-bus</artifactId>
-            <version>${ra.version}</version>
+            <version>1.0.0</version>
         </dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>mail-drop</artifactId>
-			<version>${ra.version}</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>did</artifactId>
-			<version>${ra.version}</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>keyring</artifactId>
-			<version>${ra.version}</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>http-client</artifactId>
-			<version>${ra.version}</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>tor-client</artifactId>
-			<version>${ra.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>resolvingarchitecture</groupId>
-			<artifactId>tor-hiddenservice</artifactId>
-			<version>${ra.version}</version>
+			<version>1.0.0</version>
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>i2p-client</artifactId>
-            <version>${ra.version}</version>
+            <version>1.0.0</version>
         </dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>bluetooth-client</artifactId>
-			<version>${ra.version}</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>network-manager</artifactId>
-			<version>${ra.version}</version>
+			<version>1.0.0</version>
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>press-freedom-index</artifactId>
-            <version>${ra.version}</version>
+            <version>1.0.0</version>
         </dependency>
         <!-- Derby DB -->
         <dependency>
