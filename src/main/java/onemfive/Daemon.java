@@ -183,20 +183,31 @@ public class Daemon {
         // Register Services
         try {
             bus.registerService(MailDropService.class.getName(), config);
-            bus.registerService(KeyRingService.class.getName(), config);
-            bus.registerService(DIDService.class.getName(), config);
-            config.put("ra.http.server.configs", "1m5-api,API,2015,ra.http.EnvelopeJSONDataHandler");
-            bus.registerService(HTTPService.class.getName(), config);
-            bus.registerService(TORClientService.class.getName(), config);
-            bus.registerService(I2PService.class.getName(), config);
-            bus.registerService(BluetoothService.class.getName(), config);
-            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
-            bus.registerService(PFIScraperService.class.getName(), config);
+//            bus.registerService(KeyRingService.class.getName(), config);
+//            bus.registerService(DIDService.class.getName(), config);
+//            config.put("ra.http.server.configs", "1m5-api,API,127.0.0.1,2015,ra.http.EnvelopeJSONDataHandler");
+//            bus.registerService(HTTPService.class.getName(), config);
+//            bus.registerService(TORClientService.class.getName(), config);
+//            bus.registerService(I2PService.class.getName(), config);
+//            bus.registerService(BluetoothService.class.getName(), config);
+//            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
+//            bus.registerService(PFIScraperService.class.getName(), config);
         } catch (Exception e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
         }
         status = Status.Running;
+
+        // Start Services
+        bus.startService(MailDropService.class.getName());
+//        bus.startService(KeyRingService.class.getName());
+//        bus.startService(DIDService.class.getName());
+//        bus.startService(HTTPService.class.getName());
+//        bus.startService(TORClientService.class.getName());
+//        bus.startService(I2PService.class.getName());
+//        bus.startService(BluetoothService.class.getName());
+//        bus.startService(NetworkManagerService.class.getName());
+//        bus.startService(PFIScraperService.class.getName());
 
         // Check periodically to see if 1M5 stopped
         while (status == Status.Running) {
