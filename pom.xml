@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>onemfive</groupId>
-	<artifactId>cr</artifactId>
+	<artifactId>platform</artifactId>
 	<version>0.6.5.251</version>
 
 	<packaging>jar</packaging>
 
-	<name>1m5-cr</name>
+	<name>1m5-platform</name>
 	<url>https://1m5.io</url>
-	<description>Invisible Matrix Services - Censorship-Resistance Service</description>
+	<description>Invisible Matrix Services - Platform</description>
 	<inceptionYear>2017</inceptionYear>
 
 	<properties>
