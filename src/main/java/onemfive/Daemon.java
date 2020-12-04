@@ -8,6 +8,7 @@ import ra.i2p.I2PService;
 import ra.keyring.KeyRingService;
 import ra.maildrop.MailDropService;
 import ra.networkmanager.NetworkManagerService;
+import ra.notification.NotificationService;
 import ra.pressfreedomindex.PFIScraperService;
 import ra.servicebus.ServiceBus;
 import ra.tor.TORClientService;
@@ -182,7 +183,8 @@ public class Daemon {
 
         // Register Services
         try {
-            bus.registerService(MailDropService.class.getName(), config);
+            bus.registerService(NotificationService.class.getName(), config);
+//            bus.registerService(MailDropService.class.getName(), config);
 //            bus.registerService(KeyRingService.class.getName(), config);
 //            bus.registerService(DIDService.class.getName(), config);
 //            config.put("ra.http.server.configs", "1m5-api,API,127.0.0.1,2015,ra.http.EnvelopeJSONDataHandler");
@@ -199,7 +201,8 @@ public class Daemon {
         status = Status.Running;
 
         // Start Services
-        bus.startService(MailDropService.class.getName());
+        bus.startService(NotificationService.class.getName());
+//        bus.startService(MailDropService.class.getName());
 //        bus.startService(KeyRingService.class.getName());
 //        bus.startService(DIDService.class.getName());
 //        bus.startService(HTTPService.class.getName());
