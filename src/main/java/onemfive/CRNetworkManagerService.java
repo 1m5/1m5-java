@@ -12,6 +12,7 @@ import ra.common.route.Route;
 import ra.common.service.ServiceStatusObserver;
 import ra.i2p.I2PService;
 import ra.networkmanager.NetworkManagerService;
+import ra.networkmanager.PeerManager;
 import ra.tor.TORClientService;
 
 import java.net.URL;
@@ -63,7 +64,8 @@ public final class CRNetworkManagerService extends NetworkManagerService {
 
     public CRNetworkManagerService() {
         super();
-        this.crPeerManager = (CRPeerManager)super.peerManager;
+        this.crPeerManager = new CRPeerManager();
+        super.peerManager = this.crPeerManager;
     }
 
     public CRNetworkManagerService(MessageProducer producer, ServiceStatusObserver observer) {

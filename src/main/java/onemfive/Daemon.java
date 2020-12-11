@@ -2,10 +2,14 @@ package onemfive;
 
 import ra.bluetooth.BluetoothService;
 import ra.common.Status;
+import ra.common.service.ServiceNotAccessibleException;
+import ra.common.service.ServiceNotSupportedException;
 import ra.did.DIDService;
+import ra.gnuradio.GNURadioService;
 import ra.http.HTTPService;
 import ra.i2p.I2PService;
 import ra.keyring.KeyRingService;
+import ra.lifi.LiFiService;
 import ra.maildrop.MailDropService;
 import ra.networkmanager.NetworkManagerService;
 import ra.notification.NotificationService;
@@ -16,6 +20,7 @@ import ra.util.Config;
 import ra.util.SecureFile;
 import ra.util.SystemSettings;
 import ra.util.Wait;
+import ra.wifidirect.WiFiDirectNetwork;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -181,36 +186,44 @@ public class Daemon {
         bus = new ServiceBus(config);
         bus.start(config);
 
-        // Register Services
+        // Configure HTTP API
+//        config.put("","");
+
+        // Register supported services
         try {
             bus.registerService(NotificationService.class.getName(), config);
-//            bus.registerService(MailDropService.class.getName(), config);
-//            bus.registerService(KeyRingService.class.getName(), config);
-//            bus.registerService(DIDService.class.getName(), config);
-//            config.put("ra.http.server.configs", "1m5-api,API,127.0.0.1,2015,ra.http.EnvelopeJSONDataHandler");
-//            bus.registerService(HTTPService.class.getName(), config);
-//            bus.registerService(TORClientService.class.getName(), config);
-//            bus.registerService(I2PService.class.getName(), config);
-//            bus.registerService(BluetoothService.class.getName(), config);
-//            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
-//            bus.registerService(PFIScraperService.class.getName(), config);
-        } catch (Exception e) {
+            bus.registerService(DIDService.class.getName(), config);
+            bus.registerService(KeyRingService.class.getName(), config);
+            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
+            bus.registerService(TORClientService.class.getName(), config);
+            bus.registerService(I2PService.class.getName(), config);
+            bus.registerService(BluetoothService.class.getName(), config);
+            bus.registerService(WiFiDirectNetwork.class.getName(), config);
+            bus.registerService(GNURadioService.class.getName(), config);
+            bus.registerService(LiFiService.class.getName(), config);
+            bus.registerService(PFIScraperService.class.getName(), config);
+        } catch (ServiceNotAccessibleException e) {
+            LOG.severe(e.getLocalizedMessage());
+            System.exit(-1);
+        } catch (ServiceNotSupportedException e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
         }
-        status = Status.Running;
 
-        // Start Services
+        // Start infrastructure services
         bus.startService(NotificationService.class.getName());
-//        bus.startService(MailDropService.class.getName());
-//        bus.startService(KeyRingService.class.getName());
-//        bus.startService(DIDService.class.getName());
+        bus.startService(DIDService.class.getName());
+        bus.startService(KeyRingService.class.getName());
+        bus.startService(NetworkManagerService.class.getName());
+
+        // Start available services
 //        bus.startService(HTTPService.class.getName());
 //        bus.startService(TORClientService.class.getName());
 //        bus.startService(I2PService.class.getName());
 //        bus.startService(BluetoothService.class.getName());
-//        bus.startService(NetworkManagerService.class.getName());
 //        bus.startService(PFIScraperService.class.getName());
+
+        status = Status.Running;
 
         // Check periodically to see if 1M5 stopped
         while (status == Status.Running) {

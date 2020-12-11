@@ -5,7 +5,7 @@
 
 	<groupId>onemfive</groupId>
 	<artifactId>platform</artifactId>
-	<version>0.6.5.251</version>
+	<version>0.6.5.252</version>
 
 	<packaging>jar</packaging>
 
@@ -91,6 +91,21 @@
 			<artifactId>bluetooth-client</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+        <dependency>
+            <groupId>resolvingarchitecture</groupId>
+            <artifactId>wifidirect-client</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>resolvingarchitecture</groupId>
+            <artifactId>gnuradio-client</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>resolvingarchitecture</groupId>
+            <artifactId>lifi-client</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>network-manager</artifactId>
