@@ -181,7 +181,7 @@ Wide-ranging latencies but highest privacy and censorship-resistance.
 
 1M5 is composed of a Service-Oriented Architecture (SOA) design using a minimalistic service bus for services,
 a Staged Event-Driven Architecture (SEDA) design for asynchronous multi-threaded inter-service communications,
-a service registry, internal core services, and Censorship-Resistance Network and Peer Manager Services 
+a service registry, internal core services, and Censorship-Resistance Network and Peer Manager Services
 for advanced intelligent interaction with peers.
 
 ### Core Services
@@ -236,7 +236,7 @@ Bluetooth Mesh is the highest possible ManCon (but not currently the Max Availab
 | :--------------------- | :--------: | :---: | :-------: | :------: |
 | Tor Client             | Y          | Y     |           |          | P2P accomplished using Hidden Services
 | I2P Client             | Y          | Y     | Y         |          |
-| Bluetooth Mesh Client  | Y          |       |           |          |
+| Bluetooth Mesh Client  | Y          |       |           |          | Only direct P2P supported using v4 Bluetooth; v5 Mesh on roadmap
 | WiFi Client            |            |       |           |          |
 | FS Radio Client        |            |       |           |          |
 | LiFi Client            |            |       |           |          |
@@ -245,21 +245,36 @@ Bluetooth Mesh is the highest possible ManCon (but not currently the Max Availab
 | Bisq Client            |            |       |           | N/A      |
 
 ## Relay Routing
+Relays are used to route to networked peers when a requested network is unavailable yet other networks are. For example,
+trying to use a browser to view a site using Tor and the local client is unable to connect to the Tor network yet can
+connect to I2P, I2P will be used to relay the request to another peer who has access to the Tor network. This also goes
+for Bluetooth. If a client no longer has access to the internet, e.g. forgot to pay the bill, and thus unable to view
+that web page using Tor as no internet connection is not available, and another peer with 1M5 is running within bluetooth range,
+has access to the internet via Tor, and both the client and peer have bluetooth enabled, the client's 1M5 instance will
+send the Tor request to the nearby peer using Bluetooth and that peer will make the Tor request for the resource returning
+the result back to the originating peer (client).
+
+This behaviour is available to all other applications. For example, you have a bitcoin wallet that originally pointed to
+a specific bitcoin node using Tor yet are in a jurisdiction where Tor is actively being blocked (entrance/exit nodes getting IP blocked),
+by pointing your bitcoin wallet to the local 1M5 OS service, 1M5 will use I2P to route to a peer with Tor available using
+that node to make the Tor request to the specified Bitcoin node. If cellular access is not available yet a local 1M5 peer
+has both Bluetooth available and Tor/I2P access, that peer will be used through bluetooth to make the request.
+
+Additional networks are comming including an upgrade Bluetooth mesh network where bluetooth itself can propapage requests
+through chained bluetooth networks until a peer with 1M5 running is located to complete requests on other networks.
+
 * Tor-Tor (TT): To avoid timing attacks when using Tor, use two Tor circuits in sequence with a 1M5 peer between them providing a random delay out and in.
 * I2P-Tor (IT): When desiring to access a web site and Tor is blocked, use I2P to a 1M5 user with Tor not blocked to make the request.
-* BTM-Tor (BT): When cellular access is not available and requesting a web site, use Bluetooth Mesh to a 1M5 user with Tor not blocked to make the request.
-* BTM-I2P (BI): When cellular access is not available and request a P2P message with a peer with I2P available but not Bluetooth Mesh available, use Bluetooth Mesh to get to a Peer with both I2P and Bluetooth Mesh available as a relay to the peer with I2P available but not Bluetooth Mesh.
-* I2P-Tor-BTC (ITBt): I2P to Bitcoin through a Tor relay.
-* I2P-Tor-Bisq (ITBq): I2P to Bisq through a Tor relay.
+* BT-Tor (BT): When cellular access is not available and requesting a web site, use Bluetooth to a 1M5 user with Tor not blocked to make the request.
+* BT-I2P (BI): When cellular access is not available and request a P2P message with a peer with I2P available but not Bluetooth available, use
+  Bluetooth to get to a Peer with both I2P and Bluetooth available as a relay to the peer with I2P available but not Bluetooth.
 
-| Route | Description  | Implemented | Tested | Production | Vulnerabilities |
-| :---: | :----------: | :---------: | :----: | :--------: | :-------------: |
-| TT    | Tor-Tor      |             |        |            |                 |
-| IT    | I2P-Tor      |             |        |            |                 |
-| BT    | BTM-Tor      |             |        |            |                 |
-| BI    | BTM-I2P      |             |        |            |                 |
-| ITBt  | I2P-Tor-BTC  |             |        |            |                 |
-| ITBq  | I2P-Tor-Bisq |             |        |            |                 |
+| Route |    Description    | Implemented | Tested | Production | Vulnerabilities |
+| :---: | :---------------: | :---------: | :----: | :--------: | :-------------: |
+| TT    | Tor-Tor           |             |        |            |                 |
+| IT    | I2P-Tor           |             |        |            |                 |
+| BT    | BT-Tor            |             |        |            |                 |
+| BI    | BT-I2P            |             |        |            |                 |
 
 ## Fund Raising
 
@@ -278,19 +293,25 @@ Resources
 * [Wiki](https://en.wikipedia.org/wiki/DNS_blocking)
 
 #### I2P
+Does not use DNS.
 
 #### TOR
-
+Does not use DNS.
 
 #### Bluetooth
+Does not use DNS.
 
 #### WiFi-Direct
+Does not use DNS.
 
 #### Full Spectrum Radio
+Does not use DNS.
 
-#### LiFi
+##### LiFi
+Does not use DNS.
 
 #### 1M5
+Does not use DNS.
 
 
 ### DNS Poisoning
@@ -301,19 +322,25 @@ Resources
 * [Wiki](https://en.wikipedia.org/wiki/DNS_spoofing)
 
 #### I2P
+Does not use DNS.
 
 #### TOR
+Does not use DNS.
 
 #### Bluetooth
+Does not use DNS.
 
 #### WiFi-Direct
+Does not use DNS.
 
 #### Full Spectrum Radio
+Does not use DNS.
 
 ##### LiFi
+Does not use DNS.
 
 #### 1M5
-
+Does not use DNS.
 
 ### Brute Force
 
@@ -328,7 +355,7 @@ appear as one 2kb message.
 
 A bruce force attacker can induce trends by sending an unusually large payload to an I2P destination while monitoring all
 network connections eliminating all nodes that didn't receive it. The cost to mount this kind of brute force attack on
-I2P would be very expensive so not a high priority.
+I2P would be very expensive so not a high priority. (Could be mitigated in a future release by limiting payload size within chunking.)
 
 Preventing a single router or group of routers from attempting to route all I2P traffic is ensured due to each router
 placing limits on the number of tunnels that can be routed by a single peer.
@@ -342,20 +369,31 @@ The very limited range of Bluetooth makes this impossible on a large scale.
 #### WiFi-Direct
 
 WiFi-Direct has a very limited range and few frequencies so it's not too difficult to brute force a local WiFi frequency.
+Globally it would be practically impossible.
 
 #### Full Spectrum Radio
 
-Attempting to listen to all frequencies in the full radio spectrum attempting correlation would be extremely difficult
-unless radio triangulation is successful. If the radio is kept mobile, this attack would be extremely difficult to pull off.
+Attempting to listen to all frequencies globally in the full radio spectrum attempting correlation is impossible due to
+limited ranges of lower powered sources, although locally it could be possible yet expensive.
+If the radio is kept mobile, this attack would be extremely difficult to pull off even locally.
+This network client is expected to use forms of frequency hopping and layered encryption making this even further unlikely
+to be possible.
 
 #### LiFi
+Brute force of a light fidelity would require direct line-of-sight of all entry and exit points of a network using LiFi.
+If this LiFi network is just a local one among a few peers, this would not be difficult unless encryption is used.
+1M5 will be using LiFi to connect people globally thus making brute force through this client impossible unless every
+LiFi mechanism secretly had a listener on it (added by manufacturer). With the use of layered E2EE (End-to-End Encryption),
+the ability to correlate the entire network will still be highly unlikely.
 
 #### 1M5
 
 The 1M5 network is slated to provide random delays across its nodes, extended persistent delays (e.g. up to months),
 and bandwidth throttling on streams to help combat this attack at the application layer. In addition, trying to
 brute force 1M5 users will be even more difficult as the ManCon lowers in value as multiple networks are used
-per request requiring watching all messages across all participating networks trying to correlate them all.
+per request requiring watching all messages across all participating networks trying to correlate them all. End-to-end
+enryption is used with every message between peers and these messages are wrapped by each network's encryption mechanism
+e.g. I2P, Tor, etc.
 
 
 ### Timing
@@ -381,8 +419,9 @@ Tor uses bidirectional channels so this is more likely successful than I2P and a
 #### LiFi
 
 #### 1M5
+Random delays can be added to any network relay providing a mitigation to any network used with 1M5.
 
-1M5 helps Tor by supporting random delays between 1M5 nodes so that if a user must use Tor and feels under threat, multiple
+For example, 1M5 helps Tor by supporting random delays between 1M5 nodes so that if a user must use Tor and feels under threat, multiple
 Tor circuits can be stringed together with random delays between them to make this practically impossible.
 
 ##### Web Sites
@@ -399,8 +438,8 @@ Alice <- Tor Guard <- Tor Relay <- Tor Exit <- HTML
 Alice [1M5 Tor Client] -> Tor Guard -> Tor Relay -> Bob[1M5 Tor Hidden Service to 1M5 Tor Client] -> Tor Guard -> Tor Relay -> Tor Exit -> https://duckduckgo.com/?q=tiananmen+square
 Alice [1M5 Tor Client] <- Tor Guard <- Tor Relay <- Bob[1M5 Tor Hidden Service from 1M5 Tor Client] <- Tor Guard <- Tor Relay <- Tor Exit <- HTML
                         |Time End-------------------------Random Delay (55ms)----------------------------------------------------Time Start| = 1055ms
-```          
- 
+```
+
 1M5 IT Solution when viewing a website:
 
 * Alice lives in repressive jurisdiction, Tor is blocked, and/or feels they're being targeted
@@ -409,18 +448,19 @@ Alice [1M5 Tor Client] <- Tor Guard <- Tor Relay <- Bob[1M5 Tor Hidden Service f
                                |Time Start A1---------------------------------------Random Delay (80ms)------------------------------------------------Time End A1| = 1080ms
                                                                                                                             |Time Start B1-------------Time End B1| = 500ms
 Alice [1M5 I2P Client (OBGW)] -> I2P OBP -> I2P OBEP -> I2P IBGW -> I2P IBP -> Bob[1M5 I2P Client (IBEP) to 1M5 Tor Client] -> Tor Guard -> Tor Relay -> Tor Exit -> https://duckduckgo.com/?q=tiananmen+square
-Alice [1M5 I2p Client (IBGW)] <- I2P IBP <- I2P IBGW <- I2P OBEP <- I2P OBP <- Bob[1M5 I2P Client (OBGW) from 1M5 Tor Client] <- Tor Guard <- Tor Relay <- Tor Exit <- HTML
+Alice [1M5 I2p Client (IBEP)] <- I2P IBP <- I2P IBGW <- I2P OBEP <- I2P OBP <- Bob[1M5 I2P Client (OBGW) from 1M5 Tor Client] <- Tor Guard <- Tor Relay <- Tor Exit <- HTML
                                                                                                                                |Time End B2-------------Time Start B2| = 500ms
                                |Time End A2-----------------------------------------Random Delay (120ms)------------------------------------------------Time Start A2| = 1120ms
-```                     
-                                                                                                                
-1M5 B(N)T Solution uses Bluetooth chains to get out to a node that has Tor access using it to fulfill the request returning the result back to the origination. This pushes timing attack out to the fulfilling Tor Client node.
+```
 
-Satellites, Full-Spectrum Radio, and LiFi can be used prior to Tor to get the same result.      
+1M5 B(N)T Solution uses Bluetooth chains to get out to a node that has Tor access using it to fulfill the request returning the result back to the origination.
+This pushes timing attack out to the fulfilling Tor Client node which can also be mitigated by chaining Tor circuits for maximum security.
+
+Satellites, Full-Spectrum Radio, and LiFi can be used prior to Tor to get the same result.
 
 ##### Peer-to-Peer
 
-                                                                                                                                                                              
+
 
 ### Intersection
 
