@@ -194,7 +194,9 @@ public class Daemon {
             bus.registerService(NotificationService.class.getName(), config);
             bus.registerService(DIDService.class.getName(), config);
             bus.registerService(KeyRingService.class.getName(), config);
-            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
+            bus.registerService(NetworkManagerService.class.getName(), config);
+            // TODO: Upgrade to CR Network Manager Service
+//            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
             bus.registerService(TORClientService.class.getName(), config);
             bus.registerService(I2PService.class.getName(), config);
             bus.registerService(BluetoothService.class.getName(), config);
