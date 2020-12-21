@@ -5,7 +5,7 @@
 
 	<groupId>onemfive</groupId>
 	<artifactId>platform</artifactId>
-	<version>0.6.5.252</version>
+	<version>0.6.5.253</version>
 
 	<packaging>jar</packaging>
 
@@ -44,67 +44,67 @@
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>common</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>service-bus</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>notification</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
 		<dependency>
-			<groupId>resolvingarchitecture</groupId>
+			<groupId>resolvingabrchitecture</groupId>
 			<artifactId>mail-drop</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>did</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>keyring</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>http-client</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>tor-client</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>i2p-client</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>bluetooth-client</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>wifidirect-client</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>gnuradio-client</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>lifi-client</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
@@ -114,7 +114,7 @@
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>press-freedom-index</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
         <!-- Derby DB -->
         <dependency>
