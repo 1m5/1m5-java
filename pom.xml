@@ -57,7 +57,7 @@
             <version>1.0.1</version>
         </dependency>
 		<dependency>
-			<groupId>resolvingabrchitecture</groupId>
+			<groupId>resolvingarchitecture</groupId>
 			<artifactId>mail-drop</artifactId>
 			<version>1.0.1</version>
 		</dependency>
