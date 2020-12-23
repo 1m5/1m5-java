@@ -6,7 +6,6 @@ import ra.common.service.ServiceNotAccessibleException;
 import ra.common.service.ServiceNotSupportedException;
 import ra.did.DIDService;
 import ra.gnuradio.GNURadioService;
-import ra.http.HTTPService;
 import ra.i2p.I2PService;
 import ra.keyring.KeyRingService;
 import ra.lifi.LiFiService;
@@ -191,6 +190,7 @@ public class Daemon {
 
         // Register supported services
         try {
+            bus.registerService(MailDropService.class.getName(), config);
             bus.registerService(NotificationService.class.getName(), config);
             bus.registerService(DIDService.class.getName(), config);
             bus.registerService(KeyRingService.class.getName(), config);
