@@ -1,4 +1,4 @@
-package onemfive;
+package onemfive.routing;
 
 import ra.common.network.Network;
 import ra.common.network.NetworkPeer;

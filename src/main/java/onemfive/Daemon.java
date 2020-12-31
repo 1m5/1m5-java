@@ -204,6 +204,7 @@ public class Daemon {
             bus.registerService(GNURadioService.class.getName(), config);
             bus.registerService(LiFiService.class.getName(), config);
             bus.registerService(PFIScraperService.class.getName(), config);
+
         } catch (ServiceNotAccessibleException e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);

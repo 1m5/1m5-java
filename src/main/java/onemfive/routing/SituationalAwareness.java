@@ -1,5 +1,6 @@
-package onemfive;
+package onemfive.routing;
 
+import onemfive.ManCon;
 import ra.common.network.Network;
 
 public class SituationalAwareness {

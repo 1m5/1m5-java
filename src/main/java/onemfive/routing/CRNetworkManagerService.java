@@ -1,5 +1,7 @@
-package onemfive;
+package onemfive.routing;
 
+import onemfive.ManCon;
+import onemfive.ManConStatus;
 import ra.bluetooth.BluetoothService;
 import ra.common.*;
 import ra.common.messaging.MessageProducer;
@@ -7,12 +9,9 @@ import ra.common.network.Network;
 import ra.common.network.NetworkPeer;
 import ra.common.network.NetworkState;
 import ra.common.network.NetworkStatus;
-import ra.common.route.ExternalRoute;
 import ra.common.route.Route;
 import ra.common.service.ServiceStatusObserver;
-import ra.i2p.I2PService;
 import ra.networkmanager.NetworkManagerService;
-import ra.networkmanager.PeerManager;
 import ra.tor.TORClientService;
 
 import java.net.URL;
