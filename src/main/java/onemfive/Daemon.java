@@ -1,11 +1,13 @@
 package onemfive;
 
 import ra.bluetooth.BluetoothService;
+import ra.btc.BitcoinService;
 import ra.common.Status;
 import ra.common.service.ServiceNotAccessibleException;
 import ra.common.service.ServiceNotSupportedException;
 import ra.did.DIDService;
 import ra.gnuradio.GNURadioService;
+import ra.http.HTTPService;
 import ra.i2p.I2PService;
 import ra.keyring.KeyRingService;
 import ra.lifi.LiFiService;
@@ -197,6 +199,7 @@ public class Daemon {
             bus.registerService(NetworkManagerService.class.getName(), config);
             // TODO: Upgrade to CR Network Manager Service
 //            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
+            bus.registerService(HTTPService.class.getName(), config);
             bus.registerService(TORClientService.class.getName(), config);
             bus.registerService(I2PService.class.getName(), config);
             bus.registerService(BluetoothService.class.getName(), config);
@@ -204,6 +207,7 @@ public class Daemon {
             bus.registerService(GNURadioService.class.getName(), config);
             bus.registerService(LiFiService.class.getName(), config);
             bus.registerService(PFIScraperService.class.getName(), config);
+            bus.registerService(BitcoinService.class.getName(), config);
 
         } catch (ServiceNotAccessibleException e) {
             LOG.severe(e.getLocalizedMessage());
@@ -220,11 +224,14 @@ public class Daemon {
         bus.startService(NetworkManagerService.class.getName());
 
         // Start available services
-//        bus.startService(HTTPService.class.getName());
+        bus.startService(HTTPService.class.getName());
 //        bus.startService(TORClientService.class.getName());
 //        bus.startService(I2PService.class.getName());
 //        bus.startService(BluetoothService.class.getName());
 //        bus.startService(PFIScraperService.class.getName());
+
+        Wait.aSec(3);
+        bus.startService(BitcoinService.class.getName());
 
         status = Status.Running;
 

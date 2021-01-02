@@ -5,7 +5,7 @@
 
 	<groupId>onemfive</groupId>
 	<artifactId>platform</artifactId>
-	<version>0.6.5.254-RELEASE</version>
+	<version>0.6.6.1</version>
 
 	<packaging>jar</packaging>
 
@@ -116,11 +116,18 @@
             <artifactId>press-freedom-index</artifactId>
             <version>1.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>resolvingarchitecture</groupId>
+            <artifactId>btc</artifactId>
+            <version>0.2.1</version>
+        </dependency>
+
 <!--        <dependency>-->
 <!--            <groupId>resolvingarchitecture</groupId>-->
 <!--            <artifactId>wallet</artifactId>-->
 <!--            <version>0.0.1</version>-->
 <!--        </dependency>-->
+
         <!-- Derby DB -->
         <dependency>
             <groupId>org.apache.derby</groupId>
