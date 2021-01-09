@@ -240,16 +240,15 @@ Bluetooth Mesh is the highest possible ManCon (but not currently the Max Availab
 | WiFi Client            |            |       |           |          |
 | FS Radio Client        |            |       |           |          |
 | LiFi Client            |            |       |           |          |
-| Bitcoin Client         |            |       |           | N/A      |
-| Lightning Client       |            |       |           |          |
-| Bisq Client            |            |       |           | N/A      |
+| Bitcoin Client         | Y          |       |           | N/A      | P2P and Discovery means Bitcoin can use 1M5 inter-node
+| Monero Client          |            |       |           | N/A      | P2P and Discovery means Monero can use 1M5 inter-node
 
 ## Relay Routing
 Relays are used to route to networked peers when a requested network is unavailable yet other networks are. For example,
 trying to use a browser to view a site using Tor and the local client is unable to connect to the Tor network yet can
 connect to I2P, I2P will be used to relay the request to another peer who has access to the Tor network. This also goes
 for Bluetooth. If a client no longer has access to the internet, e.g. forgot to pay the bill, and thus unable to view
-that web page using Tor as no internet connection is not available, and another peer with 1M5 is running within bluetooth range,
+that web page using Tor as no internet connection is available, and another peer with 1M5 is running within bluetooth range,
 has access to the internet via Tor, and both the client and peer have bluetooth enabled, the client's 1M5 instance will
 send the Tor request to the nearby peer using Bluetooth and that peer will make the Tor request for the resource returning
 the result back to the originating peer (client).
@@ -260,7 +259,7 @@ by pointing your bitcoin wallet to the local 1M5 OS service, 1M5 will use I2P to
 that node to make the Tor request to the specified Bitcoin node. If cellular access is not available yet a local 1M5 peer
 has both Bluetooth available and Tor/I2P access, that peer will be used through bluetooth to make the request.
 
-Additional networks are comming including an upgrade Bluetooth mesh network where bluetooth itself can propapage requests
+Additional networks are coming including an upgrade Bluetooth mesh network where bluetooth itself can propagate requests
 through chained bluetooth networks until a peer with 1M5 running is located to complete requests on other networks.
 
 * Tor-Tor (TT): To avoid timing attacks when using Tor, use two Tor circuits in sequence with a 1M5 peer between them providing a random delay out and in.
