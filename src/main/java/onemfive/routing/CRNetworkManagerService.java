@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  *
  * LOW:
  *   Web: I2P for .i2p addresses and Tor for the rest; if not response consider the site down
- *   P2P: I2P, Tor as Tunnel when I2P blocked, non-internet escalation (Bluetooth, WiFi, Satellite, FS Radio, ECCM, LiFi)
+ *   P2P: I2P, Tor as Tunnel when local I2P blocked, non-internet escalation (Bluetooth, WiFi, Satellite, FS Radio, ECCM, LiFi)
  * MEDIUM:
  *   Web: Same as LOW except use peers to assist if no response
  *   P2P: Same as LOW
@@ -85,13 +85,13 @@ public final class CRNetworkManagerService extends NetworkManagerService {
         // Maximum ManCon supported
 
         // In General:
-        // 1. If I'm being blocked on Tor, use I2P.
-        // 2. If I'm being blocked on I2P, use Tor.
-        // 3. If I'm being blocked on both Tor and I2P or the local cell tower is down, use Bluetooth Mesh.
-        // 4. If I'm being blocked on both Tor and I2P or the local cell tower is down, and the peer I'm trying to reach is currently accessible via Bluetooth Mesh, use Bluetooth Mesh to connect to a Peer that is able to connect to the peer desired using Tor/I2P.
-        // 5. If Bluetooth Mesh is not available but WiFi-Direct is, use it instead.
-        // 6. If Bluetooth and/or WiFi-Direct are not available (e.g. being locally jammed), and a LiFi receiver is available, use it to get out.
-        // 7. If no LiFi receiver is available, use Full-Spectrum Radio to attempt to reach a 1M5 node with Full-Spectrum Radio active.
+        // 1. If I'm being blocked on Tor, use I2P to get to a peer with Tor not blocked.
+        // 2. If I'm being blocked on I2P, use Tor to get to a peer with I2P not blocked.
+        // 3. If I'm being blocked on both Tor and I2P or the local cell tower is down, use Bluetooth Mesh to get to a peer with Tor/I2P to reach destination.
+        // 4. If Bluetooth Mesh is not available but WiFi-Direct is, use it instead.
+        // 5. If Bluetooth and/or WiFi-Direct are not available (e.g. both off or being locally jammed), and a LiFi receiver is available, use it to get out.
+        // 6. If no LiFi receiver is available, use Full-Spectrum Radio to attempt to reach a 1M5 node with Full-Spectrum Radio active.
+        // 7. If no available options exist, prompt user to determine if message should be persisted. If so, persist and try again at a later time otherwise erase it.
 
         SituationalAwareness sitAware = new SituationalAwareness();
         Route r = envelope.getDynamicRoutingSlip().peekAtNextRoute();
