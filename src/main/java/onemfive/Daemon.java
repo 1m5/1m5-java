@@ -224,7 +224,7 @@ public class Daemon {
         bus.startService(NetworkManagerService.class.getName());
 
         // Start available services
-        bus.startService(HTTPService.class.getName());
+        bus.startService(HTTPService.class.getName()); // for localhost
 //        bus.startService(TORClientService.class.getName());
 //        bus.startService(I2PService.class.getName());
 //        bus.startService(BluetoothService.class.getName());
