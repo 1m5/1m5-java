@@ -228,7 +228,6 @@ public class Daemon {
 //        bus.startService(TORClientService.class.getName());
 //        bus.startService(I2PService.class.getName());
 //        bus.startService(BluetoothService.class.getName());
-//        bus.startService(PFIScraperService.class.getName());
 
         Wait.aSec(3);
         bus.startService(BitcoinService.class.getName());
