@@ -6,22 +6,22 @@ import ra.common.Status;
 import ra.common.service.ServiceNotAccessibleException;
 import ra.common.service.ServiceNotSupportedException;
 import ra.did.DIDService;
-import ra.gnuradio.GNURadioService;
+//import ra.gnuradio.GNURadioService;
 import ra.http.HTTPService;
 import ra.i2p.I2PService;
 import ra.keyring.KeyRingService;
-import ra.lifi.LiFiService;
-import ra.maildrop.MailDropService;
+//import ra.lifi.LiFiService;
+//import ra.maildrop.MailDropService;
 import ra.networkmanager.NetworkManagerService;
 import ra.notification.NotificationService;
-import ra.pressfreedomindex.PFIScraperService;
+//import ra.pressfreedomindex.PFIScraperService;
 import ra.servicebus.ServiceBus;
 import ra.tor.TORClientService;
 import ra.util.Config;
 import ra.util.SecureFile;
 import ra.util.SystemSettings;
 import ra.util.Wait;
-import ra.wifidirect.WiFiDirectNetwork;
+//import ra.wifidirect.WiFiDirectNetwork;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -192,10 +192,11 @@ public class Daemon {
 
         // Register supported services
         try {
-            bus.registerService(MailDropService.class.getName(), config);
+            // Core Services
             bus.registerService(NotificationService.class.getName(), config);
             bus.registerService(DIDService.class.getName(), config);
             bus.registerService(KeyRingService.class.getName(), config);
+            // Networking Services
             bus.registerService(NetworkManagerService.class.getName(), config);
             // TODO: Upgrade to CR Network Manager Service
 //            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
@@ -203,12 +204,13 @@ public class Daemon {
             bus.registerService(TORClientService.class.getName(), config);
             bus.registerService(I2PService.class.getName(), config);
             bus.registerService(BluetoothService.class.getName(), config);
-            bus.registerService(WiFiDirectNetwork.class.getName(), config);
-            bus.registerService(GNURadioService.class.getName(), config);
-            bus.registerService(LiFiService.class.getName(), config);
-            bus.registerService(PFIScraperService.class.getName(), config);
+//            bus.registerService(WiFiDirectNetwork.class.getName(), config);
+//            bus.registerService(GNURadioService.class.getName(), config);
+//            bus.registerService(LiFiService.class.getName(), config);
+            // Additional Services
+//            bus.registerService(PFIScraperService.class.getName(), config);
             bus.registerService(BitcoinService.class.getName(), config);
-
+//            bus.registerService(MailDropService.class.getName(), config);
         } catch (ServiceNotAccessibleException e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
@@ -222,13 +224,12 @@ public class Daemon {
         bus.startService(DIDService.class.getName());
         bus.startService(KeyRingService.class.getName());
         bus.startService(NetworkManagerService.class.getName());
-
-        // Start available services
         bus.startService(HTTPService.class.getName()); // for localhost
 //        bus.startService(TORClientService.class.getName());
 //        bus.startService(I2PService.class.getName());
 //        bus.startService(BluetoothService.class.getName());
 
+        // Start available services
         Wait.aSec(3);
         bus.startService(BitcoinService.class.getName());
 
