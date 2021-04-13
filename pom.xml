@@ -5,7 +5,7 @@
 
 	<groupId>onemfive</groupId>
 	<artifactId>platform</artifactId>
-	<version>0.6.6.2</version>
+	<version>0.6.6.5</version>
 
 	<packaging>jar</packaging>
 
@@ -44,47 +44,47 @@
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>common</artifactId>
-			<version>1.0.4</version>
+			<version>1.0.5</version>
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>service-bus</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
         </dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>notification</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
         </dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>keyring</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
         </dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>did</artifactId>
-			<version>1.0.4</version>
+			<version>1.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>http-client</artifactId>
-			<version>1.0.3</version>
+			<version>1.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>tor-client</artifactId>
-			<version>1.0.4</version>
+			<version>1.0.5</version>
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>i2p-client</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
         </dependency>
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>bluetooth-client</artifactId>
-			<version>1.0.4</version>
+			<version>1.0.5</version>
 		</dependency>
 <!--        <dependency>-->
 <!--            <groupId>resolvingarchitecture</groupId>-->
@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>network-manager</artifactId>
-			<version>1.0.4</version>
+			<version>1.0.5</version>
 		</dependency>
 <!--        <dependency>-->
 <!--            <groupId>resolvingarchitecture</groupId>-->
@@ -114,7 +114,7 @@
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>btc</artifactId>
-            <version>0.2.59</version>
+            <version>0.2.60</version>
         </dependency>
 <!--		<dependency>-->
 <!--			<groupId>resolvingarchitecture</groupId>-->
