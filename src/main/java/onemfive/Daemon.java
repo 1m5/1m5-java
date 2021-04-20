@@ -12,6 +12,7 @@ import ra.i2p.I2PService;
 import ra.keyring.KeyRingService;
 //import ra.lifi.LiFiService;
 //import ra.maildrop.MailDropService;
+import ra.maildrop.MailDropService;
 import ra.networkmanager.NetworkManagerService;
 import ra.notification.NotificationService;
 //import ra.pressfreedomindex.PFIScraperService;
@@ -193,6 +194,7 @@ public class Daemon {
         // Register supported services
         try {
             // Core Services
+            bus.registerService(MailDropService.class.getName(), config);
             bus.registerService(NotificationService.class.getName(), config);
             bus.registerService(DIDService.class.getName(), config);
             bus.registerService(KeyRingService.class.getName(), config);
@@ -210,7 +212,6 @@ public class Daemon {
             // Additional Services
 //            bus.registerService(PFIScraperService.class.getName(), config);
             bus.registerService(BitcoinService.class.getName(), config);
-//            bus.registerService(MailDropService.class.getName(), config);
         } catch (ServiceNotAccessibleException e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
@@ -220,6 +221,7 @@ public class Daemon {
         }
 
         // Start infrastructure services
+        bus.startService(MailDropService.class.getName());
         bus.startService(NotificationService.class.getName());
         bus.startService(DIDService.class.getName());
         bus.startService(KeyRingService.class.getName());
