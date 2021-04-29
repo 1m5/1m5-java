@@ -1,5 +1,6 @@
 package onemfive;
 
+import ra.bisq.BisqClientService;
 import ra.bluetooth.BluetoothService;
 import ra.btc.BitcoinService;
 import ra.common.Status;
@@ -211,7 +212,8 @@ public class Daemon {
 //            bus.registerService(LiFiService.class.getName(), config);
             // Additional Services
 //            bus.registerService(PFIScraperService.class.getName(), config);
-            bus.registerService(BitcoinService.class.getName(), config);
+//            bus.registerService(BitcoinService.class.getName(), config);
+            bus.registerService(BisqClientService.class.getName(), config);
         } catch (ServiceNotAccessibleException e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
@@ -233,7 +235,8 @@ public class Daemon {
 
         // Start available services
         Wait.aSec(3);
-        bus.startService(BitcoinService.class.getName());
+//        bus.startService(BitcoinService.class.getName());
+        bus.startService(BisqClientService.class.getName());
 
         status = Status.Running;
 
