@@ -1,8 +1,19 @@
 package onemfive;
 
-import ra.bisq.BisqClientService;
+//import ra.bisq.BisqClientService;
 import ra.bluetooth.BluetoothService;
 import ra.btc.BitcoinService;
+import ra.btc.RPCCommand;
+import ra.btc.rpc.RPCResponse;
+import ra.btc.rpc.blockchain.GetBlockCount;
+import ra.btc.rpc.blockchain.GetBlockchainInfo;
+import ra.btc.rpc.control.Uptime;
+import ra.btc.rpc.mining.GetNetworkHashPS;
+import ra.btc.rpc.network.GetNetworkInfo;
+import ra.btc.rpc.network.GetPeerInfo;
+import ra.btc.rpc.util.EstimateSmartFee;
+import ra.btc.rpc.wallet.*;
+import ra.common.Envelope;
 import ra.common.Status;
 import ra.common.service.ServiceNotAccessibleException;
 import ra.common.service.ServiceNotSupportedException;
@@ -212,8 +223,8 @@ public class Daemon {
 //            bus.registerService(LiFiService.class.getName(), config);
             // Additional Services
 //            bus.registerService(PFIScraperService.class.getName(), config);
-//            bus.registerService(BitcoinService.class.getName(), config);
-            bus.registerService(BisqClientService.class.getName(), config);
+            bus.registerService(BitcoinService.class.getName(), config);
+//            bus.registerService(BisqClientService.class.getName(), config);
         } catch (ServiceNotAccessibleException e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
@@ -235,8 +246,31 @@ public class Daemon {
 
         // Start available services
         Wait.aSec(3);
-//        bus.startService(BitcoinService.class.getName());
-        bus.startService(BisqClientService.class.getName());
+        bus.startService(BitcoinService.class.getName());
+//        bus.startService(BisqClientService.class.getName());
+
+        Envelope e = Envelope.documentFactory();
+        e.addRoute(BitcoinService.class.getName(), BitcoinService.OPERATION_RPC_REQUEST);
+        // Send to establish initial info
+//        e.addNVP(RPCCommand.NAME, new GetBlockchainInfo());
+//        e.addNVP(RPCCommand.NAME, new Uptime());
+//        e.addNVP(RPCCommand.NAME, new GetNetworkHashPS());
+//        e.addNVP(RPCCommand.NAME, new ListWallets());
+//        e.addNVP(RPCCommand.NAME, new EstimateSmartFee(3));
+//        e.addNVP(RPCCommand.NAME, new GetBlockCount());
+//        e.addNVP(RPCCommand.NAME, new GetNewAddress());
+//        e.addNVP(RPCCommand.NAME, new CreateWallet("Personal","1234"));
+//        e.addNVP(RPCCommand.NAME, new LoadWallet("Personal"));
+//        e.addNVP(RPCCommand.NAME, new UnloadWallet("Personal"));
+        e.addNVP(RPCCommand.NAME, new GetWalletInfo());
+//        e.addNVP(RPCCommand.NAME, new GetBalance());
+
+//        e.addNVP(RPCCommand.NAME, new GetPeerInfo());
+//        e.addNVP(RPCCommand.NAME, new GetNetworkInfo());
+
+        bus.send(e);
+
+        LOG.info(((RPCResponse)e.getValue(RPCCommand.RESPONSE)).toJSON());
 
         status = Status.Running;
 

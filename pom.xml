@@ -119,12 +119,7 @@
         <dependency>
             <groupId>resolvingarchitecture</groupId>
             <artifactId>btc</artifactId>
-            <version>0.2.61</version>
-        </dependency>
-        <dependency>
-            <groupId>resolvingarchitecture</groupId>
-            <artifactId>bisq-client</artifactId>
-            <version>1.6.2.1</version>
+            <version>0.2.63</version>
         </dependency>
 
         <!-- Derby DB -->
