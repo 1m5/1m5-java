@@ -249,8 +249,8 @@ public class Daemon {
         bus.startService(BitcoinService.class.getName());
 //        bus.startService(BisqClientService.class.getName());
 
-        Envelope e = Envelope.documentFactory();
-        e.addRoute(BitcoinService.class.getName(), BitcoinService.OPERATION_RPC_REQUEST);
+//        Envelope e = Envelope.documentFactory();
+//        e.addRoute(BitcoinService.class.getName(), BitcoinService.OPERATION_RPC_REQUEST);
         // Send to establish initial info
 //        e.addNVP(RPCCommand.NAME, new GetBlockchainInfo());
 //        e.addNVP(RPCCommand.NAME, new Uptime());
@@ -262,15 +262,15 @@ public class Daemon {
 //        e.addNVP(RPCCommand.NAME, new CreateWallet("Personal","1234"));
 //        e.addNVP(RPCCommand.NAME, new LoadWallet("Personal"));
 //        e.addNVP(RPCCommand.NAME, new UnloadWallet("Personal"));
-        e.addNVP(RPCCommand.NAME, new GetWalletInfo());
+//        e.addNVP(RPCCommand.NAME, new GetWalletInfo());
 //        e.addNVP(RPCCommand.NAME, new GetBalance());
 
 //        e.addNVP(RPCCommand.NAME, new GetPeerInfo());
 //        e.addNVP(RPCCommand.NAME, new GetNetworkInfo());
 
-        bus.send(e);
+//        bus.send(e);
 
-        LOG.info(((RPCResponse)e.getValue(RPCCommand.RESPONSE)).toJSON());
+//        LOG.info(((RPCResponse)e.getValue(RPCCommand.RESPONSE)).toJSON());
 
         status = Status.Running;
 
