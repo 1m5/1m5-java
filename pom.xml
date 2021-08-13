@@ -5,7 +5,7 @@
 
 	<groupId>onemfive</groupId>
 	<artifactId>platform</artifactId>
-	<version>0.6.6.9</version>
+	<version>0.6.6.10</version>
 
 	<packaging>jar</packaging>
 
@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>common</artifactId>
-			<version>1.0.7</version>
+			<version>1.0.8</version>
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
