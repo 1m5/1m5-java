@@ -121,6 +121,11 @@
             <artifactId>btc</artifactId>
             <version>0.2.63</version>
         </dependency>
+        <dependency>
+            <groupId>resolvingarchitecture</groupId>
+            <artifactId>dex</artifactId>
+            <version>0.1.1</version>
+        </dependency>
 
         <!-- Derby DB -->
         <dependency>

@@ -17,6 +17,7 @@ import ra.common.Envelope;
 import ra.common.Status;
 import ra.common.service.ServiceNotAccessibleException;
 import ra.common.service.ServiceNotSupportedException;
+import ra.dex.DEXService;
 import ra.did.DIDService;
 //import ra.gnuradio.GNURadioService;
 import ra.http.HTTPService;
@@ -224,7 +225,7 @@ public class Daemon {
             // Additional Services
 //            bus.registerService(PFIScraperService.class.getName(), config);
             bus.registerService(BitcoinService.class.getName(), config);
-//            bus.registerService(BisqClientService.class.getName(), config);
+            bus.registerService(DEXService.class.getName(), config);
         } catch (ServiceNotAccessibleException e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
@@ -247,7 +248,7 @@ public class Daemon {
         // Start available services
         Wait.aSec(3);
         bus.startService(BitcoinService.class.getName());
-//        bus.startService(BisqClientService.class.getName());
+        bus.startService(DEXService.class.getName());
 
 //        Envelope e = Envelope.documentFactory();
 //        e.addRoute(BitcoinService.class.getName(), BitcoinService.OPERATION_RPC_REQUEST);
