@@ -2,8 +2,8 @@ package onemfive.routing;
 
 import org.neo4j.graphdb.RelationshipType;
 import ra.common.JSONSerializable;
-import ra.util.JSONParser;
-import ra.util.JSONPretty;
+import ra.common.JSONParser;
+import ra.common.JSONPretty;
 
 import java.util.HashMap;
 import java.util.LinkedList;

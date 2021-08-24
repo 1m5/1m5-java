@@ -21,7 +21,7 @@ import ra.dex.DEXService;
 import ra.did.DIDService;
 //import ra.gnuradio.GNURadioService;
 import ra.http.HTTPService;
-import ra.i2p.I2PService;
+import ra.i2p.embedded.I2PEmbeddedService;
 import ra.keyring.KeyRingService;
 //import ra.lifi.LiFiService;
 //import ra.maildrop.MailDropService;
@@ -31,10 +31,10 @@ import ra.notification.NotificationService;
 //import ra.pressfreedomindex.PFIScraperService;
 import ra.servicebus.ServiceBus;
 import ra.tor.TORClientService;
-import ra.util.Config;
-import ra.util.SecureFile;
-import ra.util.SystemSettings;
-import ra.util.Wait;
+import ra.common.Config;
+import ra.common.SecureFile;
+import ra.common.SystemSettings;
+import ra.common.Wait;
 //import ra.wifidirect.WiFiDirectNetwork;
 
 import java.io.File;
@@ -217,7 +217,7 @@ public class Daemon {
 //            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
             bus.registerService(HTTPService.class.getName(), config);
             bus.registerService(TORClientService.class.getName(), config);
-            bus.registerService(I2PService.class.getName(), config);
+            bus.registerService(I2PEmbeddedService.class.getName(), config);
             bus.registerService(BluetoothService.class.getName(), config);
 //            bus.registerService(WiFiDirectNetwork.class.getName(), config);
 //            bus.registerService(GNURadioService.class.getName(), config);
@@ -242,7 +242,7 @@ public class Daemon {
         bus.startService(NetworkManagerService.class.getName());
         bus.startService(HTTPService.class.getName()); // for localhost
 //        bus.startService(TORClientService.class.getName());
-//        bus.startService(I2PService.class.getName());
+//        bus.startService(I2PEmbeddedService.class.getName());
 //        bus.startService(BluetoothService.class.getName());
 
         // Start available services

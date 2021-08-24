@@ -10,7 +10,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import ra.common.network.Network;
 import ra.common.network.NetworkPeer;
-import ra.util.FileUtil;
+import ra.common.FileUtil;
 
 import java.io.File;
 import java.util.*;
