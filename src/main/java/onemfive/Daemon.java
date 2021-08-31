@@ -216,9 +216,9 @@ public class Daemon {
             // TODO: Upgrade to CR Network Manager Service
 //            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
             bus.registerService(HTTPService.class.getName(), config);
-            bus.registerService(TORClientService.class.getName(), config);
+//            bus.registerService(TORClientService.class.getName(), config);
             bus.registerService(I2PEmbeddedService.class.getName(), config);
-            bus.registerService(BluetoothService.class.getName(), config);
+//            bus.registerService(BluetoothService.class.getName(), config);
 //            bus.registerService(WiFiDirectNetwork.class.getName(), config);
 //            bus.registerService(GNURadioService.class.getName(), config);
 //            bus.registerService(LiFiService.class.getName(), config);
@@ -242,7 +242,7 @@ public class Daemon {
         bus.startService(NetworkManagerService.class.getName());
         bus.startService(HTTPService.class.getName()); // for localhost
 //        bus.startService(TORClientService.class.getName());
-//        bus.startService(I2PEmbeddedService.class.getName());
+        bus.startService(I2PEmbeddedService.class.getName());
 //        bus.startService(BluetoothService.class.getName());
 
         // Start available services
