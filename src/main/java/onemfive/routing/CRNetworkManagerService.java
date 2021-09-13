@@ -347,10 +347,10 @@ public final class CRNetworkManagerService extends NetworkManagerService {
 //            return WiFiService.class.getName();
 //        else if(isNetworkReady(Network.Satellite))
 //            return SatelliteService.class.getName();
-//        else if(isNetworkReady(Network.FSRadio))
-//            return FullSpectrumRadioService.class.getName();
 //        else if(isNetworkReady(Network.LiFi))
 //            return LiFiService.class.getName();
+//        else if(isNetworkReady(Network.FSRadio))
+//            return FullSpectrumRadioService.class.getName();
         return null;
     }
 
