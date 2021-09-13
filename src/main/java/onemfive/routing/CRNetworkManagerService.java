@@ -12,6 +12,7 @@ import ra.common.network.NetworkStatus;
 import ra.common.route.Route;
 import ra.common.service.ServiceStatusObserver;
 import ra.networkmanager.NetworkManagerService;
+import ra.networkmanager.PeerDB;
 import ra.tor.TORClientService;
 
 import java.net.URL;
@@ -52,8 +53,6 @@ public final class CRNetworkManagerService extends NetworkManagerService {
 
     private static Logger LOG = Logger.getLogger(CRNetworkManagerService.class.getName());
 
-    private final CRPeerManager crPeerManager;
-
     private Long manCon0TestLastSucceeded = 0L; // NEO
     private Long manCon1TestLastSucceeded = 0L; // Extreme
     private Long manCon2TestLastSucceeded = 0L; // Very High
@@ -63,13 +62,14 @@ public final class CRNetworkManagerService extends NetworkManagerService {
 
     public CRNetworkManagerService() {
         super();
-        this.crPeerManager = new CRPeerManager();
-        super.peerManager = this.crPeerManager;
     }
 
     public CRNetworkManagerService(MessageProducer producer, ServiceStatusObserver observer) {
-        super(producer, observer, new CRPeerManager());
-        this.crPeerManager = (CRPeerManager)super.peerManager;
+        super(producer, observer);
+    }
+
+    public CRNetworkManagerService(MessageProducer producer, ServiceStatusObserver observer, PeerDB peerDB) {
+        super(producer, observer, peerDB);
     }
 
     @Override
@@ -142,7 +142,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                         }
                                     } else {
                                         // Found a relay peer; add as external route
-                                        String relayService = networkService(relayNetwork);
+                                        String relayService = getNetworkServiceFromNetwork(relayNetwork);
                                         LOG.info("Found Relay Service to meet Min/Max ManCon: "+relayService);
                                         envelope.addExternalRoute(relayService,
                                                 "SEND",
@@ -153,7 +153,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                 }
                             } else if(isNetworkReady(sitAware.desiredNetwork)) {
                                 // I2P is ready yet they didn't request I2P - must be requesting a relay
-                                String relayService = networkService(sitAware.desiredNetwork);
+                                String relayService = getNetworkServiceFromNetwork(sitAware.desiredNetwork);
                                 NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.I2P);
                                 LOG.info("Found Relay Peer for desired relay Network: "+sitAware.desiredNetwork.name()+" to peer with I2P connected.");
                                 envelope.addExternalRoute(relayService,
@@ -274,48 +274,48 @@ public final class CRNetworkManagerService extends NetworkManagerService {
 
     protected NetworkPeer peerByFirstAvailableNonInternetNetwork() {
         if(getNetworkStatus(Network.Bluetooth)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithInternetAccessAvailable(Network.Bluetooth)!=null)
-            return crPeerManager.peerWithInternetAccessAvailable(Network.Bluetooth);
+                && peerDB.peerWithInternetAccessAvailable(Network.Bluetooth)!=null)
+            return peerDB.peerWithInternetAccessAvailable(Network.Bluetooth);
         else if(getNetworkStatus(Network.WiFi)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithInternetAccessAvailable(Network.WiFi)!=null)
-            return crPeerManager.peerWithInternetAccessAvailable(Network.WiFi);
+                && peerDB.peerWithInternetAccessAvailable(Network.WiFi)!=null)
+            return peerDB.peerWithInternetAccessAvailable(Network.WiFi);
         else if(getNetworkStatus(Network.Satellite)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithInternetAccessAvailable(Network.Satellite)!=null)
-            return crPeerManager.peerWithInternetAccessAvailable(Network.Satellite);
+                && peerDB.peerWithInternetAccessAvailable(Network.Satellite)!=null)
+            return peerDB.peerWithInternetAccessAvailable(Network.Satellite);
         else if(getNetworkStatus(Network.FSRadio)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithInternetAccessAvailable(Network.FSRadio)!=null)
-            return crPeerManager.peerWithInternetAccessAvailable(Network.FSRadio);
+                && peerDB.peerWithInternetAccessAvailable(Network.FSRadio)!=null)
+            return peerDB.peerWithInternetAccessAvailable(Network.FSRadio);
         else if(getNetworkStatus(Network.LiFi)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithInternetAccessAvailable(Network.LiFi)!=null)
-            return crPeerManager.peerWithInternetAccessAvailable(Network.LiFi);
+                && peerDB.peerWithInternetAccessAvailable(Network.LiFi)!=null)
+            return peerDB.peerWithInternetAccessAvailable(Network.LiFi);
         else
             return null;
     }
 
     protected NetworkPeer peerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(Network networkPeerAccessibleThrough, Network availableNetworkWithinPeer) {
         if(getNetworkStatus(Network.Bluetooth)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithSpecificNetworkAvailable(Network.Bluetooth, availableNetworkWithinPeer)!=null)
-            return crPeerManager.peerWithSpecificNetworkAvailable(Network.Bluetooth, availableNetworkWithinPeer);
+                && peerDB.peerWithSpecificNetworkAvailable(Network.Bluetooth, availableNetworkWithinPeer)!=null)
+            return peerDB.peerWithSpecificNetworkAvailable(Network.Bluetooth, availableNetworkWithinPeer);
         else if(getNetworkStatus(Network.WiFi)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithSpecificNetworkAvailable(Network.WiFi, availableNetworkWithinPeer)!=null)
-            return crPeerManager.peerWithSpecificNetworkAvailable(Network.WiFi, availableNetworkWithinPeer);
+                && peerDB.peerWithSpecificNetworkAvailable(Network.WiFi, availableNetworkWithinPeer)!=null)
+            return peerDB.peerWithSpecificNetworkAvailable(Network.WiFi, availableNetworkWithinPeer);
         else if(getNetworkStatus(Network.Satellite)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithSpecificNetworkAvailable(Network.Satellite, availableNetworkWithinPeer)!=null)
-            return crPeerManager.peerWithSpecificNetworkAvailable(Network.Satellite, availableNetworkWithinPeer);
+                && peerDB.peerWithSpecificNetworkAvailable(Network.Satellite, availableNetworkWithinPeer)!=null)
+            return peerDB.peerWithSpecificNetworkAvailable(Network.Satellite, availableNetworkWithinPeer);
         else if(getNetworkStatus(Network.FSRadio)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithSpecificNetworkAvailable(Network.FSRadio, availableNetworkWithinPeer)!=null)
-            return crPeerManager.peerWithSpecificNetworkAvailable(Network.FSRadio, availableNetworkWithinPeer);
+                && peerDB.peerWithSpecificNetworkAvailable(Network.FSRadio, availableNetworkWithinPeer)!=null)
+            return peerDB.peerWithSpecificNetworkAvailable(Network.FSRadio, availableNetworkWithinPeer);
         else if(getNetworkStatus(Network.LiFi)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithSpecificNetworkAvailable(Network.LiFi, availableNetworkWithinPeer)!=null)
-            return crPeerManager.peerWithSpecificNetworkAvailable(Network.LiFi, availableNetworkWithinPeer);
+                && peerDB.peerWithSpecificNetworkAvailable(Network.LiFi, availableNetworkWithinPeer)!=null)
+            return peerDB.peerWithSpecificNetworkAvailable(Network.LiFi, availableNetworkWithinPeer);
         else
             return null;
     }
 
     protected NetworkPeer peerWithAvailabilityOfSpecifiedNetwork(Network networkPeerAccessibleThrough, Network availableNetworkWithinPeer) {
         if(getNetworkStatus(networkPeerAccessibleThrough)==NetworkStatus.CONNECTED
-                && crPeerManager.peerWithSpecificNetworkAvailable(networkPeerAccessibleThrough, availableNetworkWithinPeer)!=null) {
-            return crPeerManager.peerWithSpecificNetworkAvailable(networkPeerAccessibleThrough, availableNetworkWithinPeer);
+                && peerDB.peerWithSpecificNetworkAvailable(networkPeerAccessibleThrough, availableNetworkWithinPeer)!=null) {
+            return peerDB.peerWithSpecificNetworkAvailable(networkPeerAccessibleThrough, availableNetworkWithinPeer);
         }
         return null;
     }
