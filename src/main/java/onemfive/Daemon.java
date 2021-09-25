@@ -7,7 +7,7 @@ import ra.common.service.ServiceNotSupportedException;
 import ra.dex.DEXService;
 import ra.did.DIDService;
 import ra.http.HTTPService;
-import ra.i2p.embedded.I2PEmbeddedService;
+import ra.i2p.I2PService;
 import ra.keyring.KeyRingService;
 import ra.maildrop.MailDropService;
 import ra.networkmanager.NetworkManagerService;
@@ -198,7 +198,7 @@ public class Daemon {
 //            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
             bus.registerService(HTTPService.class.getName(), config);
 //            bus.registerService(TORClientService.class.getName(), config);
-            bus.registerService(I2PEmbeddedService.class.getName(), config);
+            bus.registerService(I2PService.class.getName(), config);
 //            bus.registerService(BluetoothService.class.getName(), config);
 //            bus.registerService(WiFiDirectNetwork.class.getName(), config);
 //            bus.registerService(GNURadioService.class.getName(), config);
@@ -223,7 +223,7 @@ public class Daemon {
         bus.startService(NetworkManagerService.class.getName());
         bus.startService(HTTPService.class.getName()); // for localhost
 //        bus.startService(TORClientService.class.getName());
-        bus.startService(I2PEmbeddedService.class.getName());
+        bus.startService(I2PService.class.getName());
 //        bus.startService(BluetoothService.class.getName());
 
         // Start available services
