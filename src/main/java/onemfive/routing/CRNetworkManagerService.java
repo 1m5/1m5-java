@@ -272,6 +272,12 @@ public final class CRNetworkManagerService extends NetworkManagerService {
         return producer.send(envelope);
     }
 
+    @Override
+    protected Network selectNetwork(NetworkPeer np, Network preferredNetwork) {
+
+        return Network.I2P;
+    }
+
     protected NetworkPeer peerByFirstAvailableNonInternetNetwork() {
         if(getNetworkStatus(Network.Bluetooth)==NetworkStatus.CONNECTED
                 && peerDB.peerWithInternetAccessAvailable(Network.Bluetooth)!=null)
