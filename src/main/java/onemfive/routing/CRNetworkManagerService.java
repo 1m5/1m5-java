@@ -72,36 +72,38 @@ public final class CRNetworkManagerService extends NetworkManagerService {
         super(producer, observer, peerDB);
     }
 
+    /**
+    // Evaluate what to do based on:
+    // Desired network: No Network selected | Network selected
+    // Envelope Sensitivity: 0-10, 0 = no sensitivity and 10 = highest sensitivity
+    // Network status': Which Networks are currently available and connected
+    // Network Peer: What peers are available
+    // Network Paths Available: What networks are available of each peer
+    // Maximum ManCon currently available
+    // Minimum ManCon required
+    // Maximum ManCon supported
+
+    // In General:
+    // 1. If I'm being blocked on Tor, use I2P to get to a peer with Tor not blocked.
+    // 2. If I'm being blocked on I2P, use Tor to get to a peer with I2P not blocked.
+    // 3. If I'm being blocked on both Tor and I2P or the local cell tower is down, use Bluetooth Mesh to get to a peer with Tor/I2P to reach destination.
+    // 4. If Bluetooth Mesh is not available but WiFi-Direct is, use it instead.
+    // 5. If Bluetooth and/or WiFi-Direct are not available (e.g. both off or being locally jammed), and a LiFi receiver is available, use it to get out.
+    // 6. If no LiFi receiver is available, use Full-Spectrum Radio to attempt to reach a 1M5 node with Full-Spectrum Radio active.
+    // 7. If no available options exist, prompt user to determine if message should be persisted. If so, persist and try again at a later time otherwise erase it.
+    */
+
     @Override
-    public boolean send(Envelope envelope) {
-        // Evaluate what to do based on:
-        // Desired network: No Network selected | Network selected
-        // Envelope Sensitivity: 0-10, 0 = no sensitivity and 10 = highest sensitivity
-        // Network status': Which Networks are currently available and connected
-        // Network Peer: What peers are available
-        // Network Paths Available: What networks are available of each peer
-        // Maximum ManCon currently available
-        // Minimum ManCon required
-        // Maximum ManCon supported
-
-        // In General:
-        // 1. If I'm being blocked on Tor, use I2P to get to a peer with Tor not blocked.
-        // 2. If I'm being blocked on I2P, use Tor to get to a peer with I2P not blocked.
-        // 3. If I'm being blocked on both Tor and I2P or the local cell tower is down, use Bluetooth Mesh to get to a peer with Tor/I2P to reach destination.
-        // 4. If Bluetooth Mesh is not available but WiFi-Direct is, use it instead.
-        // 5. If Bluetooth and/or WiFi-Direct are not available (e.g. both off or being locally jammed), and a LiFi receiver is available, use it to get out.
-        // 6. If no LiFi receiver is available, use Full-Spectrum Radio to attempt to reach a 1M5 node with Full-Spectrum Radio active.
-        // 7. If no available options exist, prompt user to determine if message should be persisted. If so, persist and try again at a later time otherwise erase it.
-
+    protected Tuple2<Boolean, String> setExternalRoute(NetworkPeer np, Envelope e) {
         SituationalAwareness sitAware = new SituationalAwareness();
-        Route r = envelope.getDynamicRoutingSlip().peekAtNextRoute();
+        Route r = e.getDynamicRoutingSlip().peekAtNextRoute();
         if(r!=null) {
             String serviceRequested = r.getService();
             sitAware.desiredNetwork = getNetworkFromService(serviceRequested);
             sitAware.desiredNetworkConnected = isNetworkReady(sitAware.desiredNetwork);
         }
-        sitAware.envelopeSensitivity = envelope.getSensitivity();
-        sitAware.envelopeManCon = ManCon.fromSensitivity(envelope.getSensitivity());
+        sitAware.envelopeSensitivity = e.getSensitivity();
+        sitAware.envelopeManCon = ManCon.fromSensitivity(e.getSensitivity());
         sitAware.envelopeSensitivityWithinMaxAvailableManCon = sitAware.envelopeManCon.ordinal() <= ManConStatus.MAX_AVAILABLE_MANCON.ordinal();
         sitAware.envelopeSensitivityWithinMinRequiredManCon = sitAware.envelopeManCon.ordinal() >= ManConStatus.MIN_REQUIRED_MANCON.ordinal();
         if(!sitAware.envelopeSensitivityWithinMaxAvailableManCon) {
@@ -111,7 +113,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
         } else {
             sitAware.selectedManCon = sitAware.envelopeManCon;
         }
-        URL url = envelope.getURL();
+        URL url = e.getURL();
         sitAware.isWebRequest = url != null && url.toString().startsWith("http");
         boolean pathResolved = false;
         if(sitAware.isWebRequest) {
@@ -137,14 +139,14 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                     NetworkPeer relayPeer = peerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.I2P);
                                     if(relayPeer == null) {
                                         // No relay possible at this time; let's hold onto this message and try again later
-                                        if(!sendToMessageHold(envelope)) {
-                                            LOG.warning("1-Failed to send envelope to hold: "+envelope.toJSON());
+                                        if(!sendToMessageHold(e)) {
+                                            LOG.warning("1-Failed to send envelope to hold: "+e.toJSON());
                                         }
                                     } else {
                                         // Found a relay peer; add as external route
                                         String relayService = getNetworkServiceFromNetwork(relayNetwork);
                                         LOG.info("Found Relay Service to meet Min/Max ManCon: "+relayService);
-                                        envelope.addExternalRoute(relayService,
+                                        e.addExternalRoute(relayService,
                                                 "SEND",
                                                 networkStates.get(relayNetwork.name()).localPeer,
                                                 relayPeer);
@@ -156,22 +158,22 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                 String relayService = getNetworkServiceFromNetwork(sitAware.desiredNetwork);
                                 NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.I2P);
                                 LOG.info("Found Relay Peer for desired relay Network: "+sitAware.desiredNetwork.name()+" to peer with I2P connected.");
-                                envelope.addExternalRoute(relayService,
+                                e.addExternalRoute(relayService,
                                         "SEND",
                                         networkStates.get(sitAware.desiredNetwork.name()).localPeer,
                                         relayPeer);
                                 pathResolved = true;
                             } else {
                                 // Desired Network not yet connected so lets hold and retry later
-                                if(!sendToMessageHold(envelope)) {
-                                    LOG.warning("2-Failed to send envelope to hold: "+envelope.toJSON());
+                                if(!sendToMessageHold(e)) {
+                                    LOG.warning("2-Failed to send envelope to hold: "+e.toJSON());
                                 }
                             }
                         } else if(isNetworkReady(Network.Tor)) {
                             // I2P was not ready but Tor is so lets use Tor as a Relay to another peer that is connected to Tor
                             NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Tor, Network.I2P);
                             LOG.info("Found Relay Peer for Tor to peer with I2P connected.");
-                            envelope.addExternalRoute(TORClientService.class, "SEND", networkStates.get(Network.Tor.name()).localPeer, relayPeer);
+                            e.addExternalRoute(TORClientService.class, "SEND", networkStates.get(Network.Tor.name()).localPeer, relayPeer);
                             pathResolved = true;
                         }
                     } else {
@@ -205,9 +207,9 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     //   Web: I2P with random delays to Tor Peer at a lower ManCon, non-internet escalation
                     //   Web: I2P for .i2p addresses and Tor for the rest
 
-                    envelope.setDelayed(true);
-                    envelope.setMinDelay(4 * 1000);
-                    envelope.setMaxDelay(10 * 1000);
+                    e.setDelayed(true);
+                    e.setMinDelay(4 * 1000);
+                    e.setMaxDelay(10 * 1000);
                     break;
                 }
                 case EXTREME: {
@@ -220,15 +222,15 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     // NEO:
                     //   Web: non-internet to I2P peer with high delays to Tor peer
 
-                    envelope.setDelayed(true);
-                    envelope.setMinDelay(60 * 1000);
-                    envelope.setMaxDelay(2 * 60 * 1000);
+                    e.setDelayed(true);
+                    e.setMinDelay(60 * 1000);
+                    e.setMaxDelay(2 * 60 * 1000);
                     break;
                 }
             }
         } else {
             // Peer-to-Peer
-            switch (ManCon.fromSensitivity(envelope.getSensitivity())) {
+            switch (ManCon.fromSensitivity(e.getSensitivity())) {
                 case LOW: {}
                 case MEDIUM: {}
                 case HIGH: {
@@ -241,9 +243,9 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     // VERYHIGH:
                     //   P2P: I2P with random delays, Tor as tunnel when I2P blocked, 1DN escalation\
 
-                    envelope.setDelayed(true);
-                    envelope.setMinDelay(4 * 1000);
-                    envelope.setMaxDelay(10 * 1000);
+                    e.setDelayed(true);
+                    e.setMinDelay(4 * 1000);
+                    e.setMaxDelay(10 * 1000);
                     break;
                 }
                 case EXTREME: {
@@ -258,24 +260,17 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     //     3 months for 1M5 layer. A random number of copies (3 min/12 max) sent out with only 12 word mnemonic passphrase
                     //     as key.
 
-                    envelope.setCopy(true);
-                    envelope.setMinCopies(3);
-                    envelope.setMaxCopies(12);
-                    envelope.setDelayed(true);
-                    envelope.setMinDelay(5 * 60 * 1000);
-                    envelope.setMaxDelay(3 * 30 * 24 * 60 * 60 * 1000);
+                    e.setCopy(true);
+                    e.setMinCopies(3);
+                    e.setMaxCopies(12);
+                    e.setDelayed(true);
+                    e.setMinDelay(5 * 60 * 1000);
+                    e.setMaxDelay(3 * 30 * 24 * 60 * 60 * 1000);
                     break;
                 }
             }
         }
-
-        return producer.send(envelope);
-    }
-
-    @Override
-    protected Network selectNetwork(NetworkPeer np, Network preferredNetwork) {
-
-        return Network.I2P;
+        return new Tuple2<>(true, "READY");
     }
 
     protected NetworkPeer peerByFirstAvailableNonInternetNetwork() {
