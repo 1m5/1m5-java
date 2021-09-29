@@ -9,6 +9,7 @@ import ra.common.network.Network;
 import ra.common.network.NetworkPeer;
 import ra.common.network.NetworkState;
 import ra.common.network.NetworkStatus;
+import ra.common.route.ExternalRoute;
 import ra.common.route.Route;
 import ra.common.service.ServiceStatusObserver;
 import ra.networkmanager.NetworkManagerService;
@@ -97,10 +98,14 @@ public final class CRNetworkManagerService extends NetworkManagerService {
     protected Tuple2<Boolean, String> setExternalRoute(NetworkPeer np, Envelope e) {
         SituationalAwareness sitAware = new SituationalAwareness();
         Route r = e.getDynamicRoutingSlip().peekAtNextRoute();
-        if(r!=null) {
+        if(r instanceof ExternalRoute) {
             String serviceRequested = r.getService();
             sitAware.desiredNetwork = getNetworkFromService(serviceRequested);
             sitAware.desiredNetworkConnected = isNetworkReady(sitAware.desiredNetwork);
+        } else {
+            // Next Route was not meant to go externally so return false
+            LOG.warning("Next route must be an ExternalRoute.");
+            return new Tuple2<>(false,"Next route must be an ExternalRoute.");
         }
         sitAware.envelopeSensitivity = e.getSensitivity();
         sitAware.envelopeManCon = ManCon.fromSensitivity(e.getSensitivity());
