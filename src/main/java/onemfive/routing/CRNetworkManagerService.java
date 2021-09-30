@@ -14,6 +14,7 @@ import ra.common.route.Route;
 import ra.common.service.ServiceStatusObserver;
 import ra.networkmanager.NetworkManagerService;
 import ra.networkmanager.PeerDB;
+import ra.networkmanager.ResponseCodes;
 import ra.tor.TORClientService;
 
 import java.net.URL;
@@ -95,7 +96,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
     */
 
     @Override
-    protected Tuple2<Boolean, String> setExternalRoute(NetworkPeer np, Envelope e) {
+    protected Tuple2<Boolean, ResponseCodes> setExternalRoute(NetworkPeer np, Envelope e) {
         SituationalAwareness sitAware = new SituationalAwareness();
         Route r = e.getDynamicRoutingSlip().peekAtNextRoute();
         if(r instanceof ExternalRoute) {
@@ -105,7 +106,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
         } else {
             // Next Route was not meant to go externally so return false
             LOG.warning("Next route must be an ExternalRoute.");
-            return new Tuple2<>(false,"Next route must be an ExternalRoute.");
+            return new Tuple2<>(false,ResponseCodes.NEXT_ROUTE_MUST_BE_AN_EXTERNAL_ROUTE);
         }
         sitAware.envelopeSensitivity = e.getSensitivity();
         sitAware.envelopeManCon = ManCon.fromSensitivity(e.getSensitivity());
@@ -275,7 +276,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                 }
             }
         }
-        return new Tuple2<>(true, "READY");
+        return new Tuple2<>(true, ResponseCodes.READY);
     }
 
     protected NetworkPeer peerByFirstAvailableNonInternetNetwork() {
