@@ -176,11 +176,32 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                 }
                             }
                         } else if(isNetworkReady(Network.Tor)) {
-                            // I2P was not ready but Tor is so lets use Tor as a Relay to another peer that is connected to Tor
+                            // I2P was not ready but Tor is so lets use Tor as a Relay to another peer that is connected to I2P
                             NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Tor, Network.I2P);
+                            if(relayPeer==null) {
+                                if(!sendToMessageHold(e)) {
+                                    LOG.warning("3-Failed to send envelope to hold: "+e.toJSON());
+                                }
+                            }
                             LOG.info("Found Relay Peer for Tor to peer with I2P connected.");
                             e.addExternalRoute(TORClientService.class, "SEND", networkStates.get(Network.Tor.name()).localPeer, relayPeer);
                             pathResolved = true;
+                        } else if(isNetworkReady(Network.Bluetooth)) {
+                            // I2P nor Tor was ready but Bluetooth is so lets use Bluetooth as a Relay to another peer that is connected to I2P
+                            NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
+                            if(relayPeer==null) {
+                                if(!sendToMessageHold(e)) {
+                                    LOG.warning("4-Failed to send envelope to hold: "+e.toJSON());
+                                }
+                            }
+                            LOG.info("Found Relay Peer for Tor to peer with I2P connected.");
+                            e.addExternalRoute(BluetoothService.class, "SEND", networkStates.get(Network.Bluetooth.name()).localPeer, relayPeer);
+                            pathResolved = true;
+                        } else {
+                            // Primary networks not yet ready
+                            if(!sendToMessageHold(e)) {
+                                LOG.warning("5-Failed to send envelope to hold: "+e.toJSON());
+                            }
                         }
                     } else {
                         // Not a .i2p request...either .onion (Tor) or other web url - use Tor
