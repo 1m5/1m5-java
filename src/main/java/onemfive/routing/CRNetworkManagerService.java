@@ -12,6 +12,7 @@ import ra.common.network.NetworkStatus;
 import ra.common.route.ExternalRoute;
 import ra.common.route.Route;
 import ra.common.service.ServiceStatusObserver;
+import ra.i2p.I2PService;
 import ra.networkmanager.NetworkManagerService;
 import ra.networkmanager.PeerDB;
 import ra.networkmanager.ResponseCodes;
@@ -98,13 +99,15 @@ public final class CRNetworkManagerService extends NetworkManagerService {
     @Override
     protected Tuple2<Boolean, ResponseCodes> setExternalRoute(NetworkPeer np, Envelope e) {
         SituationalAwareness sitAware = new SituationalAwareness();
+        URL url = e.getURL();
+        sitAware.isWebRequest = url != null && url.toString().startsWith("http");
         Route r = e.getDynamicRoutingSlip().peekAtNextRoute();
         if(r instanceof ExternalRoute) {
             String serviceRequested = r.getService();
             sitAware.desiredNetwork = getNetworkFromService(serviceRequested);
             sitAware.desiredNetworkConnected = isNetworkReady(sitAware.desiredNetwork);
-        } else {
-            // Next Route was not meant to go externally so return false
+        } else if(!sitAware.isWebRequest) {
+            // Not a web request and next Route was not meant to go externally so return false
             LOG.warning("Next route must be an ExternalRoute.");
             return new Tuple2<>(false,ResponseCodes.NEXT_ROUTE_MUST_BE_AN_EXTERNAL_ROUTE);
         }
@@ -119,14 +122,12 @@ public final class CRNetworkManagerService extends NetworkManagerService {
         } else {
             sitAware.selectedManCon = sitAware.envelopeManCon;
         }
-        URL url = e.getURL();
-        sitAware.isWebRequest = url != null && url.toString().startsWith("http");
         boolean pathResolved = false;
         if(sitAware.isWebRequest) {
             // Web Request
             switch (sitAware.selectedManCon) {
-                case NONE: {}
-                case LOW: {}
+                case NONE: {} // 1M5 does not use HTTP to communicate P2P
+                case LOW: {} // 1M5 does not use HTTPS to communicate P2P
                 case MEDIUM: {
                     //   Web: I2P for .i2p addresses and Tor for the rest
                     if (url.toString().endsWith(".i2p")) {
@@ -151,7 +152,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                     } else {
                                         // Found a relay peer; add as external route
                                         String relayService = getNetworkServiceFromNetwork(relayNetwork);
-                                        LOG.info("Found Relay Service to meet Min/Max ManCon: "+relayService);
+                                        LOG.info("Found Relay Service to meet Min/Max ManCon with I2P Request: "+relayService);
                                         e.addExternalRoute(relayService,
                                                 "SEND",
                                                 networkStates.get(relayNetwork.name()).localPeer,
@@ -194,7 +195,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                     LOG.warning("4-Failed to send envelope to hold: "+e.toJSON());
                                 }
                             }
-                            LOG.info("Found Relay Peer for Tor to peer with I2P connected.");
+                            LOG.info("Found Relay Peer for Bluetooth to peer with I2P connected.");
                             e.addExternalRoute(BluetoothService.class, "SEND", networkStates.get(Network.Bluetooth.name()).localPeer, relayPeer);
                             pathResolved = true;
                         } else {
@@ -208,19 +209,74 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         if(isNetworkReady(Network.Tor)) {
                             // Connected to Tor so use Tor
                             if(sitAware.desiredNetwork==null || sitAware.desiredNetwork==Network.Tor) {
-
+                                // Envelope has Tor Service as the next route destination
                                 if(sitAware.envelopeManCon == sitAware.selectedManCon) {
+                                    // Min/Max ManCon supports using Tor for this Envelope...continue on with routing
                                     pathResolved = true;
                                 } else {
-
+                                    // Min/Max ManCon does not support using Tor for this Envelope.
+                                    // Let us see if there is an escalated network available with a Peer with Tor available
+                                    Network relayNetwork = firstAvailableNonInternetNetwork();
+                                    NetworkPeer relayPeer = peerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.Tor);
+                                    if(relayPeer == null) {
+                                        // No relay possible at this time; let's hold onto this message and try again later
+                                        if(!sendToMessageHold(e)) {
+                                            LOG.warning("6-Failed to send envelope to hold: "+e.toJSON());
+                                        }
+                                    } else {
+                                        // Found a relay peer; add as external route
+                                        String relayService = getNetworkServiceFromNetwork(relayNetwork);
+                                        LOG.info("Found Relay Service to meet Min/Max ManCon with Tor request: "+relayService);
+                                        e.addExternalRoute(relayService,
+                                                "SEND",
+                                                networkStates.get(relayNetwork.name()).localPeer,
+                                                relayPeer);
+                                        pathResolved = true;
+                                    }
                                 }
+                            } else if(isNetworkReady(sitAware.desiredNetwork)) {
+                                // Tor is ready yet they didn't request Tor - must be requesting a relay
+                                String relayService = getNetworkServiceFromNetwork(sitAware.desiredNetwork);
+                                NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.Tor);
+                                LOG.info("Found Relay Peer for desired relay Network: "+sitAware.desiredNetwork.name()+" to peer with Tor connected.");
+                                e.addExternalRoute(relayService,
+                                        "SEND",
+                                        networkStates.get(sitAware.desiredNetwork.name()).localPeer,
+                                        relayPeer);
+                                pathResolved = true;
                             } else {
-                                // Tor is ready yet they didn't request Tor
-
+                                // Desired Network not yet connected so lets hold and retry later
+                                if(!sendToMessageHold(e)) {
+                                    LOG.warning("7-Failed to send envelope to hold: "+e.toJSON());
+                                }
                             }
                         } else if(isNetworkReady(Network.I2P)) {
-                            // Tor not ready but I2P is. Use I2P to route to a peer with Tor to satisfy Http request
-
+                            // Tor was not ready but I2P is so lets use I2P as a Relay to another peer that is connected to Tor
+                            NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.I2P, Network.Tor);
+                            if(relayPeer==null) {
+                                if(!sendToMessageHold(e)) {
+                                    LOG.warning("8-Failed to send envelope to hold: "+e.toJSON());
+                                }
+                            }
+                            LOG.info("Found Relay Peer for I2P to peer with Tor connected.");
+                            e.addExternalRoute(I2PService.class, "SEND", networkStates.get(Network.I2P.name()).localPeer, relayPeer);
+                            pathResolved = true;
+                        } else if(isNetworkReady(Network.Bluetooth)) {
+                            // Tor nor I2P was ready but Bluetooth is so lets use Bluetooth as a Relay to another peer that is connected to I2P
+                            NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.Tor);
+                            if(relayPeer==null) {
+                                if(!sendToMessageHold(e)) {
+                                    LOG.warning("9-Failed to send envelope to hold: "+e.toJSON());
+                                }
+                            }
+                            LOG.info("Found Relay Peer for Bluetooth to peer with Tor connected.");
+                            e.addExternalRoute(BluetoothService.class, "SEND", networkStates.get(Network.Bluetooth.name()).localPeer, relayPeer);
+                            pathResolved = true;
+                        } else {
+                            // Primary networks not yet ready
+                            if(!sendToMessageHold(e)) {
+                                LOG.warning("10-Failed to send envelope to hold: "+e.toJSON());
+                            }
                         }
                     }
                     break;
