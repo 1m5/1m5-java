@@ -282,32 +282,32 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     break;
                 }
                 case HIGH: {
+                    // HIGH: All web calls go through an I2P or up relay
 
                     break;
                 }
                 case VERYHIGH: {
-                    // VERYHIGH:
-                    //   Web: I2P with random delays to Tor Peer at a lower ManCon, non-internet escalation
-                    //   Web: I2P for .i2p addresses and Tor for the rest
-
+                    // VERYHIGH: All web calls go through an I2P or up relay and begin adding random delays
+                    // I2P web requests go through a separate I2P peer or up relay
                     e.setDelayed(true);
-                    e.setMinDelay(4 * 1000);
-                    e.setMaxDelay(10 * 1000);
+                    e.setMinDelay(4 * 1000); // 4 second minimum
+                    e.setMaxDelay(10 * 1000); // 10 second maximum
+
                     break;
                 }
                 case EXTREME: {
-                    // EXTREME:
+                    // EXTREME: All web calls must originate through non-internet relay
                     //   Web: non-internet to Tor peer
 
                     break;
                 }
                 case NEO: {
-                    // NEO:
-                    //   Web: non-internet to I2P peer with high delays to Tor peer
+                    // NEO: Dramatically raise min/max random delays
+                    //   Web: non-internet relay to I2P peer relay with high delays to Tor peer or I2P if .i2p address
 
                     e.setDelayed(true);
-                    e.setMinDelay(60 * 1000);
-                    e.setMaxDelay(2 * 60 * 1000);
+                    e.setMinDelay(60 * 1000); // 1 minute minimum
+                    e.setMaxDelay(2 * 60 * 1000); // 2 minutes maximum
                     break;
                 }
             }
@@ -318,13 +318,13 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                 case MEDIUM: {}
                 case HIGH: {
                     // LOW|MEDIUM|HIGH:
-                    //   P2P: I2P, Tor as Tunnel when I2P blocked, 1DN escalation
+                    //   P2P: I2P, Tor as Tunnel when I2P blocked, non-internet escalation
 
                     break;
                 }
                 case VERYHIGH: {
                     // VERYHIGH:
-                    //   P2P: I2P with random delays, Tor as tunnel when I2P blocked, 1DN escalation\
+                    //   P2P: I2P with random delays, Tor as tunnel when I2P blocked, non-internet escalation
 
                     e.setDelayed(true);
                     e.setMinDelay(4 * 1000);
@@ -333,22 +333,22 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                 }
                 case EXTREME: {
                     // EXTREME:
-                    //   P2P: 1DN to I2P peer
+                    //   P2P: Non-Internet to I2P peer
 
                     break;
                 }
                 case NEO: {
-                    // NEO:
-                    //   P2P: 1DN to random number/combination of 1DN/I2P peers at random delays up to 90 seconds for I2P layer and up to
-                    //     3 months for 1M5 layer. A random number of copies (3 min/12 max) sent out with only 12 word mnemonic passphrase
+                    // NEO: Send multiple encrypted copies with higher random delays
+                    //   P2P: Non-internet to random number/combination of non-internet/I2P peers at random delays up to 90 seconds for I2P layer and up to
+                    //     1 hour for 1M5 layer. A random number of copies (3 min/12 max) sent out with only 12 word mnemonic passphrase
                     //     as key.
 
                     e.setCopy(true);
                     e.setMinCopies(3);
                     e.setMaxCopies(12);
                     e.setDelayed(true);
-                    e.setMinDelay(5 * 60 * 1000);
-                    e.setMaxDelay(3 * 30 * 24 * 60 * 60 * 1000);
+                    e.setMinDelay(10 * 60 * 1000); // 10 minutes
+                    e.setMaxDelay(60 * 60 * 1000); // 1 hour
                     break;
                 }
             }
