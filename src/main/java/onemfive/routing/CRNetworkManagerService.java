@@ -283,6 +283,13 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                 }
                 case HIGH: {
                     // HIGH: All web calls go through an I2P or up relay
+                    if(isNetworkReady(Network.I2P)) {
+
+                    } else if(isNetworkReady(Network.Tor)) {
+
+                    } else if(isNetworkReady(Network.Bluetooth)) {
+
+                    }
 
                     break;
                 }
