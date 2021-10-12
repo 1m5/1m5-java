@@ -363,16 +363,44 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                 case EXTREME: {
                     // EXTREME: All web calls must originate through non-internet relay
                     //   Web: non-internet to Tor peer
-
+                    if(isNetworkReady(Network.Bluetooth)) {
+                        String relayService = getNetworkServiceFromNetwork(Network.Bluetooth);
+                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
+                        LOG.info("Found Relay Peer for relay Network "+Network.Bluetooth.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
+                        e.addExternalRoute(relayService,
+                                "SEND",
+                                networkStates.get(Network.Bluetooth.name()).localPeer,
+                                relayPeer);
+                        pathResolved = true;
+                    } else {
+                        // Primary networks not yet ready
+                        if(!sendToMessageHold(e)) {
+                            LOG.warning("11-Failed to send envelope to hold: "+e.toJSON());
+                        }
+                    }
                     break;
                 }
                 case NEO: {
                     // NEO: Dramatically raise min/max random delays
                     //   Web: non-internet relay to I2P peer relay with high delays to Tor peer or I2P if .i2p address
-
                     e.setDelayed(true);
                     e.setMinDelay(60 * 1000); // 1 minute minimum
                     e.setMaxDelay(2 * 60 * 1000); // 2 minutes maximum
+                    if(isNetworkReady(Network.Bluetooth)) {
+                        String relayService = getNetworkServiceFromNetwork(Network.Bluetooth);
+                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
+                        LOG.info("Found Relay Peer for relay Network "+Network.Bluetooth.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
+                        e.addExternalRoute(relayService,
+                                "SEND",
+                                networkStates.get(Network.Bluetooth.name()).localPeer,
+                                relayPeer);
+                        pathResolved = true;
+                    } else {
+                        // Primary networks not yet ready
+                        if(!sendToMessageHold(e)) {
+                            LOG.warning("11-Failed to send envelope to hold: "+e.toJSON());
+                        }
+                    }
                     break;
                 }
             }
