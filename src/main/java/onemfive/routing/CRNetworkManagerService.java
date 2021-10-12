@@ -284,11 +284,37 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                 case HIGH: {
                     // HIGH: All web calls go through an I2P or up relay
                     if(isNetworkReady(Network.I2P)) {
-
+                        String relayService = getNetworkServiceFromNetwork(Network.I2P);
+                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.I2P, sitAware.desiredNetwork);
+                        LOG.info("Found Relay Peer for relay Network "+Network.I2P.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
+                        e.addExternalRoute(relayService,
+                                "SEND",
+                                networkStates.get(Network.I2P.name()).localPeer,
+                                relayPeer);
+                        pathResolved = true;
                     } else if(isNetworkReady(Network.Tor)) {
-
+                        String relayService = getNetworkServiceFromNetwork(Network.Tor);
+                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Tor, sitAware.desiredNetwork);
+                        LOG.info("Found Relay Peer for relay Network "+Network.Tor.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
+                        e.addExternalRoute(relayService,
+                                "SEND",
+                                networkStates.get(Network.Tor.name()).localPeer,
+                                relayPeer);
+                        pathResolved = true;
                     } else if(isNetworkReady(Network.Bluetooth)) {
-
+                        String relayService = getNetworkServiceFromNetwork(Network.Bluetooth);
+                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
+                        LOG.info("Found Relay Peer for relay Network "+Network.Bluetooth.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
+                        e.addExternalRoute(relayService,
+                                "SEND",
+                                networkStates.get(Network.Bluetooth.name()).localPeer,
+                                relayPeer);
+                        pathResolved = true;
+                    } else {
+                        // Primary networks not yet ready
+                        if(!sendToMessageHold(e)) {
+                            LOG.warning("11-Failed to send envelope to hold: "+e.toJSON());
+                        }
                     }
 
                     break;
