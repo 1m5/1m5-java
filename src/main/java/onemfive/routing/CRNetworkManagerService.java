@@ -407,9 +407,11 @@ public final class CRNetworkManagerService extends NetworkManagerService {
         } else {
             // Peer-to-Peer
             switch (sitAware.selectedManCon) {
-                case NONE: {}
-                case LOW: {}
-                case MEDIUM: {
+                case NONE: {} // 1M5 does not use HTTP to communicate P2P
+                case LOW: {} // 1M5 does not use HTTP to communicate P2P
+                case MEDIUM: {}
+                case HIGH: {
+                    // NONE|LOW|MEDIUM|HIGH:
                     // I2P used unless found to be blocked. Then Tor will be used as a tunnel to
                     // a peer that has I2P enabled. If Tor blocked, will ratchet up to non-internet for assistance.
                     if(isNetworkReady(Network.I2P)) {
@@ -486,25 +488,108 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     }
                     break;
                 }
-                case HIGH: {
-                    // LOW|MEDIUM|HIGH:
-                    //   P2P: I2P, Tor as Tunnel when I2P blocked, non-internet escalation
-
-                    break;
-                }
                 case VERYHIGH: {
                     // VERYHIGH:
                     //   P2P: I2P with random delays, Tor as tunnel when I2P blocked, non-internet escalation
-
                     e.setDelayed(true);
                     e.setMinDelay(4 * 1000);
                     e.setMaxDelay(10 * 1000);
+                    // I2P used unless found to be blocked. Then Tor will be used as a tunnel to
+                    // a peer that has I2P enabled. If Tor blocked, will ratchet up to non-internet for assistance.
+                    if(isNetworkReady(Network.I2P)) {
+                        // I2P network is connected
+                        if(sitAware.desiredNetwork == null || sitAware.desiredNetwork == Network.I2P) {
+                            // Envelope has I2P Service as the next route destination
+                            if(sitAware.envelopeManCon == sitAware.selectedManCon) {
+                                // Min/Max ManCon supports using I2P for this Envelope...continue on with routing
+                                pathResolved = true;
+                            } else {
+                                // Min/Max ManCon does not support using I2P for this Envelope.
+                                // Let us see if there is an escalated network available with a Peer with I2P available
+                                Network relayNetwork = firstAvailableNonInternetNetwork();
+                                NetworkPeer relayPeer = peerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.I2P);
+                                if(relayPeer == null) {
+                                    // No relay possible at this time; let's hold onto this message and try again later
+                                    if(!sendToMessageHold(e)) {
+                                        LOG.warning("1-Failed to send envelope to hold: "+e.toJSON());
+                                    }
+                                } else {
+                                    // Found a relay peer; add as external route
+                                    String relayService = getNetworkServiceFromNetwork(relayNetwork);
+                                    LOG.info("Found Relay Service to meet Min/Max ManCon with I2P Request: "+relayService);
+                                    e.addExternalRoute(relayService,
+                                            "SEND",
+                                            networkStates.get(relayNetwork.name()).localPeer,
+                                            relayPeer);
+                                    pathResolved = true;
+                                }
+                            }
+                        } else if(isNetworkReady(sitAware.desiredNetwork)) {
+                            // I2P ready but not desired network
+                            String relayService = getNetworkServiceFromNetwork(sitAware.desiredNetwork);
+                            NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.I2P);
+                            LOG.info("Found Relay Peer for desired relay Network: "+sitAware.desiredNetwork.name()+" to peer with I2P connected.");
+                            e.addExternalRoute(relayService,
+                                    "SEND",
+                                    networkStates.get(sitAware.desiredNetwork.name()).localPeer,
+                                    relayPeer);
+                            pathResolved = true;
+                        } else {
+                            // Desired Network not yet connected so lets hold and retry later
+                            if(!sendToMessageHold(e)) {
+                                LOG.warning("2-Failed to send envelope to hold: "+e.toJSON());
+                            }
+                        }
+                    } else if(isNetworkReady(Network.Tor)) {
+                        // I2P was not ready but Tor is so lets use Tor as a Relay to another peer that is connected to I2P
+                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Tor, Network.I2P);
+                        if(relayPeer==null) {
+                            if(!sendToMessageHold(e)) {
+                                LOG.warning("3-Failed to send envelope to hold: "+e.toJSON());
+                            }
+                        }
+                        LOG.info("Found Relay Peer for Tor to peer with I2P connected.");
+                        e.addExternalRoute(TORClientService.class, "SEND", networkStates.get(Network.Tor.name()).localPeer, relayPeer);
+                        pathResolved = true;
+                    } else if(isNetworkReady(Network.Bluetooth)) {
+                        // I2P nor Tor was ready but Bluetooth is so lets use Bluetooth as a Relay to another peer that is connected to I2P
+                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
+                        if(relayPeer==null) {
+                            if(!sendToMessageHold(e)) {
+                                LOG.warning("4-Failed to send envelope to hold: "+e.toJSON());
+                            }
+                        }
+                        LOG.info("Found Relay Peer for Bluetooth to peer with I2P connected.");
+                        e.addExternalRoute(BluetoothService.class, "SEND", networkStates.get(Network.Bluetooth.name()).localPeer, relayPeer);
+                        pathResolved = true;
+                    } else {
+                        // Primary networks not yet ready
+                        if(!sendToMessageHold(e)) {
+                            LOG.warning("5-Failed to send envelope to hold: "+e.toJSON());
+                        }
+                    }
                     break;
                 }
                 case EXTREME: {
                     // EXTREME:
                     //   P2P: Non-Internet to I2P peer
-
+                    if(isNetworkReady(Network.Bluetooth)) {
+                        // Use Bluetooth as a Relay to another peer that is connected to I2P
+                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
+                        if(relayPeer==null) {
+                            if(!sendToMessageHold(e)) {
+                                LOG.warning("4-Failed to send envelope to hold: "+e.toJSON());
+                            }
+                        }
+                        LOG.info("Found Relay Peer for Bluetooth to peer with I2P connected.");
+                        e.addExternalRoute(BluetoothService.class, "SEND", networkStates.get(Network.Bluetooth.name()).localPeer, relayPeer);
+                        pathResolved = true;
+                    } else {
+                        // Primary networks not yet ready
+                        if(!sendToMessageHold(e)) {
+                            LOG.warning("5-Failed to send envelope to hold: "+e.toJSON());
+                        }
+                    }
                     break;
                 }
                 case NEO: {
@@ -512,13 +597,29 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     //   P2P: Non-internet to random number/combination of non-internet/I2P peers at random delays up to 90 seconds for I2P layer and up to
                     //     1 hour for 1M5 layer. A random number of copies (3 min/12 max) sent out with only 12 word mnemonic passphrase
                     //     as key.
-
                     e.setCopy(true);
                     e.setMinCopies(3);
                     e.setMaxCopies(12);
                     e.setDelayed(true);
                     e.setMinDelay(10 * 60 * 1000); // 10 minutes
                     e.setMaxDelay(60 * 60 * 1000); // 1 hour
+                    if(isNetworkReady(Network.Bluetooth)) {
+                        // Use Bluetooth as a Relay to another peer that is connected to I2P
+                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
+                        if(relayPeer==null) {
+                            if(!sendToMessageHold(e)) {
+                                LOG.warning("4-Failed to send envelope to hold: "+e.toJSON());
+                            }
+                        }
+                        LOG.info("Found Relay Peer for Bluetooth to peer with I2P connected.");
+                        e.addExternalRoute(BluetoothService.class, "SEND", networkStates.get(Network.Bluetooth.name()).localPeer, relayPeer);
+                        pathResolved = true;
+                    } else {
+                        // Primary networks not yet ready
+                        if(!sendToMessageHold(e)) {
+                            LOG.warning("5-Failed to send envelope to hold: "+e.toJSON());
+                        }
+                    }
                     break;
                 }
             }
