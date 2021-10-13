@@ -603,6 +603,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     e.setDelayed(true);
                     e.setMinDelay(10 * 60 * 1000); // 10 minutes
                     e.setMaxDelay(60 * 60 * 1000); // 1 hour
+                    // TODO: Encrypt payload with 3/6/12/24 word-pneumonic passphrase
                     if(isNetworkReady(Network.Bluetooth)) {
                         // Use Bluetooth as a Relay to another peer that is connected to I2P
                         NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
