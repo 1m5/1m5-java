@@ -203,6 +203,7 @@ The application is written in Java using JDK 1.8 although some services may supp
 with OpenJDK 11, the recommended JDK version.
 
 ## Roadmap
+* Upgrade Neo4J
 
 ## ManCon Status
 ManCon Status is provided by three parameters: Minimum Required, Maximum Available, and Maximum Supported.
