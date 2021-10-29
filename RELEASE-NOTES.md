@@ -1,6 +1,11 @@
 # Release Notes
 
-## 0.6.5 - In Progress
+## 0.6.6 - In Progress
++ Integrating Bitcoin
++ Implementing DEX
++ Expanding network knowledge through graph for enhanced routing
+
+## 0.6.5 - Released
 + Updated roadmap to reflect new hardware ideas
 + Implementing auto-routing between TOR, I2P, and BT when each is blocked.
 
