@@ -14,7 +14,6 @@ import ra.common.route.Route;
 import ra.common.service.ServiceStatusObserver;
 import ra.i2p.I2PService;
 import ra.networkmanager.NetworkManagerService;
-import ra.networkmanager.PeerDB;
 import ra.networkmanager.ResponseCodes;
 import ra.tor.TORClientService;
 
@@ -69,10 +68,6 @@ public final class CRNetworkManagerService extends NetworkManagerService {
 
     public CRNetworkManagerService(MessageProducer producer, ServiceStatusObserver observer) {
         super(producer, observer);
-    }
-
-    public CRNetworkManagerService(MessageProducer producer, ServiceStatusObserver observer, PeerDB peerDB) {
-        super(producer, observer, peerDB);
     }
 
     /**
@@ -143,7 +138,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                     // Min/Max ManCon does not support using I2P for this Envelope.
                                     // Let us see if there is an escalated network available with a Peer with I2P available
                                     Network relayNetwork = firstAvailableNonInternetNetwork();
-                                    NetworkPeer relayPeer = peerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.I2P);
+                                    NetworkPeer relayPeer = randomPeerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.I2P);
                                     if(relayPeer == null) {
                                         // No relay possible at this time; let's hold onto this message and try again later
                                         if(!sendToMessageHold(e)) {
@@ -163,7 +158,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                             } else if(isNetworkReady(sitAware.desiredNetwork)) {
                                 // I2P is ready yet they didn't request I2P - must be requesting a relay
                                 String relayService = getNetworkServiceFromNetwork(sitAware.desiredNetwork);
-                                NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.I2P);
+                                NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.I2P);
                                 LOG.info("Found Relay Peer for desired relay Network: "+sitAware.desiredNetwork.name()+" to peer with I2P connected.");
                                 e.addExternalRoute(relayService,
                                         "SEND",
@@ -178,7 +173,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                             }
                         } else if(isNetworkReady(Network.Tor)) {
                             // I2P was not ready but Tor is so lets use Tor as a Relay to another peer that is connected to I2P
-                            NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Tor, Network.I2P);
+                            NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Tor, Network.I2P);
                             if(relayPeer==null) {
                                 if(!sendToMessageHold(e)) {
                                     LOG.warning("3-Failed to send envelope to hold: "+e.toJSON());
@@ -189,7 +184,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                             pathResolved = true;
                         } else if(isNetworkReady(Network.Bluetooth)) {
                             // I2P nor Tor was ready but Bluetooth is so lets use Bluetooth as a Relay to another peer that is connected to I2P
-                            NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
+                            NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
                             if(relayPeer==null) {
                                 if(!sendToMessageHold(e)) {
                                     LOG.warning("4-Failed to send envelope to hold: "+e.toJSON());
@@ -217,7 +212,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                     // Min/Max ManCon does not support using Tor for this Envelope.
                                     // Let us see if there is an escalated network available with a Peer with Tor available
                                     Network relayNetwork = firstAvailableNonInternetNetwork();
-                                    NetworkPeer relayPeer = peerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.Tor);
+                                    NetworkPeer relayPeer = randomPeerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.Tor);
                                     if(relayPeer == null) {
                                         // No relay possible at this time; let's hold onto this message and try again later
                                         if(!sendToMessageHold(e)) {
@@ -237,7 +232,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                             } else if(isNetworkReady(sitAware.desiredNetwork)) {
                                 // Tor is ready yet they didn't request Tor - must be requesting a relay
                                 String relayService = getNetworkServiceFromNetwork(sitAware.desiredNetwork);
-                                NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.Tor);
+                                NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.Tor);
                                 LOG.info("Found Relay Peer for desired relay Network: "+sitAware.desiredNetwork.name()+" to peer with Tor connected.");
                                 e.addExternalRoute(relayService,
                                         "SEND",
@@ -252,7 +247,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                             }
                         } else if(isNetworkReady(Network.I2P)) {
                             // Tor was not ready but I2P is so lets use I2P as a Relay to another peer that is connected to Tor
-                            NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.I2P, Network.Tor);
+                            NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.I2P, Network.Tor);
                             if(relayPeer==null) {
                                 if(!sendToMessageHold(e)) {
                                     LOG.warning("8-Failed to send envelope to hold: "+e.toJSON());
@@ -263,7 +258,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                             pathResolved = true;
                         } else if(isNetworkReady(Network.Bluetooth)) {
                             // Tor nor I2P was ready but Bluetooth is so lets use Bluetooth as a Relay to another peer that is connected to I2P
-                            NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.Tor);
+                            NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.Tor);
                             if(relayPeer==null) {
                                 if(!sendToMessageHold(e)) {
                                     LOG.warning("9-Failed to send envelope to hold: "+e.toJSON());
@@ -285,7 +280,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     // HIGH: All web calls go through an I2P or up relay
                     if(isNetworkReady(Network.I2P)) {
                         String relayService = getNetworkServiceFromNetwork(Network.I2P);
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.I2P, sitAware.desiredNetwork);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.I2P, sitAware.desiredNetwork);
                         LOG.info("Found Relay Peer for relay Network "+Network.I2P.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
                         e.addExternalRoute(relayService,
                                 "SEND",
@@ -294,7 +289,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         pathResolved = true;
                     } else if(isNetworkReady(Network.Tor)) {
                         String relayService = getNetworkServiceFromNetwork(Network.Tor);
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Tor, sitAware.desiredNetwork);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Tor, sitAware.desiredNetwork);
                         LOG.info("Found Relay Peer for relay Network "+Network.Tor.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
                         e.addExternalRoute(relayService,
                                 "SEND",
@@ -303,7 +298,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         pathResolved = true;
                     } else if(isNetworkReady(Network.Bluetooth)) {
                         String relayService = getNetworkServiceFromNetwork(Network.Bluetooth);
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
                         LOG.info("Found Relay Peer for relay Network "+Network.Bluetooth.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
                         e.addExternalRoute(relayService,
                                 "SEND",
@@ -327,7 +322,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     e.setMaxDelay(10 * 1000); // 10 second maximum
                     if(isNetworkReady(Network.I2P)) {
                         String relayService = getNetworkServiceFromNetwork(Network.I2P);
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.I2P, sitAware.desiredNetwork);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.I2P, sitAware.desiredNetwork);
                         LOG.info("Found Relay Peer for relay Network "+Network.I2P.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
                         e.addExternalRoute(relayService,
                                 "SEND",
@@ -336,7 +331,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         pathResolved = true;
                     } else if(isNetworkReady(Network.Tor)) {
                         String relayService = getNetworkServiceFromNetwork(Network.Tor);
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Tor, sitAware.desiredNetwork);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Tor, sitAware.desiredNetwork);
                         LOG.info("Found Relay Peer for relay Network "+Network.Tor.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
                         e.addExternalRoute(relayService,
                                 "SEND",
@@ -345,7 +340,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         pathResolved = true;
                     } else if(isNetworkReady(Network.Bluetooth)) {
                         String relayService = getNetworkServiceFromNetwork(Network.Bluetooth);
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
                         LOG.info("Found Relay Peer for relay Network "+Network.Bluetooth.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
                         e.addExternalRoute(relayService,
                                 "SEND",
@@ -365,7 +360,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     //   Web: non-internet to Tor peer
                     if(isNetworkReady(Network.Bluetooth)) {
                         String relayService = getNetworkServiceFromNetwork(Network.Bluetooth);
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
                         LOG.info("Found Relay Peer for relay Network "+Network.Bluetooth.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
                         e.addExternalRoute(relayService,
                                 "SEND",
@@ -388,7 +383,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     e.setMaxDelay(2 * 60 * 1000); // 2 minutes maximum
                     if(isNetworkReady(Network.Bluetooth)) {
                         String relayService = getNetworkServiceFromNetwork(Network.Bluetooth);
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, sitAware.desiredNetwork);
                         LOG.info("Found Relay Peer for relay Network "+Network.Bluetooth.name()+" to peer with "+sitAware.desiredNetwork.name()+" connected.");
                         e.addExternalRoute(relayService,
                                 "SEND",
@@ -425,7 +420,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                 // Min/Max ManCon does not support using I2P for this Envelope.
                                 // Let us see if there is an escalated network available with a Peer with I2P available
                                 Network relayNetwork = firstAvailableNonInternetNetwork();
-                                NetworkPeer relayPeer = peerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.I2P);
+                                NetworkPeer relayPeer = randomPeerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.I2P);
                                 if(relayPeer == null) {
                                     // No relay possible at this time; let's hold onto this message and try again later
                                     if(!sendToMessageHold(e)) {
@@ -445,7 +440,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         } else if(isNetworkReady(sitAware.desiredNetwork)) {
                             // I2P ready but not desired network
                             String relayService = getNetworkServiceFromNetwork(sitAware.desiredNetwork);
-                            NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.I2P);
+                            NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.I2P);
                             LOG.info("Found Relay Peer for desired relay Network: "+sitAware.desiredNetwork.name()+" to peer with I2P connected.");
                             e.addExternalRoute(relayService,
                                     "SEND",
@@ -460,7 +455,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         }
                     } else if(isNetworkReady(Network.Tor)) {
                         // I2P was not ready but Tor is so lets use Tor as a Relay to another peer that is connected to I2P
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Tor, Network.I2P);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Tor, Network.I2P);
                         if(relayPeer==null) {
                             if(!sendToMessageHold(e)) {
                                 LOG.warning("3-Failed to send envelope to hold: "+e.toJSON());
@@ -471,7 +466,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         pathResolved = true;
                     } else if(isNetworkReady(Network.Bluetooth)) {
                         // I2P nor Tor was ready but Bluetooth is so lets use Bluetooth as a Relay to another peer that is connected to I2P
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
                         if(relayPeer==null) {
                             if(!sendToMessageHold(e)) {
                                 LOG.warning("4-Failed to send envelope to hold: "+e.toJSON());
@@ -507,7 +502,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                                 // Min/Max ManCon does not support using I2P for this Envelope.
                                 // Let us see if there is an escalated network available with a Peer with I2P available
                                 Network relayNetwork = firstAvailableNonInternetNetwork();
-                                NetworkPeer relayPeer = peerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.I2P);
+                                NetworkPeer relayPeer = randomPeerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(relayNetwork, Network.I2P);
                                 if(relayPeer == null) {
                                     // No relay possible at this time; let's hold onto this message and try again later
                                     if(!sendToMessageHold(e)) {
@@ -527,7 +522,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         } else if(isNetworkReady(sitAware.desiredNetwork)) {
                             // I2P ready but not desired network
                             String relayService = getNetworkServiceFromNetwork(sitAware.desiredNetwork);
-                            NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.I2P);
+                            NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(sitAware.desiredNetwork, Network.I2P);
                             LOG.info("Found Relay Peer for desired relay Network: "+sitAware.desiredNetwork.name()+" to peer with I2P connected.");
                             e.addExternalRoute(relayService,
                                     "SEND",
@@ -542,7 +537,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         }
                     } else if(isNetworkReady(Network.Tor)) {
                         // I2P was not ready but Tor is so lets use Tor as a Relay to another peer that is connected to I2P
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Tor, Network.I2P);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Tor, Network.I2P);
                         if(relayPeer==null) {
                             if(!sendToMessageHold(e)) {
                                 LOG.warning("3-Failed to send envelope to hold: "+e.toJSON());
@@ -553,7 +548,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                         pathResolved = true;
                     } else if(isNetworkReady(Network.Bluetooth)) {
                         // I2P nor Tor was ready but Bluetooth is so lets use Bluetooth as a Relay to another peer that is connected to I2P
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
                         if(relayPeer==null) {
                             if(!sendToMessageHold(e)) {
                                 LOG.warning("4-Failed to send envelope to hold: "+e.toJSON());
@@ -575,7 +570,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     //   P2P: Non-Internet to I2P peer
                     if(isNetworkReady(Network.Bluetooth)) {
                         // Use Bluetooth as a Relay to another peer that is connected to I2P
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
                         if(relayPeer==null) {
                             if(!sendToMessageHold(e)) {
                                 LOG.warning("4-Failed to send envelope to hold: "+e.toJSON());
@@ -606,7 +601,7 @@ public final class CRNetworkManagerService extends NetworkManagerService {
                     // TODO: Encrypt payload with 3/6/12/24 word-pneumonic passphrase
                     if(isNetworkReady(Network.Bluetooth)) {
                         // Use Bluetooth as a Relay to another peer that is connected to I2P
-                        NetworkPeer relayPeer = peerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
+                        NetworkPeer relayPeer = randomPeerWithAvailabilityOfSpecifiedNetwork(Network.Bluetooth, Network.I2P);
                         if(relayPeer==null) {
                             if(!sendToMessageHold(e)) {
                                 LOG.warning("4-Failed to send envelope to hold: "+e.toJSON());
@@ -628,50 +623,50 @@ public final class CRNetworkManagerService extends NetworkManagerService {
         return new Tuple2<>(true, ResponseCodes.READY);
     }
 
-    protected NetworkPeer peerByFirstAvailableNonInternetNetwork() {
+    protected NetworkPeer randomPeerByFirstAvailableNonInternetNetwork() {
         if(getNetworkStatus(Network.Bluetooth)==NetworkStatus.CONNECTED
-                && peerDB.peerWithInternetAccessAvailable(Network.Bluetooth)!=null)
-            return peerDB.peerWithInternetAccessAvailable(Network.Bluetooth);
+                && peerDB.randomPeerWithInternetAccessAvailable(Network.Bluetooth)!=null)
+            return peerDB.randomPeerWithInternetAccessAvailable(Network.Bluetooth);
         else if(getNetworkStatus(Network.WiFi)==NetworkStatus.CONNECTED
-                && peerDB.peerWithInternetAccessAvailable(Network.WiFi)!=null)
-            return peerDB.peerWithInternetAccessAvailable(Network.WiFi);
+                && peerDB.randomPeerWithInternetAccessAvailable(Network.WiFi)!=null)
+            return peerDB.randomPeerWithInternetAccessAvailable(Network.WiFi);
         else if(getNetworkStatus(Network.Satellite)==NetworkStatus.CONNECTED
-                && peerDB.peerWithInternetAccessAvailable(Network.Satellite)!=null)
-            return peerDB.peerWithInternetAccessAvailable(Network.Satellite);
+                && peerDB.randomPeerWithInternetAccessAvailable(Network.Satellite)!=null)
+            return peerDB.randomPeerWithInternetAccessAvailable(Network.Satellite);
         else if(getNetworkStatus(Network.FSRadio)==NetworkStatus.CONNECTED
-                && peerDB.peerWithInternetAccessAvailable(Network.FSRadio)!=null)
-            return peerDB.peerWithInternetAccessAvailable(Network.FSRadio);
+                && peerDB.randomPeerWithInternetAccessAvailable(Network.FSRadio)!=null)
+            return peerDB.randomPeerWithInternetAccessAvailable(Network.FSRadio);
         else if(getNetworkStatus(Network.LiFi)==NetworkStatus.CONNECTED
-                && peerDB.peerWithInternetAccessAvailable(Network.LiFi)!=null)
-            return peerDB.peerWithInternetAccessAvailable(Network.LiFi);
+                && peerDB.randomPeerWithInternetAccessAvailable(Network.LiFi)!=null)
+            return peerDB.randomPeerWithInternetAccessAvailable(Network.LiFi);
         else
             return null;
     }
 
-    protected NetworkPeer peerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(Network networkPeerAccessibleThrough, Network availableNetworkWithinPeer) {
+    protected NetworkPeer randomPeerByFirstAvailableNonInternetNetworkWithAvailabilityOfSpecifiedNetwork(Network networkPeerAccessibleThrough, Network availableNetworkWithinPeer) {
         if(getNetworkStatus(Network.Bluetooth)==NetworkStatus.CONNECTED
-                && peerDB.peerWithSpecificNetworkAvailable(Network.Bluetooth, availableNetworkWithinPeer)!=null)
-            return peerDB.peerWithSpecificNetworkAvailable(Network.Bluetooth, availableNetworkWithinPeer);
+                && peerDB.randomPeerWithSpecificNetworkAvailable(Network.Bluetooth, availableNetworkWithinPeer)!=null)
+            return peerDB.randomPeerWithSpecificNetworkAvailable(Network.Bluetooth, availableNetworkWithinPeer);
         else if(getNetworkStatus(Network.WiFi)==NetworkStatus.CONNECTED
-                && peerDB.peerWithSpecificNetworkAvailable(Network.WiFi, availableNetworkWithinPeer)!=null)
-            return peerDB.peerWithSpecificNetworkAvailable(Network.WiFi, availableNetworkWithinPeer);
+                && peerDB.randomPeerWithSpecificNetworkAvailable(Network.WiFi, availableNetworkWithinPeer)!=null)
+            return peerDB.randomPeerWithSpecificNetworkAvailable(Network.WiFi, availableNetworkWithinPeer);
         else if(getNetworkStatus(Network.Satellite)==NetworkStatus.CONNECTED
-                && peerDB.peerWithSpecificNetworkAvailable(Network.Satellite, availableNetworkWithinPeer)!=null)
-            return peerDB.peerWithSpecificNetworkAvailable(Network.Satellite, availableNetworkWithinPeer);
+                && peerDB.randomPeerWithSpecificNetworkAvailable(Network.Satellite, availableNetworkWithinPeer)!=null)
+            return peerDB.randomPeerWithSpecificNetworkAvailable(Network.Satellite, availableNetworkWithinPeer);
         else if(getNetworkStatus(Network.FSRadio)==NetworkStatus.CONNECTED
-                && peerDB.peerWithSpecificNetworkAvailable(Network.FSRadio, availableNetworkWithinPeer)!=null)
-            return peerDB.peerWithSpecificNetworkAvailable(Network.FSRadio, availableNetworkWithinPeer);
+                && peerDB.randomPeerWithSpecificNetworkAvailable(Network.FSRadio, availableNetworkWithinPeer)!=null)
+            return peerDB.randomPeerWithSpecificNetworkAvailable(Network.FSRadio, availableNetworkWithinPeer);
         else if(getNetworkStatus(Network.LiFi)==NetworkStatus.CONNECTED
-                && peerDB.peerWithSpecificNetworkAvailable(Network.LiFi, availableNetworkWithinPeer)!=null)
-            return peerDB.peerWithSpecificNetworkAvailable(Network.LiFi, availableNetworkWithinPeer);
+                && peerDB.randomPeerWithSpecificNetworkAvailable(Network.LiFi, availableNetworkWithinPeer)!=null)
+            return peerDB.randomPeerWithSpecificNetworkAvailable(Network.LiFi, availableNetworkWithinPeer);
         else
             return null;
     }
 
-    protected NetworkPeer peerWithAvailabilityOfSpecifiedNetwork(Network networkPeerAccessibleThrough, Network availableNetworkWithinPeer) {
+    protected NetworkPeer randomPeerWithAvailabilityOfSpecifiedNetwork(Network networkPeerAccessibleThrough, Network availableNetworkWithinPeer) {
         if(getNetworkStatus(networkPeerAccessibleThrough)==NetworkStatus.CONNECTED
-                && peerDB.peerWithSpecificNetworkAvailable(networkPeerAccessibleThrough, availableNetworkWithinPeer)!=null) {
-            return peerDB.peerWithSpecificNetworkAvailable(networkPeerAccessibleThrough, availableNetworkWithinPeer);
+                && peerDB.randomPeerWithSpecificNetworkAvailable(networkPeerAccessibleThrough, availableNetworkWithinPeer)!=null) {
+            return peerDB.randomPeerWithSpecificNetworkAvailable(networkPeerAccessibleThrough, availableNetworkWithinPeer);
         }
         return null;
     }
@@ -798,4 +793,9 @@ public final class CRNetworkManagerService extends NetworkManagerService {
         }
     }
 
+    @Override
+    protected boolean initPeerDB() {
+        peerDB = new PeerRelationshipsDB();
+        return peerDB.init(config);
+    }
 }

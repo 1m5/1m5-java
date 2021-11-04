@@ -11,12 +11,15 @@ import org.neo4j.graphdb.schema.IndexDefinition;
 import ra.common.network.Network;
 import ra.common.network.NetworkPeer;
 import ra.common.FileUtil;
+import ra.networkmanager.P2PRelationship;
+import ra.networkmanager.PeerDB;
+import ra.networkmanager.RelType;
 
 import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
 
-class PeerRelationshipsDB {
+public class PeerRelationshipsDB implements PeerDB {
 
     private static final Logger LOG = Logger.getLogger(PeerRelationshipsDB.class.getName());
 
@@ -26,8 +29,9 @@ class PeerRelationshipsDB {
     private String location;
     private String name;
     private Properties properties;
+    private Label localLabel = Label.label("local");
+    private Label peerLabel = Label.label("peer");
     private GraphDatabaseService graphDb;
-    private Label peerLabel = Label.label("Peer");
     private final Object peerSaveLock = new Object();
 
     private final int MaxAcksTracked = 50;
@@ -52,7 +56,7 @@ class PeerRelationshipsDB {
     public List<NetworkPeer> findLeastHopsPath(String fromPeerId, String toPeerId) {
         List<NetworkPeer> leastHopsPath = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx()) {
-            PathFinder<Path> finder = GraphAlgoFactory.shortestPath(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.IMS, Direction.OUTGOING), 15);
+            PathFinder<Path> finder = GraphAlgoFactory.shortestPath(PathExpanders.forTypeAndDirection(GraphRelType.getInstance(RelType.IMS), Direction.OUTGOING), 15);
             Node startNode = findPeerNode(fromPeerId);
             Node endNode = findPeerNode(toPeerId);
             if (startNode != null && endNode != null) {
@@ -73,7 +77,7 @@ class PeerRelationshipsDB {
     public List<NetworkPeer> findLowestLatencyPath(String fromPeerId, String toPeerId) {
         List<NetworkPeer> lowestLatencyPath = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx()) {
-            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.IMS, Direction.OUTGOING), P2PRelationship.AVG_ACK_LATENCY_MS);
+            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(GraphRelType.getInstance(RelType.IMS), Direction.OUTGOING), P2PRelationship.AVG_ACK_LATENCY_MS);
             Node startNode = findPeerNode(fromPeerId);
             Node endNode = findPeerNode(toPeerId);
             if (startNode != null && endNode != null) {
@@ -124,7 +128,7 @@ class PeerRelationshipsDB {
         };
         List<NetworkPeer> lowestLatencyPath = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx()) {
-            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(P2PRelationship.RelType.IMS, Direction.OUTGOING), P2PRelationship.AVG_ACK_LATENCY_MS);
+            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(GraphRelType.getInstance(RelType.IMS), Direction.OUTGOING), P2PRelationship.AVG_ACK_LATENCY_MS);
 //            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanderBuilder.allTypes(Direction.OUTGOING).)
             Node startNode = findPeerNode(fromPeerId);
             Node endNode = findPeerNode(toPeerId);
@@ -149,14 +153,17 @@ class PeerRelationshipsDB {
         return lowestLatencyPath;
     }
 
-    public boolean savePeer(NetworkPeer networkPeer, Boolean autoCreate) {
+    @Override
+    public Boolean savePeer(NetworkPeer p, Boolean local, RelType relType) {
+        if(p.getNetwork()==null) return false;
         boolean saved = false;
+        Label label = local ? localLabel : peerLabel;
         synchronized (peerSaveLock) {
             try (Transaction tx = graphDb.beginTx()) {
-                Node n = findPeerNode(networkPeer.getId());
-                if (n == null && autoCreate) {
-                    n = graphDb.createNode(peerLabel);
-                    n.setProperty("id", networkPeer.getId());
+                Node n = findPeerNode(p.getId());
+                if (n == null) {
+                    n = graphDb.createNode(label);
+                    n.setProperty("id", p.getId());
                 }
                 tx.success();
                 saved = true;
@@ -177,9 +184,15 @@ class PeerRelationshipsDB {
         return graphDb.findNode(peerLabel, "id", id);
     }
 
+    @Override
+    public NetworkPeer findPeer(NetworkPeer np) {
+
+        return null;
+    }
+
     public boolean isRelatedByNetwork(String startPeerId, String network, String endPeerId) {
         boolean hasRel = false;
-        P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
+        RelType relType = RelType.fromNetwork(network);
         String cql = "MATCH (n {id: '" + startPeerId + "'})-[r:" + relType.name() + "]->(e {id: '" + endPeerId + "'})" +
                 " RETURN r;";
         try (Transaction tx = graphDb.beginTx()) {
@@ -204,12 +217,12 @@ class PeerRelationshipsDB {
             LOG.info("Both peers are the same, skipping.");
             return null;
         }
-        P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
+        RelType relType = RelType.fromNetwork(network);
         P2PRelationship rt = null;
         try (Transaction tx = graphDb.beginTx()) {
             Node lpn = findPeerNode(idLeftPeer);
             Node rpn = findPeerNode(idRightPeer);
-            Iterator<Relationship> i = lpn.getRelationships(relType, Direction.OUTGOING).iterator();
+            Iterator<Relationship> i = lpn.getRelationships(GraphRelType.getInstance(relType), Direction.OUTGOING).iterator();
             while(i.hasNext()) {
                 Relationship r = i.next();
                 if(r.getNodes()[1].equals(rpn)) {
@@ -221,7 +234,7 @@ class PeerRelationshipsDB {
             }
             if(rt==null) {
                 // create
-                Relationship r = lpn.createRelationshipTo(rpn, relType);
+                Relationship r = lpn.createRelationshipTo(rpn, GraphRelType.getInstance(relType));
                 rt = initP2PRel(r);
                 LOG.info(idRightPeer+" is now a "+ relType.name()+" peer of "+idLeftPeer);
             }
@@ -233,12 +246,11 @@ class PeerRelationshipsDB {
     }
 
     public P2PRelationship getNetworkRelationship(String idLeftPeer, String network, String idRightPeer) {
-        P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
         P2PRelationship rt = null;
         try (Transaction tx = graphDb.beginTx()) {
             Node lpn = findPeerNode(idLeftPeer);
             Node rpn = findPeerNode(idRightPeer);
-            Iterator<Relationship> i = lpn.getRelationships(relType, Direction.OUTGOING).iterator();
+            Iterator<Relationship> i = lpn.getRelationships(GraphRelType.getInstance(Network.valueOf(network)), Direction.OUTGOING).iterator();
             while(i.hasNext()) {
                 Relationship r = i.next();
                 if(r.getNodes()[1].equals(rpn)) {
@@ -256,7 +268,7 @@ class PeerRelationshipsDB {
     }
 
     public long numberPeersByNetwork(String id, String network) {
-        P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
+        RelType relType = RelType.fromNetwork(network);
         long count = -1;
         try (Transaction tx = graphDb.beginTx()) {
             String cql = "MATCH (n {id: '"+id+"'})-[:" + relType.name() + "]->()" +
@@ -281,7 +293,7 @@ class PeerRelationshipsDB {
      * Remove relationship
      */
     public boolean removeNetworkRelationship(String startPeerId, String network, String endPeerId) {
-        P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
+        RelType relType = RelType.fromNetwork(network);
         try (Transaction tx = graphDb.beginTx()) {
             String cql = "MATCH (n {id: '"+startPeerId+"'})-[r:" + relType.name() + "]->( e {id: '"+endPeerId+"'})" +
                     " DELETE r;";
@@ -307,20 +319,20 @@ class PeerRelationshipsDB {
      * @param timeSent time sent in milliseconds since epoch
      * @param timeAcknowledged time acknowledged in milliseconds since epoch
      */
-    public Boolean savePeerStatusTimes(String startPeerId, String network, String endPeerId, Long timeSent, Long timeAcknowledged) {
+    public Boolean savePeerStatusTimes(String startPeerId, Network network, String endPeerId, Long timeSent, Long timeAcknowledged) {
         boolean addedAsReliable = false;
-        P2PRelationship.RelType relType = P2PRelationship.networkToRelationship(network);
-        P2PRelationship networkRel = getNetworkRelationship(startPeerId, network, endPeerId);
+        RelType relType = RelType.fromNetwork(network.name());
+        P2PRelationship networkRel = getNetworkRelationship(startPeerId, network.name(), endPeerId);
         if(networkRel!=null) {
             // Update stats
             networkRel.setLastAckTime(timeAcknowledged);
             networkRel.addAckTimeTracked(timeAcknowledged - timeSent, MaxAcksTracked);
             String cql = "MATCH (n {id: '" + startPeerId + "'})-[r:" + relType + "]->(e {id: '" + endPeerId + "'})" +
-                    " SET r.totalAcks = " + networkRel.getTotalAcks() + "," +
-                    " r.lastAckTime = " + networkRel.getLastAckTime() + "," +
-                    " r.avgAckLatencyMS = " + networkRel.getAvgAckLatencyMS() + "," +
-                    " r.medAckLatencyMS = " + networkRel.getMedAckLatencyMS() + "," +
-                    " r.ackTimesTracked = '" + networkRel.getAckTimesTracked() + "';";
+                    " SET r.totalAcks = " + networkRel.getTotalAcks(endPeerId) + "," +
+                    " r.lastAckTime = " + networkRel.getLastAckTime(endPeerId) + "," +
+                    " r.avgAckLatencyMS = " + networkRel.getAvgAckLatencyMS(endPeerId) + "," +
+                    " r.medAckLatencyMS = " + networkRel.getMedAckLatencyMS(endPeerId) + "," +
+                    " r.ackTimesTracked = '" + networkRel.getAckTimesTracked(endPeerId) + "';";
             try (Transaction tx = graphDb.beginTx()) {
                 graphDb.execute(cql);
                 tx.success();
@@ -330,18 +342,63 @@ class PeerRelationshipsDB {
 
             LOG.info("Peer status times: {" +
                     "\n\tack received by local peer in: "+(timeAcknowledged-timeSent)+"ms"+
-                    "\n\tlast ack: "+networkRel.getLastAckTime()+
-                    "\n\ttotal acks: "+networkRel.getTotalAcks()+
-                    "\n\tmed round trip latency: "+networkRel.getMedAckLatencyMS()+
-                    "\n\tavg round trip latency: "+networkRel.getAvgAckLatencyMS()+"ms\n} of remote peer "+endPeerId+" with start peer "+startPeerId);
+                    "\n\tlast ack: "+networkRel.getLastAckTime(endPeerId)+
+                    "\n\ttotal acks: "+networkRel.getTotalAcks(endPeerId)+
+                    "\n\tmed round trip latency: "+networkRel.getMedAckLatencyMS(endPeerId)+
+                    "\n\tavg round trip latency: "+networkRel.getAvgAckLatencyMS(endPeerId)+"ms\n} of remote peer "+endPeerId+" with start peer "+startPeerId);
 
-        } else if(numberPeersByNetwork(startPeerId, network) <= MaxPeersTracked) {
-            relateByNetwork(startPeerId, network, endPeerId);
+        } else if(numberPeersByNetwork(startPeerId, network.name()) <= MaxPeersTracked) {
+            relateByNetwork(startPeerId, network.name(), endPeerId);
             LOG.info("New relationship ("+ network+") with peer: "+endPeerId);
         } else {
             LOG.info("Max peers tracked: "+ MaxPeersTracked);
         }
         return addedAsReliable;
+    }
+
+    @Override
+    public int numberPeersByNetwork(Network network) {
+        return 0;
+    }
+
+    @Override
+    public int numberSeedPeersByNetwork(Network network) {
+        return 0;
+    }
+
+    @Override
+    public NetworkPeer getLocalPeerByNetwork(Network network) {
+        return null;
+    }
+
+    @Override
+    public NetworkPeer getRandomSeedByNetwork(Network network) {
+        return null;
+    }
+
+    @Override
+    public NetworkPeer getRandomPeerByNetwork(Network network) {
+        return null;
+    }
+
+    @Override
+    public List<NetworkPeer> getRandomPeersToShareByNetwork(Network network) {
+        return null;
+    }
+
+    @Override
+    public Set<NetworkPeer> findPeersByService(String s) {
+        return null;
+    }
+
+    @Override
+    public NetworkPeer randomPeerWithInternetAccessAvailable(Network network) {
+        return null;
+    }
+
+    @Override
+    public NetworkPeer randomPeerWithSpecificNetworkAvailable(Network network, Network network1) {
+        return null;
     }
 
     private P2PRelationship initP2PRel(Relationship r) {
@@ -360,6 +417,7 @@ class PeerRelationshipsDB {
         return GraphUtil.getAttributes(n);
     }
 
+    @Override
     public boolean init(Properties properties) {
         if(location==null) {
             LOG.warning("Neo4J DB location required. Please provide.");
@@ -413,6 +471,7 @@ class PeerRelationshipsDB {
         return true;
     }
 
+    @Override
     public boolean teardown() {
         LOG.info("Tearing down...");
         graphDb.shutdown();

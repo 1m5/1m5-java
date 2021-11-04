@@ -115,7 +115,7 @@
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
 			<artifactId>network-manager</artifactId>
-			<version>1.3.6</version>
+			<version>1.4.1</version>
 		</dependency>
         <dependency>
             <groupId>resolvingarchitecture</groupId>
