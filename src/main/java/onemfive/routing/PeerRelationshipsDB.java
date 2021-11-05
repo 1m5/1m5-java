@@ -186,8 +186,9 @@ public class PeerRelationshipsDB implements PeerDB {
 
     @Override
     public NetworkPeer findPeer(NetworkPeer np) {
-
-        return null;
+        Node n = findPeerNode(np.getId());
+        np.fromMap(toMap(n));
+        return np;
     }
 
     public boolean isRelatedByNetwork(String startPeerId, String network, String endPeerId) {
@@ -267,11 +268,16 @@ public class PeerRelationshipsDB implements PeerDB {
         return rt;
     }
 
-    public long numberPeersByNetwork(String id, String network) {
-        RelType relType = RelType.fromNetwork(network);
+    @Override
+    public long numberPeersByNetwork(Network network) {
+        RelType relType = RelType.fromNetwork(network.name());
         long count = -1;
+        NetworkPeer np = getLocalPeerByNetwork(network);
+        if(np==null) {
+            return 0;
+        }
         try (Transaction tx = graphDb.beginTx()) {
-            String cql = "MATCH (n {id: '"+id+"'})-[:" + relType.name() + "]->()" +
+            String cql = "MATCH (n {id: '"+np.getId()+"'})-[:" + relType.name() + "]->()" +
                     " RETURN count(*) as total";
             Result r = graphDb.execute(cql);
             if (r.hasNext()) {
@@ -288,6 +294,34 @@ public class PeerRelationshipsDB implements PeerDB {
         }
         return count;
     }
+
+    public long numberPeersByNetwork(String startingId, String network) {
+        RelType relType = RelType.fromNetwork(network);
+        long count = -1;
+        try (Transaction tx = graphDb.beginTx()) {
+            String cql = "MATCH (n {id: '"+startingId+"'})-[:" + relType.name() + "]->()" +
+                    " RETURN count(*) as total";
+            Result r = graphDb.execute(cql);
+            if (r.hasNext()) {
+                Map<String, Object> row = r.next();
+                for (Map.Entry<String, Object> column : row.entrySet()) {
+                    count = (long)column.getValue();
+                    break;
+                }
+            }
+            tx.success();
+            LOG.info(count+" "+ relType.name());
+        } catch(Exception e) {
+            LOG.warning(e.getLocalizedMessage());
+        }
+        return count;
+    }
+
+    @Override
+    public long numberSeedPeersByNetwork(Network network) {
+        return 0;
+    }
+
 
     /**
      * Remove relationship
@@ -354,16 +388,6 @@ public class PeerRelationshipsDB implements PeerDB {
             LOG.info("Max peers tracked: "+ MaxPeersTracked);
         }
         return addedAsReliable;
-    }
-
-    @Override
-    public int numberPeersByNetwork(Network network) {
-        return 0;
-    }
-
-    @Override
-    public int numberSeedPeersByNetwork(Network network) {
-        return 0;
     }
 
     @Override
