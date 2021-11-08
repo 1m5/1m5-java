@@ -186,6 +186,9 @@ public class PeerRelationshipsDB implements PeerDB {
 
     @Override
     public NetworkPeer findPeer(NetworkPeer np) {
+        if(np.getId()==null) {
+            return null;
+        }
         Node n = findPeerNode(np.getId());
         np.fromMap(toMap(n));
         return np;
