@@ -328,8 +328,7 @@ public class PeerRelationshipsDB implements PeerDB {
     /**
      * Remove relationship
      */
-    public boolean removeNetworkRelationship(String startPeerId, String network, String endPeerId) {
-        RelType relType = RelType.fromNetwork(network);
+    public boolean removeRelationship(String startPeerId, RelType relType, String endPeerId) {
         try (Transaction tx = graphDb.beginTx()) {
             String cql = "MATCH (n {id: '"+startPeerId+"'})-[r:" + relType.name() + "]->( e {id: '"+endPeerId+"'})" +
                     " DELETE r;";
