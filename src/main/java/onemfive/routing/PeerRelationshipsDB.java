@@ -297,8 +297,8 @@ public class PeerRelationshipsDB implements PeerDB {
         return count;
     }
 
-    public long numberPeersByNetwork(String startingId, String network) {
-        RelType relType = RelType.fromNetwork(network);
+    public long numberPeersByNetwork(String startingId, Network network) {
+        RelType relType = RelType.fromNetwork(network.name());
         long count = -1;
         try (Transaction tx = graphDb.beginTx()) {
             String cql = "MATCH (n {id: '"+startingId+"'})-[:" + relType.name() + "]->()" +
@@ -350,15 +350,13 @@ public class PeerRelationshipsDB implements PeerDB {
      * a minimum number of acks (SensorsConfig.mr) and minimum avg response time (<= SensorsConfig.lmc)
      *
      * @param startPeerId originator
-     * @param network Network
+     * @param relType RelType
      * @param endPeerId destination
      * @param timeSent time sent in milliseconds since epoch
      * @param timeAcknowledged time acknowledged in milliseconds since epoch
      */
-    public Boolean savePeerStatusTimes(String startPeerId, Network network, String endPeerId, Long timeSent, Long timeAcknowledged) {
-        boolean addedAsReliable = false;
-        RelType relType = RelType.fromNetwork(network.name());
-        P2PRelationship networkRel = getRelationship(startPeerId, RelType.fromNetwork(network.name()), endPeerId);
+    public void savePeerStatusTimes(String startPeerId, RelType relType, String endPeerId, Long timeSent, Long timeAcknowledged) {
+        P2PRelationship networkRel = getRelationship(startPeerId, relType, endPeerId);
         if(networkRel!=null) {
             // Update stats
             networkRel.setLastAckTime(timeAcknowledged);
@@ -383,13 +381,12 @@ public class PeerRelationshipsDB implements PeerDB {
                     "\n\tmed round trip latency: "+networkRel.getMedAckLatencyMS(endPeerId)+
                     "\n\tavg round trip latency: "+networkRel.getAvgAckLatencyMS(endPeerId)+"ms\n} of remote peer "+endPeerId+" with start peer "+startPeerId);
 
-        } else if(numberPeersByNetwork(startPeerId, network.name()) <= MaxPeersTracked) {
-            relateByRelType(startPeerId, RelType.fromNetwork(network.name()), endPeerId);
-            LOG.info("New relationship ("+ network+") with peer: "+endPeerId);
+        } else if(RelType.toNetwork(relType.name())!=null && numberPeersByNetwork(startPeerId, RelType.toNetwork(relType.name())) <= MaxPeersTracked) {
+            relateByRelType(startPeerId, relType, endPeerId);
+            LOG.info("New relationship ("+ relType.name()+") with peer: "+endPeerId);
         } else {
             LOG.info("Max peers tracked: "+ MaxPeersTracked);
         }
-        return addedAsReliable;
     }
 
     @Override
