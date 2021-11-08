@@ -297,6 +297,7 @@ public class PeerRelationshipsDB implements PeerDB {
         return count;
     }
 
+    @Override
     public long numberPeersByNetwork(String startingId, Network network) {
         RelType relType = RelType.fromNetwork(network.name());
         long count = -1;
