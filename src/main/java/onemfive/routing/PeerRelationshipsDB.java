@@ -209,7 +209,7 @@ public class PeerRelationshipsDB implements PeerDB {
         return hasRel;
     }
 
-    public P2PRelationship relateByNetwork(String idLeftPeer, String network, String idRightPeer) {
+    public P2PRelationship relateByNetwork(String idLeftPeer, Network network, String idRightPeer) {
         if(idLeftPeer==null || idRightPeer==null) {
             LOG.warning("Must provide ids for both peers when relating them.");
             return null;
@@ -218,7 +218,7 @@ public class PeerRelationshipsDB implements PeerDB {
             LOG.info("Both peers are the same, skipping.");
             return null;
         }
-        RelType relType = RelType.fromNetwork(network);
+        RelType relType = RelType.fromNetwork(network.name());
         P2PRelationship rt = null;
         try (Transaction tx = graphDb.beginTx()) {
             Node lpn = findPeerNode(idLeftPeer);
@@ -246,12 +246,12 @@ public class PeerRelationshipsDB implements PeerDB {
         return rt;
     }
 
-    public P2PRelationship getNetworkRelationship(String idLeftPeer, String network, String idRightPeer) {
+    public P2PRelationship getNetworkRelationship(String idLeftPeer, Network network, String idRightPeer) {
         P2PRelationship rt = null;
         try (Transaction tx = graphDb.beginTx()) {
             Node lpn = findPeerNode(idLeftPeer);
             Node rpn = findPeerNode(idRightPeer);
-            Iterator<Relationship> i = lpn.getRelationships(GraphRelType.getInstance(Network.valueOf(network)), Direction.OUTGOING).iterator();
+            Iterator<Relationship> i = lpn.getRelationships(GraphRelType.getInstance(network), Direction.OUTGOING).iterator();
             while(i.hasNext()) {
                 Relationship r = i.next();
                 if(r.getNodes()[1].equals(rpn)) {
@@ -356,7 +356,7 @@ public class PeerRelationshipsDB implements PeerDB {
     public Boolean savePeerStatusTimes(String startPeerId, Network network, String endPeerId, Long timeSent, Long timeAcknowledged) {
         boolean addedAsReliable = false;
         RelType relType = RelType.fromNetwork(network.name());
-        P2PRelationship networkRel = getNetworkRelationship(startPeerId, network.name(), endPeerId);
+        P2PRelationship networkRel = getNetworkRelationship(startPeerId, network, endPeerId);
         if(networkRel!=null) {
             // Update stats
             networkRel.setLastAckTime(timeAcknowledged);
@@ -382,7 +382,7 @@ public class PeerRelationshipsDB implements PeerDB {
                     "\n\tavg round trip latency: "+networkRel.getAvgAckLatencyMS(endPeerId)+"ms\n} of remote peer "+endPeerId+" with start peer "+startPeerId);
 
         } else if(numberPeersByNetwork(startPeerId, network.name()) <= MaxPeersTracked) {
-            relateByNetwork(startPeerId, network.name(), endPeerId);
+            relateByNetwork(startPeerId, network, endPeerId);
             LOG.info("New relationship ("+ network+") with peer: "+endPeerId);
         } else {
             LOG.info("Max peers tracked: "+ MaxPeersTracked);
