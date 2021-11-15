@@ -128,7 +128,11 @@ public class PeerRelationshipsDB implements PeerDB {
         };
         List<NetworkPeer> lowestLatencyPath = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx()) {
-            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(GraphRelType.getInstance(RelType.IMS), Direction.OUTGOING), P2PRelationship.AVG_ACK_LATENCY_MS);
+            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(
+                    PathExpanders.forTypeAndDirection(
+                            GraphRelType.getInstance(RelType.IMS),
+                            Direction.OUTGOING),
+                    P2PRelationship.AVG_ACK_LATENCY_MS);
 //            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanderBuilder.allTypes(Direction.OUTGOING).)
             Node startNode = findPeerNode(fromPeerId);
             Node endNode = findPeerNode(toPeerId);
@@ -224,13 +228,15 @@ public class PeerRelationshipsDB implements PeerDB {
         P2PRelationship rt = null;
         try (Transaction tx = graphDb.beginTx()) {
             Node lpn = findPeerNode(idLeftPeer);
+            NetworkPeer lp = toPeer(lpn);
             Node rpn = findPeerNode(idRightPeer);
+            NetworkPeer rp = toPeer(rpn);
             Iterator<Relationship> i = lpn.getRelationships(GraphRelType.getInstance(relType), Direction.OUTGOING).iterator();
             while(i.hasNext()) {
                 Relationship r = i.next();
                 if(r.getNodes()[1].equals(rpn)) {
                     // load
-                    rt = initP2PRel(r);
+                    rt = initP2PRel(lp, r, rp);
                     LOG.info("Found P2P Relationship; no need to create.");
                     break;
                 }
@@ -238,7 +244,7 @@ public class PeerRelationshipsDB implements PeerDB {
             if(rt==null) {
                 // create
                 Relationship r = lpn.createRelationshipTo(rpn, GraphRelType.getInstance(relType));
-                rt = initP2PRel(r);
+                rt = initP2PRel(lp, r, rp);
                 LOG.info(idRightPeer+" is now a "+ relType.name()+" peer of "+idLeftPeer);
             }
             tx.success();
@@ -252,13 +258,15 @@ public class PeerRelationshipsDB implements PeerDB {
         P2PRelationship rt = null;
         try (Transaction tx = graphDb.beginTx()) {
             Node lpn = findPeerNode(idLeftPeer);
+            NetworkPeer lp = toPeer(lpn);
             Node rpn = findPeerNode(idRightPeer);
+            NetworkPeer rp = toPeer(rpn);
             Iterator<Relationship> i = lpn.getRelationships(GraphRelType.getInstance(relType), Direction.OUTGOING).iterator();
             while(i.hasNext()) {
                 Relationship r = i.next();
                 if(r.getNodes()[1].equals(rpn)) {
                     // load
-                    rt = initP2PRel(r);
+                    rt = initP2PRel(lp, r, rp);
                     LOG.info("Found P2P Relationship");
                     break;
                 }
@@ -359,14 +367,12 @@ public class PeerRelationshipsDB implements PeerDB {
         P2PRelationship networkRel = getRelationship(startPeerId, relType, endPeerId);
         if(networkRel!=null) {
             // Update stats
-            networkRel.setLastAckTime(timeAcknowledged);
-            networkRel.addAckTimeTracked(timeAcknowledged - timeSent, MaxAcksTracked);
+            networkRel.addAck(timeAcknowledged - timeSent);
             String cql = "MATCH (n {id: '" + startPeerId + "'})-[r:" + relType + "]->(e {id: '" + endPeerId + "'})" +
-                    " SET r.totalAcks = " + networkRel.getTotalAcks(endPeerId) + "," +
-                    " r.lastAckTime = " + networkRel.getLastAckTime(endPeerId) + "," +
-                    " r.avgAckLatencyMS = " + networkRel.getAvgAckLatencyMS(endPeerId) + "," +
-                    " r.medAckLatencyMS = " + networkRel.getMedAckLatencyMS(endPeerId) + "," +
-                    " r.ackTimesTracked = '" + networkRel.getAckTimesTracked(endPeerId) + "';";
+                    " SET r.totalAcks = " + networkRel.getTotalAcks() + "," +
+                    " r.lastAckTime = " + networkRel.getLastAckTime() + "," +
+                    " r.avgAckLatencyMS = " + networkRel.getAvgAckLatencyMS() + "," +
+                    " r.medAckLatencyMS = " + networkRel.getMedAckLatencyMS() + ";";
             try (Transaction tx = graphDb.beginTx()) {
                 graphDb.execute(cql);
                 tx.success();
@@ -376,10 +382,10 @@ public class PeerRelationshipsDB implements PeerDB {
 
             LOG.info("Peer status times: {" +
                     "\n\tack received by local peer in: "+(timeAcknowledged-timeSent)+"ms"+
-                    "\n\tlast ack: "+networkRel.getLastAckTime(endPeerId)+
-                    "\n\ttotal acks: "+networkRel.getTotalAcks(endPeerId)+
-                    "\n\tmed round trip latency: "+networkRel.getMedAckLatencyMS(endPeerId)+
-                    "\n\tavg round trip latency: "+networkRel.getAvgAckLatencyMS(endPeerId)+"ms\n} of remote peer "+endPeerId+" with start peer "+startPeerId);
+                    "\n\tlast ack: "+networkRel.getLastAckTime()+
+                    "\n\ttotal acks: "+networkRel.getTotalAcks()+
+                    "\n\tmed round trip latency: "+networkRel.getMedAckLatencyMS()+
+                    "\n\tavg round trip latency: "+networkRel.getAvgAckLatencyMS()+"ms\n} of remote peer "+endPeerId+" with start peer "+startPeerId);
 
         } else if(RelType.toNetwork(relType.name())!=null && numberPeersByNetwork(startPeerId, RelType.toNetwork(relType.name())) <= MaxPeersTracked) {
             relateByRelType(startPeerId, relType, endPeerId);
@@ -424,8 +430,8 @@ public class PeerRelationshipsDB implements PeerDB {
         return null;
     }
 
-    private P2PRelationship initP2PRel(Relationship r) {
-        P2PRelationship p2PR = new P2PRelationship();
+    private P2PRelationship initP2PRel(NetworkPeer fromPeer, Relationship r, NetworkPeer toPeer) {
+        P2PRelationship p2PR = new P2PRelationship(fromPeer, toPeer);
         p2PR.fromMap(toMap(r));
         return p2PR;
     }
