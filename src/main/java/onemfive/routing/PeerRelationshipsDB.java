@@ -53,10 +53,14 @@ public class PeerRelationshipsDB implements PeerDB {
         return graphDb;
     }
 
-    public List<NetworkPeer> findLeastHopsPath(String fromPeerId, String toPeerId) {
+    public List<NetworkPeer> findLeastHopsPath(String fromPeerId, RelType relType, String toPeerId) {
         List<NetworkPeer> leastHopsPath = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx()) {
-            PathFinder<Path> finder = GraphAlgoFactory.shortestPath(PathExpanders.forTypeAndDirection(GraphRelType.getInstance(RelType.IMS), Direction.OUTGOING), 15);
+            PathFinder<Path> finder = GraphAlgoFactory.shortestPath(
+                    PathExpanders.forTypeAndDirection(
+                            GraphRelType.getInstance(relType),
+                            Direction.OUTGOING),
+                    15);
             Node startNode = findPeerNode(fromPeerId);
             Node endNode = findPeerNode(toPeerId);
             if (startNode != null && endNode != null) {
@@ -74,10 +78,14 @@ public class PeerRelationshipsDB implements PeerDB {
         return leastHopsPath;
     }
 
-    public List<NetworkPeer> findLowestLatencyPath(String fromPeerId, String toPeerId) {
+    public List<NetworkPeer> findLowestLatencyPath(String fromPeerId, RelType relType, String toPeerId) {
         List<NetworkPeer> lowestLatencyPath = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx()) {
-            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanders.forTypeAndDirection(GraphRelType.getInstance(RelType.IMS), Direction.OUTGOING), P2PRelationship.AVG_ACK_LATENCY_MS);
+            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(
+                    PathExpanders.forTypeAndDirection(
+                            GraphRelType.getInstance(relType),
+                            Direction.OUTGOING),
+                    P2PRelationship.AVG_ACK_LATENCY_MS);
             Node startNode = findPeerNode(fromPeerId);
             Node endNode = findPeerNode(toPeerId);
             if (startNode != null && endNode != null) {
@@ -108,10 +116,9 @@ public class PeerRelationshipsDB implements PeerDB {
      *
      * @param fromPeerId
      * @param toPeerId
-     * @param networks
      * @return
      */
-    public List<NetworkPeer> findLowestLatencyPathFiltered(String fromPeerId, String toPeerId, String[] networks) {
+    public List<NetworkPeer> findLowestLatencyPathFiltered(String fromPeerId, RelType relType, String toPeerId) {
         CostEvaluator<Double> costEvaluator = new CostEvaluator<Double>() {
             @Override
             public Double getCost(Relationship relationship, Direction direction) {
@@ -130,7 +137,7 @@ public class PeerRelationshipsDB implements PeerDB {
         try (Transaction tx = graphDb.beginTx()) {
             PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(
                     PathExpanders.forTypeAndDirection(
-                            GraphRelType.getInstance(RelType.IMS),
+                            GraphRelType.getInstance(relType),
                             Direction.OUTGOING),
                     P2PRelationship.AVG_ACK_LATENCY_MS);
 //            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(PathExpanderBuilder.allTypes(Direction.OUTGOING).)
