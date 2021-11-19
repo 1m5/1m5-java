@@ -418,7 +418,7 @@ public class PeerRelationshipsDB implements PeerDB {
     }
 
     @Override
-    public List<NetworkPeer> getRandomPeersToShareByNetwork(Network network) {
+    public List<NetworkPeer> getRandomPeersToShareByNetwork(Network network, int numPeersShare) {
         return null;
     }
 
