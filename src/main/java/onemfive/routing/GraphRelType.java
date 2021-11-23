@@ -17,7 +17,7 @@ public class GraphRelType implements RelationshipType {
     }
 
     public static GraphRelType getInstance(Network network) {
-        return new GraphRelType(RelType.fromNetwork(network.name()));
+        return new GraphRelType(RelType.fromNetwork(network));
     }
 
     @Override

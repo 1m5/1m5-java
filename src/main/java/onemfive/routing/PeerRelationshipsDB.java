@@ -205,7 +205,7 @@ public class PeerRelationshipsDB implements PeerDB {
         return np;
     }
 
-    public boolean isRelatedByNetwork(String startPeerId, String network, String endPeerId) {
+    public boolean isRelatedByNetwork(String startPeerId, Network network, String endPeerId) {
         boolean hasRel = false;
         RelType relType = RelType.fromNetwork(network);
         String cql = "MATCH (n {id: '" + startPeerId + "'})-[r:" + relType.name() + "]->(e {id: '" + endPeerId + "'})" +
@@ -287,7 +287,7 @@ public class PeerRelationshipsDB implements PeerDB {
 
     @Override
     public long numberPeersByNetwork(Network network) {
-        RelType relType = RelType.fromNetwork(network.name());
+        RelType relType = RelType.fromNetwork(network);
         long count = -1;
         NetworkPeer np = getLocalPeerByNetwork(network);
         if(np==null) {
@@ -314,7 +314,7 @@ public class PeerRelationshipsDB implements PeerDB {
 
     @Override
     public long numberPeersByNetwork(String startingId, Network network) {
-        RelType relType = RelType.fromNetwork(network.name());
+        RelType relType = RelType.fromNetwork(network);
         long count = -1;
         try (Transaction tx = graphDb.beginTx()) {
             String cql = "MATCH (n {id: '"+startingId+"'})-[:" + relType.name() + "]->()" +
