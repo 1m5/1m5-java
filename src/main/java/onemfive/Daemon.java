@@ -227,8 +227,9 @@ public class Daemon {
 //        bus.startService(BluetoothService.class.getName());
 
         // Start available services
-        Wait.aSec(3);
+        Wait.aSec(1);
         bus.startService(BitcoinService.class.getName());
+        Wait.aSec(1);
         bus.startService(DEXService.class.getName());
 
 //        Envelope e = Envelope.documentFactory();
