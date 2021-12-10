@@ -5,7 +5,7 @@
 
 	<groupId>onemfive</groupId>
 	<artifactId>platform</artifactId>
-	<version>0.6.6.19</version>
+	<version>2.6.19</version>
 
 	<packaging>jar</packaging>
 
