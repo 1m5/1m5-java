@@ -1,22 +1,18 @@
 package onemfive;
 
-import ra.btc.BitcoinService;
-import ra.common.Status;
+import ra.common.*;
+import ra.common.identity.DID;
 import ra.common.service.ServiceNotAccessibleException;
 import ra.common.service.ServiceNotSupportedException;
-import ra.dex.DEXService;
 import ra.did.DIDService;
+import ra.did.GenerateKeyRingCollectionsRequest;
+import ra.did.OpenPGPKeyRing;
 import ra.http.HTTPService;
 import ra.i2p.I2PService;
-import ra.keyring.KeyRingService;
 import ra.maildrop.MailDropService;
 import ra.networkmanager.NetworkManagerService;
 import ra.notification.NotificationService;
 import ra.servicebus.ServiceBus;
-import ra.common.Config;
-import ra.common.SecureFile;
-import ra.common.SystemSettings;
-import ra.common.Wait;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +20,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+
+import static java.util.Objects.isNull;
 
 public class Daemon {
 
@@ -60,6 +58,12 @@ public class Daemon {
         LOG.info("Welcome to 1M5. Initializing...");
         Thread.currentThread().setName("1M5-Thread");
         LOG.info("Thread name: " + Thread.currentThread().getName());
+
+        String passphrase = System.getenv("1m5.pass");
+        if(isNull(passphrase)) {
+            LOG.severe("Passphrase in environment variable 1m5.pass required.");
+            System.exit(-1);
+        }
 
         status = Status.Starting;
 
@@ -191,7 +195,6 @@ public class Daemon {
             bus.registerService(MailDropService.class.getName(), config);
             bus.registerService(NotificationService.class.getName(), config);
             bus.registerService(DIDService.class.getName(), config);
-            bus.registerService(KeyRingService.class.getName(), config);
             // Networking Services
             bus.registerService(NetworkManagerService.class.getName(), config);
             // TODO: Upgrade to CR Network Manager Service
@@ -205,8 +208,8 @@ public class Daemon {
 //            bus.registerService(LiFiService.class.getName(), config);
             // Additional Services
 //            bus.registerService(PFIScraperService.class.getName(), config);
-            bus.registerService(BitcoinService.class.getName(), config);
-            bus.registerService(DEXService.class.getName(), config);
+//            bus.registerService(BitcoinService.class.getName(), config);
+//            bus.registerService(DEXService.class.getName(), config);
         } catch (ServiceNotAccessibleException e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
@@ -219,41 +222,28 @@ public class Daemon {
         bus.startService(MailDropService.class.getName());
         bus.startService(NotificationService.class.getName());
         bus.startService(DIDService.class.getName());
-        bus.startService(KeyRingService.class.getName());
         bus.startService(NetworkManagerService.class.getName());
         bus.startService(HTTPService.class.getName()); // for localhost
 //        bus.startService(TORClientService.class.getName());
-        bus.startService(I2PService.class.getName());
+//        bus.startService(I2PService.class.getName());
 //        bus.startService(BluetoothService.class.getName());
 
         // Start available services
         Wait.aSec(1);
-        bus.startService(BitcoinService.class.getName());
+//        bus.startService(BitcoinService.class.getName());
         Wait.aSec(1);
-        bus.startService(DEXService.class.getName());
+//        bus.startService(DEXService.class.getName());
 
-//        Envelope e = Envelope.documentFactory();
-//        e.addRoute(BitcoinService.class.getName(), BitcoinService.OPERATION_RPC_REQUEST);
-        // Send to establish initial info
-//        e.addNVP(RPCCommand.NAME, new GetBlockchainInfo());
-//        e.addNVP(RPCCommand.NAME, new Uptime());
-//        e.addNVP(RPCCommand.NAME, new GetNetworkHashPS());
-//        e.addNVP(RPCCommand.NAME, new ListWallets());
-//        e.addNVP(RPCCommand.NAME, new EstimateSmartFee(3));
-//        e.addNVP(RPCCommand.NAME, new GetBlockCount());
-//        e.addNVP(RPCCommand.NAME, new GetNewAddress());
-//        e.addNVP(RPCCommand.NAME, new CreateWallet("Personal","1234"));
-//        e.addNVP(RPCCommand.NAME, new LoadWallet("Personal"));
-//        e.addNVP(RPCCommand.NAME, new UnloadWallet("Personal"));
-//        e.addNVP(RPCCommand.NAME, new GetWalletInfo());
-//        e.addNVP(RPCCommand.NAME, new GetBalance());
-
-//        e.addNVP(RPCCommand.NAME, new GetPeerInfo());
-//        e.addNVP(RPCCommand.NAME, new GetNetworkInfo());
-
-//        bus.send(e);
-
-//        LOG.info(((RPCResponse)e.getValue(RPCCommand.RESPONSE)).toJSON());
+        // Ensure Node DID exists
+        Envelope e = Envelope.documentFactory();
+        GenerateKeyRingCollectionsRequest gkrcRequest = new GenerateKeyRingCollectionsRequest();
+        gkrcRequest.keyRingUsername = "1M5";
+        gkrcRequest.keyRingPassphrase = passphrase;
+        gkrcRequest.keyRingImplementation = OpenPGPKeyRing.class.getName();
+        gkrcRequest.type = DID.Type.NODE;
+        e.addData(GenerateKeyRingCollectionsRequest.class, gkrcRequest);
+        e.addRoute(DIDService.class.getName(), DIDService.OPERATION_GENERATE_KEY_RINGS_COLLECTIONS);
+        bus.send(e);
 
         status = Status.Running;
 
