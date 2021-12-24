@@ -40,17 +40,6 @@
 	</repositories>
 
 	<dependencies>
-        <!-- Neo4j DB -->
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j</artifactId>
-            <version>3.5.14</version>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-cypher</artifactId>
-            <version>3.5.14</version>
-        </dependency>
         <!-- Resolving Architecture -->
 		<dependency>
 			<groupId>resolvingarchitecture</groupId>
