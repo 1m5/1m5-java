@@ -84,6 +84,35 @@ networks, using them intelligently as one dynamic censorship-resistant, end-to-e
 self-sovereign decentralized identities (DID), Bitcoin, and other privacy preserving services.
 3. Provides easy to use APIs for developers to embed in their applications to facilitate up-take.
 
+### Features
+
+#### General
+* **Not a Company or Centralized Corporation**: 1M5 repeatedly emphasizes the fact that it isn’t a company. It’s just code. 1M5 is not incorporated, and it’s not centralized in any location. It’s a decentralized entity that cannot be shut down. As long as at least two peers are running the 1M5 software, two people can communicate with 1M5.
+* **Open Platform**: Runs as a Java service that can be deployed to any environment supporting Java 1.8.
+* **Open Source**: source code is fully available for anyone to check online.
+* **P2P Exchange**: its peer-to-peer network includes everyone running 1M5 software. You connect to this P2P network automatically when starting up 1M5 service.
+* **Tor Support**: automatically connects to the Tor network on startup and all requests to HTTP sites are encrypted end-to-end and routed over Tor.
+* **I2P Support**: automatically connects to the I2P network on startup and all peer-to-peer requests are encrypted end-to-end and routed over I2P.
+* **Bluetooth Support**: automatically connects when Bluetooth is discovered to be turned on. Is used when Tor and I2P are not available.
+* **Private**: Nobody except individual users can exchange personally identifying data and it can only be done voluntarily - code is not allowed to do it without end users permission. All personal data is stored locally on a drive that you bring or locally on your computer if you do not bring any.
+* **Decentralized**: 1M5’s P2P network is decentralized with no single point of failure. Unlike centralized applications that can be shut down, 1M5 is a peer-to-peer network distributed and decentralized around the world.
+
+#### DEX
+* **Non-Custodial**: the DEX never holds your funds. It contains a non-custodial exchange platform supporting the simple swapping of Bitcoin using 2-2 multisig Bitcoin escrows with other users.
+* **Self-arbitration system**: DEX arbitration relies on both parties to resolve otherwise no resolution takes place.
+* **Security Deposits**: No security deposits required as the precludes people from initial usage.
+* **No Marketplace Trading**: to simplify the exchange, market prices determined from average of external pricing sources, no trading supported.
+* **Automatic Order Matching**: the DEX automatically matches requests speeding up transactions.
+* **Mobile Apps**: Android in progress, Linux Mobile in future.
+* **Out Of Band Fiat Payments**: The DEX does not directly integrate with banks or other national currency payment systems in any way. Instead, the DEX’s trading protocol allows buyers and sellers to settle fiat payments outside the DEX application (say, by completing a bank transfer).
+* **Buy Crypto With Bank Transfers**: Because the DEX arranges out of band fiat payments, you can use the DEX to buy crypto with bank transfers. Depending on your national currency, you should be able to find requests from people willing to accept national bank transfers in exchange for bitcoin, e.g. US citizens can find sellers willing to use Zelle, for example, while Europeans can use Revolut.
+* **No Registration or Identity Verification Required**: the DEX lets you trade cryptocurrency with no registration or centralized identity verification required. Unlike a centralized exchange, you don’t have to verify your identity with some centralized server.
+* **Escrow System with 2-of-2 Multi-Sig**: the DEX uses an escrow system that locks funds in a 2-of-2 multi-signature address. This ensures that the buyer and seller need to approve the transaction for funds to be released.
+* **Transaction Fees Go to Developers**: the DEX’s transaction fees go to developers to further build and maintain the application.
+* **Cheap Fees**: fees are necessary for protection against request spam, market manipulation and identity harvesting. It costs a small amount of BTC to make an exchange request, the only fee you pay with 1M5.
+* **Available Anywhere in the World**: the DEX is anonymous exchange software that uses the I2P protocol. It can be used anywhere in the world. However, 1M5’s developers recommend using caution if exchanging bitcoin in parts of the world where bitcoin is illegal. Ensure the 1M5 situational awareness is set to the appropriate level of expected threat.
+* **Exchange Limits**: the DEX applies limits of BTC per trade to reduce the risk of unethical activity on the platform. However, these limits could be raised in the future. Certain payment methods may also have lower limits. Generally, payment limits on the DEX are quite low to discourage use of the platform for unethical activity.
+
 ### Routing
 
 We provide a Maneuvering Condition (ManCon) setting to signal what level of maneuvering is likely required to prevent censorship.
