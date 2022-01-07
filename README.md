@@ -87,7 +87,7 @@ self-sovereign decentralized identities (DID), Bitcoin, and other privacy preser
 ### Features
 
 #### General
-* **Not a Company or Centralized Corporation**: 1M5 repeatedly emphasizes the fact that it isn’t a company. It’s just code. 1M5 is not incorporated, and it’s not centralized in any location. It’s a decentralized entity that cannot be shut down. As long as at least two peers are running the 1M5 software, two people can communicate with 1M5.
+* **Not a Company or Centralized Corporation**: 1M5 repeatedly emphasizes the fact that it isn’t a company. It’s just code. 1M5 is not incorporated, and it’s not centralized in any location. It’s a decentralized mission that cannot be shut down. As long as at least two peers are running the 1M5 software, two people can communicate with 1M5.
 * **Open Platform**: Runs as a Java service that can be deployed to any environment supporting Java 1.8.
 * **Open Source**: source code is fully available for anyone to check online.
 * **P2P Exchange**: its peer-to-peer network includes everyone running 1M5 software. You connect to this P2P network automatically when starting up 1M5 service.
