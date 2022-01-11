@@ -10,7 +10,7 @@ and censorship.
 
 ## Version
 
-0.6.6
+2.6
 
 ## Licensing
 
