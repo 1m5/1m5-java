@@ -1,9 +1,11 @@
 package onemfive;
 
+import ra.btc.BitcoinService;
 import ra.common.*;
 import ra.common.identity.DID;
 import ra.common.service.ServiceNotAccessibleException;
 import ra.common.service.ServiceNotSupportedException;
+import ra.dex.DEXService;
 import ra.did.DIDService;
 import ra.did.GenerateKeyRingCollectionsRequest;
 import ra.did.OpenPGPKeyRing;
@@ -208,8 +210,8 @@ public class Daemon {
 //            bus.registerService(LiFiService.class.getName(), config);
             // Additional Services
 //            bus.registerService(PFIScraperService.class.getName(), config);
-//            bus.registerService(BitcoinService.class.getName(), config);
-//            bus.registerService(DEXService.class.getName(), config);
+            bus.registerService(BitcoinService.class.getName(), config);
+            bus.registerService(DEXService.class.getName(), config);
         } catch (ServiceNotAccessibleException e) {
             LOG.severe(e.getLocalizedMessage());
             System.exit(-1);
@@ -230,9 +232,9 @@ public class Daemon {
 
         // Start available services
         Wait.aSec(1);
-//        bus.startService(BitcoinService.class.getName());
+        bus.startService(BitcoinService.class.getName());
         Wait.aSec(1);
-//        bus.startService(DEXService.class.getName());
+        bus.startService(DEXService.class.getName());
 
         // Ensure Node DID exists
         Envelope e = Envelope.documentFactory();
@@ -240,7 +242,7 @@ public class Daemon {
         gkrcRequest.keyRingUsername = "1M5";
         gkrcRequest.keyRingPassphrase = passphrase;
         gkrcRequest.keyRingImplementation = OpenPGPKeyRing.class.getName();
-        gkrcRequest.type = DID.Type.NODE;
+        gkrcRequest.type = DID.DIDType.NODE.name();
         e.addData(GenerateKeyRingCollectionsRequest.class, gkrcRequest);
         e.addRoute(DIDService.class.getName(), DIDService.OPERATION_GENERATE_KEY_RINGS_COLLECTIONS);
         bus.send(e);
