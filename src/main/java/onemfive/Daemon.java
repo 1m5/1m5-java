@@ -1,5 +1,7 @@
 package onemfive;
 
+import onemfive.routing.CRNetworkManagerService;
+import ra.bluetooth.BluetoothService;
 import ra.btc.BitcoinService;
 import ra.common.*;
 import ra.common.identity.DID;
@@ -15,6 +17,7 @@ import ra.maildrop.MailDropService;
 import ra.networkmanager.NetworkManagerService;
 import ra.notification.NotificationService;
 import ra.servicebus.ServiceBus;
+import ra.tor.TORClientService;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -198,13 +201,13 @@ public class Daemon {
             bus.registerService(NotificationService.class.getName(), config);
             bus.registerService(DIDService.class.getName(), config);
             // Networking Services
-            bus.registerService(NetworkManagerService.class.getName(), config);
+//            bus.registerService(NetworkManagerService.class.getName(), config);
             // TODO: Upgrade to CR Network Manager Service
-//            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
+            bus.registerService(NetworkManagerService.class.getName(), CRNetworkManagerService.class.getName(), config);
             bus.registerService(HTTPService.class.getName(), config);
-//            bus.registerService(TORClientService.class.getName(), config);
+            bus.registerService(TORClientService.class.getName(), config);
             bus.registerService(I2PService.class.getName(), config);
-//            bus.registerService(BluetoothService.class.getName(), config);
+            bus.registerService(BluetoothService.class.getName(), config);
 //            bus.registerService(WiFiDirectNetwork.class.getName(), config);
 //            bus.registerService(GNURadioService.class.getName(), config);
 //            bus.registerService(LiFiService.class.getName(), config);
@@ -226,9 +229,9 @@ public class Daemon {
         bus.startService(DIDService.class.getName());
         bus.startService(NetworkManagerService.class.getName());
         bus.startService(HTTPService.class.getName()); // for localhost
-//        bus.startService(TORClientService.class.getName());
-//        bus.startService(I2PService.class.getName());
-//        bus.startService(BluetoothService.class.getName());
+        bus.startService(TORClientService.class.getName());
+        bus.startService(I2PService.class.getName());
+        bus.startService(BluetoothService.class.getName());
 
         // Start available services
         Wait.aSec(1);
